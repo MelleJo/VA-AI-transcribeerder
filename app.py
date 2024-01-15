@@ -21,7 +21,7 @@ if uploaded_file is not None:
     if st.button('Transcribe'):
         # Speechmatics setup using secrets
         AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
-        LANGUAGE = "en"
+        LANGUAGE = "nl"
 
         settings = ConnectionSettings(
             url="https://asr.api.speechmatics.com/v2",
