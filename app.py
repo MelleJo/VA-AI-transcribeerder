@@ -32,7 +32,12 @@ if uploaded_file is not None:
             "type": "transcription",
             "transcription_config": {
                 "language": LANGUAGE,
+                "operating_point": "enhanced"
                 "enable_entities": True,
+                "diarization": "speaker",
+                "speaker_diarization_config": {
+                    "speaker_sensitivity": 0.2
+                }
             },
         }
 
