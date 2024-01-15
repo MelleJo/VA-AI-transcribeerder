@@ -64,3 +64,7 @@ if uploaded_file is not None:
 # Editable Text Area
 if st.session_state['transcript']:
     edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
+      if st.button('Save Edited Text'):
+        st.session_state['saved_text'] = edited_text
+        st.success("Text saved successfully!")
+        
