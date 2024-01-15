@@ -8,8 +8,13 @@ import os
 st.title('Speech to Text Transcription')
 uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
 if uploaded_file is not None:
-    # Save the file to a temporary directory
-    temp_path = os.path.join("temp", uploaded_file.name)
+    # Create a temp directory if it doesn't exist
+    temp_dir = "temp"
+    os.makedirs(temp_dir, exist_ok=True)
+
+    temp_path = os.path.join(temp_dir, uploaded_file.name)
+
+    # Save the file to the temp directory
     with open(temp_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
