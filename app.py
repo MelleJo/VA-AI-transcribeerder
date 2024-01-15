@@ -7,11 +7,15 @@ import os
 # Streamlit interface
 st.title('Speech to Text Transcription')
 uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
+
+# Initialize or reset the transcript in session state
+if 'transcript' not in st.session_state or st.button('Discard Changes'):
+    st.session_state['transcript'] = ''
+
 if uploaded_file is not None:
     # Create a temp directory if it doesn't exist
     temp_dir = "temp"
     os.makedirs(temp_dir, exist_ok=True)
-
     temp_path = os.path.join(temp_dir, uploaded_file.name)
 
     # Save the file to the temp directory
@@ -48,10 +52,15 @@ if uploaded_file is not None:
                 )
                 st.write(f"Job {job_id} submitted successfully, waiting for transcript")
 
-                transcript = client.wait_for_completion(job_id, transcription_format="txt")
-                st.text_area("Transcript", transcript, height=300)
+                # Store the transcript in session state
+                st.session_state['transcript'] = client.wait_for_completion(job_id, transcription_format="txt")
+
             except HTTPStatusError as e:
                 st.error("Error during transcription: " + str(e))
 
             # Clean up temporary file
             os.remove(temp_path)
+
+# Editable Text Area
+if st.session_state['transcript']:
+    edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
