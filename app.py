@@ -6,9 +6,9 @@ import os
 import openai
 
 def generate_summary(text):
-     openai.api_key = st.secrets["openai"]["api_key"]
+    openai.api_key = st.secrets["openai"]["api_key"]
 
-      response = openai.Completion.create(
+    response = openai.Completion.create(
         model="gpt-3.5-turbo",
         prompt=f"Summarize this text:\n\n{text}",
         temperature=0.7,
