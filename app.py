@@ -3,7 +3,7 @@ from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
-import openai
+from openai import OpenAI
 
 def generate_summary(text):
     openai.api_key = st.secrets["openai"]["api_key"]
