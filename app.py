@@ -33,7 +33,7 @@ if uploaded_file is not None:
             "transcription_config": {
                 "language": LANGUAGE,
                 "operating_point": "enhanced"
-                "enable_entities": True,
+                "enable_entities": "True",
                 "diarization": "speaker",
                 "speaker_diarization_config": {
                     "speaker_sensitivity": 0.2
