@@ -6,11 +6,11 @@ from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
 
-OPENAI_API_KEY = st.secrets["openai"]["api_key"]
-openai.api_key = OPENAI_API_KEY
+#OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+#openai.api_key = OPENAI_API_KEY
 
 client = OpenAI(
-    OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+    api_key=st.secrets["openai"]["api_key"]
 )
 
 # Function to summarize text using GPT-3.5
