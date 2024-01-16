@@ -68,9 +68,3 @@ if st.session_state['transcript']:
     if st.button('Save Edited Text'):
         st.session_state['saved_text'] = edited_text
         st.success("Text saved successfully!")
-
-# Button to generate summary
-if 'saved_text' in st.session_state and st.button('Generate Summary'):
-    summary = generate_summary(st.session_state['saved_text'])
-    st.text_area("Summary", summary, height=150)
-        
