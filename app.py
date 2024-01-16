@@ -1,18 +1,19 @@
 import streamlit as st
 import openai  # Import OpenAI's library
-from openai import OpenAI
+#from openai import OpenAI
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
 
+OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 client = OpenAI()
 
-OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+
 
 # Function to summarize text using GPT-3.5
 def summarize_text(text):
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
