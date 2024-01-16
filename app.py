@@ -3,20 +3,6 @@ from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
-import openai
-from openai import OpenAI
-
-def generate_summary(text):
-    openai.api_key = st.secrets["openai"]["api_key"]
-
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo",
-        prompt=f"Summarize this text:\n\n{text}",
-        temperature=0.7,
-    )
-    return response.choices[0].text.strip()
-    
-
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
