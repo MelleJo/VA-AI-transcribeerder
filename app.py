@@ -15,7 +15,7 @@ def generate_response(txt, openai_api_key):
     texts = text_splitter.split_text(txt)
     docs = [Document(page_content=t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
-    return chain.run(docs)
+    return chain.invoke(docs)
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
