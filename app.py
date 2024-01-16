@@ -10,15 +10,12 @@ import os
 
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Preprocess the text to replace speaker labels with user-defined names
-    txt = txt.replace('SPEAKER: S1', speaker1).replace('SPEAKER: S2', speaker2)
-
-    # Custom prompt template for phone call summary in Dutch
+    # Custom prompt template for structured summary in Dutch
     prompt_template = (
-        f"Samenvatting van een telefoongesprek over {subject}:\n"
-        "Discussiepunten:\n- {discussion_points}\n"
-        "Besluiten en adviezen:\n- {decisions}\n"
-        "Actiepunten:\n- {action_items}\n"
+        f"Samenvatting van een telefoongesprek:\n"
+        f"Onderwerp: {subject}\n"
+        "Belangrijke punten:\n{key_points}\n"
+        "Actiepunten:\n{action_items}\n"
         "Samenvatting:\n"
     )
 
@@ -26,11 +23,26 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(txt)
 
-    # Create multiple documents with custom prompt
-    docs = [Document(page_content=prompt_template.format(discussion_points="", decisions="", action_items="") + t) for t in texts]
-
+    docs = [Document(page_content=prompt_template.format(key_points="", action_items="") + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
-    return chain.invoke(docs)
+
+    output = chain.invoke(docs)
+    return post_process_summary(output, speaker1, speaker2)
+
+def post_process_summary(summary, speaker1, speaker2):
+    # Example processing - this needs to be adjusted based on real data
+    processed_summary = summary.replace(speaker1, 'Werknemer').replace(speaker2, 'Klant/Collega')
+    
+    # Extract action points - example pattern, adjust as needed
+    action_points = "Geen"  # Default if no action points are detected
+    if "actie" in processed_summary.lower():
+        action_points = "Some extracted action points"  # Replace with actual extraction logic
+
+    # Structure the summary
+    structured_summary = f"Samenvatting:\n{processed_summary}\nActiepunten: {action_points}"
+
+    return structured_summary
+
 
 
 
