@@ -10,13 +10,14 @@ OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 # Function to summarize text using GPT-3.5
 def summarize_text(text):
     openai.api_key = OPENAI_API_KEY
-    response = openai.Completion.create(
-      engine="gpt-3.5-turbo",  # Replace with the specific model version if necessary
-      prompt="Samenvat de volgende Nederlandse tekst kort samen: \n" + text,
-      temperature=0.7,
-      max_tokens=150  # Adjust based on how long you want the summary to be
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # Replace with the specific model version if necessary
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Samenvat de volgende Nederlandse tekst kort samen: " + text}
+        ]
     )
-    return response.choices[0].text.strip()
+    return response['choices'][0]['message']['content']
 
 # Button to trigger summarization
 if st.button('Summarize Transcript'):
