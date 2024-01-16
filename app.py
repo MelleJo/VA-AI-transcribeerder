@@ -25,12 +25,11 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     docs = [Document(page_content=prompt_template.format(key_points="", action_items="") + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
 
-    output = chain.run(docs)
-
-    # Extract the summary text from the output dictionary
-    summary_text = output.get('output_text', '')
-
-    return post_process_summary(summary_text, speaker1, speaker2)
+    try:
+        summary_text = chain.run(docs)  # Directly use the output as the summary text
+        return post_process_summary(summary_text, speaker1, speaker2)
+    except Exception as e:
+        return f"Error during summarization: {str(e)}"
 
 def post_process_summary(summary_text, speaker1, speaker2):
     # Replace speaker names with specified roles
