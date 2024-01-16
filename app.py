@@ -1,6 +1,6 @@
 import streamlit as st
 import openai  # Import OpenAI's library
-#from openai import OpenAI
+from openai import OpenAI
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
