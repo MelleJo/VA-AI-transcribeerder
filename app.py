@@ -29,32 +29,45 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
         summary_text = chain.run(docs)
         if not summary_text.strip():
             return "Samenvatting niet beschikbaar"
-        return post_process_summary(summary_text, speaker1, speaker2)
+        return post_process_summary(summary_text, speaker1, speaker2, subject)
     except Exception as e:
         return f"Error during summarization: {str(e)}"
 
-def post_process_summary(summary_text, speaker1, speaker2):
-    # Replace speaker names with specified roles
-    processed_summary = summary_text.replace(speaker1, 'Werknemer').replace(speaker2, 'Klant/Collega')
+
+def post_process_summary(summary_text, speaker1, speaker2, subject):
+    # Replace speaker names with specified roles in Dutch
+    processed_summary = summary_text.replace('Speaker 1', speaker1).replace('Speaker 2', speaker2)
 
     # Extract action points - here, add your logic for extracting action points
     action_points = "Geen"  # Default if no action points are detected
 
-    # Structure the summary
-    structured_summary = f"Onderwerp: {subject}\nWerknemer: {speaker1}\nKlant/Collega: {speaker2}\n{processed_summary}\nActiepunten: {action_points}"
+    # Structure the summary in Dutch
+    structured_summary = f"Onderwerp: {subject}\nWerknemer: {speaker1}\nGesprekspartner: {speaker2}\n{processed_summary}\nActiepunten: {action_points}"
 
     return structured_summary
 
 
+
+
 # Streamlit interface
 st.title('Speech to Text Transcription')
-speaker1 = st.text_input("Name of Speaker 1 (S1)", "User")
-speaker2 = st.text_input("Name of Speaker 2 (S2)", "Client")
-subject = st.text_input("Subject of the Call", "Adviesgesprek")
 uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
 
 if 'transcript' not in st.session_state or st.button('Discard Changes'):
     st.session_state['transcript'] = ''
+
+# Display transcript and allow the user to assign names after transcription
+if 'transcript' in st.session_state and st.session_state['transcript']:
+    st.text_area("Transcript", st.session_state['transcript'], height=300)
+    speaker1 = st.text_input("Naam voor Spreker 1 (S1)")
+    speaker2 = st.text_input("Naam voor Spreker 2 (S2)")
+    subject = st.text_input("Onderwerp van het gesprek")
+
+    # Button to trigger summarization
+    if st.button('Summarize Transcript'):
+        summary = generate_response(st.session_state['transcript'], speaker1, speaker2, subject, OPENAI_API_KEY)
+        st.session_state['summary'] = summary
+        st.text_area("Summary", summary, height=150)
 
 if uploaded_file is not None:
     temp_dir = "temp"
