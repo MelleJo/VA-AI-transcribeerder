@@ -12,8 +12,7 @@ import os
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Custom prompt template for structured summary in Dutch
     prompt_template = (
-        f"Samenvatting van een telefoongesprek:\n"
-        f"Onderwerp: {subject}\n"
+        f"Samenvatting van een telefoongesprek over {subject}:\n"
         "Belangrijke punten:\n{key_points}\n"
         "Actiepunten:\n{action_items}\n"
         "Samenvatting:\n"
@@ -26,25 +25,30 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     docs = [Document(page_content=prompt_template.format(key_points="", action_items="") + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
 
-    output = chain.invoke(docs)
-    return post_process_summary(output, speaker1, speaker2)
+    output = chain.run(docs)
 
-def post_process_summary(summary, speaker1, speaker2):
-    # Example processing - this needs to be adjusted based on real data
-    processed_summary = summary.replace(speaker1, 'Werknemer').replace(speaker2, 'Klant/Collega')
-    
-    # Extract action points - example pattern, adjust as needed
-    action_points = "Geen"  # Default if no action points are detected
-    if "actie" in processed_summary.lower():
-        action_points = "Some extracted action points"  # Replace with actual extraction logic
+    # Extract the summary text from the output dictionary
+    summary_text = output.get('output_text', '')
 
-    # Structure the summary
-    structured_summary = f"Samenvatting:\n{processed_summary}\nActiepunten: {action_points}"
+    return post_process_summary(summary_text, speaker1, speaker2)
 
-    return structured_summary
+def post_process_summary(summary_text, speaker1, speaker2):
+    # Replace speaker names with specified roles
+    processed_summary = summary_text.replace(speaker1, 'Werknemer').replace(speaker2, 'Klant/Collega')
 
+    # Simple logic to extract action points; refine this based on your data
+    action_points_start = processed_summary.find("Actiepunten:")
+    action_points_end = processed_summary.find("Samenvatting:", action_points_start)
+    action_points = "Geen"
+    if action_points_start != -1 and action_points_end != -1:
+        extracted_points = processed_summary[action_points_start + len("Actiepunten:"):action_points_end].strip()
+        action_points = extracted_points if extracted_points else "Geen"
 
+    # Extract and structure the summary
+    summary_start = processed_summary.find("Samenvatting:")
+    structured_summary = processed_summary[summary_start:] if summary_start != -1 else "Samenvatting niet beschikbaar"
 
+    return f"Onderwerp: {subject}\nWerknemer: {speaker1}\nKlant/Collega: {speaker2}\n{structured_summary}\nActiepunten: {action_points}"
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
