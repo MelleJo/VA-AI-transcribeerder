@@ -1,44 +1,43 @@
 import streamlit as st
 from langchain.chains.summarize import load_summarize_chain
 from langchain_openai import ChatOpenAI
+from langchain.docstore.document import Document
+from langchain.text_splitter import CharacterTextSplitter
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
 
-# Initialize Langchain with OpenAI's GPT-3.5
-OPENAI_API_KEY = st.secrets["openai"]["api_key"]
-llm = ChatOpenAI(api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo-1106")
-summarize_chain = load_summarize_chain(llm, chain_type="stuff")
+# Function to generate response for summarization
+def generate_response(txt, openai_api_key):
+    llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
+    text_splitter = CharacterTextSplitter()
+    texts = text_splitter.split_text(txt)
+    docs = [Document(page_content=t) for t in texts]
+    chain = load_summarize_chain(llm, chain_type='map_reduce')
+    return chain.run(docs)
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
 uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
 
-# Initialize or reset the transcript in session state
 if 'transcript' not in st.session_state or st.button('Discard Changes'):
     st.session_state['transcript'] = ''
 
 if uploaded_file is not None:
-    # Create a temp directory if it doesn't exist
     temp_dir = "temp"
     os.makedirs(temp_dir, exist_ok=True)
     temp_path = os.path.join(temp_dir, uploaded_file.name)
-
-    # Save the file to the temp directory
     with open(temp_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
     if st.button('Transcribe'):
-        # Speechmatics setup using secrets
         AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
         LANGUAGE = "nl"
-
         settings = ConnectionSettings(
             url="https://asr.api.speechmatics.com/v2",
             auth_token=AUTH_TOKEN,
         )
-
         conf = {
             "type": "transcription",
             "transcription_config": {
@@ -57,30 +56,27 @@ if uploaded_file is not None:
                     audio=temp_path,
                     transcription_config=conf,
                 )
-                st.write(f"Job {job_id} submitted successfully, waiting for transcript")
-
-                # Store the transcript in session state
                 st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
-
             except HTTPStatusError as e:
                 st.error("Error during transcription: " + str(e))
-
-            # Clean up temporary file
             os.remove(temp_path)
+
+# Editable Text Area
+edited_text = st.text_area("Edit Transcript", st.session_state.get('transcript', ''), height=300)
 
 # Button to trigger summarization
 if st.button('Summarize Transcript'):
-    if st.session_state['transcript']:
-        summary = summarize_chain.run([st.session_state['transcript']])
+    if edited_text:
+        summary = generate_response(edited_text, st.secrets["openai"]["api_key"])
         st.session_state['summary'] = summary
         st.text_area("Summary", summary, height=150)
     else:
         st.warning("Please transcribe a file first before summarizing.")
 
-# Editable Text Area
-if st.session_state['transcript']:
-    edited_text = st.text_area("Edit Transcript",
-    st.session_state['transcript'], height=300)
-    if st.button('Save Edited Text'):
-        st.session_state['saved_text'] = edited_text
-        st.success("Text saved successfully!")
+# Display saved edited text
+if 'saved_text' in st.session_state:
+    st.text_area("Saved Edited Text", st.session_state['saved_text'], height=300)
+
+if st.button('Save Edited Text'):
+    st.session_state['saved_text'] = edited_text
+    st.success("Text saved successfully!")
