@@ -9,12 +9,12 @@ from httpx import HTTPStatusError
 import os
 
 # Function to generate response for summarization
-def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+ddef generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Custom prompt template for structured summary in Dutch
     prompt_template = (
         f"Samenvatting van een telefoongesprek over {subject}:\n"
-        "Belangrijke punten:\n{key_points}\n"
-        "Actiepunten:\n{action_items}\n"
+        "Belangrijke punten:\n- \n"
+        "Actiepunten:\n- \n"
         "Samenvatting:\n"
     )
 
@@ -22,11 +22,13 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(txt)
 
-    docs = [Document(page_content=prompt_template.format(key_points="", action_items="") + t) for t in texts]
+    docs = [Document(page_content=prompt_template + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
 
     try:
-        summary_text = chain.run(docs)  # Directly use the output as the summary text
+        summary_text = chain.run(docs)
+        if not summary_text.strip():
+            return "Samenvatting niet beschikbaar"
         return post_process_summary(summary_text, speaker1, speaker2)
     except Exception as e:
         return f"Error during summarization: {str(e)}"
@@ -35,19 +37,14 @@ def post_process_summary(summary_text, speaker1, speaker2):
     # Replace speaker names with specified roles
     processed_summary = summary_text.replace(speaker1, 'Werknemer').replace(speaker2, 'Klant/Collega')
 
-    # Simple logic to extract action points; refine this based on your data
-    action_points_start = processed_summary.find("Actiepunten:")
-    action_points_end = processed_summary.find("Samenvatting:", action_points_start)
-    action_points = "Geen"
-    if action_points_start != -1 and action_points_end != -1:
-        extracted_points = processed_summary[action_points_start + len("Actiepunten:"):action_points_end].strip()
-        action_points = extracted_points if extracted_points else "Geen"
+    # Extract action points - here, add your logic for extracting action points
+    action_points = "Geen"  # Default if no action points are detected
 
-    # Extract and structure the summary
-    summary_start = processed_summary.find("Samenvatting:")
-    structured_summary = processed_summary[summary_start:] if summary_start != -1 else "Samenvatting niet beschikbaar"
+    # Structure the summary
+    structured_summary = f"Onderwerp: {subject}\nWerknemer: {speaker1}\nKlant/Collega: {speaker2}\n{processed_summary}\nActiepunten: {action_points}"
 
-    return f"Onderwerp: {subject}\nWerknemer: {speaker1}\nKlant/Collega: {speaker2}\n{structured_summary}\nActiepunten: {action_points}"
+    return structured_summary
+
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
