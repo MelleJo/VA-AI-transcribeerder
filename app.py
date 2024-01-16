@@ -9,12 +9,15 @@ from httpx import HTTPStatusError
 import os
 
 # Function to generate response for summarization
-def generate_response(txt, openai_api_key):
+def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    # Preprocess the text to replace speaker labels with user-defined names
+    txt = txt.replace('SPEAKER: S1', speaker1).replace('SPEAKER: S2', speaker2)
+
     # Custom prompt template for phone call summary in Dutch
     prompt_template = (
-        "Samenvatting van een klantenservice telefoongesprek voor een verzekeringsbemiddelaar:\n"
-        "Belangrijkste vragen van de klant:\n- {questions}\n"
-        "Gegeven advies en beslissingen:\n- {advice}\n"
+        f"Samenvatting van een telefoongesprek over {subject}:\n"
+        "Discussiepunten:\n- {discussion_points}\n"
+        "Besluiten en adviezen:\n- {decisions}\n"
         "Actiepunten:\n- {action_items}\n"
         "Samenvatting:\n"
     )
@@ -22,16 +25,20 @@ def generate_response(txt, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(txt)
-    
+
     # Create multiple documents with custom prompt
-    docs = [Document(page_content=prompt_template.format(questions="", advice="", action_items="") + t) for t in texts]
-    
+    docs = [Document(page_content=prompt_template.format(discussion_points="", decisions="", action_items="") + t) for t in texts]
+
     chain = load_summarize_chain(llm, chain_type='map_reduce')
     return chain.invoke(docs)
 
 
+
 # Streamlit interface
 st.title('Speech to Text Transcription')
+speaker1 = st.text_input("Name of Speaker 1 (S1)", "User")
+speaker2 = st.text_input("Name of Speaker 2 (S2)", "Client")
+subject = st.text_input("Subject of the Call", "Adviesgesprek")
 uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
 
 if 'transcript' not in st.session_state or st.button('Discard Changes'):
@@ -77,14 +84,16 @@ if uploaded_file is not None:
 # Editable Text Area
 edited_text = st.text_area("Edit Transcript", st.session_state.get('transcript', ''), height=300)
 
+
 # Button to trigger summarization
 if st.button('Summarize Transcript'):
     if edited_text:
-        summary = generate_response(edited_text, st.secrets["openai"]["api_key"])
+        summary = generate_response(edited_text, speaker1, speaker2, subject, st.secrets["openai"]["api_key"])
         st.session_state['summary'] = summary
         st.text_area("Summary", summary, height=150)
     else:
         st.warning("Please transcribe a file first before summarizing.")
+
 
 # Display saved edited text
 if 'saved_text' in st.session_state:
