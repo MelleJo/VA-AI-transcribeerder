@@ -9,7 +9,10 @@ import os
 OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 openai.api_key = OPENAI_API_KEY
 
-client = OpenAI
+client = OpenAI(
+    OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+    api_key = OPENAI_API_KEY
+)
 
 # Function to summarize text using GPT-3.5
 def summarize_text(text):
