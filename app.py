@@ -9,7 +9,7 @@ from httpx import HTTPStatusError
 import os
 
 # Function to generate response for summarization
-ddef generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Custom prompt template for structured summary in Dutch
     prompt_template = (
         f"Samenvatting van een telefoongesprek over {subject}:\n"
