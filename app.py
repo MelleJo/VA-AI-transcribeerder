@@ -10,12 +10,25 @@ import os
 
 # Function to generate response for summarization
 def generate_response(txt, openai_api_key):
+    # Custom prompt template for phone call summary in Dutch
+    prompt_template = (
+        "Samenvatting van een klantenservice telefoongesprek voor een verzekeringsbemiddelaar:\n"
+        "Belangrijkste vragen van de klant:\n- {questions}\n"
+        "Gegeven advies en beslissingen:\n- {advice}\n"
+        "Actiepunten:\n- {action_items}\n"
+        "Samenvatting:\n"
+    )
+
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(txt)
-    docs = [Document(page_content=t) for t in texts]
+    
+    # Create multiple documents with custom prompt
+    docs = [Document(page_content=prompt_template.format(questions="", advice="", action_items="") + t) for t in texts]
+    
     chain = load_summarize_chain(llm, chain_type='map_reduce')
     return chain.invoke(docs)
+
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
