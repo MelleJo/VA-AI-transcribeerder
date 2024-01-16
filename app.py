@@ -1,33 +1,15 @@
 import streamlit as st
-import openai  # Import OpenAI's library
-from openai import OpenAI
+from langchain.chains.summarize import load_summarize_chain
+from langchain_openai import ChatOpenAI
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError 
 import os
 
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-
-
-# Function to summarize text using GPT-3.5
-def summarize_text(text):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Samenvat de volgende Nederlandse tekst kort samen: " + text}
-        ]
-    )
-    return response['choices'][0]['message']['content']
-
-# Button to trigger summarization
-if st.button('Summarize Transcript'):
-    if st.session_state['transcript']:
-        summary = summarize_text(st.session_state['transcript'])
-        st.session_state['summary'] = summary
-        st.text_area("Summary", summary, height=150)
-    else:
-        st.warning("Please transcribe a file first before summarizing.")
+# Initialize Langchain with OpenAI's GPT-3.5
+OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+llm = ChatOpenAI(api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo-1106")
+summarize_chain = load_summarize_chain(llm, chain_type="stuff")
 
 # Streamlit interface
 st.title('Speech to Text Transcription')
@@ -69,16 +51,16 @@ if uploaded_file is not None:
             },
         }
 
-        with BatchClient(settings) as client:
+        with BatchClient(settings) as speech_client:
             try:
-                job_id = client.submit_job(
+                job_id = speech_client.submit_job(
                     audio=temp_path,
                     transcription_config=conf,
                 )
                 st.write(f"Job {job_id} submitted successfully, waiting for transcript")
 
                 # Store the transcript in session state
-                st.session_state['transcript'] = client.wait_for_completion(job_id, transcription_format="txt")
+                st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
 
             except HTTPStatusError as e:
                 st.error("Error during transcription: " + str(e))
@@ -86,10 +68,19 @@ if uploaded_file is not None:
             # Clean up temporary file
             os.remove(temp_path)
 
+# Button to trigger summarization
+if st.button('Summarize Transcript'):
+    if st.session_state['transcript']:
+        summary = summarize_chain.run([st.session_state['transcript']])
+        st.session_state['summary'] = summary
+        st.text_area("Summary", summary, height=150)
+    else:
+        st.warning("Please transcribe a file first before summarizing.")
+
 # Editable Text Area
 if st.session_state['transcript']:
-    edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
-    
+    edited_text = st.text_area("Edit Transcript",
+    st.session_state['transcript'], height=300)
     if st.button('Save Edited Text'):
         st.session_state['saved_text'] = edited_text
         st.success("Text saved successfully!")

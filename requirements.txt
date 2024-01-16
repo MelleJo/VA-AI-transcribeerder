@@ -1,4 +1,8 @@
 streamlit
-speechmatics-python
-httpx
 openai
+langchain-openai
+tiktoken
+chromadb
+langchain
+speechmatics
+httpx
