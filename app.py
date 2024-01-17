@@ -39,12 +39,12 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
         summary_text = chain.invoke(docs)
         if isinstance(summary_text, dict):
             summary_text = summary_text.get('output_text', '')
-        return post_process_summary(summary_text, speaker1, speaker2)
+        return post_process_summary(summary_text, speaker1, speaker2, subject)
     except Exception as e:
         return f"Fout tijdens samenvatten: {str(e)}"
 
-def post_process_summary(summary_text, speaker1, speaker2):
-    # Structuring the summary without altering speaker names
+def post_process_summary(summary_text, speaker1, speaker2, subject):
+    # Structuring the summary with the subject included
     structured_summary = (
         f"Onderwerp: {subject}\n"
         f"Werknemer: {speaker1}\n"
@@ -53,6 +53,7 @@ def post_process_summary(summary_text, speaker1, speaker2):
         "Actiepunten: Geen"
     )
     return structured_summary
+
 
 
 # Page 1: File Upload
