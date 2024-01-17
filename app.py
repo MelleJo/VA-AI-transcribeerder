@@ -8,6 +8,13 @@ from langchain_openai import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
+# Function to safely delete a file
+def safe_file_delete(file_path):
+    try:
+        os.remove(file_path)
+    except OSError:
+        pass
+
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     prompt_template = f"Samenvatting van een telefoongesprek over {subject}:\nBelangrijke punten:\n- \nActiepunten:\n- \nSamenvatting:\n"
@@ -16,6 +23,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     texts = text_splitter.split_text(txt)
     docs = [Document(page_content=prompt_template + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
+
     try:
         output = chain.run(docs)
         summary_text = output.get('output_text', '')
@@ -34,9 +42,22 @@ def upload_page():
     st.title('Speech to Text Transcription')
     uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
     if uploaded_file is not None:
+        # Delete the previous file if it exists
+        if 'last_uploaded_file' in st.session_state:
+            safe_file_delete(st.session_state['last_uploaded_file'])
+
+        # Process the new file
+        temp_dir = "temp"
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_path = os.path.join(temp_dir, uploaded_file.name)
+        
+        with open(temp_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        # Update session state
+        st.session_state['last_uploaded_file'] = temp_path
         st.session_state['uploaded_file'] = uploaded_file
-        if st.button('Continue', key='continue_to_transcription'):
-            st.session_state['page'] = 2
+        st.session_state['page'] = 2
 
 # Page 2: Transcription and Editing
 def transcription_page():
@@ -47,56 +68,73 @@ def transcription_page():
         os.makedirs(temp_dir, exist_ok=True)
         temp_path = os.path.join(temp_dir, st.session_state['uploaded_file'].name)
         
-        with open(temp_path, "wb") as f:
-            f.write(st.session_state['uploaded_file'].getbuffer())
-        
-        AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
-        LANGUAGE = "nl"
-        settings = ConnectionSettings(
-            url="https://asr.api.speechmatics.com/v2",
-            auth_token=AUTH_TOKEN,
-        )
-        conf = {
-            "type": "transcription",
-            "transcription_config": {
-                "language": LANGUAGE,
-                "operating_point": "enhanced",
-                "diarization": "speaker",
-                "speaker_diarization_config": {
-                    "speaker_sensitivity": 0.2
-                }
-            },
-        }
-    
-        with BatchClient(settings) as speech_client:
-            try:
-                job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
-                transcript = speech_client.wait_for_completion(job_id, transcription_format="txt")
-            except HTTPStatusError as e:
-                st.error("Error during transcription: " + str(e))
-                return
-        os.remove(temp_path)
-        
-        edited_text = st.text_area("Edit Transcript", transcript, height=300)
-        if st.button('Continue to Summary', key='continue_to_summary'):
-            st.session_state['edited_text'] = edited_text
-            st.session_state['page'] = 3
+        # Transcribe button
+        if st.button('Transcribe Audio', key='transcribe_audio'):
+            with open(temp_path, "wb") as f:
+                f.write(st.session_state['uploaded_file'].getbuffer())
+
+            AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
+            LANGUAGE = "nl"
+            settings = ConnectionSettings(
+                url="https://asr.api.speechmatics.com/v2",
+                auth_token=AUTH_TOKEN,
+            )
+            conf = {
+                "type": "transcription",
+                "transcription_config": {
+                    "language": LANGUAGE,
+                    "operating_point": "enhanced",
+                    "diarization": "speaker",
+                    "speaker_diarization_config": {
+                        "speaker_sensitivity": 0.2
+                    }
+                },
+            }
+
+            with BatchClient(settings) as speech_client:
+                try:
+                    job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
+                    st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
+                except HTTPStatusError as e:
+                    st.error("Error during transcription: " + str(e))
+                    return
+
+            safe_file_delete(temp_path)
+
+        # Check if transcription is done
+        if 'transcript' in st.session_state:
+            edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
+            speaker1 = st.text_input("Name for Speaker 1 (S1)")
+            speaker2 = st.text_input("Name for Speaker 2 (S2)")
+            subject = st.text_input("Subject of the Call")
+
+            if st.button('Continue to Summary', key='continue_to_summary'):
+                st.session_state['edited_text'] = edited_text
+                st.session_state['speaker1'] = speaker1
+                st.session_state['speaker2'] = speaker2
+                st.session_state['subject'] = subject
+                st.session_state['page'] = 3
+    else:
+        st.error("Please upload a file on the previous page.")
 
 # Page 3: Summary
 def summary_page():
     st.title("Summary of the Call")
-    speaker1 = st.text_input("Name for Speaker 1 (S1)")
-    speaker2 = st.text_input("Name for Speaker 2 (S2)")
-    subject = st.text_input("Subject of the Call")
-    if st.button('Generate Summary', key='generate_summary'):
-        summary = generate_response(st.session_state['edited_text'], speaker1, speaker2, subject, st.secrets["openai"]["api_key"])
+    if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
+        summary = generate_response(st.session_state['edited_text'], st.session_state['speaker1'], st.session_state['speaker2'], st.session_state['subject'], st.secrets["openai"]["api_key"])
         st.text_area("Summary", summary, height=150)
+    else:
+        st.error("Please complete the transcription and editing steps first.")
 
+# Initialize session state variables
 if 'page' not in st.session_state:
     st.session_state['page'] = 1
 if 'uploaded_file' not in st.session_state:
     st.session_state['uploaded_file'] = None
+if 'last_uploaded_file' not in st.session_state:
+    st.session_state['last_uploaded_file'] = None
 
+# Page Navigation
 if st.session_state['page'] == 1:
     upload_page()
 elif st.session_state['page'] == 2:
