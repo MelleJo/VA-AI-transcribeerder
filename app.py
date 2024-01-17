@@ -51,7 +51,9 @@ def upload_page():
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        st.session_state['page'] = 2
+        if st.button("Continue to Transcription", key="continue_to_transcription"):
+            st.session_state['page'] = 2
+
 
 # Page 2: Transcription and Editing
 def transcription_page():
