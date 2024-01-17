@@ -10,11 +10,12 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Function to safely delete a file
 def safe_file_delete(file_path):
-    if file_path and os.path.exists(file_path):
+    if file_path and isinstance(file_path, (str, bytes, os.PathLike)) and os.path.exists(file_path):
         try:
             os.remove(file_path)
         except OSError:
             pass
+
 
 
 # Function to generate response for summarization
