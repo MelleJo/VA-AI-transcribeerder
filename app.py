@@ -20,31 +20,24 @@ def safe_file_delete(file_path):
 
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Revised prompt with specific instructions for a Dutch summary
+    # Template with clear instructions for summarization in Dutch
     prompt_template = (
-        f"Onderwerp: {subject}\n"
-        f"Transcript:\n{txt}\n"
-        "Jij spreekt alleen maar Nederlands. Jij bent expert in telefoongesprekken samenvatten in het Nederlands. "
-        "Geef een samenvatting van het telefoontranscript, wees zo nauwkeurig mogelijk "
-        "en zorg ervoor dat de samenvatting goed zou zijn in een dossier. "
-        "De taal van de samenvatting is altijd in het Nederlands.\n"
-        "Samenvatting:\n"
+        "Samenvat dit telefoongesprek in het Nederlands. Het gesprek gaat over: '{}'.\n"
+        "Deelnemers zijn: Werknemer ('{}') en Gesprekspartner ('{}').\n"
+        "Telefoongesprek Transcript:\n{}\n"
+        "Samenvatting:\n".format(subject, speaker1, speaker2, txt)
     )
 
+    # Initialize the OpenAI model
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    text_splitter = CharacterTextSplitter()
-    texts = text_splitter.split_text(txt)
 
-    docs = [Document(page_content=prompt_template + t) for t in texts]
-    chain = load_summarize_chain(llm, chain_type='map_reduce')
-
+    # Get summary from LLM
     try:
-        summary_text = chain.invoke(docs)
-        if isinstance(summary_text, dict):
-            summary_text = summary_text.get('output_text', '')
-        return post_process_summary(summary_text, speaker1, speaker2, subject)
+        summary_text = llm(prompt_template)
+        return summary_text
     except Exception as e:
         return f"Fout tijdens samenvatten: {str(e)}"
+
 
 def post_process_summary(summary_text, speaker1, speaker2, subject):
     structured_summary = (
