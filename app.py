@@ -28,7 +28,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
         response = llm(prompt_template)
 
         # Controleer of de respons de verwachte structuur heeft
-        if hasattr(response, 'choices') en response.choices:
+        if hasattr(response, 'choices') and response.choices:
             summary_text = response.choices[0].text.strip()
         else:
             summary_text = "Samenvatting niet beschikbaar"
