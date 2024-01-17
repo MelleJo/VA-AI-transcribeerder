@@ -9,41 +9,40 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
 # Function to generate response for summarization
+# Functie voor het genereren van de samenvattingsreactie
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    # Verbeterde template met nadrukkelijke instructie voor samenvatting in Nederlands
     prompt_template = (
-        f"Samenvatting van een telefoongesprek over {subject}:\n"
-        "Belangrijke punten:\n- \n"
-        "Actiepunten:\n- \n"
-        "Samenvatting:\n"
+        "Belangrijk: Genereer de samenvatting uitsluitend in het Nederlands. "
+        "Als expert in het samenvatten van Nederlandse telefoongesprekken, "
+        f"geef een nauwkeurige en beknopte samenvatting van het volgende gesprek over '{subject}'. "
+        f"Deelnemers: Werknemer ('{speaker1}') en Gesprekspartner ('{speaker2}').\n\n"
+        f"Transcript:\n{txt}\n\n"
+        "Samenvatting:"
     )
+
+    # Initialiseer het OpenAI-model
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    text_splitter = CharacterTextSplitter()
-    texts = text_splitter.split_text(txt)
-    docs = [Document(page_content=prompt_template + t) for t in texts]
-    chain = load_summarize_chain(llm, chain_type='map_reduce')
+
     try:
-        summary_text = chain.run(docs)
-        if not summary_text.strip():
-            return "Samenvatting niet beschikbaar"
-        return post_process_summary(summary_text, speaker1, speaker2, subject)
+        response = llm(prompt_template)
+
+        # Controleer of de respons de verwachte structuur heeft
+        if hasattr(response, 'choices') en response.choices:
+            summary_text = response.choices[0].text.strip()
+        else:
+            summary_text = "Samenvatting niet beschikbaar"
+
+        return summary_text
     except Exception as e:
-        st.error(f"Error during summarization: {str(e)}")
+        st.error(f"Fout tijdens samenvatten: {str(e)}")
         return "Error during summarization"
 
-def post_process_summary(summary_text, speaker1, speaker2, subject):
-    structured_summary = (
-        f"Onderwerp: {subject}\n"
-        f"Werknemer: {speaker1}\n"
-        f"Gesprekspartner: {speaker2}\n"
-        f"{summary_text}\n"
-        "Actiepunten: Geen"
-    )
-    return structured_summary
 
 # Page 1: File Upload
 def upload_page():
-    st.title('Speech to Text Transcription')
-    uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
+    st.title('VA gesprekssamenvatter')
+    uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
     if uploaded_file is not None:
         temp_dir = "temp"
         os.makedirs(temp_dir, exist_ok=True)
@@ -51,16 +50,16 @@ def upload_page():
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        if st.button("Continue to Transcription", key="continue_to_transcription"):
+        if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
 
 # Page 2: Transcription and Editing
 def transcription_page():
-    st.title("Transcription and Editing")
+    st.title("Transcriberen en bewerken")
     if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
         temp_path = os.path.join("temp", st.session_state['uploaded_file'].name)
-        if st.button('Transcribe Audio', key='transcribe_audio'):
+        if st.button('Transcriberen', key='transcribe_audio'):
             AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
             LANGUAGE = "nl"
             settings = ConnectionSettings(
@@ -100,10 +99,10 @@ def transcription_page():
 
 # Page 3: Summary
 def summary_page():
-    st.title("Summary of the Call")
+    st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
         summary = generate_response(st.session_state['edited_text'], st.session_state['speaker1'], st.session_state['speaker2'], st.session_state['subject'], st.secrets["openai"]["api_key"])
-        st.text_area("Summary", summary, height=150)
+        st.text_area("Samenvatting", summary, height=150)
 
 # Initialize session state variables
 if 'page' not in st.session_state:
