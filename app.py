@@ -26,13 +26,14 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     texts = text_splitter.split_text(txt)
     docs = [Document(page_content=prompt_template + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
-
     try:
-        output = chain.run(docs)
-        summary_text = output.get('output_text', '')
+        summary_text = chain.invoke(docs)
+        if isinstance(summary_text, dict):
+            summary_text = summary_text.get('output_text', '')
         return post_process_summary(summary_text, speaker1, speaker2, subject)
     except Exception as e:
         return f"Error during summarization: {str(e)}"
+
 
 def post_process_summary(summary_text, speaker1, speaker2, subject):
     processed_summary = summary_text.replace('Speaker 1', speaker1).replace('Speaker 2', speaker2)
