@@ -40,6 +40,7 @@ def upload_page():
 # Page 2: Transcription and Editing
 def transcription_page():
     st.title("Transcription and Editing")
+    if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
     temp_dir = "temp"
     os.makedirs(temp_dir, exist_ok=True)
     temp_path = os.path.join(temp_dir, st.session_state['uploaded_file'].name)
