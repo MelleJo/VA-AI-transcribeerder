@@ -54,14 +54,19 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Initialize the OpenAI model
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
-    # Get summary from LLM
     try:
         response = llm(prompt_template)
-        # Extracting the text content from the response
-        summary_text = response.choices[0].text.strip() if response.choices else "Samenvatting niet beschikbaar"
+
+        # Check if the response has the expected structure
+        if hasattr(response, 'choices') and response.choices:
+            summary_text = response.choices[0].text.strip()
+        else:
+            summary_text = "Samenvatting niet beschikbaar"
+
         return summary_text
     except Exception as e:
         return f"Fout tijdens samenvatten: {str(e)}"
+
 
 
 
