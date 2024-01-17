@@ -8,6 +8,11 @@ from langchain_openai import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
+# Navigation function
+def go_to_page(page_number):
+    st.session_state['page'] = page_number
+
+
 # Navigation bar
 st.sidebar.title("Navigation")
 if st.sidebar.button("Upload", key="nav_upload"):
@@ -40,9 +45,6 @@ def safe_file_delete(file_path):
             pass
 
 
-
-# Function to generate response for summarization
-# Function to generate response for summarization
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Template with clear instructions for summarization in Dutch
@@ -58,15 +60,25 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
     try:
         response = llm(prompt_template)
-        if response and 'choices' in response and response.choices:
-            summary_text = response.choices[0].text.strip() if response.choices else "Samenvatting niet beschikbaar"
+        
+        # Check if response is structured correctly
+        if response and hasattr(response, 'choices') and response.choices:
+            summary_text = response.choices[0].text.strip()
         else:
-            summary_text = "Samenvatting niet beschikbaar"
+            st.warning("API response structure is unexpected.")
+            return "Samenvatting niet beschikbaar"
+
+        if not summary_text:
+            st.warning("Summary text is empty.")
+            return "Samenvatting niet beschikbaar"
+
         return summary_text
+
     except Exception as e:
-        # Log the exception for debugging
         st.error(f"Fout tijdens samenvatten: {str(e)}")
         return "Fout tijdens samenvatten: Kan geen samenvatting genereren"
+
+
 
 
 
