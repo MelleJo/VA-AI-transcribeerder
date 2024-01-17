@@ -33,10 +33,13 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
     # Get summary from LLM
     try:
-        summary_text = llm(prompt_template)
+        response = llm(prompt_template)
+        # Extracting the text content from the response
+        summary_text = response.choices[0].text.strip() if response.choices else "Samenvatting niet beschikbaar"
         return summary_text
     except Exception as e:
         return f"Fout tijdens samenvatten: {str(e)}"
+
 
 
 def post_process_summary(summary_text, speaker1, speaker2, subject):
