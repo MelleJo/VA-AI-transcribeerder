@@ -20,26 +20,40 @@ def safe_file_delete(file_path):
 
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    prompt_template = f"Samenvatting van een telefoongesprek over {subject}:\nBelangrijke punten:\n- \nActiepunten:\n- \nSamenvatting:\n"
+    # Using Dutch in the prompt to guide the model to respond in Dutch
+    prompt_template = (
+        f"Onderwerp: {subject}\n"
+        f"{speaker1} (S1):\n"
+        f"{speaker2} (S2):\n"
+        "\n[Samenvat de belangrijkste punten van dit gesprek in het Nederlands.]\n"
+    )
+
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(txt)
+
     docs = [Document(page_content=prompt_template + t) for t in texts]
     chain = load_summarize_chain(llm, chain_type='map_reduce')
+
     try:
         summary_text = chain.invoke(docs)
         if isinstance(summary_text, dict):
             summary_text = summary_text.get('output_text', '')
-        return post_process_summary(summary_text, speaker1, speaker2, subject)
+        return post_process_summary(summary_text, speaker1, speaker2)
     except Exception as e:
-        return f"Error during summarization: {str(e)}"
+        return f"Fout tijdens samenvatten: {str(e)}"
 
-
-def post_process_summary(summary_text, speaker1, speaker2, subject):
-    processed_summary = summary_text.replace('Speaker 1', speaker1).replace('Speaker 2', speaker2)
-    action_points = "Geen"
-    structured_summary = f"Onderwerp: {subject}\nWerknemer: {speaker1}\nGesprekspartner: {speaker2}\n{processed_summary}\nActiepunten: {action_points}"
+def post_process_summary(summary_text, speaker1, speaker2):
+    # Structuring the summary without altering speaker names
+    structured_summary = (
+        f"Onderwerp: {subject}\n"
+        f"Werknemer: {speaker1}\n"
+        f"Gesprekspartner: {speaker2}\n"
+        f"Samenvatting:\n{summary_text}\n"
+        "Actiepunten: Geen"
+    )
     return structured_summary
+
 
 # Page 1: File Upload
 def upload_page():
