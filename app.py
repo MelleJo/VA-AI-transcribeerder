@@ -10,27 +10,30 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Verbeterde template met nadrukkelijke instructie voor samenvatting in Nederlands
     prompt_template = (
-        "taal = nl (Nederlands)"
-        "Belangrijk: Genereer de samenvatting uitsluitend in het Nederlands. "
-        "Als expert in het samenvatten van Nederlandse telefoongesprekken, "
-        f"geef een nauwkeurige en beknopte samenvatting van het volgende gesprek over '{subject}'. "
-        f"Deelnemers: Werknemer ('{speaker1}') en Gesprekspartner ('{speaker2}').\n\n"
-        f"Transcript:\n{txt}\n\n"
-        "Samenvatting:"
-    )
+        "Genereer alsjeblieft een samenvatting in het Nederlands. "
+        "Het volgende transcript is van een telefoongesprek over '{}'. "
+        "De gesprekspartners zijn: '{}' (Werknemer) en '{}' (Gesprekspartner).\n\n"
+        "{}\n\n"
+        "Ik verwacht een beknopte samenvatting in het Nederlands."
+    ).format(subject, speaker1, speaker2, txt)
 
-    # Initialiseer het OpenAI-model
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
     try:
         response = llm(prompt_template)
-        summary_text = response.choices[0].text.strip() if response.choices else "Samenvatting niet beschikbaar"
+
+        # Controleer of de respons de verwachte structuur heeft
+        if hasattr(response, 'choices') and response.choices:
+            summary_text = response.choices[0].text.strip()
+        else:
+            summary_text = "Samenvatting niet beschikbaar"
         return summary_text
     except Exception as e:
-        st.error(f"Fout tijdens samenvatten: {str(e)}")
+        # Geef meer gedetailleerde foutinformatie
+        st.error(f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}")
         return "Error during summarization"
+
 
 
 # Page 1: File Upload
