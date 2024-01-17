@@ -8,11 +8,11 @@ from langchain_openai import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
-# Function to generate response for summarization
-# Functie voor het genereren van de samenvattingsreactie
+# Functie voor het genereren van de samenvatting
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Verbeterde template met nadrukkelijke instructie voor samenvatting in Nederlands
     prompt_template = (
+        "taal = nl (Nederlands)"
         "Belangrijk: Genereer de samenvatting uitsluitend in het Nederlands. "
         "Als expert in het samenvatten van Nederlandse telefoongesprekken, "
         f"geef een nauwkeurige en beknopte samenvatting van het volgende gesprek over '{subject}'. "
