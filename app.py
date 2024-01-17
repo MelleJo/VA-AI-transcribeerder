@@ -10,10 +10,12 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Function to safely delete a file
 def safe_file_delete(file_path):
-    try:
-        os.remove(file_path)
-    except OSError:
-        pass
+    if file_path and os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
+
 
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
