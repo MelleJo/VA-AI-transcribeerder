@@ -24,7 +24,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     prompt_template = (
         f"Onderwerp: {subject}\n"
         f"Transcript:\n{txt}\n"
-        "Jij bent expert in telefoongesprekken samenvatten in het Nederlands. "
+        "Jij spreekt alleen maar Nederlands. Jij bent expert in telefoongesprekken samenvatten in het Nederlands. "
         "Geef een samenvatting van het telefoontranscript, wees zo nauwkeurig mogelijk "
         "en zorg ervoor dat de samenvatting goed zou zijn in een dossier. "
         "De taal van de samenvatting is altijd in het Nederlands.\n"
