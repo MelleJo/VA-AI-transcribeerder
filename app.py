@@ -8,6 +8,29 @@ from langchain_openai import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
+# Navigation bar
+st.sidebar.title("Navigation")
+if st.sidebar.button("Upload", key="nav_upload"):
+    go_to_page(1)
+if st.sidebar.button("Transcription", key="nav_transcription"):
+    go_to_page(2)
+if st.sidebar.button("Summary", key="nav_summary"):
+    go_to_page(3)
+
+
+
+# Navigation 
+def go_to_page(page_number):
+    st.session_state['page'] = page_number
+
+def next_page():
+    st.session_state['page'] += 1
+
+def previous_page():
+    st.session_state['page'] -= 1
+
+
+
 # Function to safely delete a file
 def safe_file_delete(file_path):
     if file_path and isinstance(file_path, (str, bytes, os.PathLike)) and os.path.exists(file_path):
@@ -77,6 +100,10 @@ def upload_page():
         st.session_state['last_uploaded_file'] = temp_path
         st.session_state['uploaded_file'] = uploaded_file
         st.session_state['page'] = 2
+        
+        # Add a Continue button
+        if st.button("Continue", key="continue_from_upload"):
+            next_page()
 
 # Page 2: Transcription and Editing
 def transcription_page():
@@ -160,3 +187,4 @@ elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
     summary_page()
+
