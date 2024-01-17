@@ -35,7 +35,8 @@ def upload_page():
     uploaded_file = st.file_uploader("Choose an MP3 file", type="mp3")
     if uploaded_file is not None:
         st.session_state['uploaded_file'] = uploaded_file
-        st.session_state['page'] = 2
+        if st.button('Continue', key='continue_to_transcription'):
+            st.session_state['page'] = 2
 
 # Page 2: Transcription and Editing
 def transcription_page():
