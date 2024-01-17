@@ -46,6 +46,7 @@ def safe_file_delete(file_path):
 
 
 # Function to generate response for summarization
+# Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Template with clear instructions for summarization in Dutch
     prompt_template = (
@@ -60,16 +61,15 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
     try:
         response = llm(prompt_template)
-        
-        # Check if response is structured correctly
-        if response and hasattr(response, 'choices') and response.choices:
-            summary_text = response.choices[0].text.strip()
-        else:
-            st.warning("API response structure is unexpected.")
+
+        # Detailed error logging
+        if not hasattr(response, 'choices') or not response.choices:
+            st.error("Response does not contain choices.")
             return "Samenvatting niet beschikbaar"
 
+        summary_text = response.choices[0].text.strip()
         if not summary_text:
-            st.warning("Summary text is empty.")
+            st.error("Summary text is empty.")
             return "Samenvatting niet beschikbaar"
 
         return summary_text
@@ -77,6 +77,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     except Exception as e:
         st.error(f"Fout tijdens samenvatten: {str(e)}")
         return "Fout tijdens samenvatten: Kan geen samenvatting genereren"
+
 
 
 
