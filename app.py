@@ -20,12 +20,15 @@ def safe_file_delete(file_path):
 
 # Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Adjusted prompt to guide the model to summarize in Dutch
+    # Revised prompt with specific instructions for a Dutch summary
     prompt_template = (
         f"Onderwerp: {subject}\n"
-        f"{speaker1} (S1):\n"
-        f"{speaker2} (S2):\n"
-        "\n[Samenvatting in het Nederlands]\n"
+        f"Transcript:\n{txt}\n"
+        "Jij bent expert in telefoongesprekken samenvatten in het Nederlands. "
+        "Geef een samenvatting van het telefoontranscript, wees zo nauwkeurig mogelijk "
+        "en zorg ervoor dat de samenvatting goed zou zijn in een dossier. "
+        "De taal van de samenvatting is altijd in het Nederlands.\n"
+        "Samenvatting:\n"
     )
 
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
@@ -44,15 +47,15 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
         return f"Fout tijdens samenvatten: {str(e)}"
 
 def post_process_summary(summary_text, speaker1, speaker2, subject):
-    # Structuring the summary with the subject included
     structured_summary = (
         f"Onderwerp: {subject}\n"
         f"Werknemer: {speaker1}\n"
         f"Gesprekspartner: {speaker2}\n"
-        f"Samenvatting:\n{summary_text}\n"
+        f"{summary_text}\n"
         "Actiepunten: Geen"
     )
     return structured_summary
+
 
 
 
