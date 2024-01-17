@@ -46,7 +46,6 @@ def safe_file_delete(file_path):
 
 
 # Function to generate response for summarization
-# Function to generate response for summarization
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     # Template with clear instructions for summarization in Dutch
     prompt_template = (
@@ -62,12 +61,19 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     try:
         response = llm(prompt_template)
 
-        # Detailed error logging
+        # Debug: print the raw response object
+        st.write("Raw response:", response)
+
         if not hasattr(response, 'choices') or not response.choices:
             st.error("Response does not contain choices.")
             return "Samenvatting niet beschikbaar"
 
-        summary_text = response.choices[0].text.strip()
+        choice = response.choices[0]
+        if not hasattr(choice, 'text'):
+            st.error("Choice does not contain text.")
+            return "Samenvatting niet beschikbaar"
+
+        summary_text = choice.text.strip()
         if not summary_text:
             st.error("Summary text is empty.")
             return "Samenvatting niet beschikbaar"
@@ -77,6 +83,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     except Exception as e:
         st.error(f"Fout tijdens samenvatten: {str(e)}")
         return "Fout tijdens samenvatten: Kan geen samenvatting genereren"
+
 
 
 
@@ -182,7 +189,7 @@ def transcription_page():
                 st.session_state['speaker2'] = speaker2
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
-                st.experimental_rerun()
+                st.rerun()
     else:
         st.error("Please upload a file on the previous page.")
 
