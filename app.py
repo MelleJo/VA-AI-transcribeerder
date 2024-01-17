@@ -169,6 +169,7 @@ def transcription_page():
                 st.session_state['speaker2'] = speaker2
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
+                st.experimental_rerun()
     else:
         st.error("Please upload a file on the previous page.")
 
