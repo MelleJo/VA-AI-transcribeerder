@@ -10,26 +10,30 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    prompt_template = (
-        "Genereer alsjeblieft een samenvatting in het Nederlands. "
-        "Het volgende transcript is van een telefoongesprek over '{}'. "
-        "De gesprekspartners zijn: '{}' (Werknemer) en '{}' (Gesprekspartner).\n\n"
-        "{}\n\n"
-        "Ik verwacht een beknopte samenvatting in het Nederlands."
-    ).format(subject, speaker1, speaker2, txt)
+    message = {
+        "role": "user",
+        "content": (
+            "Please generate a summary in Dutch. "
+            "The following transcript is from a phone call about '{}'. "
+            "The speakers are: '{}' (Employee) and '{}' (Conversation Partner).\n\n"
+            "{}\n\n"
+            "I expect a concise summary in Dutch."
+        ).format(subject, speaker1, speaker2, txt)
+    }
 
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
     try:
-        response = llm.generate(prompt=prompt_template, max_tokens=150)
+        response = llm.generate(messages=[message])
         if 'choices' in response and len(response['choices']) > 0:
-            summary_text = response['choices'][0]['text'].strip()
+            summary_text = response['choices'][0].get('text', 'Samenvatting niet beschikbaar').strip()
         else:
             summary_text = "Samenvatting niet beschikbaar"
         return summary_text
     except Exception as e:
         st.error(f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}")
         return "Error during summarization"
+
 
 
 
@@ -93,6 +97,7 @@ def transcription_page():
                 st.session_state['speaker2'] = speaker2
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
+                st.rerun()
 
 # Page 3: Summary
 def summary_page():
