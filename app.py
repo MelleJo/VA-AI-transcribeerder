@@ -21,15 +21,16 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
     try:
-        response = llm(prompt_template)
-        if response:
-            summary_text = response.get('text', "Samenvatting niet beschikbaar").strip()
+        response = llm.generate(prompt=prompt_template, max_tokens=150)
+        if 'choices' in response and len(response['choices']) > 0:
+            summary_text = response['choices'][0]['text'].strip()
         else:
             summary_text = "Samenvatting niet beschikbaar"
         return summary_text
     except Exception as e:
         st.error(f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}")
         return "Error during summarization"
+
 
 
 
