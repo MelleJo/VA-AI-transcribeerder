@@ -7,50 +7,31 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain_openai import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
 
 # Functie voor het genereren van de samenvatting
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Display the input parameters to check if they are loaded correctly and not empty
-    st.write("Transcript Text:", txt)
-    st.write("Speaker 1:", speaker1)
-    st.write("Speaker 2:", speaker2)
-    st.write("Subject:", subject)
-    # Be cautious with displaying API keys in a production environment
-
-    # Check if the transcript text is empty
-    if not txt.strip():
-        st.error("Error: Transcript text is empty.")
-        return "Error: Transcript text is empty."
-
-    prompt = (
+    # Construct the prompt template
+    prompt_template = ChatPromptTemplate.from_template(
         "Please generate a summary in Dutch. "
         "The following transcript is from a phone call about '{}'. "
         "The speakers are: '{}' (Speaker 1) and '{}' (Speaker 2).\n\n"
-        "{}\n\n"
+        "{{transcript}}\n\n"
         "I expect a concise summary in Dutch."
-    ).format(subject, speaker1, speaker2, txt)
+    )
 
-    llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
+    # Initialize the model
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
-    try:
-        messages = [{"content": prompt}]
-        st.write("Sending request with messages:", messages)  # Display the request
+    # Create the chain
+    chain = prompt_template | model | StrOutputParser()
 
-        response = llm.generate(messages=messages)
+    # Invoke the chain with the transcript
+    summary = chain.invoke({"transcript": txt, "foo": subject})
 
-        st.write("Received response:", response)  # Display the response
-
-        if response and 'choices' in response and len(response['choices']) > 0:
-            summary_text = response['choices'][0].get('text', 'Samenvatting niet beschikbaar').strip()
-        else:
-            summary_text = "Samenvatting niet beschikbaar"
-        
-        return summary_text
-    except Exception as e:
-        error_message = f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}"
-        st.write(error_message)  # Display the error message
-        st.error(error_message)
-        return "Error during summarization"
+    return summary
 
 
 
