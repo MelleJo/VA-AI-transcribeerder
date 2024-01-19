@@ -9,23 +9,19 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
-
-
-
-
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    prompt = (
+        "Please generate a summary in Dutch. "
+        "The following transcript is from a phone call about '{}'. "
+        "The speakers are: '{}' (Speaker 1) and '{}' (Speaker 2).\n\n"
+        "{}\n\n"
+        "I expect a concise summary in Dutch."
+    ).format(subject, speaker1, speaker2, txt)
+
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
-    conversation = [
-        {"role": "system", "content": f"This is a conversation about {subject}."},
-        {"role": "user", "content": f"Speaker 1: {speaker1}"},
-        {"role": "user", "content": f"Speaker 2: {speaker2}"},
-        {"role": "user", "content": txt},
-        {"role": "system", "content": "Please summarize the above conversation in Dutch."}
-    ]
-
     try:
-        response = llm.generate(messages=conversation)
+        response = llm.generate(prompt=prompt)
         if response and 'choices' in response and len(response['choices']) > 0:
             summary_text = response['choices'][0].get('text', 'Samenvatting niet beschikbaar').strip()
         else:
@@ -34,6 +30,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     except Exception as e:
         st.error(f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}")
         return "Error during summarization"
+
 
 
 
