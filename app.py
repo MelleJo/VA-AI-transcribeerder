@@ -102,7 +102,7 @@ def transcription_page():
 def summary_page():
     st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
-        summary = generate_response(st.session_state['edited_text'], st.session_state['speaker1'], st.session_state['speaker2'], st.session_state['subject'], st.secrets["openai"]["api_key"])
+        summary = generate_response(st.session_state['edited_text'])
         st.text_area("Samenvatting", summary, height=150)
 
 # Initialize session state variables
