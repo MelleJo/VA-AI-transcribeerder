@@ -10,7 +10,7 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
 
-print("Transcript for summarization:", st.session_state['edited_text'])
+
 
 
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
@@ -103,6 +103,9 @@ def transcription_page():
                 st.rerun()
 
 # Page 3: Summary
+
+print("Transcript for summarization:", st.session_state['edited_text'])
+
 def summary_page():
     st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
