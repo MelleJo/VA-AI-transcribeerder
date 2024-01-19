@@ -9,6 +9,10 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
+
+print("Transcript for summarization:", st.session_state['edited_text'])
+
+
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
 
