@@ -10,6 +10,18 @@ from langchain.text_splitter import CharacterTextSplitter
 
 # Functie voor het genereren van de samenvatting
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    # Display the input parameters to check if they are loaded correctly and not empty
+    st.write("Transcript Text:", txt)
+    st.write("Speaker 1:", speaker1)
+    st.write("Speaker 2:", speaker2)
+    st.write("Subject:", subject)
+    # Be cautious with displaying API keys in a production environment
+
+    # Check if the transcript text is empty
+    if not txt.strip():
+        st.error("Error: Transcript text is empty.")
+        return "Error: Transcript text is empty."
+
     prompt = (
         "Please generate a summary in Dutch. "
         "The following transcript is from a phone call about '{}'. "
@@ -22,15 +34,24 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
     try:
         messages = [{"content": prompt}]
+        st.write("Sending request with messages:", messages)  # Display the request
+
         response = llm.generate(messages=messages)
+
+        st.write("Received response:", response)  # Display the response
+
         if response and 'choices' in response and len(response['choices']) > 0:
             summary_text = response['choices'][0].get('text', 'Samenvatting niet beschikbaar').strip()
         else:
             summary_text = "Samenvatting niet beschikbaar"
+        
         return summary_text
     except Exception as e:
-        st.error(f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}")
+        error_message = f"Fout tijdens samenvatten: {type(e).__name__}: {str(e)}"
+        st.write(error_message)  # Display the error message
+        st.error(error_message)
         return "Error during summarization"
+
 
 
 
