@@ -1,8 +1,9 @@
-import streamlit as st
+import datetime
+import os
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
-import os
+import streamlit as st
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
@@ -66,16 +67,25 @@ def transcription_page():
                     }
                 },
             }
-            with BatchClient(settings) as speech_client:
-                try:
+            try:
+                with BatchClient(settings) as speech_client:
                     job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
                     st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
-                except HTTPStatusError as e:
-                    st.error(f"Error during transcription: {str(e)}")
-                    return
+            except HTTPStatusError as e:
+                st.error(f"Error during transcription: {str(e)}")
+                return
             os.remove(temp_path)
         if 'transcript' in st.session_state:
-            edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
+            # Get the creation date of the MP3 file
+            creation_date = os.path.getctime(temp_path)
+
+            # Convert the creation date to a human-readable format
+            date_string = datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d")
+
+            # Add the date to the beginning of the transcript
+            transcript = date_string + "\n" + st.session_state['transcript']
+
+            edited_text = st.text_area("Edit Transcript", transcript, height=300)
             speaker1 = st.text_input("Name for Speaker 1 (S1)")
             speaker2 = st.text_input("Name for Speaker 2 (S2)")
             subject = st.text_input("Subject of the Call")
