@@ -59,7 +59,7 @@ def transcription_page():
                 "type": "transcription",
                 "transcription_config": {
                     "language": LANGUAGE,
-                    "operating_point": "enhanced",
+                    "operating_point": "standard",
                     "diarization": "speaker",
                     "speaker_diarization_config": {
                         "speaker_sensitivity": 0.2
