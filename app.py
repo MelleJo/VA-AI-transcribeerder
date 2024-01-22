@@ -5,6 +5,7 @@ from httpx import HTTPStatusError
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
+import os
 
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
