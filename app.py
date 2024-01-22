@@ -8,39 +8,26 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
 # Function to generate the summary
-from datetime import datetime
-
-from datetime import datetime
-
-def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_date=None):
-    # Get current date and time if not provided
-    if not call_date:
-        call_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-
-    template = (
-        "Datum = {call_date}\n"
-        "Gebruiker = {speaker1}\n"
-        "Beller = {speaker2}\n"
-        "Onderwerp = {subject}\n"
-        "Samenvatting =\n"
-        "{transcript}\n"
-        "Actiepunten =\n"
-        "Op basis van het bovenstaande gesprek, noteer alle actiepunten of taken die moeten worden aangepakt."
+def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    prompt_template = ChatPromptTemplate.from_template(
+        "Please generate a summary in Dutch. "
+        "The following transcript is from a phone call about '{subject}'. "
+        "The speakers are: '{speaker1}' (Speaker 1) and '{speaker2}' (Speaker 2).\n\n"
+        "{transcript}\n\n"
+        "I expect a concise summary in Dutch."
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    chain = ChatPromptTemplate(template) | StrOutputParser()
+    chain = prompt_template | model | StrOutputParser()
 
     summary = chain.invoke({
         "transcript": txt,
         "speaker1": speaker1,
         "speaker2": speaker2,
-        "subject": subject,
-        "call_date": call_date
+        "subject": subject
     })
 
     return summary
-
 
 # Page 1: File Upload
 def upload_page():
