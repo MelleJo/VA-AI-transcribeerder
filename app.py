@@ -26,8 +26,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
         "Samenvatting:\n"
         "{transcript}\n"
         "Actiepunten:\n"
-        # AI-aanwijzing om actiepunten te genereren die relevant zijn voor het gesprek
-        "Op basis van het bovenstaande gesprek, lijst eventuele actiepunten of taken die moeten worden aangepakt."
+        "Op basis van het bovenstaande gesprek, lijst eventuele actiepunten of taken op die moeten worden aangepakt."
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
