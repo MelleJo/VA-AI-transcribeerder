@@ -1,3 +1,35 @@
+import datetime
+import os
+from speechmatics.models import ConnectionSettings
+from speechmatics.batch_client import BatchClient
+from httpx import HTTPStatusError
+import streamlit as st
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+
+# Function to generate the summary
+def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
+    prompt_template = ChatPromptTemplate.from_template(
+        "Please generate a summary in Dutch. "
+        "The following transcript is from a phone call about '{subject}'. "
+        "The speakers are: '{speaker1}' (Speaker 1) and '{speaker2}' (Speaker 2).\n\n"
+        "{transcript}\n\n"
+        "I expect a concise summary in Dutch."
+    )
+
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
+    chain = prompt_template | model | StrOutputParser()
+
+    summary = chain.invoke({
+        "transcript": txt,
+        "speaker1": speaker1,
+        "speaker2": speaker2,
+        "subject": subject
+    })
+
+    return summary
+
 # Page 1: File Upload
 def upload_page():
     st.title('VA gesprekssamenvatter')
@@ -35,13 +67,13 @@ def transcription_page():
                     }
                 },
             }
-            with BatchClient(settings) as speech_client:
-                try:
+            try:
+                with BatchClient(settings) as speech_client:
                     job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
                     st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
-                except HTTPStatusError as e:
-                    st.error(f"Error during transcription: {str(e)}")
-                    return
+            except HTTPStatusError as e:
+                st.error(f"Error during transcription: {str(e)}")
+                return
             os.remove(temp_path)
         if 'transcript' in st.session_state:
             # Get the creation date of the MP3 file
