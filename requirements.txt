@@ -4,3 +4,4 @@ httpx
 openai
 langchain
 langchain_openai
+datetime
