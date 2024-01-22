@@ -40,8 +40,7 @@ def upload_page():
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
-            st.session_state['page'] = 2
+        st.session_state['page'] = 2  # Fix the bug by setting the page to 2
 
 # Page 2: Transcription and Editing
 def transcription_page():
@@ -59,7 +58,7 @@ def transcription_page():
                 "type": "transcription",
                 "transcription_config": {
                     "language": LANGUAGE,
-                    "operating_point": "standard",
+                    "operating_point": "enhanced",
                     "diarization": "speaker",
                     "speaker_diarization_config": {
                         "speaker_sensitivity": 0.2
@@ -91,13 +90,14 @@ def summary_page():
     st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
         summary = generate_response(
-            st.session_state['edited_text'], 
+            st.session_state['edited_text'],
             st.session_state['speaker1'],
             st.session_state['speaker2'],
             st.session_state['subject'],
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
+        st.session_state['page'] = 1  # Fix the bug by setting the page to 1
 
 # Initialize session state variables
 if 'page' not in st.session_state:
