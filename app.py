@@ -17,7 +17,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
     if not call_date:
         call_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    template = (
+    template = ChatPromptTemplate(
         "Datum = {call_date}\n"
         "Gebruiker = {speaker1}\n"
         "Beller = {speaker2}\n"
@@ -29,7 +29,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    chain = template | model | StrOutputParser()
+    chain = template(model) | StrOutputParser()
 
     summary = chain.invoke({
         "transcript": txt,
