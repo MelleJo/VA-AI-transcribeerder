@@ -29,7 +29,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    chain = ChatPromptTemplate(template) | model | StrOutputParser()
+    chain = ChatPromptTemplate(template) | StrOutputParser()
 
     summary = chain.invoke({
         "transcript": txt,
