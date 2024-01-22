@@ -48,7 +48,8 @@ def upload_page():
 def transcription_page():
     st.title("Transcriberen en bewerken")
     if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
-        temp_path = os.path.join("temp", st.session_state['uploaded_file'].name)
+        file_name, file_extension = os.path.splitext(st.session_state['uploaded_file'].name)
+        temp_path = os.path.join("temp", file_name)
         if st.button('Transcriberen', key='transcribe_audio'):
             AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
             LANGUAGE = "nl"
@@ -77,7 +78,7 @@ def transcription_page():
             os.remove(temp_path)
         if 'transcript' in st.session_state:
             # Get the creation date of the MP3 file
-            creation_date = os.path.getctime(st.session_state['uploaded_file'].name)
+            creation_date = os.path.getctime(file_name)
 
             # Convert the creation date to a human-readable format
             date_string = datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d")
