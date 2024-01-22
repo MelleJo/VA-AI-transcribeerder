@@ -1,9 +1,7 @@
-import datetime
-import os
+import streamlit as st
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
-import streamlit as st
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
@@ -48,8 +46,7 @@ def upload_page():
 def transcription_page():
     st.title("Transcriberen en bewerken")
     if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
-        file_name, file_extension = os.path.splitext(st.session_state['uploaded_file'].name)
-        temp_path = os.path.join("temp", file_name)
+        temp_path = os.path.join("temp", st.session_state['uploaded_file'].name)
         if st.button('Transcriberen', key='transcribe_audio'):
             AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
             LANGUAGE = "nl"
@@ -77,16 +74,7 @@ def transcription_page():
                 return
             os.remove(temp_path)
         if 'transcript' in st.session_state:
-            # Get the creation date of the MP3 file
-            creation_date = os.path.getctime(file_name)
-
-            # Convert the creation date to a human-readable format
-            date_string = datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d")
-
-            # Add the date to the beginning of the transcript
-            transcript = date_string + "\n" + st.session_state['transcript']
-
-            edited_text = st.text_area("Edit Transcript", transcript, height=300)
+            edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
             speaker1 = st.text_input("Name for Speaker 1 (S1)")
             speaker2 = st.text_input("Name for Speaker 2 (S2)")
             subject = st.text_input("Subject of the Call")
@@ -103,9 +91,9 @@ def summary_page():
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
         summary = generate_response(
             st.session_state['edited_text'], 
-            st.session_state['speaker1'], 
-            st.session_state['speaker2'], 
-            st.session_state['subject'], 
+            st.session_state['speaker1'],
+            st.session_state['speaker2'],
+            st.session_state['subject'],
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
