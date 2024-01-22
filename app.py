@@ -17,7 +17,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
     if not call_date:
         call_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    template = (
+    template = ChatPromptTemplate.from_string(
         "Datum = {call_date}\n"
         "Gebruiker = {speaker1}\n"
         "Beller = {speaker2}\n"
@@ -25,7 +25,6 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
         "Samenvatting =\n"
         "{transcript}\n"
         "Actiepunten =\n"
-        # AI-aanwijzing om actiepunten te genereren die relevant zijn voor het gesprek
         "Op basis van het bovenstaande gesprek, noteer alle actiepunten of taken die moeten worden aangepakt."
     )
 
