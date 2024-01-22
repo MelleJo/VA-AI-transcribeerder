@@ -4,5 +4,3 @@ httpx
 openai
 langchain
 langchain_openai
-chromadb
-tiktoken
