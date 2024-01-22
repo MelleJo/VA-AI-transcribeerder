@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
@@ -5,7 +6,6 @@ from httpx import HTTPStatusError
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-import os
 
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
@@ -40,7 +40,8 @@ def upload_page():
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        st.session_state['page'] = 2  # Fix the bug by setting the page to 2
+        if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
+            st.session_state['page'] = 2
 
 # Page 2: Transcription and Editing
 def transcription_page():
@@ -97,7 +98,8 @@ def summary_page():
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
-        st.session_state['page'] = 1  # Fix the bug by setting the page to 1
+        if st.button('Continue to Upload', key='continue_to_upload'):
+            st.session_state['page'] = 1
 
 # Initialize session state variables
 if 'page' not in st.session_state:
