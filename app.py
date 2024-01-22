@@ -3,46 +3,31 @@ from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
 import os
-from langchain.chains.summarize import load_summarize_chain
-from langchain_openai import ChatOpenAI
-from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Functie voor het genereren van de samenvatting
+# Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    # Construct the prompt template
     prompt_template = ChatPromptTemplate.from_template(
         "Please generate a summary in Dutch. "
-        "The following transcript is from a phone call about '{}'. "
-        "The speakers are: '{}' (Speaker 1) and '{}' (Speaker 2).\n\n"
-        "{{transcript}}\n\n"
+        "The following transcript is from a phone call about '{subject}'. "
+        "The speakers are: '{speaker1}' (Speaker 1) and '{speaker2}' (Speaker 2).\n\n"
+        "{transcript}\n\n"
         "I expect a concise summary in Dutch."
     )
 
-    # Initialize the model
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-
-    # Create the chain
     chain = prompt_template | model | StrOutputParser()
 
-    # Invoke the chain with the transcript
-    summary = chain.invoke({"transcript": txt, "foo": subject})
+    summary = chain.invoke({
+        "transcript": txt,
+        "speaker1": speaker1,
+        "speaker2": speaker2,
+        "subject": subject
+    })
 
     return summary
-
-
-
-
-
-
-
-
-
-
-
 
 # Page 1: File Upload
 def upload_page():
@@ -57,7 +42,6 @@ def upload_page():
         st.session_state['uploaded_file'] = uploaded_file
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
-
 
 # Page 2: Transcription and Editing
 def transcription_page():
@@ -101,17 +85,18 @@ def transcription_page():
                 st.session_state['speaker2'] = speaker2
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
-                st.rerun()
 
 # Page 3: Summary
-
-
-
 def summary_page():
     st.title("Samenvatting van het gesprek")
-    print("Transcript for summarization:", st.session_state['edited_text'])
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
-        summary = generate_response(st.session_state['edited_text'], st.session_state['speaker1'], st.session_state['speaker2'], st.session_state['subject'], st.secrets["openai"]["api_key"])
+        summary = generate_response(
+            st.session_state['edited_text'], 
+            st.session_state['speaker1'], 
+            st.session_state['speaker2'], 
+            st.session_state['subject'], 
+            st.secrets["openai"]["api_key"]
+        )
         st.text_area("Samenvatting", summary, height=150)
 
 # Initialize session state variables
@@ -127,4 +112,3 @@ elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
     summary_page()
-
