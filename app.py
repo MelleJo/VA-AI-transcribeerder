@@ -17,20 +17,20 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key, call_dat
     if not call_date:
         call_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    prompt_template = ChatPromptTemplate.from_template(
-        "Maak een gestructureerde samenvatting in het volgende formaat:\n"
-        "Datum en tijd: {call_date}\n"
-        "Gebruiker: {speaker1}\n"
-        "Beller (Andere partij): {speaker2}\n"
-        "Onderwerp: {subject}\n"
-        "Samenvatting:\n"
+    template = (
+        "Datum = {call_date}\n"
+        "Gebruiker = {speaker1}\n"
+        "Beller = {speaker2}\n"
+        "Onderwerp = {subject}\n"
+        "Samenvatting =\n"
         "{transcript}\n"
-        "Actiepunten:\n"
-        "Op basis van het bovenstaande gesprek, lijst eventuele actiepunten of taken op die moeten worden aangepakt."
+        "Actiepunten =\n"
+        # AI-aanwijzing om actiepunten te genereren die relevant zijn voor het gesprek
+        "Op basis van het bovenstaande gesprek, noteer alle actiepunten of taken die moeten worden aangepakt."
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
-    chain = prompt_template | model | StrOutputParser()
+    chain = template | model | StrOutputParser()
 
     summary = chain.invoke({
         "transcript": txt,
