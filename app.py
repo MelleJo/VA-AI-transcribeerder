@@ -77,7 +77,7 @@ def transcription_page():
             os.remove(temp_path)
         if 'transcript' in st.session_state:
             # Get the creation date of the MP3 file
-            creation_date = os.path.getctime(uploaded_file)
+            creation_date = os.path.getctime(st.session_state['uploaded_file'])
 
             # Convert the creation date to a human-readable format
             date_string = datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d")
@@ -122,3 +122,4 @@ elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
     summary_page()
+    
