@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 import dateutil.parser
+import humanize
 
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
@@ -32,6 +33,8 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
 # Page 1: File Upload
 
+import humanize
+
 def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
@@ -40,10 +43,11 @@ def upload_page():
         # Display the information of the uploaded file
         st.write("Bestandsnaam:", uploaded_file.name)
         st.write("Bestandstype:", uploaded_file.type)
-        st.write("Bestandsgrootte:", uploaded_file.size)
+        # Display the file size in the appropriate sizes
+        st.write("Bestandsgrootte:", humanize.naturalsize(uploaded_file.size))
         # Get the file creation date
         creation_date = dateutil.parser.parse(uploaded_file.datetime)
-        st.write("Aanmaakdatum:", creation_date.strftime("%Y-%m-%d"))
+        st.write("uploaddatum:", creation_date.strftime("%Y-%m-%d"))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
