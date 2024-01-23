@@ -41,8 +41,8 @@ def upload_page():
         st.write("Bestandsnaam:", uploaded_file.name)
         st.write("Bestandstype:", uploaded_file.type)
         st.write("Bestandsgrootte:", uploaded_file.size)
-        # Get the current date as the creation date
-        creation_date = datetime.datetime.now()
+        # Get the file creation date
+        creation_date = dateutil.parser.parse(uploaded_file.datetime)
         st.write("Aanmaakdatum:", creation_date.strftime("%Y-%m-%d"))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
