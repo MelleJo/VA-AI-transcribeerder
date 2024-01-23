@@ -10,11 +10,7 @@ from langchain_core.output_parsers import StrOutputParser
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     prompt_template = ChatPromptTemplate.from_template(
-        "Please generate a summary in Dutch. "
-        "The following transcript is from a phone call about '{subject}'. "
-        "The speakers are: '{speaker1}' (Speaker 1) and '{speaker2}' (Speaker 2).\n\n"
-        "{transcript}\n\n"
-        "I expect a concise summary in Dutch."
+        "Please generate een beknopte samenvatting in het Nederlands voor opname in het clientdossier op basis van het meegeleverde transcript van het telefoongesprek. Het telefoongesprek gaat over '{subject}'. Het transcript bevat een gesprek tussen '{speaker1}' (Spreker 1) en '{speaker2}' (Spreker 2). De samenvatting moet beknopt zijn en afgestemd op het clientdossier. Vermeld het onderwerp, de namen van de sprekers en de samenvatting zelf. Indien van toepassing, sluit u de samenvatting af met actiepunten die specifiek relevant zijn voor de cliënt. Vermeld bovendien specifieke criteria of details die in de samenvatting moeten worden benadrukt om ervoor te zorgen dat deze is geoptimaliseerd voor het clientdossier."
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106")
