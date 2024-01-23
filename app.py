@@ -1,14 +1,11 @@
 import streamlit as st
-import datetime
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
+import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-import dateutil.parser
-import humanize
-import os
 
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
@@ -33,18 +30,16 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     return summary
 
 # Page 1: File Upload
-
-
 def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
     if uploaded_file is not None:
+        temp_dir = "temp"
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_path = os.path.join(temp_dir, uploaded_file.name)
+        with open(temp_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        # Display the information of the uploaded file
-        st.write("Bestandsnaam:", uploaded_file.name)
-        st.write("Bestandstype:", uploaded_file.type)
-        # Display the file size in the appropriate sizes
-        st.write("Bestandsgrootte:", humanize.naturalsize(uploaded_file.size))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
@@ -71,13 +66,13 @@ def transcription_page():
                     }
                 },
             }
-            try:
-                with BatchClient(settings) as speech_client:
+            with BatchClient(settings) as speech_client:
+                try:
                     job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
                     st.session_state['transcript'] = speech_client.wait_for_completion(job_id, transcription_format="txt")
-            except HTTPStatusError as e:
-                st.error(f"Error during transcription: {str(e)}")
-                return
+                except HTTPStatusError as e:
+                    st.error(f"Error during transcription: {str(e)}")
+                    return
             os.remove(temp_path)
         if 'transcript' in st.session_state:
             edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
@@ -103,8 +98,6 @@ def summary_page():
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
-        if st.button('Continue to Upload', key='continue_to_upload'):
-            st.session_state['page'] = 1
 
 # Initialize session state variables
 if 'page' not in st.session_state:
