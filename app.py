@@ -34,6 +34,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
 
 # Page 1: File Upload
 
+
 def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
@@ -44,10 +45,6 @@ def upload_page():
         st.write("Bestandstype:", uploaded_file.type)
         # Display the file size in the appropriate sizes
         st.write("Bestandsgrootte:", humanize.naturalsize(uploaded_file.size))
-        # Get the file creation date
-        file_path = os.path.join("temp", uploaded_file.name)
-        creation_date = os.path.getctime(file_path)
-        st.write("Aanmaakdatum:", datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d"))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
