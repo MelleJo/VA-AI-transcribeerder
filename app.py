@@ -45,8 +45,9 @@ def upload_page():
         # Display the file size in the appropriate sizes
         st.write("Bestandsgrootte:", humanize.naturalsize(uploaded_file.size))
         # Get the file creation date
-        creation_date = os.path.getctime(uploaded_file.name)
-        st.write("uploaddatum:", creation_date)
+        file_path = os.path.join("temp", uploaded_file.name)
+        creation_date = os.path.getctime(file_path)
+        st.write("Aanmaakdatum:", datetime.datetime.fromtimestamp(creation_date).strftime("%Y-%m-%d"))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
