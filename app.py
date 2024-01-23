@@ -1,5 +1,5 @@
-import os
 import streamlit as st
+import datetime
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
@@ -34,12 +34,14 @@ def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
     if uploaded_file is not None:
-        temp_dir = "temp"
-        os.makedirs(temp_dir, exist_ok=True)
-        temp_path = os.path.join(temp_dir, uploaded_file.name)
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
+        # Display the information of the uploaded file
+        st.write("Bestandsnaam:", uploaded_file.name)
+        st.write("Bestandstype:", uploaded_file.type)
+        st.write("Bestandsgrootte:", uploaded_file.size)
+        # Get the file creation date
+        creation_date = datetime.datetime.fromtimestamp(uploaded_file.last_modified)
+        st.write("Aanmaakdatum:", creation_date.strftime("%Y-%m-%d"))
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 2
 
@@ -114,4 +116,3 @@ elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
     summary_page()
-    
