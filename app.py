@@ -114,3 +114,4 @@ elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
     summary_page()
+    
