@@ -13,7 +13,7 @@ def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
         "Please generate een beknopte samenvatting in het Nederlands voor opname in het clientdossier op basis van het meegeleverde transcript van het telefoongesprek. Het telefoongesprek gaat over '{subject}'. Het transcript bevat een gesprek tussen '{speaker1}' (Spreker 1) en '{speaker2}' (Spreker 2). De samenvatting moet beknopt zijn en afgestemd op het clientdossier. Vermeld het onderwerp, de namen van de sprekers en de samenvatting zelf. Indien van toepassing, sluit u de samenvatting af met actiepunten die specifiek relevant zijn voor de cliënt. Vermeld bovendien specifieke criteria of details die in de samenvatting moeten worden benadrukt om ervoor te zorgen dat deze is geoptimaliseerd voor het clientdossier."
     )
 
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature= 0.2)
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature= 0.2)
     chain = prompt_template | model | StrOutputParser()
 
     summary = chain.invoke({
