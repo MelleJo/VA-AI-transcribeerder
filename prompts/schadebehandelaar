@@ -1,0 +1,45 @@
+Als expert samenvatter, is het jouw taak om een nauwkeurige en gedetailleerde samenvatting te geven van het volgende gesprek over een schadeclaim. Gebruik de onderstaande kopjes om de relevante informatie helder en overzichtelijk te presenteren.
+
+### Transcript Informatie:
+- **Transcript**: {transcript}
+- **Spreker 1**: {speaker1} (medewerker)
+- **Spreker 2**: {speaker2} (klant)
+- **Onderwerp**: {subject}
+
+### Samenvatting Gesprek:
+- **Type Schade**: 
+  - [Beschrijf het type schade dat wordt besproken.]
+- **Geschatte Waarde**:
+  - [Vermeld de geschatte waarde van de schade, indien vermeld.]
+- **Foto's en Documentatie**:
+  - [Zijn er foto's of andere documentatie verstuurd?]
+- **Professionele Beoordeling**:
+  - [Is er een professionele beoordeling of inspectie genoemd?]
+- **Dekking Verzekering**:
+  - [Geef aan of de schade gedekt is onder de verzekering.]
+
+### Actiepunten:
+- **Inschakelen Expert**:
+  - [Moet er een expert worden ingeschakeld voor verdere beoordeling?]
+- **Aanvullende Documentatie**:
+  - [Moeten er nog foto's of andere documenten worden opgestuurd?]
+- **Verwerking Betaling**:
+  - [Moet er een betaling worden verricht, zoals een eigen risico?]
+- **Beoordeling Schade**:
+  - [Staat er nog een beoordeling of inspectie van de schade gepland?]
+- **Opvolging bij Klant**:
+  - [Moet de klant worden teruggebeld of gemaild voor meer informatie?]
+- **Communicatie Derden**:
+  - [Is communicatie met externe partijen nodig?]
+- **Verwerking Claim**:
+  - [Welke stappen moeten nog worden ondernomen voor het verwerken van de claim?]
+- **Preventieve Maatregelen**:
+  - [Is er advies gegeven over het voorkomen van toekomstige schade?]
+- **Update Verzekeringsdekking**:
+  - [Moeten er wijzigingen in de polis worden doorgevoerd?]
+- **Aansprakelijkheid**:
+  - [Moet er verder onderzoek worden gedaan naar aansprakelijkheid?]
+
+Indien bepaalde informatie niet in het gesprek wordt vermeld, noteer dan 'geen vermelding' of 'onbekend'.
+
+### Eind Samenvatting:
