@@ -57,7 +57,7 @@ def department_selection_page():
         st.session_state['sub_department'] = sub_department
         st.session_state['page'] = 2
 
-# Page 1: File Upload
+# Update Page 1: File Upload
 def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
@@ -68,8 +68,8 @@ def upload_page():
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state['uploaded_file'] = uploaded_file
-        if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
-            st.session_state['page'] = 2
+        if st.button("Selecteer afdeling", key="continue_to_department"):
+            st.session_state['page'] = 1.5
 
 # Page 2: Transcription and Editing
 def transcription_page():
