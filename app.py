@@ -7,23 +7,48 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Function to generate the summary
-def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
-    prompt_template = ChatPromptTemplate.from_template(
-        "vat dit samen {transcript} van {speaker1} en {speaker2} over {subject}. Met deze instructies: Jij bent een expert in het begrijpen en samenvatten van (telefoon)gesprekken Bovendien heb je veel kennis van het werken van een assurantietussenpersoon. Genereer een beknopte samenvatting in het Nederlands voor opname in het clientdossier op basis van het meegeleverde transcript van het telefoongesprek. Het telefoongesprek gaat over '{subject}'. Het transcript bevat een gesprek tussen '{speaker1}' (Spreker 1) en '{speaker2}' (Spreker 2). De samenvatting moet beknopt zijn en afgestemd op het clientdossier. Vermeld het onderwerp, de namen van de sprekers, de samenvatting zelf en de actiepunten. Indien van toepassing, sluit u de samenvatting af met actiepunten die specifiek relevant zijn voor de cliënt. Vermeld bovendien specifieke criteria of details die in de samenvatting moeten worden benadrukt om ervoor te zorgen dat deze is geoptimaliseerd voor het clientdossier. Verzin geen extra's en lieg niet, zorg ervoor dat alle belangrijke informatie vermeld is. Liever teveel informatie dan te weinig.\n\nBeantwoord ook de volgende vragen in de samenvatting, indien van toepassing:\n\n1: Wat is de reden van het gesprek?\n2: Wat zijn de verwachtingen van de klant?\n3: Waar liep de klant tegenaan?\n4: Zijn er specifieke acties die de medewerker moet ondernemen?\n5: Moet er een afspraak worden ingepland?\n6: Moet er een document worden opgesteld?\n7: Moet er een e-mail worden verstuurd?\n8: Moet er worden gebeld?\n9: Moet er een offerte worden uitgebracht?\n10: Moet er een polis worden aangepast?\n11: Moet er een claim worden ingediend?\n12: Moet er een schade worden gemeld?\n13: Moet er een betaling worden gedaan?\n14: Moet er een wijziging worden aangebracht in de polis?\n15: Moet er een product worden toegevoegd aan de polis?\n16: Moet er een product worden verwijderd van de polis?\n17: Moet er een polis worden opgezegd?\n18: Moet er een polis worden overgedragen?\n19: Moet er een polis worden gecombineerd?\n20: Moet er een polis worden gesplitst?\n21: Wat wordt er gevraagd van de medewerker?\n22: Wat voor informatie heeft de medewerker gegeven?\n23: Over welke polissen/producten is het gesprek gegaan?\n24: Wat zijn belangrijke dingen om te noteren in het dossier voor een volgend gesprek?\n25: Moet er een polis worden opgestuurd?\n26: Moet er een offerte worden opgemaakt?\n27: Moet er iets naar een collega worden doorgestuurd?\n28: Moet de klant worden teruggebeld of gemaild?\n29: Zijn er nog andere relevante details die moeten worden genoteerd?\n\nSpecifieke criteria/details voor dossier:\n\n* Noteer de interesse van de klant in de extra module voor toekomstige referentie.\n* Documenteer de gegeven informatie over de huidige polisdekking en de besproken uitbreidingsopties.\n* Registreer de persoonlijke voorkeuren en verwachtingen van de klant voor een gepersonaliseerde service in de toekomst."
-    )
+# Dictionary for department-specific summary templates
+department_templates = {
+    "Schadebehandelaar": "Jij bent een expert in het samenvatten van gesprekken over schadeclaims. Focus op de details van de claim, de reactie van de medewerker, en de vervolgstappen.",
+    "Particulieren": "Jij bent gespecialiseerd in het samenvatten van gesprekken met particuliere klanten. Leg de nadruk op klantvragen, aangeboden oplossingen en persoonlijke aandachtspunten.",
+    "Bedrijven": "Als expert in bedrijfsgerelateerde gesprekken, vat samen wat de zakelijke behoeften zijn, welke oplossingen zijn geboden en wat de zakelijke actiepunten zijn.",
+    "Financiële Planning": {
+        "Pensioen": "Samenvatting gericht op pensioengerelateerde gesprekken. Benadruk pensioenplannen, klantvragen en advies.",
+        "Collectief": "Focus op collectieve financiële planning, inclusief groepsvoordelen en -regelingen.",
+        "Inkomen": "Richt je op gesprekken over inkomensplanning en -beheer, inclusief advies en actiepunten.",
+        "Planning": "Benadruk de belangrijkste punten in financiële planning, toekomstige doelen en strategieën.",
+        "Hypotheek": "Vat gesprekken samen over hypotheekgerelateerde onderwerpen, inclusief advies en klantopties."
+    }
+    # Voeg hier indien nodig meer afdelingen toe
+}
 
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature= 0.1)
+# Function to generate the summary
+def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
+    department_prompt = department_templates.get(department, "Algemene samenvattingsinstructies")
+    if isinstance(department_prompt, dict):  # For departments with subcategories
+        department_prompt = department_prompt.get(sub_department, "Algemene samenvattingsinstructies voor subafdeling")
+
+    full_prompt = f"{department_prompt}\n\nTranscript: {txt}\nSpreker 1: {speaker1}\nSpreker 2: {speaker2}\nOnderwerp: {subject}\n\nSamenvatting:"
+
+    prompt_template = ChatPromptTemplate.from_template(full_prompt)
+
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature=0.1)
     chain = prompt_template | model | StrOutputParser()
 
-    summary = chain.invoke({
-        "transcript": txt,
-        "speaker1": speaker1,
-        "speaker2": speaker2,
-        "subject": subject
-    })
-
+    summary = chain.invoke({"transcript": txt, "speaker1": speaker1, "speaker2": speaker2, "subject": subject})
     return summary
+
+# Add a department selection page
+def department_selection_page():
+    st.title('Kies uw afdeling')
+    department = st.selectbox("Selecteer de afdeling:", list(department_templates.keys()))
+    sub_department = None
+    if department == "Financiële Planning":
+        sub_department = st.selectbox("Selecteer de subafdeling:", list(department_templates[department].keys()))
+    if st.button("Ga door naar transcriptie"):
+        st.session_state['department'] = department
+        st.session_state['sub_department'] = sub_department
+        st.session_state['page'] = 2
 
 # Page 1: File Upload
 def upload_page():
@@ -82,29 +107,26 @@ def transcription_page():
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
 
-# Page 3: Summary
+# Update summary_page to include department
 def summary_page():
     st.title("Samenvatting van het gesprek")
-    if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
+    if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
         summary = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
             st.session_state['speaker2'],
             st.session_state['subject'],
+            st.session_state['department'],
+            st.session_state['sub_department'],
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
-        
 
-# Initialize session state variables
-if 'page' not in st.session_state:
-    st.session_state['page'] = 1
-if 'uploaded_file' not in st.session_state:
-    st.session_state['uploaded_file'] = None
-
-# Page Navigation
+# Update Page Navigation
 if st.session_state['page'] == 1:
     upload_page()
+elif st.session_state['page'] == 1.5:
+    department_selection_page()
 elif st.session_state['page'] == 2:
     transcription_page()
 elif st.session_state['page'] == 3:
