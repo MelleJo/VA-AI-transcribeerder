@@ -10,7 +10,7 @@ from langchain_core.output_parsers import StrOutputParser
 # Function to generate the summary
 def generate_response(txt, speaker1, speaker2, subject, openai_api_key):
     prompt_template = ChatPromptTemplate.from_template(
-        "Wat voor auto wordt er over gesproken"
+        "vat dit samen {transcript} van {speaker1} en {speaker2} over {subject}?"
     )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-3.5-turbo-1106", temperature= 0.35)
