@@ -7,6 +7,13 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
+
+# Initialize session state for 'page' and 'sub_department'
+if 'page' not in st.session_state:
+    st.session_state['page'] = 1
+if 'sub_department' not in st.session_state:
+    st.session_state['sub_department'] = None
+
 # Dictionary for department-specific summary templates
 department_templates = {
     "Schadebehandelaar": "Jij bent een expert in het samenvatten van gesprekken over schadeclaims. Focus op de details van de claim, de reactie van de medewerker, en de vervolgstappen.",
