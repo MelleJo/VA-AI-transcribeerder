@@ -7,8 +7,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Initialize session state variables
-if 'page' not in st.session_state:
+# Initializeer of reset de pagina in session state
+if 'page' not in st.session_state or st.session_state['page'] < 1 or st.session_state['page'] > 3:
     st.session_state['page'] = 1
 if 'sub_department' not in st.session_state:
     st.session_state['sub_department'] = None
@@ -114,6 +114,7 @@ def summary_page():
         )
         st.text_area("Samenvatting", summary, height=150)
 
+# pagina navigatie
 if st.session_state['page'] == 1:
     upload_page()
 elif st.session_state['page'] == 1.5:
