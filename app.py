@@ -105,7 +105,9 @@ def transcription_page():
 
 def summary_page():
     st.title("Samenvatting van het gesprek")
+
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
+        # Genereer de samenvatting
         summary = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
@@ -115,7 +117,13 @@ def summary_page():
             st.session_state['sub_department'],
             st.secrets["openai"]["api_key"]
         )
+
+        # Toon welke prompt is gebruikt in een apart tekstveld
+        st.write(f"Prompt gebruikt: {st.session_state['department']}")
+
+        # Toon de samenvatting in een text area
         st.text_area("Samenvatting", summary, height=150)
+
 
 # pagina navigatie
 if st.session_state['page'] == 1:
