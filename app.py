@@ -7,19 +7,20 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Initialize session state variables
+# Initializeer of reset de pagina in session state
 if 'page' not in st.session_state or st.session_state['page'] < 1 or st.session_state['page'] > 3:
     st.session_state['page'] = 1
 if 'sub_department' not in st.session_state:
     st.session_state['sub_department'] = None
 
 def load_prompt(department):
+    prompt_file_path = f'prompts/{department}.txt'
     try:
-        with open(f'prompts/{department}.txt', 'r', encoding='utf-8') as file:
+        with open(prompt_file_path, 'r', encoding='utf-8') as file:
             prompt_content = file.read()
-        return prompt_content, f'prompts/{department}.txt'
+        return prompt_content, prompt_file_path
     except FileNotFoundError:
-        return "Standaard prompt als het bestand niet wordt gevonden.", None
+        return "Standaard prompt als het bestand niet wordt gevonden.", prompt_file_path
 
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
     department_prompt, prompt_file_path = load_prompt(department)
@@ -116,11 +117,11 @@ def summary_page():
         )
 
         if prompt_file_path:
-            st.write(f"Prompt-bestand gebruikt: {prompt_file_path}")
+            st.write(f"Gebruikt prompt-bestand: {prompt_file_path}")
 
         st.text_area("Samenvatting", summary, height=150)
 
-# pagina navigatie
+# Pagina navigatie
 if st.session_state['page'] == 1:
     upload_page()
 elif st.session_state['page'] == 1.5:
