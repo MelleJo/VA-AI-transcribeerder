@@ -22,6 +22,9 @@ def load_prompt(department):
 
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
     department_prompt = load_prompt(department)
+    # Voeg een validatieheader toe aan de prompt
+    validatie_header = f"Prompt gebruikt: {department}\n\n"
+    
     full_prompt = f"{department_prompt}\n\n### Transcript Informatie:\n" + \
                   f"- **Transcript**: {txt}\n- **Spreker 1**: {speaker1}\n- **Spreker 2**: {speaker2}\n- **Onderwerp**: {subject}\n\n" + \
                   "### Samenvatting Gesprek:\n...\n\n### Actiepunten:\n...\n\n### Eind Samenvatting:"
