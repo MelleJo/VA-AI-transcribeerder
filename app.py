@@ -31,7 +31,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, sub_departme
                   "### Samenvatting Gesprek:\n...\n\n### Actiepunten:\n...\n\n### Eind Samenvatting:"
     
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature=0.1)
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature=0.15)
     chain = prompt_template | model | StrOutputParser()
     summary = chain.invoke({"transcript": txt, "speaker1": speaker1, "speaker2": speaker2, "subject": subject})
     return summary
@@ -108,8 +108,8 @@ def summary_page():
     st.title("Samenvatting van het gesprek")
 
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
-        # Genereer de samenvatting
-        summary = generate_response(
+        # Genereer de samenvatting en ontvang de gebruikte prompt-bestandsnaam
+        summary, prompt_file_path = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
             st.session_state['speaker2'],
@@ -119,11 +119,13 @@ def summary_page():
             st.secrets["openai"]["api_key"]
         )
 
-        # Toon welke prompt is gebruikt in een apart tekstveld
-        st.write(f"Prompt gebruikt: {st.session_state['department']}")
+        # Toon welk prompt-bestand is gebruikt
+        if prompt_file_path:
+            st.write(f"Prompt-bestand gebruikt: {prompt_file_path}")
 
-        # Toon de samenvatting in een text area
+        # Toon de samenvatting
         st.text_area("Samenvatting", summary, height=150)
+
 
 
 # pagina navigatie
