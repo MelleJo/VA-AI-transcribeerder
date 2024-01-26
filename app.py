@@ -7,7 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Initializeer of reset de pagina in session state
+# Initialize session state variables
 if 'page' not in st.session_state or st.session_state['page'] < 1 or st.session_state['page'] > 3:
     st.session_state['page'] = 1
 if 'sub_department' not in st.session_state:
@@ -16,15 +16,13 @@ if 'sub_department' not in st.session_state:
 def load_prompt(department):
     try:
         with open(f'prompts/{department}.txt', 'r', encoding='utf-8') as file:
-            return file.read()
+            prompt_content = file.read()
+        return prompt_content, f'prompts/{department}.txt'
     except FileNotFoundError:
-        return "Standaard prompt als het bestand niet wordt gevonden."
+        return "Standaard prompt als het bestand niet wordt gevonden.", None
 
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
-    department_prompt = load_prompt(department)
-    # Voeg een validatieheader toe aan de prompt
-    validatie_header = f"Prompt gebruikt: {department}\n\n"
-    st.write(validatie_header)
+    department_prompt, prompt_file_path = load_prompt(department)
     
     full_prompt = f"{department_prompt}\n\n### Transcript Informatie:\n" + \
                   f"- **Transcript**: {txt}\n- **Spreker 1**: {speaker1}\n- **Spreker 2**: {speaker2}\n- **Onderwerp**: {subject}\n\n" + \
@@ -34,7 +32,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, sub_departme
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0613", temperature=0.15)
     chain = prompt_template | model | StrOutputParser()
     summary = chain.invoke({"transcript": txt, "speaker1": speaker1, "speaker2": speaker2, "subject": subject})
-    return summary
+    return summary, prompt_file_path
 
 def department_selection_page():
     st.title('Kies uw afdeling')
@@ -103,12 +101,10 @@ def transcription_page():
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
 
-
 def summary_page():
     st.title("Samenvatting van het gesprek")
 
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
-        # Genereer de samenvatting en ontvang de gebruikte prompt-bestandsnaam
         summary, prompt_file_path = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
@@ -119,14 +115,10 @@ def summary_page():
             st.secrets["openai"]["api_key"]
         )
 
-        # Toon welk prompt-bestand is gebruikt
         if prompt_file_path:
             st.write(f"Prompt-bestand gebruikt: {prompt_file_path}")
 
-        # Toon de samenvatting
         st.text_area("Samenvatting", summary, height=150)
-
-
 
 # pagina navigatie
 if st.session_state['page'] == 1:
