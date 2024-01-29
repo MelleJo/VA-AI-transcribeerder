@@ -18,7 +18,7 @@ def load_prompt(department):
     prompt_file_path = f'prompts/{department.lower()}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
-            return file.read()
+            return "prompt wel gevonden, jippie!"
     except FileNotFoundError:
         return "Standaard prompt als het bestand niet wordt gevonden."
 
