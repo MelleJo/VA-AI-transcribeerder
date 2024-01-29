@@ -24,8 +24,6 @@ def load_prompt(department):
 
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
     department_prompt, prompt_file_path = load_prompt(department)
-    print(f"Geladen prompt: {prompt_file_path}")  # Debugging
-    print(f"Prompt inhoud: {department_prompt[:500]}")  # Print de eerste 500 karakters van de prompt
     
     full_prompt = f"{department_prompt}\n\n### Transcript Informatie:\n" + \
                   f"- **Transcript**: {txt}\n- **Spreker 1**: {speaker1}\n- **Spreker 2**: {speaker2}\n- **Onderwerp**: {subject}\n\n" + \
@@ -108,7 +106,7 @@ def summary_page():
     st.title("Samenvatting van het gesprek")
 
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
-        summary, prompt_file_path = generate_response(
+        full_prompt, summary, prompt_file_path = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
             st.session_state['speaker2'],
@@ -120,6 +118,8 @@ def summary_page():
 
         if prompt_file_path:
             st.write(f"Gebruikt prompt-bestand: {prompt_file_path}")
+        if full_prompt:
+            st.text_area("Volledige Prompt", full_prompt, height=300)
 
         st.text_area("Samenvatting", summary, height=150)
 
