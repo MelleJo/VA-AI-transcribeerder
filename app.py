@@ -20,7 +20,8 @@ def load_prompt(department):
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return st.write("prompt wel gevonden, jippie!")
     except FileNotFoundError:
-        return "Standaard prompt als het bestand niet wordt gevonden."
+        return st.write("prompt niet gevonden (error)")
+    
 
 # Functie om de samenvatting te genereren
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
