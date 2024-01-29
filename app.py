@@ -24,6 +24,8 @@ def load_prompt(department):
 
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
     department_prompt, prompt_file_path = load_prompt(department)
+    print(f"Geladen prompt: {prompt_file_path}")  # Debugging
+    print(f"Prompt inhoud: {department_prompt[:500]}")  # Print de eerste 500 karakters van de prompt
     
     full_prompt = f"{department_prompt}\n\n### Transcript Informatie:\n" + \
                   f"- **Transcript**: {txt}\n- **Spreker 1**: {speaker1}\n- **Spreker 2**: {speaker2}\n- **Onderwerp**: {subject}\n\n" + \
