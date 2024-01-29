@@ -30,7 +30,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, sub_departme
                   "### Samenvatting Gesprek:\n...\n\n### Actiepunten:\n...\n\n### Eind Samenvatting:"
     
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-turbo-preview", temperature=0.15)
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-turbo-preview", temperature=0.20)
     chain = prompt_template | model | StrOutputParser()
     summary = chain.invoke({"transcript": txt, "speaker1": speaker1, "speaker2": speaker2, "subject": subject})
     return summary, prompt_file_path
