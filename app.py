@@ -7,24 +7,24 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-# Initializeer of reset de pagina in session state
-if 'page' not in st.session_state or st.session_state['page'] < 1 or st.session_state['page'] > 3:
+# Initialisatie van pagina in session state
+if 'page' not in st.session_state:
     st.session_state['page'] = 1
 if 'sub_department' not in st.session_state:
     st.session_state['sub_department'] = None
 
+# Functie om de prompt te laden
 def load_prompt(department):
-    prompt_file_path = f'prompts/{department}.txt'
+    prompt_file_path = f'prompts/{department.lower()}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
-            prompt_content = file.read()
-        return prompt_content, prompt_file_path
+            return file.read()
     except FileNotFoundError:
-        return "Standaard prompt als het bestand niet wordt gevonden.", prompt_file_path
+        return "Standaard prompt als het bestand niet wordt gevonden."
 
+# Functie om de samenvatting te genereren
 def generate_response(txt, speaker1, speaker2, subject, department, sub_department, openai_api_key):
-    department_prompt, prompt_file_path = load_prompt(department)
-    
+    department_prompt = load_prompt(department)
     full_prompt = f"{department_prompt}\n\n### Transcript Informatie:\n" + \
                   f"- **Transcript**: {txt}\n- **Spreker 1**: {speaker1}\n- **Spreker 2**: {speaker2}\n- **Onderwerp**: {subject}\n\n" + \
                   "### Samenvatting Gesprek:\n...\n\n### Actiepunten:\n...\n\n### Eind Samenvatting:"
@@ -33,11 +33,12 @@ def generate_response(txt, speaker1, speaker2, subject, department, sub_departme
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-turbo-preview", temperature=0.20)
     chain = prompt_template | model | StrOutputParser()
     summary = chain.invoke({"transcript": txt, "speaker1": speaker1, "speaker2": speaker2, "subject": subject})
-    return full_prompt, summary, prompt_file_path
+    return summary
 
+# Pagina voor het selecteren van de afdeling
 def department_selection_page():
     st.title('Kies uw afdeling')
-    department = st.selectbox("Selecteer de afdeling:", ["schadebehandelaar", "particulieren", "bedrijven", "financiële planning"])
+    department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
     sub_department = None
     if department == "Financiële Planning":
         sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
@@ -46,6 +47,7 @@ def department_selection_page():
         st.session_state['sub_department'] = sub_department
         st.session_state['page'] = 2
 
+# Pagina voor het uploaden van bestanden
 def upload_page():
     st.title('VA gesprekssamenvatter')
     uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
@@ -59,6 +61,7 @@ def upload_page():
         if st.button("Ga door naar de transcriptie", key="continue_to_transcription"):
             st.session_state['page'] = 1.5
 
+# Pagina voor transcriptie en bewerking
 def transcription_page():
     st.title("Transcriberen en bewerken")
     if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
@@ -102,11 +105,11 @@ def transcription_page():
                 st.session_state['subject'] = subject
                 st.session_state['page'] = 3
 
+# Pagina voor samenvatting
 def summary_page():
     st.title("Samenvatting van het gesprek")
-
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state and 'department' in st.session_state:
-        full_prompt, summary, prompt_file_path = generate_response(
+        summary = generate_response(
             st.session_state['edited_text'],
             st.session_state['speaker1'],
             st.session_state['speaker2'],
@@ -115,12 +118,6 @@ def summary_page():
             st.session_state['sub_department'],
             st.secrets["openai"]["api_key"]
         )
-
-        if prompt_file_path:
-            st.write(f"Gebruikt prompt-bestand: {prompt_file_path}")
-        if full_prompt:
-            st.text_area("Volledige Prompt", full_prompt, height=300)
-
         st.text_area("Samenvatting", summary, height=150)
 
 # Pagina navigatie
