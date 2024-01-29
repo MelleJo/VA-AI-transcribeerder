@@ -37,7 +37,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, sub_departme
 
 def department_selection_page():
     st.title('Kies uw afdeling')
-    department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
+    department = st.selectbox("Selecteer de afdeling:", ["schadebehandelaar", "particulieren", "bedrijven", "financiële planning"])
     sub_department = None
     if department == "Financiële Planning":
         sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
