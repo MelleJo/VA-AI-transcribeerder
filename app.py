@@ -11,21 +11,19 @@ from httpx import HTTPStatusError
 
 # Initialize session state variables
 if 'page' not in st.session_state:
-    st.session_state.page = 1
-if 'sub_department' not in st.session_state:
-    st.session_state.sub_department = None
+    st.session_state['page'] = 1
 if 'department' not in st.session_state:
-    st.session_state.department = ''
+    st.session_state['department'] = ''
 if 'direct_text' not in st.session_state:
-    st.session_state.direct_text = ''
+    st.session_state['direct_text'] = ''
 
 def load_prompt(department):
-    prompt_file_path = f'prompts/{department.lower()}.txt'
+    prompt_file_path = f'prompts/{department}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
-        st.error(f"Prompt file for {department} not found.")
+        st.error(f"Prompt file for '{department}' not found.")
         return ""
 
 def preprocess_text(text):
@@ -35,8 +33,6 @@ def preprocess_text(text):
 
 def split_text(text, max_length=2000):
     text = preprocess_text(text)
-    if len(text) <= max_length:
-        return [text]
     segments = []
     while text:
         segment = text[:max_length]
@@ -54,11 +50,11 @@ def generate_response(segment, department, openai_api_key):
     if not department_prompt:
         st.error("Failed to load the department prompt. Using default summarization.")
         department_prompt = "Please summarize the following text:"
-    full_prompt = f"{department_prompt}\n\n{segment}\n\n### Please provide a summary following the structure above."
+    full_prompt = f"{department_prompt}\n{segment}"
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-turbo-preview", temperature=0.20)
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature=0.7)
     chain = prompt_template | model | StrOutputParser()
-    return chain.invoke({"transcript": segment})
+    return chain.invoke({"text": segment})
 
 def summarize_text(text, department, openai_api_key):
     segments = split_text(text)
@@ -87,45 +83,47 @@ def upload_or_text_page():
         temp_path = os.path.join(temp_dir, uploaded_file.name)
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.session_state['direct_text'] = transcribe_audio(temp_path, st.secrets["speechmatics"]["auth_token"])
-        st.session_state.page = 1.5  # Proceed to department selection
-    elif st.button("Plak tekst"):
-        st.session_state.page = 4
+        # Placeholder for your Speechmatics transcription function call
+        # Make sure to implement transcription logic here
+        st.session_state['page'] = 2  # Proceed to department selection
+    if st.button("Plak tekst"):
+        st.session_state['page'] = 3
 
 def department_selection_page():
     st.title('Kies uw afdeling')
     department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"], index=0)
-    st.session_state.department = department
-    if department == "Financiële Planning":
-        st.session_state.sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"], index=0)
+    st.session_state['department'] = department
     if st.button("Ga verder"):
-        st.session_state.page = 3
+        st.session_state['page'] = 4  # Proceed to text input or summarization
 
 def text_input_page():
     st.title("Tekst voor Samenvatting")
     direct_text = st.text_area("Plak de tekst hier", '', height=300)
     if st.button('Verzend tekst'):
-        st.session_state.direct_text = direct_text
-        st.session_state.page = 3
+        st.session_state['direct_text'] = direct_text
+        st.session_state['page'] = 5  # Proceed to summarization
 
 def summary_page():
     st.title("Samenvatting van het Gesprek")
-    if st.session_state.direct_text:
+    if st.session_state['direct_text']:
         final_summary = summarize_text(
-            st.session_state.direct_text,
-            st.session_state.department,
+            st.session_state['direct_text'],
+            st.session_state['department'],
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", final_summary, height=150)
     else:
-        st.write("Geen tekst gevonden om te verwerken.")
+        st.error("Geen tekst gevonden om te verwerken.")
 
 # Page navigation
-if st.session_state.page == 1:
+if st.session_state['page'] == 1:
     upload_or_text_page()
-elif st.session_state.page == 4:
-    text_input_page()
-elif st.session_state.page == 1.5:
+elif st.session_state['page'] == 2:
     department_selection_page()
-elif st.session_state.page == 3:
+elif st.session_state['page'] == 3:
+    text_input_page()
+elif st.session_state['page'] == 4:
+    # This step can be text input or summarization based on previous actions.
+    text_input_page()  # Adjust according to your flow if necessary
+elif st.session_state['page'] == 5:
     summary_page()
