@@ -43,11 +43,11 @@ def department_selection_page():
     st.title('Kies uw afdeling')
     department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
     sub_department = None
-    if department == "Financiële Planning":
-        sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
+    # TODO: Add subdepartment selection if department == "Financiële Planning":
+        # sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
     if st.button("Ga door naar samenvatting"):
         st.session_state['department'] = department
-        st.session_state['sub_department'] = sub_department
+        # st.session_state['sub_department'] = sub_department
         st.session_state['page'] = 3
 
 # Pagina voor het uploaden van bestanden en directe tekstinput
