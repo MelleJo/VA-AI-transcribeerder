@@ -10,15 +10,15 @@ from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
 
 # Initialize session state variables
-if 'page' not in st.session_state:
-    st.session_state['page'] = 1
 if 'department' not in st.session_state:
     st.session_state['department'] = ''
 if 'direct_text' not in st.session_state:
     st.session_state['direct_text'] = ''
+if 'page' not in st.session_state:
+    st.session_state['page'] = 'department_selection'
 
 def load_prompt(department):
-    prompt_file_path = f'prompts/{department}.txt'
+    prompt_file_path = f'prompts/{department.lower()}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
@@ -74,34 +74,31 @@ def summarize_text(text, department, openai_api_key):
     st.write(f"Completed in {total_minutes:.2f} minutes.")
     return " ".join(summaries)
 
-def upload_or_text_page():
-    st.title('VA Gesprekssamenvatter')
-    uploaded_file = st.file_uploader("Kies een MP3-bestand", type="mp3")
-    if uploaded_file is not None:
-        temp_dir = "temp"
-        os.makedirs(temp_dir, exist_ok=True)
-        temp_path = os.path.join(temp_dir, uploaded_file.name)
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        # Placeholder for your Speechmatics transcription function call
-        # Make sure to implement transcription logic here
-        st.session_state['page'] = 2  # Proceed to department selection
-    if st.button("Plak tekst"):
-        st.session_state['page'] = 3
-
 def department_selection_page():
     st.title('Kies uw afdeling')
-    department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"], index=0)
+    department = st.radio("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
     st.session_state['department'] = department
-    if st.button("Ga verder"):
-        st.session_state['page'] = 4  # Proceed to text input or summarization
+    if st.button("Selecteer afdeling"):
+        st.session_state['page'] = 'input_method'
+
+def input_method_page():
+    st.title('Upload MP3 of plak tekst')
+    method = st.radio("Kies methode:", ["Upload MP3", "Plak tekst"])
+    if method == "Upload MP3":
+        uploaded_file = st.file_uploader("Kies een MP3-bestand", type="mp3")
+        if uploaded_file is not None:
+            # Process MP3 file here
+            st.session_state['page'] = 'summarize'
+    elif method == "Plak tekst":
+        if st.button("Ga naar tekst invoer"):
+            st.session_state['page'] = 'text_input'
 
 def text_input_page():
     st.title("Tekst voor Samenvatting")
     direct_text = st.text_area("Plak de tekst hier", '', height=300)
     if st.button('Verzend tekst'):
         st.session_state['direct_text'] = direct_text
-        st.session_state['page'] = 5  # Proceed to summarization
+        st.session_state['page'] = 'summarize'
 
 def summary_page():
     st.title("Samenvatting van het Gesprek")
@@ -116,14 +113,11 @@ def summary_page():
         st.error("Geen tekst gevonden om te verwerken.")
 
 # Page navigation
-if st.session_state['page'] == 1:
-    upload_or_text_page()
-elif st.session_state['page'] == 2:
+if st.session_state['page'] == 'department_selection':
     department_selection_page()
-elif st.session_state['page'] == 3:
+elif st.session_state['page'] == 'input_method':
+    input_method_page()
+elif st.session_state['page'] == 'text_input':
     text_input_page()
-elif st.session_state['page'] == 4:
-    # This step can be text input or summarization based on previous actions.
-    text_input_page()  # Adjust according to your flow if necessary
-elif st.session_state['page'] == 5:
+elif st.session_state['page'] == 'summarize':
     summary_page()
