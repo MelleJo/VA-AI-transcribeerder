@@ -1,15 +1,15 @@
 import streamlit as st
+import os
+import re
+import time
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
-import os
-import re
-import time
 
-# Initialisation of session state variables
+# Initialize session state variables
 if 'page' not in st.session_state:
     st.session_state.page = 1
 if 'sub_department' not in st.session_state:
@@ -25,6 +25,7 @@ def load_prompt(department):
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
+        st.error(f"Prompt file for {department} not found.")
         return ""
 
 def preprocess_text(text):
@@ -50,7 +51,10 @@ def split_text(text, max_length=2000):
 
 def generate_response(segment, department, openai_api_key):
     department_prompt = load_prompt(department)
-    full_prompt = f"{department_prompt}\n\n{segment}"
+    if not department_prompt:
+        st.error("Failed to load the department prompt. Using default summarization.")
+        department_prompt = "Please summarize the following text:"
+    full_prompt = f"{department_prompt}\n\n{segment}\n\n### Please provide a summary following the structure above."
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-turbo-preview", temperature=0.20)
     chain = prompt_template | model | StrOutputParser()
@@ -66,35 +70,13 @@ def summarize_text(text, department, openai_api_key):
         elapsed_time = time.time() - start_time
         estimated_total_time = (elapsed_time / i) * len(segments)
         remaining_time = estimated_total_time - elapsed_time
-        st.write(f"Chunk {i}/{len(segments)} processed. Estimated remaining time: {remaining_time:.2f} seconds.")
-    st.write(f"Completed in {elapsed_time:.2f} seconds.")
+        elapsed_minutes = elapsed_time / 60
+        remaining_minutes = remaining_time / 60
+        st.write(f"Chunk {i}/{len(segments)} processed. Estimated remaining time: {remaining_minutes:.2f} minutes.")
+    total_duration = time.time() - start_time
+    total_minutes = total_duration / 60
+    st.write(f"Completed in {total_minutes:.2f} minutes.")
     return " ".join(summaries)
-
-def transcribe_audio(file_path, auth_token):
-    LANGUAGE = "en-US"  # Adjust based on your requirements
-    settings = ConnectionSettings(
-        url="https://asr.api.speechmatics.com/v2",
-        auth_token=auth_token,
-    )
-    conf = {
-        "type": "transcription",
-        "transcription_config": {
-            "language": LANGUAGE,
-            "operating_point": "enhanced",
-            "diarization": "speaker",
-            "speaker_diarization_config": {
-                "speaker_sensitivity": 0.2
-            }
-        },
-    }
-    transcript = ""
-    with BatchClient(settings) as speech_client:
-        try:
-            job_id = speech_client.submit_job(audio=file_path, transcription_config=conf)
-            transcript = speech_client.wait_for_completion(job_id, transcription_format="txt")
-        except HTTPStatusError as e:
-            st.error(f"Error during transcription: {str(e)}")
-    return transcript
 
 def upload_or_text_page():
     st.title('VA Gesprekssamenvatter')
@@ -105,8 +87,7 @@ def upload_or_text_page():
         temp_path = os.path.join(temp_dir, uploaded_file.name)
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        transcript = transcribe_audio(temp_path, st.secrets["speechmatics"]["auth_token"])
-        st.session_state.direct_text = transcript
+        st.session_state['direct_text'] = transcribe_audio(temp_path, st.secrets["speechmatics"]["auth_token"])
         st.session_state.page = 1.5  # Proceed to department selection
     elif st.button("Plak tekst"):
         st.session_state.page = 4
