@@ -2,8 +2,9 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+import os
 
-# Initialisatie van pagina in sessie status
+# Initialisatie van sessie status
 if 'page' not in st.session_state:
     st.session_state['page'] = 1
 if 'sub_department' not in st.session_state:
@@ -19,10 +20,6 @@ def load_prompt(department):
         return ""
 
 def split_text(text, max_length=2000):
-    """
-    Splits the text into segments of approximately max_length characters,
-    trying not to cut off in the middle of a word.
-    """
     if len(text) <= max_length:
         return [text]
     segments = []
@@ -55,27 +52,39 @@ def summarize_text(text, department, openai_api_key):
         st.write(f"Chunk {i}/{len(segments)} verwerkt.")
     return " ".join(summaries)
 
+def upload_or_text_page():
+    st.title('VA Gesprekssamenvatter')
+    uploaded_file = st.file_uploader("Kies een MP3-bestand", type="mp3")
+    if uploaded_file is not None:
+        temp_dir = "temp"
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_path = os.path.join(temp_dir, uploaded_file.name)
+        with open(temp_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.session_state['uploaded_file_path'] = temp_path
+        st.session_state['page'] = 1.5  # Ga naar de afdelingsselectie
+    elif st.button("Of plak hier uw tekst in plaats van een MP3 te uploaden"):
+        st.session_state['page'] = 4
+
+def department_selection_page():
+    st.title('Kies uw afdeling')
+    department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
+    st.session_state['department'] = department
+    if department == "Financiële Planning":
+        st.session_state['sub_department'] = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
+    if st.button("Ga door naar samenvatting"):
+        st.session_state['page'] = 3
+
 def text_input_page():
     st.title("Tekst voor Samenvatting")
     direct_text = st.text_area("Plak de tekst hier", '', height=300)
     if st.button('Verzend tekst'):
         st.session_state['direct_text'] = direct_text
-        st.session_state['page'] = 3  # Direct naar samenvatting
-
-def department_selection_page():
-    st.title('Kies uw afdeling')
-    department = st.selectbox("Selecteer de afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
-    sub_department = None
-    if department == "Financiële Planning":
-        sub_department = st.selectbox("Selecteer de subafdeling:", ["Pensioen", "Collectief", "Inkomen", "Planning", "Hypotheek"])
-    st.session_state['department'] = department
-    st.session_state['sub_department'] = sub_department
-    if st.button("Ga door naar tekst invoer"):
-        st.session_state['page'] = 4
+        st.session_state['page'] = 3
 
 def summary_page():
     st.title("Samenvatting van het Gesprek")
-    if 'direct_text' in st.session_state and 'department' in st.session_state:
+    if 'direct_text' in st.session_state:
         final_summary = summarize_text(
             st.session_state['direct_text'],
             st.session_state['department'],
@@ -85,8 +94,10 @@ def summary_page():
 
 # Pagina navigatie
 if st.session_state['page'] == 1:
-    department_selection_page()
+    upload_or_text_page()
 elif st.session_state['page'] == 4:
     text_input_page()
+elif st.session_state['page'] == 1.5:
+    department_selection_page()
 elif st.session_state['page'] == 3:
     summary_page()
