@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import os
+import time
 
 # Initialisation of session state variables
 if 'page' not in st.session_state:
@@ -49,11 +50,24 @@ def generate_response(segment, department, openai_api_key):
 
 def summarize_text(text, department, openai_api_key):
     segments = split_text(text)
+    start_time = time.time()  # Capture start time
     summaries = []
+    total_segments = len(segments)
+    
     for i, segment in enumerate(segments, start=1):
+        segment_start_time = time.time()
         summary = generate_response(segment, department, openai_api_key)
         summaries.append(summary)
-        st.write(f"Chunk {i}/{len(segments)} verwerkt.")
+        
+        segment_duration = time.time() - segment_start_time
+        elapsed_time = time.time() - start_time
+        estimated_total_time = (elapsed_time / i) * total_segments
+        remaining_time = estimated_total_time - elapsed_time
+        
+        st.write(f"Chunk {i}/{total_segments} verwerkt. Geschatte resterende tijd: {remaining_time:.2f} seconden.")
+    
+    total_duration = time.time() - start_time
+    st.write(f"Voltooid in {total_duration:.2f} seconden.")
     return " ".join(summaries)
 
 def upload_or_text_page():
