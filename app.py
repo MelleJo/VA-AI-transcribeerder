@@ -61,6 +61,7 @@ def generate_response_with_map_reduce(text, openai_api_key):
         final_summary = map_reduce_chain.run(split_docs_flattened)
         return final_summary
 
+
 # Streamlit App UI
 def app_ui():
     st.title("VA Gesprekssamenvatter")
