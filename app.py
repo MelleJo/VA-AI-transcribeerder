@@ -10,7 +10,7 @@ def load_prompt(department):
         file_name = "financiele planning"
     else:
         file_name = department.replace(' ', '_').lower()
-    prompt_file_path = f'prompts/{file_name}.txt'
+    prompt_file_path = f'prompts/{file_name}'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
