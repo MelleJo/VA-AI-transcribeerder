@@ -1,33 +1,42 @@
 import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
-from langchain.prompts import ChatPromptTemplate, PromptTemplate
+from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 
+# Load the prompt for the selected department
 def load_prompt(department):
     if department == "Financiële Planning":
-        file_name = "financiele planning"
+        file_name = "financiele_planning"
     else:
         file_name = department.replace(' ', '_').lower()
-    prompt_file_path = f'prompts/{file_name}'
+    prompt_file_path = f'prompts/{file_name}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
         st.error(f"Promptbestand voor '{department}' niet gevonden. Verwacht bestandspad: {prompt_file_path}")
-        return None
+        return ""
 
+# Split the text into manageable chunks
+def split_text(text):
+    text_splitter = CharacterTextSplitter(
+        separator="\n\n", 
+        chunk_size=1000, 
+        chunk_overlap=200, 
+        length_function=len, 
+        is_separator_regex=False
+    )
+    return text_splitter.create_documents([text])
+
+# Generate a summary using Map-Reduce logic
 def generate_response_with_map_reduce(text, openai_api_key):
-    # Initialize the LLM with OpenAI Chat
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
-
-    # Define Map Chain
-    map_template = """Please summarize this document: {doc}"""
+    map_template = "Please summarize this document: {doc}"
     map_prompt = PromptTemplate.from_template(map_template)
     map_chain = LLMChain(llm=llm, prompt=map_prompt)
 
-    # Define Reduce Chain
-    reduce_template = """The following are summaries: {docs} Take these and distill it into a final, consolidated summary."""
+    reduce_template = "Take these summaries and distill them into a final, consolidated summary: {docs}"
     reduce_prompt = PromptTemplate.from_template(reduce_template)
     reduce_chain = LLMChain(llm=llm, prompt=reduce_prompt)
     combine_documents_chain = StuffDocumentsChain(llm_chain=reduce_chain, document_variable_name="docs")
@@ -45,14 +54,13 @@ def generate_response_with_map_reduce(text, openai_api_key):
         return_intermediate_steps=False,
     )
 
-    # Split text into manageable pieces
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    split_docs = text_splitter.split_into_chunks(text)  # Correct method to split text
+    split_docs = split_text(text)
+    if split_docs:
+        split_docs_flattened = [doc['content'] for doc in split_docs]
+        final_summary = map_reduce_chain.run(split_docs_flattened)
+        return final_summary
 
-    # Run Map-Reduce Chain
-    final_summary = map_reduce_chain.run({"doc": split_docs})  # Pass split_docs as a dictionary
-    return final_summary
-
+# Streamlit App UI
 def app_ui():
     st.title("VA Gesprekssamenvatter")
     department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
@@ -62,7 +70,7 @@ def app_ui():
         direct_text = user_input
         if direct_text:
             prompt = load_prompt(department)
-            if prompt is not None:
+            if prompt:
                 summary = generate_response_with_map_reduce(direct_text, st.secrets["openai"]["api_key"])
                 st.subheader("Samenvatting")
                 st.write(summary)
