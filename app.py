@@ -12,14 +12,15 @@ SPEECHMATICS_AUTH_TOKEN = "your_speechmatics_auth_token_here"
 
 # Function to load the appropriate prompt based on the department selected
 def load_prompt(department):
-    # Make sure the file names match the department names exactly
-    prompt_file_path = f"./prompts/{department.replace(' ', '_').lower()}.txt"
+    # Assuming the file names include spaces as per the department names and are stored directly under the 'prompts' directory
+    prompt_file_path = f'prompts/{department}.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
-        st.error(f"Prompt file for '{department}' not found.")
+        st.error(f"Prompt file for '{department}' not found. Expected file path: {prompt_file_path}")
         return None
+
 
 # Function to preprocess and split text for summarization
 def preprocess_and_split_text(text, max_length=2000):
@@ -38,33 +39,49 @@ def generate_response(text, prompt, openai_api_key):
     chain = prompt_template | model | StrOutputParser()
     return chain.invoke({"text": text})
 
+
+# Initialize session state variables
+if 'department' not in st.session_state:
+    st.session_state['department'] = ''
+if 'direct_text' not in st.session_state:
+    st.session_state['direct_text'] = ''
+
 # Streamlit App UI
 def app_ui():
-    st.title("VA gesprekssamenvatter")
+    st.title("VA Gesprekssamenvatter")
 
-    # Department selection
+    # Afdeling selectie met prompt laden
     department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
-    prompt_text = load_prompt(department)
+    st.session_state['department'] = department
+    
+    prompt_text = load_prompt(st.session_state['department'])
+    if prompt_text is None:
+        st.error("Kon het promptbestand voor '{}' niet vinden. Controleer de naam van de afdeling en het overeenkomende promptbestand.".format(department))
+        return
+    
+    # Tekstinvoer verwerken
+    user_input = st.text_area("Plak hier uw tekst:", height=250)
 
-    # Text input
-    user_input = st.text_area("Plak de tekst hier of upload een MP3-bestand voor transcriptie:", height=250)
-    uploaded_file = st.file_uploader("Upload MP3", type=["mp3"])
-
-    if st.button("Genereer samenvatting"):
-        if uploaded_file:
-            # Placeholder for MP3 transcription logic
-            transcript = "Transcribed text from the MP3 file goes here."
-            st.session_state['direct_text'] = transcript
-        else:
-            st.session_state['direct_text'] = user_input
-
-        # Generate and display summary
-        if st.session_state['direct_text']:
-            segments = preprocess_and_split_text(st.session_state['direct_text'])
-            summaries = [generate_response(segment, prompt_text, st.secrets["openai"]["api_key"]) for segment in segments]
+    # MP3-bestand uploaden
+    uploaded_file = st.file_uploader("Of upload een MP3-bestand voor transcriptie:", type=["mp3"])
+    
+    # Knop om de samenvatting te genereren
+    if st.button("Genereer Samenvatting"):
+        direct_text = user_input  # Gebruik direct ingevoerde tekst als standaard
+        
+        if uploaded_file is not None:
+            # Plaatsvervanger: Implementeer hier uw transcriptielogica
+            # Aannemend dat `transcribe_audio` uw functie is om transcriptie te verwerken
+            direct_text = transcribe_audio(uploaded_file, SPEECHMATICS_AUTH_TOKEN)
+        
+        if direct_text:
+            # Aannemend dat `summarize_text` uw functie is om de samenvatting te verwerken
+            # Deze zou de tekst (of getranscribeerde tekst), het geladen prompt en de OpenAI API-sleutel moeten nemen
+            summary = summarize_text(direct_text, prompt_text, st.secrets["openai"]["api_key"])
             st.subheader("Samenvatting")
-            st.write(" ".join(summaries))
+            st.write(summary)
         else:
-            st.error("Geen geldige tekst of audio geüpload.")
+            st.error("Voer alstublieft wat tekst in of upload een MP3-bestand.")
+
 
 app_ui()
