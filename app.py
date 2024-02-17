@@ -56,11 +56,10 @@ def generate_response_with_map_reduce(text, openai_api_key):
 
     split_docs = split_text(text)
     if split_docs:
-        # Correctly access the content of each Document object
-        split_docs_flattened = [doc.content for doc in split_docs]  # Use dot notation here
+        # Adjusted to correctly access the text of each Document object, assuming it's stored in a .text attribute
+        split_docs_flattened = [doc.text for doc in split_docs]  # Adjusted attribute access
         final_summary = map_reduce_chain.run(split_docs_flattened)
         return final_summary
-
 
 # Streamlit App UI
 def app_ui():
