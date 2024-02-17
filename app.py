@@ -23,12 +23,13 @@ def preprocess_and_split_text(text, max_length=3000):
     text = re.sub(r'\s+', ' ', text.strip())
     return [text[i:i+max_length] for i in range(0, len(text), max_length)]
 
-def generate_response(text, prompt, openai_api_key):
-    full_prompt = f"{prompt}\n\n{text}"
+def generate_response(text, speaker1, speaker2, subject, prompt, openai_api_key):
+    # Construct the full prompt with the required structure
+    full_prompt = f"{prompt}\n\nSpreker 1: {speaker1}\nSpreker 2: {speaker2}\nOnderwerp: {subject}\nTranscript: {text}\nSamenvatting:"
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature=0.7)
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
     chain = prompt_template | model | StrOutputParser()
-    return chain.invoke({"text": text})
+    return chain.invoke({"speaker1": speaker1, "speaker2": speaker2, "subject": subject, "transcript": text})
 
 def app_ui():
     st.title("VA Gesprekssamenvatter")
@@ -42,11 +43,10 @@ def app_ui():
     if st.button("Genereer Samenvatting"):
         direct_text = user_input
         if direct_text:
-            segments = preprocess_and_split_text(direct_text)
-            summaries = [generate_response(segment, load_prompt(department), st.secrets["openai"]["api_key"]) for segment in segments]
-            final_summary = " ".join(summaries)
+            prompt = load_prompt(department)
+            summary = generate_response(direct_text, speaker1, speaker2, subject, prompt, st.secrets["openai"]["api_key"])
             st.subheader("Samenvatting")
-            st.write(final_summary)
+            st.write(summary)
         else:
             st.error("Voer alstublieft wat tekst in of upload een MP3-bestand.")
 
