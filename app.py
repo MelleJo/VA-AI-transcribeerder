@@ -3,10 +3,6 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
-# from langchain.output_parsers import StrOutputParser
-import os
-import re
-import time
 
 def load_prompt(department):
     if department == "Financiële Planning":
@@ -21,18 +17,17 @@ def load_prompt(department):
         st.error(f"Promptbestand voor '{department}' niet gevonden. Verwacht bestandspad: {prompt_file_path}")
         return None
 
-# Define the function for generating response using MapReduce logic
 def generate_response_with_map_reduce(text, openai_api_key):
     # Initialize the LLM with OpenAI Chat
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
 
     # Define Map Chain
-    map_template = """The following is a document: {doc} Please summarize this document."""
+    map_template = """Please summarize this document: {doc}"""
     map_prompt = PromptTemplate.from_template(map_template)
     map_chain = LLMChain(llm=llm, prompt=map_prompt)
 
     # Define Reduce Chain
-    reduce_template = """The following is a set of summaries: {docs} Take these and distill it into a final, consolidated summary of the main themes."""
+    reduce_template = """The following are summaries: {docs} Take these and distill it into a final, consolidated summary."""
     reduce_prompt = PromptTemplate.from_template(reduce_template)
     reduce_chain = LLMChain(llm=llm, prompt=reduce_prompt)
     combine_documents_chain = StuffDocumentsChain(llm_chain=reduce_chain, document_variable_name="docs")
@@ -43,7 +38,6 @@ def generate_response_with_map_reduce(text, openai_api_key):
         token_max=4000,
     )
 
-    # Combining documents by mapping a chain over them, then combining results
     map_reduce_chain = MapReduceDocumentsChain(
         llm_chain=map_chain,
         reduce_documents_chain=reduce_documents_chain,
@@ -51,12 +45,12 @@ def generate_response_with_map_reduce(text, openai_api_key):
         return_intermediate_steps=False,
     )
 
-    # Split text into chunks
+    # Split text into manageable pieces
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    split_docs = text_splitter.split(text)
+    split_docs = text_splitter.split_into_chunks(text)  # Correct method to split text
 
     # Run Map-Reduce Chain
-    final_summary = map_reduce_chain.run(split_docs)
+    final_summary = map_reduce_chain.run({"doc": split_docs})  # Pass split_docs as a dictionary
     return final_summary
 
 def app_ui():
