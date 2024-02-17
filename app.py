@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.output_parsers import StrOutputParser
+# from langchain.output_parsers import StrOutputParser
 import os
 import re
 import time
