@@ -1,7 +1,9 @@
 import streamlit as st
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.output_parsers import StrOutputParser
 import os
 import re
 import time
@@ -17,36 +19,61 @@ def load_prompt(department):
             return file.read()
     except FileNotFoundError:
         st.error(f"Promptbestand voor '{department}' niet gevonden. Verwacht bestandspad: {prompt_file_path}")
-        return ""
+        return None
 
-def preprocess_and_split_text(text, max_length=3000):
-    text = re.sub(r'\s+', ' ', text.strip())
-    return [text[i:i+max_length] for i in range(0, len(text), max_length)]
+# Define the function for generating response using MapReduce logic
+def generate_response_with_map_reduce(text, openai_api_key):
+    # Initialize the LLM with OpenAI Chat
+    llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
 
-def generate_response(text, speaker1, speaker2, subject, prompt, openai_api_key):
-    # Construct the full prompt with the required structure
-    full_prompt = f"{prompt}\n\nSpreker 1: {speaker1}\nSpreker 2: {speaker2}\nOnderwerp: {subject}\nTranscript: {text}\nSamenvatting:"
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature=0.7)
-    prompt_template = ChatPromptTemplate.from_template(full_prompt)
-    chain = prompt_template | model | StrOutputParser()
-    return chain.invoke({"speaker1": speaker1, "speaker2": speaker2, "subject": subject, "transcript": text})
+    # Define Map Chain
+    map_template = """The following is a document: {doc} Please summarize this document."""
+    map_prompt = PromptTemplate.from_template(map_template)
+    map_chain = LLMChain(llm=llm, prompt=map_prompt)
+
+    # Define Reduce Chain
+    reduce_template = """The following is a set of summaries: {docs} Take these and distill it into a final, consolidated summary of the main themes."""
+    reduce_prompt = PromptTemplate.from_template(reduce_template)
+    reduce_chain = LLMChain(llm=llm, prompt=reduce_prompt)
+    combine_documents_chain = StuffDocumentsChain(llm_chain=reduce_chain, document_variable_name="docs")
+
+    reduce_documents_chain = ReduceDocumentsChain(
+        combine_documents_chain=combine_documents_chain,
+        collapse_documents_chain=combine_documents_chain,
+        token_max=4000,
+    )
+
+    # Combining documents by mapping a chain over them, then combining results
+    map_reduce_chain = MapReduceDocumentsChain(
+        llm_chain=map_chain,
+        reduce_documents_chain=reduce_documents_chain,
+        document_variable_name="doc",
+        return_intermediate_steps=False,
+    )
+
+    # Split text into chunks
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    split_docs = text_splitter.split(text)
+
+    # Run Map-Reduce Chain
+    final_summary = map_reduce_chain.run(split_docs)
+    return final_summary
 
 def app_ui():
     st.title("VA Gesprekssamenvatter")
     department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
-    speaker1 = st.text_input("Naam van Spreker 1 (optioneel):")
-    speaker2 = st.text_input("Naam van Spreker 2 (optioneel):")
-    subject = st.text_input("Onderwerp van het gesprek (optioneel):")
     user_input = st.text_area("Plak hier uw tekst:", height=250)
-    uploaded_file = st.file_uploader("Of upload een MP3-bestand voor transcriptie:", type=["mp3"])
-    
+
     if st.button("Genereer Samenvatting"):
         direct_text = user_input
         if direct_text:
             prompt = load_prompt(department)
-            summary = generate_response(direct_text, speaker1, speaker2, subject, prompt, st.secrets["openai"]["api_key"])
-            st.subheader("Samenvatting")
-            st.write(summary)
+            if prompt is not None:
+                summary = generate_response_with_map_reduce(direct_text, st.secrets["openai"]["api_key"])
+                st.subheader("Samenvatting")
+                st.write(summary)
+            else:
+                st.error("Kon geen samenvatting genereren. Controleer de geselecteerde afdeling.")
         else:
             st.error("Voer alstublieft wat tekst in of upload een MP3-bestand.")
 
