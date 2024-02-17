@@ -27,13 +27,20 @@ def load_prompt(department):
         return None
 
 
-
-
-
+def summarize_text(text, prompt, openai_api_key):
+    segments = preprocess_and_split_text(text)
+    summaries = []
+    
+    for segment in segments:
+        response = generate_response(segment, prompt, openai_api_key)
+        summaries.append(response)
+    
+    final_summary = " ".join(summaries)
+    return final_summary
 
 
 # Function to preprocess and split text for summarization
-def preprocess_and_split_text(text, max_length=2000):
+def preprocess_and_split_text(text, max_length=3000):
     # Preprocess to remove extra spaces
     text = re.sub(r'\s+', ' ', text.strip())
     # Split text into segments
