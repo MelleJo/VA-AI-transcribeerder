@@ -12,14 +12,16 @@ SPEECHMATICS_AUTH_TOKEN = "your_speechmatics_auth_token_here"
 
 # Function to load the appropriate prompt based on the department selected
 def load_prompt(department):
-    # Assuming department names are used as filenames directly
-    prompt_file_path = f'prompts/{department}'
+    # Convert the department name to lowercase to match the file naming convention
+    file_name = department.lower()
+    prompt_file_path = f'prompts/{file_name}'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
         st.error(f"Promptbestand voor '{department}' niet gevonden. Verwacht bestandspad: {prompt_file_path}")
         return None
+
 
 
 
