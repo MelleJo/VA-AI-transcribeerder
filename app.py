@@ -7,7 +7,7 @@ from langchain.text_splitter import CharacterTextSplitter
 # Load the prompt for the selected department
 def load_prompt(department):
     if department == "Financiële Planning":
-        file_name = "financiele_planning"
+        file_name = "financiele planning"
     else:
         file_name = department.replace(' ', '_').lower()
     prompt_file_path = f'prompts/{file_name}.txt'
