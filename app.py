@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
 from langchain.prompts import PromptTemplate
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter, Document
 
 # Load the prompt for the selected department
 def load_prompt(department):
@@ -56,7 +56,8 @@ def generate_response_with_map_reduce(text, openai_api_key):
 
     split_docs = split_text(text)
     if split_docs:
-        split_docs_flattened = [doc['content'] for doc in split_docs]
+        # Correctly access the content of each Document object
+        split_docs_flattened = [doc.content for doc in split_docs]  # Use dot notation here
         final_summary = map_reduce_chain.run(split_docs_flattened)
         return final_summary
 
