@@ -12,14 +12,27 @@ SPEECHMATICS_AUTH_TOKEN = "your_speechmatics_auth_token_here"
 
 # Function to load the appropriate prompt based on the department selected
 def load_prompt(department):
-    # Assuming the file names include spaces as per the department names and are stored directly under the 'prompts' directory
-    prompt_file_path = f'prompts/{department}.txt'
+    # Map the department name to its corresponding folder name, ensuring lowercase to match your structure
+    department_to_folder = {
+        "Schadebehandelaar": "schadebehandelaar",
+        "Particulieren": "particulieren",
+        "Bedrijven": "bedrijven",
+        "Financiële Planning": "financiele planning"
+    }
+    folder_name = department_to_folder.get(department, "").lower()  # Default to empty string if department not found
+    if not folder_name:  # If the department does not match, log an error
+        st.error(f"Onbekende afdeling '{department}'. Kan het overeenkomstige promptbestand niet vinden.")
+        return None
+
+    # Construct the file path based on the mapped folder name
+    prompt_file_path = os.path.join('prompts', folder_name, 'prompt.txt')  # Assuming each folder contains a 'prompt.txt'
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
-        st.error(f"Prompt file for '{department}' not found. Expected file path: {prompt_file_path}")
+        st.error(f"Promptbestand voor '{department}' niet gevonden. Verwachte bestandspad: {prompt_file_path}")
         return None
+
 
 
 # Function to preprocess and split text for summarization
