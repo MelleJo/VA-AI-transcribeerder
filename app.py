@@ -30,6 +30,7 @@ def split_text(text):
     return text_splitter.create_documents([text])
 
 # Generate a summary using Map-Reduce logic
+# Generate a summary using Map-Reduce logic
 def generate_response_with_map_reduce(text, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
     map_template = "Please summarize this document: {doc}"
@@ -56,10 +57,11 @@ def generate_response_with_map_reduce(text, openai_api_key):
 
     split_docs = split_text(text)
     if split_docs:
-        # Adjusted to correctly access the text of each Document object, assuming it's stored in a .text attribute
-        split_docs_flattened = [doc.text for doc in split_docs]  # Adjusted attribute access
+        # Adjusted to correctly access the page content of each Document object
+        split_docs_flattened = [doc.page_content for doc in split_docs]
         final_summary = map_reduce_chain.run(split_docs_flattened)
         return final_summary
+
 
 # Streamlit App UI
 def app_ui():
