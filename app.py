@@ -11,7 +11,7 @@ def load_prompt(department):
         "Schadebehandelaar": "schadebehandelaar",
         "Particulieren": "particulieren",
         "Bedrijven": "bedrijven",
-        "Financiële Planning": "financiele_planning"
+        "Financiële Planning": "financiele planning"
     }
     filename = department_to_filename.get(department, "default")
     prompt_file_path = f"prompts/{filename}"
