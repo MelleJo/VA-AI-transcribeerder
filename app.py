@@ -5,49 +5,43 @@ from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMC
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter, Document
 
-# base dir
-base_dir = '/prompts/'
+# Define the mapping of departments to their respective prompt filenames
+DEPARTMENT_PROMPT_MAPPING = {
+    "Schadebehandelaar": "schadebehandelaar",
+    "Particulieren": "particulieren",
+    "Bedrijven": "bedrijven",
+    "Financiële Planning": "financiele planning"
+}
 
-# Construct the full path to the prompt file
-prompt_file_path = os.path.join(base_dir, filename)
-
-try:
-    with open(prompt_file_path, 'r', encoding='utf-8') as file:
-        prompt_template = file.read()
-    print("Prompt loaded successfully.")
-except FileNotFoundError:
-    print(f"Error: The file {prompt_file_path} was not found.")
-except Exception as e:
-    print(f"An error occurred: {e}")
-
-
-# Load the prompt for the selected department
 def load_prompt(department):
-    if department == "Financiële Planning":
-        file_name = "financiele planning"
-    else:
-        file_name = department.replace(' ', '_').lower()
-    prompt_file_path = f'prompts/{file_name}'
+    """
+    Load the prompt for the selected department from the 'prompts' directory.
+    """
+    base_dir = 'prompts'  # Assuming the 'prompts' directory is at the root level of your project
+    file_name = DEPARTMENT_PROMPT_MAPPING.get(department, "").replace(' ', '_').lower()
+    prompt_file_path = os.path.join(base_dir, file_name)
+
     try:
         with open(prompt_file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except FileNotFoundError:
         st.error(f"Promptbestand voor '{department}' niet gevonden. Verwacht bestandspad: {prompt_file_path}")
         return ""
+    except Exception as e:
+        st.error(f"Een fout is opgetreden bij het laden van het promptbestand: {e}")
+        return ""
 
-# Split the text into manageable chunks
 def split_text(text):
-    text_splitter = CharacterTextSplitter(
-        separator="\n\n", 
-        chunk_size=1000, 
-        chunk_overlap=200, 
-        length_function=len, 
-        is_separator_regex=False
-    )
+    """
+    Split the text into manageable chunks.
+    """
+    text_splitter = CharacterTextSplitter(separator="\n\n", chunk_size=1000, chunk_overlap=200, length_function=len, is_separator_regex=False)
     return text_splitter.create_documents([text])
 
-# Generate a summary using Map-Reduce logic with invoke method and correct input handling
 def generate_response_with_map_reduce(text, openai_api_key):
+    """
+    Generate a summary using Map-Reduce logic with correct input handling.
+    """
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
     map_template = "Please summarize this document: {doc}"
     map_prompt = PromptTemplate.from_template(map_template)
@@ -73,14 +67,15 @@ def generate_response_with_map_reduce(text, openai_api_key):
 
     split_docs = split_text(text)
     if split_docs:
-        # Ensure the input is correctly structured, potentially adjusting how documents are passed
         final_summary = map_reduce_chain.invoke(split_docs)  # Adjust this line as per the expected input format
         return final_summary
 
-# Streamlit App UI
 def app_ui():
+    """
+    Streamlit App UI for generating summaries based on department-specific prompts.
+    """
     st.title("VA Gesprekssamenvatter")
-    department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
+    department = st.selectbox("Kies uw afdeling:", list(DEPARTMENT_PROMPT_MAPPING.keys()))
     user_input = st.text_area("Plak hier uw tekst:", height=250)
 
     if st.button("Genereer Samenvatting"):
@@ -88,12 +83,13 @@ def app_ui():
         if direct_text:
             prompt = load_prompt(department)
             if prompt:
+                # Assuming you will use `prompt` in your processing logic
                 summary = generate_response_with_map_reduce(direct_text, st.secrets["openai"]["api_key"])
                 st.subheader("Samenvatting")
                 st.write(summary)
             else:
                 st.error("Kon geen samenvatting genereren. Controleer de geselecteerde afdeling.")
         else:
-            st.error("Voer alstublieft wat tekst in of upload een MP3-bestand.")
+            st.error("Voer alstublieft wat tekst in.")
 
 app_ui()
