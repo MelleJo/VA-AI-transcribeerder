@@ -33,15 +33,17 @@ def split_text(text):
     return text_splitter.create_documents([text])
 
 # Generate a summary using Map-Reduce logic with LLM
+# Correctly integrating the prompt with LLMChain
 def generate_summary(text, department):
     prompt_text = load_prompt(department)
     if prompt_text:
-        # Initialize the OpenAI Chat with your API key
         llm = ChatOpenAI(api_key=st.secrets["openai"]["api_key"], model_name="gpt-4")
         
-        # If LLMChain expects a pre-processed PromptTemplate
-        prompt_template = PromptTemplate.from_template_string(prompt_text)
-        map_chain = LLMChain(llm=llm, prompt=prompt_template)
+        # Assuming a direct string can be used or another method to wrap the prompt text correctly
+        map_chain = LLMChain(llm=llm, prompt=prompt_text)  # Adjust based on actual library method
+        
+        # Proceed with the rest of your function logic
+
 
 
         # Configure reduce chain
