@@ -39,10 +39,15 @@ def generate_summary(text, department):
     if prompt_text:
         llm = ChatOpenAI(api_key=st.secrets["openai"]["api_key"], model_name="gpt-4")
         
-        # Assuming a direct string can be used or another method to wrap the prompt text correctly
-        map_chain = LLMChain(llm=llm, prompt=prompt_text)  # Adjust based on actual library method
+        # Adjusting to use a dict for the prompt, hypothetical structure
+        prompt_dict = {
+            "text": prompt_text,
+            # Add other necessary keys/values based on LangChain documentation
+        }
+        map_chain = LLMChain(llm=llm, prompt=prompt_dict)
         
         # Proceed with the rest of your function logic
+
 
 
 
