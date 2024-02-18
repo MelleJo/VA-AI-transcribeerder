@@ -4,9 +4,6 @@ from langchain.chains import LLMChain, MapReduceDocumentsChain, ReduceDocumentsC
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 
-# Define base directory for prompts
-base_dir = '/workspaces/VA-AI-transcribeerder/prompts/'
-
 # Function to dynamically load the prompt based on department selection
 def load_prompt(department):
     # Mapping department to filename
@@ -17,7 +14,7 @@ def load_prompt(department):
         "Financiële Planning": "financiele_planning"
     }
     filename = department_to_filename.get(department, "default")
-    prompt_file_path = f"{base_dir}{filename}"
+    prompt_file_path = f"prompts/{filename}"
 
     # Attempt to load the prompt from file
     try:
@@ -65,18 +62,14 @@ def generate_summary(text, department):
         return "Prompt loading failed, cannot generate summary."
 
 # UI setup for Streamlit app
-def app_ui():
-    st.title("VA Gesprekssamenvatter")
-    department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
-    user_input = st.text_area("Plak hier uw tekst:", height=250)
+st.title("VA Gesprekssamenvatter")
+department = st.selectbox("Kies uw afdeling:", ["Schadebehandelaar", "Particulieren", "Bedrijven", "Financiële Planning"])
+user_input = st.text_area("Plak hier uw tekst:", height=250)
 
-    if st.button("Genereer Samenvatting"):
-        summary = generate_summary(user_input, department)
-        if summary:
-            st.subheader("Samenvatting")
-            st.write(summary)
-        else:
-            st.error("Unable to generate summary. Please check the input and try again.")
-
-if __name__ == "__main__":
-    app_ui()
+if st.button("Genereer Samenvatting"):
+    summary = generate_summary(user_input, department)
+    if summary:
+        st.subheader("Samenvatting")
+        st.write(summary)
+    else:
+        st.error("Unable to generate summary. Please check the input and try again.")
