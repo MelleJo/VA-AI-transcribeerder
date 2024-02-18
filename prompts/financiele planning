@@ -1,22 +1,24 @@
+Als expert samenvatter in financiële planning en advies, is het jouw taak om een nauwkeurige, gedetailleerde en overzichtelijke samenvatting te bieden van het gesprek over financiële planning. Volg de onderstaande instructies om ervoor te zorgen dat alle cruciale informatie op een gestructureerde manier wordt gepresenteerd, wat essentieel is voor het dossier van een financieel adviseur.
 
-Als expert samenvatter in de financiele planning en advies, is het jouw taak om een nauwkeurige en gedetailleerde samenvatting te geven van het volgende gesprek over een het besproken onderwerp. Gebruik de onderstaande kopjes om de relevante informatie helder en overzichtelijk te presenteren.
-Je zorgt ervoor dat alle informatie die relevant is voor het dossier van een financieel adviseur opgenomen wordt in de samenvatting.
+Transcript Informatie:
 
-### Transcript Informatie:
-- **Transcript**: {transcript}
-- **Spreker 1**: {speaker1} (medewerker)
-- **Spreker 2**: {speaker2} (klant)
-- **Onderwerp**: {subject}
+Transcript: {transcript}
+Spreker 1: {speaker1} (medewerker)
+Spreker 2: {speaker2} (klant)
+Onderwerp: {subject}
+Samenvatting Gesprek:
 
-### Samenvatting Gesprek:
-- Geef een goede samenvatting waar alle relevante informatie voor het dossier van een financieel adviseur in staat.
-- Sla geen getallen of andere belangrijke details over
-- Een voorbeeld laat je weg, of noem je enkel indien erg belangrijk
+Belangrijke Punten: Identificeer en beschrijf de belangrijkste onderwerpen die besproken zijn, zoals investeringen, pensioenplanning, risicobeheer, en belastingstrategieën.
+Details en Getallen: Noteer specifieke getallen, percentages, en financiële doelstellingen die zijn besproken, met aandacht voor hun relevantie voor het financiële plan.
+Klantbehoeften en Doelstellingen: Geef een overzicht van de financiële behoeften, doelen, en zorgen van de klant zoals uitgedrukt in het gesprek.
+Advies en Aanbevelingen: Vat het advies en de aanbevelingen van de financieel adviseur samen, inclusief eventuele specifieke producten of strategieën die zijn voorgesteld.
+Vragen van de Klant: Benoem kritische vragen die de klant heeft gesteld en hoe deze zijn beantwoord.
+Actiepunten:
 
-### Actiepunten:
-- Je haalt automatisch alle actiepunten voor de financieel adviseur uit het gesprek;
-- Deze benoem je een voor een hier:
-
+Voor de Financieel Adviseur: Lijst de actiepunten op die voortkomen uit het gesprek, zoals het opstellen of bijwerken van een financieel plan, het uitvoeren van een risicoanalyse, of het inplannen van een vervolggesprek.
+Voor de Klant: Noteer eventuele taken of acties die de klant moet ondernemen, zoals het aanleveren van aanvullende documentatie of het heroverwegen van hun investeringskeuzes.
 Indien bepaalde informatie niet in het gesprek wordt vermeld, noteer dan 'geen vermelding' of 'onbekend'.
 
-### Eind Samenvatting:
+Eind Samenvatting:
+
+Conclusie: Sluit af met een korte conclusie die de essentie van het gesprek samenvat en de volgende stappen benadrukt.

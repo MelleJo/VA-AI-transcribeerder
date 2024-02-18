@@ -1,8 +1,25 @@
 import streamlit as st
+import os
 from langchain_openai import ChatOpenAI
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, LLMChain, StuffDocumentsChain
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter, Document
+
+# base dir
+base_dir = '/prompts/'
+
+# Construct the full path to the prompt file
+prompt_file_path = os.path.join(base_dir, filename)
+
+try:
+    with open(prompt_file_path, 'r', encoding='utf-8') as file:
+        prompt_template = file.read()
+    print("Prompt loaded successfully.")
+except FileNotFoundError:
+    print(f"Error: The file {prompt_file_path} was not found.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
 
 # Load the prompt for the selected department
 def load_prompt(department):
@@ -29,7 +46,6 @@ def split_text(text):
     )
     return text_splitter.create_documents([text])
 
-# Generate a summary using Map-Reduce logic
 # Generate a summary using Map-Reduce logic with invoke method and correct input handling
 def generate_response_with_map_reduce(text, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4")
