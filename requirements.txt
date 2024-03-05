@@ -4,5 +4,6 @@ httpx
 openai
 langchain
 langchain_openai
+langchain_core
 datetime
 humanize
