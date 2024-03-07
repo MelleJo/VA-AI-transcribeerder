@@ -105,7 +105,7 @@ def transcription_page():
 def summary_page():
     st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
-        with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript...")
+        with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript..."):
             summary = generate_response(
                 st.session_state['edited_text'],
                 st.session_state['speaker1'],
