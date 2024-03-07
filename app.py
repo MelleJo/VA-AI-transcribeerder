@@ -22,12 +22,24 @@ department_prompts = {
 
 def generate_response(txt, speaker1, speaker2, subject, department, openai_api_key):
     department_prompt = department_prompts.get(department, "Algemene samenvatting: ...")
-    prompt_text = f"Vat dit samen: {txt} van {speaker1} en {speaker2} over {subject}. Met deze instructies: {basic_prompt_rules} {department_prompt}"
+    detailed_instructions = f"{basic_prompt_rules} {department_prompt}"
+    
+    prompt_template = ChatPromptTemplate.from_template(
+        f"Vat dit samen: {{transcript}} van {{speaker1}} en {{speaker2}} over {{subject}}. "
+        f"Met deze instructies: {detailed_instructions}"
+    )
 
     model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature=0.1)
-    summary = model.chat(prompt_text)
+    chain = prompt_template | model | StrOutputParser()
 
-    return summary['choices'][0]['message']['content']
+    summary = chain.invoke({
+        "transcript": txt,
+        "speaker1": speaker1,
+        "speaker2": speaker2,
+        "subject": subject
+    })
+
+    return summary
 
 # Page 1: File Upload
 def upload_page():
