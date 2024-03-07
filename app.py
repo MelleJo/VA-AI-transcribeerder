@@ -26,7 +26,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, openai_api_k
     prompt_template = ChatPromptTemplate.from_template(
         f"Vat dit samen: {{transcript}} van {{speaker1}} en {{speaker2}} over {{subject}}. Met deze instructies: {detailed_instructions}"
     )
-    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4", temperature=0.1)
+    model = ChatOpenAI(api_key=openai_api_key, model_name="gpt-4-0125-preview", temperature=0.1)
     chain = prompt_template | model | StrOutputParser()
     summary = chain.invoke({
         "transcript": txt,
