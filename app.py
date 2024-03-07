@@ -70,7 +70,7 @@ if 'page' in st.session_state and st.session_state['page'] == 2:
                         st.error(f"Error during transcription: {str(e)}")
                 os.remove(temp_path)
         if 'transcript' in st.session_state:
-            edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=300)
+            edited_text = st.text_area("Edit Transcript", st.session_state['transcript'], height=1000)
             speaker1 = st.text_input("Name for Speaker 1 (S1)")
             speaker2 = st.text_input("Name for Speaker 2 (S2)")
             subject = st.text_input("Subject of the Call")
