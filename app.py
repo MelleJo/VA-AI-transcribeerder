@@ -85,6 +85,7 @@ def transcription_page():
                 st.session_state['speaker1'] = speaker1
                 st.session_state['speaker2'] = speaker2
                 st.session_state['subject'] = subject
+                st.session_state['department'] = department 
                 st.session_state['page'] = 3
 
 # Page 3: Summary
@@ -96,7 +97,7 @@ def summary_page():
             st.session_state['speaker1'],
             st.session_state['speaker2'],
             st.session_state['subject'],
-            st.session_state["department"]
+            st.session_state["department"],
             st.secrets["openai"]["api_key"]
         )
         st.text_area("Samenvatting", summary, height=150)
