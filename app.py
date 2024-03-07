@@ -58,28 +58,25 @@ def upload_page():
 # Page 2: Transcription and Editing
 def transcription_page():
     st.title("Transcriberen en bewerken")
-    if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
-        temp_path = os.path.join("temp", st.session_state['uploaded_file'].name)
-        department = st.radio("Selecteer de afdeling", list(department_prompts.keys()))
-        if st.button('Transcriberen', key='transcribe_audio'):
-            with st.spinner("Transcriptie wordt gegenereerd, dit kan even duren, afhankelijk van de lengte van het gesprek..."):
-                AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
-                LANGUAGE = "nl"
-                settings = ConnectionSettings(
-                    url="https://asr.api.speechmatics.com/v2",
-                    auth_token=AUTH_TOKEN,
-                )
-                conf = {
-                    "type": "transcription",
-                    "transcription_config": {
-                        "language": LANGUAGE,
-                        "operating_point": "enhanced",
-                        "diarization": "speaker",
-                        "speaker_diarization_config": {
+    if st.button('Transcriberen', key='transcribe_audio'):
+        with st.spinner("Transcriptie wordt gegenereerd, dit kan even duren, afhankelijk van de lengte van het gesprek..."):
+            AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
+            LANGUAGE = "nl"
+            settings = ConnectionSettings(
+                url="https://asr.api.speechmatics.com/v2",
+                auth_token=AUTH_TOKEN,
+            )
+            conf = {
+                "type": "transcription",
+                "transcription_config": {
+                    "language": LANGUAGE,
+                    "operating_point": "enhanced",
+                    "diarization": "speaker",
+                    "speaker_diarization_config": {
                         "speaker_sensitivity": 0.2
-                        }
-                    },
-                }
+                    }
+                },
+            }
             with BatchClient(settings) as speech_client:
                 try:
                     job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
@@ -105,16 +102,18 @@ def transcription_page():
 def summary_page():
     st.title("Samenvatting van het gesprek")
     if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
-        with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript..."):
-            summary = generate_response(
-                st.session_state['edited_text'],
-                st.session_state['speaker1'],
-                st.session_state['speaker2'],
-                st.session_state['subject'],
-                st.session_state["department"],
-                st.secrets["openai"]["api_key"]
-            )
-            st.text_area("Samenvatting", summary, height=150)
+        if st.button('Continue to Summary', key='continue_to_summary'):
+            with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript..."):
+                summary = generate_response(
+                    st.session_state['edited_text'],
+                    st.session_state['speaker1'],
+                    st.session_state['speaker2'],
+                    st.session_state['subject'],
+                    st.session_state["department"],
+                    st.secrets["openai"]["api_key"]
+                )
+                st.text_area("Samenvatting", summary, height=150)
+
 
 
 # Initialize session state variables
