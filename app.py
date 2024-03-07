@@ -84,14 +84,15 @@ if 'page' in st.session_state and st.session_state['page'] == 2:
 if 'page' in st.session_state and st.session_state['page'] == 3:
     # Page 3: Summary
     st.title("Samenvatting van het gesprek")
-    if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
-        with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript..."):
-            summary = generate_response(
-                st.session_state['edited_text'],
-                st.session_state['speaker1'],
-                st.session_state['speaker2'],
-                st.session_state['subject'],
-                st.session_state["department"],
-                st.secrets["openai"]["api_key"]
-            )
-            st.text_area("Samenvatting", summary, height=150)
+    if st.button('Genereer Samenvatting', key='generate_summary'):
+        if 'edited_text' in st.session_state and 'speaker1' in st.session_state and 'speaker2' in st.session_state and 'subject' in st.session_state:
+            with st.spinner("Samenvatting wordt gegenereerd, dit kan even duren afhankelijk van de lengte van het transcript..."):
+                summary = generate_response(
+                    st.session_state['edited_text'],
+                    st.session_state['speaker1'],
+                    st.session_state['speaker2'],
+                    st.session_state['subject'],
+                    st.session_state["department"],
+                    st.secrets["openai"]["api_key"]
+                )
+                st.text_area("Samenvatting", summary, height=1000)
