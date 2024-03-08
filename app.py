@@ -50,7 +50,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, openai_api_k
         )
     return transcription.text
 
-st.title('VA gesprekssamenvatter')
+st.title('VA gesprekssamenvatter - testversie 0.2.1.')
 
 # Page 1: File Upload
 uploaded_file = st.file_uploader("Kies een MP3 bestand", type="mp3")
