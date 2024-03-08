@@ -272,6 +272,10 @@ def main():
                 else:
                     st.error("Document niet gevonden.")
         
+
+if __name__ == "__main__":
+    main()
+    
             
             
 
