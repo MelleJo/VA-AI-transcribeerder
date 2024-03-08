@@ -5,5 +5,7 @@ openai
 langchain
 langchain_openai
 langchain_core
+langchain_community
 datetime
 humanize
+PyPDF2

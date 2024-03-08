@@ -1,14 +1,23 @@
 import streamlit as st
 import os
+import time
+import pyperclip
 from PyPDF2 import PdfReader
-from openai import OpenAI
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain.chains import AnalyzeDocumentChain
+from langchain_community.callbacks import get_openai_callback
+from langchain.chains.question_answering import load_qa_chain
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.vectorstores import FAISS
 from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
-import httpx
+from httpx import HTTPStatusError
+from openai import OpenAI
+
+
 
 # Set your OpenAI and Speechmatics API keys
 openai_api_key = st.secrets["openai"]["api_key"]
