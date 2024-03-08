@@ -119,4 +119,6 @@ if 'page' in st.session_state and st.session_state['page'] == 3:
                     st.session_state["department"],
                     st.secrets["openai"]["api_key"]
                 )
-                st.text_area("Samenvatting", summary, height=1000)
+                summary = st.text_area("Samenvatting", summary, height=1000)
+                st.markdown(summary)
+                
