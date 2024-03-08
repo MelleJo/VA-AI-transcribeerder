@@ -39,7 +39,7 @@ def generate_response(txt, speaker1, speaker2, subject, department, openai_api_k
 
 
 def transcribe_with_whisper(audio_path):
-    client = OpenAI()
+    client = OpenAI(api_key=openai_api_key)
     with open(audio_path, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
