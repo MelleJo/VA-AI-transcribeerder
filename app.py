@@ -249,6 +249,10 @@ def main():
                     #summary = st.text_area("Samenvatting", summary, height=1000)
                     st.markdown(summary)
 
+            # Add a button to proceed to coverage check
+        if st.button('Ga verder naar dekking controleren'):
+            st.session_state['page'] = 4
+
     if 'page' in st.session_state and st.session_state['page'] == 4:
         st.title("Controleer de claim tegen polisvoorwaarden")
 
@@ -275,7 +279,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+
             
             
 
