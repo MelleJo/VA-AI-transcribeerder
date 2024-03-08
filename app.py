@@ -10,6 +10,8 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Function to generate the summary
 
+openai_api_key = st.secrets["openai"]["api_key"]
+
 basic_prompt_rules = "De samenvatting is altijd in het Nederlands, het betreft altijd een telefoongesprek tussen twee partijen. Je zorgt altijd dat er geen belangrijke informatie wordt overgeslagen. Vermeld het onderwerp, en de sprekers."
 
 department_prompts = {
