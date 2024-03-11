@@ -61,8 +61,9 @@ def generate_response(txt, speaker1, speaker2, subject, department, openai_api_k
         "transcript": txt,
         "speaker1": speaker1,
         "speaker2": speaker2,
-        "subject": subject
-    })
+        "subject": subject,
+        "datum_transcript": datum_transcript  
+        })
     return summary
 
 
