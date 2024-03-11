@@ -87,7 +87,7 @@ if 'page' in st.session_state and st.session_state['page'] == 2:
                 AUTH_TOKEN = st.secrets["speechmatics"]["auth_token"]
                 LANGUAGE = "nl"
                 settings = ConnectionSettings(url="https://asr.api.speechmatics.com/v2", auth_token=AUTH_TOKEN)
-                conf = {"type": "transcription", "transcription_config": {"language": LANGUAGE, "operating_point": "enhanced", "diarization": "speaker", "speaker_diarization_config": {"speaker_sensitivity": 0.2}}}
+                conf = {"type": "transcription", "transcription_config": {"language": LANGUAGE, "operating_point": "standard", "diarization": "speaker", "speaker_diarization_config": {"speaker_sensitivity": 0.2}}}
                 with BatchClient(settings) as speech_client:
                     try:
                         job_id = speech_client.submit_job(audio=temp_path, transcription_config=conf)
