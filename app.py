@@ -7,8 +7,9 @@ from openai import OpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
+from datetime import datetime
 
-
+datum_transcript = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
 # Function to generate the summary
 
@@ -20,21 +21,26 @@ Jij bent een expert in het maken van beknopte maar effectieve samenvattingen voo
 
 department_prompts = {
     "schade": """"
-    Jij bent een expert schadebehandelaar, je stelt alle relevante vragen die benodigd zijn voor het behandelen van een schade. 
-    Op deze manier verzamel je alle informatie voor het schadedossier van de klant. 
+    Jij bent een expert schadebehandelaar, je stelt alle relevante vragen die benodigd zijn voor het behandelen van een schade.
+    Kopje 1: Details over het telefoon gesprek, {datum_transcript}, {speaker1}, {speaker2}, {subject}.
+    Kopje 2: Korte samenvatting van het gesprek: hier gebruik je bulletpoints en leg je in zo min mogelijk tekst uit waar het gesprek over ging, en enige informatie die belangrijk is voor het dossier.
+    Kopje 3: Schademelding:
+    Als er een datum, postcode, of bedrag is gegeven, dan noteer je die altijd expliciet.
     Je zorgt ervoor dat alle informatie met betrekking tot een schade worden opgenomen. 
-    ALTIJD moet de volgende informatie worden opgenomen: 
-    1. Aan welk object is er schade? 
-    2. Hoe hoog is de schade in euro's? 
-    3. Is de schade al hersteld? Heeft er een expert naar gekeken? 
-    4. Wanneer is de schade opgetreden? 
-    5. Onder welke polis zou deze schade kunnen vallen? 
-    6. Zijn er foto's of andere documentatie verstuurd? 
-    7. Is de schade zichtbaar vanaf de straat of meer verborgen? 
-    Analyseer in het transcript of er actiepunten zijn voor ofwel de schadebehandelaar ofwel de klant. 
+    Stel de volgende schade bij het samenstellen van de schademelding, mocht iets niet aan bod zijn gekomen, dan ga je er vanuit dat dit niet benodigd is, dus laat je dit weg uit de samenvatting.  
+    1. Object van schade: Specificeer het beschadigde object. 
+    2. Schadebedrag: Vermeld de hoogte van de schade in euro's. 
+    3. Status van herstel en expertise: Is de schade hersteld? Is er een expertbeoordeling geweest?
+    4. Datum van incident: Noteer wanneer de schade is opgetreden.
+    5. Onder welke polis zou deze schade kunnen vallen, beoordeel dit aan de hand van de soort schade als het niet is genoemd. 
+    6. Documentatie: Zijn er foto's of andere bewijsstukken verstuurd? 
+    7. Zichtbaarheid van schade: Is de schade vanaf de straat zichtbaar of is het meer verborgen?
+
+    Kopje 4: Actiepunten schadebehandelaar/collega: Analyseer in het transcript of er actiepunten zijn voor de schadebehandelaar.
+    Kopje 5: Actiepunten klant: Analyseer in het transcript of er actiepunten zijn voor de klant.
+
     Je houdt de samenvatting zelf kort en beperkt tot de belangrijkste details voor de context van de schade(behandeling), maar zorg er voor (dit is de grootste prioriteit) dat geen enkele gegevens met betrekking tot de schade zelf worden weggelaten. 
     Maak simpele directe zinnen. 
-    Deze geef je weer in bullet points aan het einde van de samenvatting, je zorgt ervoor dat je dat nooit overslaat.
     """,
     "financiele planning": "Samenvatting voor de afdeling Financiële Planning: ...",
     "adviseurs": "Samenvatting voor de afdeling Adviseurs: ...",
