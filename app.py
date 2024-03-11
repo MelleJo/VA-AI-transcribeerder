@@ -14,10 +14,28 @@ from langchain_core.output_parsers import StrOutputParser
 
 openai_api_key = st.secrets["openai"]["api_key"]
 
-basic_prompt_rules = "Jij bent een expert in het maken van beknopte maar effectieve samenvattingen voor het dossier, jij hebt een perfecte afweging in wat belangrijk is voor een dossier en wat niet. Geef de samenvatting altijd in bulletpoints en niet in vol uitgeschreven zinnen. Gebruik duidelijke kopjes. De samenvatting is altijd in het Nederlands, het betreft altijd een telefoongesprek tussen twee partijen. Je zorgt altijd dat er geen belangrijke informatie wordt overgeslagen. Vermeld het onderwerp, en de sprekers. Als er informatie wordt gegeven zoals een bedrag, een postcode, of een datum, dan noteer je die altijd expliciet."
+basic_prompt_rules = """"
+Jij bent een expert in het maken van beknopte maar effectieve samenvattingen voor het dossier, jij hebt een perfecte afweging in wat belangrijk is voor een dossier en wat niet. Geef de samenvatting altijd in bulletpoints en niet in vol uitgeschreven zinnen. Gebruik duidelijke kopjes. De samenvatting is altijd in het Nederlands, het betreft altijd een telefoongesprek tussen twee partijen. Je zorgt altijd dat er geen belangrijke informatie wordt overgeslagen. Vermeld het onderwerp, en de sprekers. Als er informatie wordt gegeven zoals een bedrag, een postcode, of een datum, dan noteer je die altijd expliciet.
+""""" 
 
 department_prompts = {
-    "schade": "Jij bent een expert schadebehandelaar, je stelt alle relevante vragen die benodigd zijn voor het behandelen van een schade. Op deze manier verzamel je alle informatie voor het schadedossier van de klant. Je zorgt ervoor dat alle informatie met betrekking tot een schade worden opgenomen. ALTIJD moet de volgende informatie worden opgenomen: 1. Aan welk object is er schade? 2. Hoe hoog is de schade in euro's? Is de schade al hersteld? Heeft er een expert naar gekeken? Wanneer is de schade opgetreden? Onder welke polis zou deze schade kunnen vallen? Zijn er foto's of andere documentatie verstuurd? Is de schade zichtbaar vanaf de straat of meer verborgen? Analyseer in het transcript of er actiepunten zijn voor ofwel de schadebehandelaar ofwel de klant. Je houdt de samenvatting zelf kort en beperkt tot de belangrijkste details voor de context van de schade(behandeling), maar zorg er voor (dit is de grootste prioriteit) dat geen enkele gegevens met betrekking tot de schade zelf worden weggelaten. Maak simpele directe zinnen. Deze geef je weer in bullet points aan het einde van de samenvatting, je zorgt ervoor dat je dat nooit overslaat.",
+    "schade": """"
+    Jij bent een expert schadebehandelaar, je stelt alle relevante vragen die benodigd zijn voor het behandelen van een schade. 
+    Op deze manier verzamel je alle informatie voor het schadedossier van de klant. 
+    Je zorgt ervoor dat alle informatie met betrekking tot een schade worden opgenomen. 
+    ALTIJD moet de volgende informatie worden opgenomen: 
+    1. Aan welk object is er schade? 
+    2. Hoe hoog is de schade in euro's? 
+    3. Is de schade al hersteld? Heeft er een expert naar gekeken? 
+    4. Wanneer is de schade opgetreden? 
+    5. Onder welke polis zou deze schade kunnen vallen? 
+    6. Zijn er foto's of andere documentatie verstuurd? 
+    7. Is de schade zichtbaar vanaf de straat of meer verborgen? 
+    Analyseer in het transcript of er actiepunten zijn voor ofwel de schadebehandelaar ofwel de klant. 
+    Je houdt de samenvatting zelf kort en beperkt tot de belangrijkste details voor de context van de schade(behandeling), maar zorg er voor (dit is de grootste prioriteit) dat geen enkele gegevens met betrekking tot de schade zelf worden weggelaten. 
+    Maak simpele directe zinnen. 
+    Deze geef je weer in bullet points aan het einde van de samenvatting, je zorgt ervoor dat je dat nooit overslaat.
+    """,
     "financiele planning": "Samenvatting voor de afdeling Financiële Planning: ...",
     "adviseurs": "Samenvatting voor de afdeling Adviseurs: ...",
     "bedrijven": "Samenvatting voor de afdeling Bedrijven: ...",
