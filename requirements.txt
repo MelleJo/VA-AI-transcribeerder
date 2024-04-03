@@ -9,3 +9,5 @@ langchain_community
 datetime
 humanize
 PyPDF2
+streamlit-audio-recorder
+pydub
