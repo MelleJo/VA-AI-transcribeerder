@@ -123,7 +123,9 @@ if input_method == "Upload tekst":
         else:
             text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
-        st.text_area("Summary", value=summary, height=250)
+        if summary:
+            st.markdown(f"**{summary}**", unsafe_allow_html=True)
+
 
 elif input_method in ["Upload Audio", "Neem audio op"]:
     if input_method == "Upload Audio":
@@ -147,8 +149,11 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
             tmp_audio.flush()
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
-            st.text_area("Transcript", value=transcript, height=250)
-            st.text_area("Summary", value=summary, height=250)
+            st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+            if summary:
+                st.markdown(f"**Summary:**\n{summary}", unsafe_allow_html=True)
+
+
             os.remove(tmp_audio.name)
     elif input_method == "Upload Audio":
         st.warning("Upload een audio bestand.")
