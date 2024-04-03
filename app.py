@@ -91,7 +91,7 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
             st.text_area("Summary", value=summary, height=250)
             os.remove(tmp_audio.name)
 
-elif input_method == "Enter or Paste Text":
+elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Enter or paste the text here:")
     if st.button("Summarize"):
         summary = summarize_text(text, department)
