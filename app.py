@@ -1,10 +1,9 @@
 import streamlit as st
 from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
-import tempfile
 import os
-import openai
-from langchain.chains import ChatPromptTemplate, StrOutputParser
+import time
+import pyperclip
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -18,6 +17,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(openai_api_key=openai.api_key)
 
 def transcribe_audio(file_path):
     try:
