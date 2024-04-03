@@ -4,6 +4,8 @@ from streamlit_mic_recorder import mic_recorder
 import tempfile
 import os
 import openai
+from langchain.llms import ChatOpenAI
+from langchain.chains import ChatPromptTemplate, StrOutputParser
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -17,12 +19,29 @@ def transcribe_audio(file_path):
         return "Transcriptie mislukt."
 
 def summarize_text(text, department):
-    prompt = f"Vat de volgende tekst samen voor de afdeling {department}:\n\n{text}"
+    department_prompts = {
+        "Verzekeringen": """
+        Je bent een expert in verzekeringen met een focus op polisvoorwaarden en dekking. Analyseer de volgende tekst en bied een beknopte samenvatting die essentiële informatie over dekkingen, uitsluitingen en voorwaarden belicht. Zorg ervoor dat je antwoord duidelijk en nauwkeurig is, met directe citaten uit de tekst waar mogelijk.
+        """,
+        "Financieel Advies": """
+        Als financieel adviseur is jouw taak om de onderliggende financiële principes en adviezen in de volgende tekst te identificeren en samen te vatten. Focus op het verstrekken van een helder en begrijpelijk overzicht dat de kernpunten en aanbevelingen voor de lezer benadrukt.
+        """,
+        "Claims": """
+        Analyseer de volgende tekst vanuit het perspectief van een schadebehandelaar. Je doel is om een samenvatting te geven die zich richt op claims, schadegevallen en relevante polisvoorwaarden. Vermeld specifieke dekkingen, uitsluitingen en procedures die in de tekst worden beschreven, met aandacht voor detail en nauwkeurigheid.
+        """,
+        "Klantenservice": """
+        Als klantenservicemedewerker is jouw rol om de informatie in de volgende tekst te interpreteren en samen te vatten op een manier die voor de klant gemakkelijk te begrijpen is. Focus op het benadrukken van veelgestelde vragen, belangrijke punten en nuttige adviezen die de klant kan gebruiken.
+        """
+    }
+
+    basic_prompt = "Hieronder vind je een samenvatting van de belangrijkste punten uit de tekst. Deze samenvatting is bedoeld om je een snel overzicht te geven van de inhoud, met focus op de meest relevante informatie voor jouw specifieke behoeften."
+
+    prompt = department_prompts.get(department, "") + basic_prompt + f"\n\n{text}"
     response = openai.Completion.create(
-        model="text-davinci-003",
+        model="gpt-4",
         prompt=prompt,
         temperature=0.5,
-        max_tokens=100,
+        max_tokens=1024,
     )
     return response.choices[0].text.strip()
 
@@ -39,7 +58,7 @@ if input_method == "Tekst uploaden":
         summary = summarize_text(text, department)
         st.text_area("Samenvatting", value=summary, height=250)
 
-elif input_method == "Audio uploaden" or input_method == "Audio opnemen":
+elif input_method in ["Audio uploaden", "Audio opnemen"]:
     if input_method == "Audio uploaden":
         uploaded_audio = st.file_uploader("Upload een audiobestand", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
     else:
