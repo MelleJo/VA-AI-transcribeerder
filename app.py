@@ -12,7 +12,7 @@ from langchain.chains import AnalyzeDocumentChain
 from langchain_community.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langchain_core.output_parsers import StrOutputParser, TextOutputParser
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 
