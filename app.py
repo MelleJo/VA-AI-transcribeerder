@@ -30,74 +30,81 @@ def transcribe_audio(file_path):
 opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 
 
+def transcribe_audio(file_path):
+    try:
+        # Note: Adjust the path and model as per your specific requirements
+        with open(file_path, "rb") as audio_file:
+            transcription = openai.Audio.create(
+                audio_file=audio_file,
+                model="whisper-1",
+            )
+        transcript_text = transcription['data']['text']
+        return transcript_text
+    except Exception as e:
+        st.error(f"Transcription failed: {str(e)}")
+        return "Transcription failed."
+
 def summarize_text(text, department):
+    # Department-specific prompts setup
     department_prompts = {
-        "Verzekeringen": """
-        Je bent een expert in verzekeringen met een focus op polisvoorwaarden en dekking. Analyseer de volgende tekst en bied een beknopte samenvatting die essentiële informatie over dekkingen, uitsluitingen en voorwaarden belicht. Zorg ervoor dat je antwoord duidelijk en nauwkeurig is, met directe citaten uit de tekst waar mogelijk.
-        """,
-        "Financieel Advies": """
-        Als financieel adviseur is jouw taak om de onderliggende financiële principes en adviezen in de volgende tekst te identificeren en samen te vatten. Focus op het verstrekken van een helder en begrijpelijk overzicht dat de kernpunten en aanbevelingen voor de lezer benadrukt.
-        """,
-        "Claims": """
-        Analyseer de volgende tekst vanuit het perspectief van een schadebehandelaar. Je doel is om een samenvatting te geven die zich richt op claims, schadegevallen en relevante polisvoorwaarden. Vermeld specifieke dekkingen, uitsluitingen en procedures die in de tekst worden beschreven, met aandacht voor detail en nauwkeurigheid.
-        """,
-        "Klantenservice": """
-        Als klantenservicemedewerker is jouw rol om de informatie in de volgende tekst te interpreteren en samen te vatten op een manier die voor de klant gemakkelijk te begrijpen is. Focus op het benadrukken van veelgestelde vragen, belangrijke punten en nuttige adviezen die de klant kan gebruiken.
-        """
+        "Verzekeringen": "You are an insurance expert summarizing policy conditions.",
+        "Financieel Advies": "As a financial advisor, summarize the underlying financial principles.",
+        "Claims": "As a claims handler, provide a summary focusing on claims and relevant policy conditions.",
+        "Klantenservice": "As a customer service representative, summarize the information in an easily understandable way."
     }
 
-    basic_prompt = "Hieronder vind je een samenvatting van de belangrijkste punten uit de tekst. Deze samenvatting is bedoeld om je een snel overzicht te geven van de inhoud, met focus op de meest relevante informatie voor jouw specifieke behoeften."
+    basic_prompt = "Here is a summary of the key points from the text, focusing on the most relevant information for your specific needs."
 
-    # Construct the full prompt
-    full_prompt = department_prompts.get(department, "") + basic_prompt + f"\n\n{text}"
+    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], temperature=0.5)
 
-    # Initialize LangChain's OpenAI with the provided API key and desired model
-    llm = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-015-preview")
+    messages = [
+        SystemMessage(content=department_prompts.get(department, "") + "\n" + basic_prompt),
+        HumanMessage(content=text)
+    ]
 
-    # Use LangChain's OpenAI to generate the summary based on the prompt
-    response = llm.query(prompt=full_prompt, temperature=0.2, max_tokens=1024)
-
-    # Assuming the response directly contains the text; adjust based on actual response structure
-    summary_text = response['choices'][0]['text'] if response.get('choices') else "Summary generation failed."
+    # Invoke the chat model and obtain the summary
+    response = chat.invoke(messages)
+    summary_text = response.content if response else "Unable to generate summary."
 
     return summary_text
-st.title("Dossier Samenvatter")
 
-department = st.selectbox("Selecteer uw afdeling", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
+st.title("Document Summarizer")
 
-input_method = st.radio("Kies invoermethode:", ["Tekst uploaden", "Audio uploaden", "Tekst invoeren of plakken", "Audio opnemen"])
+department = st.selectbox("Select your department", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
 
-if input_method == "Tekst uploaden":
-    uploaded_file = st.file_uploader("Kies een bestand")
+input_method = st.radio("Choose input method:", ["Upload Text", "Upload Audio", "Enter or Paste Text", "Record Audio"])
+
+if input_method == "Upload Text":
+    uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
-        st.text_area("Samenvatting", value=summary, height=250)
+        st.text_area("Summary", value=summary, height=250)
 
-elif input_method in ["Audio uploaden", "Audio opnemen"]:
-    if input_method == "Audio uploaden":
-        uploaded_audio = st.file_uploader("Upload een audiobestand", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+elif input_method in ["Upload Audio", "Record Audio"]:
+    if input_method == "Upload Audio":
+        uploaded_audio = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
     else:
         audio_data = mic_recorder(
             key="recorder",
-            start_prompt="Begin met opnemen",
-            stop_prompt="Stop opname",
+            start_prompt="Start recording",
+            stop_prompt="Stop recording",
             use_container_width=True,
             format="webm"
         )
         uploaded_audio = None if not audio_data or 'bytes' not in audio_data else audio_data['bytes']
 
     if uploaded_audio is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm" if input_method == "Audio opnemen" else None) as tmp_audio:
-            tmp_audio.write(uploaded_audio if input_method == "Audio opnemen" else uploaded_audio.getvalue())
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm" if input_method == "Record Audio" else None) as tmp_audio:
+            tmp_audio.write(uploaded_audio if input_method == "Record Audio" else uploaded_audio.getvalue())
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
             st.text_area("Transcript", value=transcript, height=250)
-            st.text_area("Samenvatting", value=summary, height=250)
+            st.text_area("Summary", value=summary, height=250)
             os.remove(tmp_audio.name)
 
-elif input_method == "Tekst invoeren of plakken":
-    text = st.text_area("Voer of plak de tekst hier:")
-    if st.button("Samenvatten"):
+elif input_method == "Enter or Paste Text":
+    text = st.text_area("Enter or paste the text here:")
+    if st.button("Summarize"):
         summary = summarize_text(text, department)
-        st.text_area("Samenvatting", value=summary, height=250)
+        st.text_area("Summary", value=summary, height=250)
