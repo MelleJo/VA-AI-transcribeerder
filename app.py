@@ -3,6 +3,7 @@ from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
 import os
 import time
+import tempfile
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import FAISS
