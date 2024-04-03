@@ -49,7 +49,7 @@ def summarize_text(text, department):
 
     basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken"
 
-    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model = "gpt-4-0125-preview" temperature=0.1)
+    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model = "gpt-4-0125-preview", temperature=0.1)
 
     messages = [
         SystemMessage(content=department_prompts.get(department, "") + "\n" + basic_prompt),
