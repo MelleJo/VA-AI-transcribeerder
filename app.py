@@ -42,7 +42,7 @@ def read_docx(file_path):
 def summarize_text(text, department):
     # Department-specific prompts setup
     department_prompts = {
-        "Verzekeringen": "Je bent expert in het samenvatten van gesprekken over verzekeringen.",
+        "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen.",
         "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
         "Schadeafdeling": "Je bent een expert in het samenvatten van gesprekken over claims.",
         "Algemeen": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
@@ -65,7 +65,7 @@ def summarize_text(text, department):
 
 st.title("Gesprekssamenvatter")
 
-department = st.selectbox("Kies je afdeling", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
 
 input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload Audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
