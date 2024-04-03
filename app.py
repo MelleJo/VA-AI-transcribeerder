@@ -30,7 +30,6 @@ def transcribe_audio(file_path):
         return "Transcription mislukt."
 
 
-opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 
 def read_docx(file_path):
     doc = Document(file_path)
@@ -42,15 +41,15 @@ def read_docx(file_path):
 def summarize_text(text, department):
     # Department-specific prompts setup
     department_prompts = {
-        "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen.",
+        "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen, je hebt hierbij een speciale focus op bijvoorbeeld een mutatie of wijziging in de verzekering. Je legt vast wat er is geadviseerd, waarom en over welk product het gaat. Je zorgt ervoor dat het een nette opsomming is waarin geen details worden overgeslagen.",
         "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
-        "Schadeafdeling": "Je bent een expert in het samenvatten van gesprekken over claims.",
+        "Schadeafdeling": "Je bent een expert in het samenvatten van gesprekken met betrekking tot een schademelding. Je geeft aan wanneer de schade is opgetreden, wat de schade betreft en aan welk object de schade is.",
         "Algemeen": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
     }
 
-    basic_prompt = "Hier is de input, dit ga je samenvatten."
+    basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken"
 
-    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], temperature=0.5)
+    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model = "gpt-4-0125-preview" temperature=0.1)
 
     messages = [
         SystemMessage(content=department_prompts.get(department, "") + "\n" + basic_prompt),
