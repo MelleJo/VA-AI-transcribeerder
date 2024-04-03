@@ -30,20 +30,6 @@ def transcribe_audio(file_path):
 opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 
 
-def transcribe_audio(file_path):
-    try:
-        # Note: Adjust the path and model as per your specific requirements
-        with open(file_path, "rb") as audio_file:
-            transcription = client.audio.create(
-                audio_file=audio_file,
-                model="whisper-1",
-            )
-        transcript_text = transcription['data']['text']
-        return transcript_text
-    except Exception as e:
-        st.error(f"Transcription failed: {str(e)}")
-        return "Transcription failed."
-
 def summarize_text(text, department):
     # Department-specific prompts setup
     department_prompts = {
