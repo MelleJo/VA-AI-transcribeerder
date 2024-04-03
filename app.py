@@ -75,20 +75,28 @@ def summarize_text(text, department):
         "Algemeen": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
     }
 
-    basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken"
+    basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken."
 
-    chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model = "gpt-4-0125-preview", temperature=0.1)
+    # Combining department-specific prompt with the basic prompt
+    combined_prompt = f"{department_prompts.get(department, '')}\n{basic_prompt}\n\n{text}"
 
-    messages = [
-        SystemMessage(content=department_prompts.get(department, "") + "\n" + basic_prompt),
-        HumanMessage(content=text)
-    ]
+    # Initialize the LangChain ChatOpenAI with the specified model
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.1)
 
-    # Invoke the chat model and obtain the summary
-    response = chat.invoke(messages)
-    summary_text = response.content if response else "Mislukt om een samenvatting te genereren."
+    # Create a chain to feed the input, prompt, and basic prompt to the LLM
+    prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+    llm_chain = prompt_template | chat_model | StrOutputParser()
+
+    # Execute the chain to generate a summary
+    try:
+        response = llm_chain.run({})
+        summary_text = response.content if response else "Mislukt om een samenvatting te genereren."
+    except Exception as e:
+        st.error(f"Error generating summary: {e}")
+        summary_text = "Mislukt om een samenvatting te genereren."
 
     return summary_text
+
 
 st.title("Gesprekssamenvatter")
 
