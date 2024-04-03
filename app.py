@@ -67,7 +67,7 @@ def read_docx(file_path):
     return '\n'.join(fullText)
 
 def summarize_text(text, department):
-    # Department-specific prompts setup
+    # Department-specific prompts setup and combining with the input text
     department_prompts = {
         "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen, je hebt hierbij een speciale focus op bijvoorbeeld een mutatie of wijziging in de verzekering. Je legt vast wat er is geadviseerd, waarom en over welk product het gaat. Je zorgt ervoor dat het een nette opsomming is waarin geen details worden overgeslagen.",
         "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
@@ -76,21 +76,20 @@ def summarize_text(text, department):
     }
 
     basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken."
-
-    # Combining department-specific prompt with the basic prompt
     combined_prompt = f"{department_prompts.get(department, '')}\n{basic_prompt}\n\n{text}"
 
-    # Initialize the LangChain ChatOpenAI with the specified model
+    # Initialize LangChain's ChatOpenAI with the provided API key and model
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.1)
 
-    # Create a chain to feed the input, prompt, and basic prompt to the LLM
+    # Creating a chain
     prompt_template = ChatPromptTemplate.from_template(combined_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
 
-    # Execute the chain to generate a summary
+    # Adjusting execution and error handling to directly use the string response
     try:
-        response = llm_chain.invoke({})
-        summary_text = response.content if response else "Mislukt om een samenvatting te genereren."
+        summary_text = llm_chain.invoke({})  # Directly using the response as summary_text
+        if not summary_text:  # Checking if summary_text is empty or not generated
+            summary_text = "Mislukt om een samenvatting te genereren."
     except Exception as e:
         st.error(f"Error generating summary: {e}")
         summary_text = "Mislukt om een samenvatting te genereren."
