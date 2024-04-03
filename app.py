@@ -34,7 +34,7 @@ def transcribe_audio(file_path):
     try:
         # Note: Adjust the path and model as per your specific requirements
         with open(file_path, "rb") as audio_file:
-            transcription = openai.Audio.create(
+            transcription = client.audio.create(
                 audio_file=audio_file,
                 model="whisper-1",
             )
