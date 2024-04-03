@@ -15,8 +15,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-client = OpenAI(openai_api_key=openai.api_key)
+api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(openai_api_key=api_key)
 
 def transcribe_audio(file_path):
     try:
