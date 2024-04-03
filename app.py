@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from streamlit-mic-recorder import mic_recorder
+from streamlit_mic_recorder import mic_recorder
 import os
 import time
 from PyPDF2 import PdfReader
