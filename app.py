@@ -15,7 +15,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
-import python_docx
+import docx2pdf
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -69,8 +69,8 @@ if input_method == "Upload tekst":
         # Check the file extension
         if uploaded_file.name.endswith('.docx'):
             # Handle Word documents
-            doc = docx.Document(uploaded_file)
-            text = '\n'.join([para.text for para in doc.paragraphs])
+            docx_bytes = uploaded_file.getvalue()
+            text = docx2pdf.convert(docx_bytes)
         else:
             # Handle plain text files
             text = uploaded_file.getvalue().decode("utf-8")
