@@ -46,6 +46,14 @@ def summarize_text(text, department):
     basic_prompt = "Hieronder vind je een samenvatting van de belangrijkste punten uit de tekst. Deze samenvatting is bedoeld om je een snel overzicht te geven van de inhoud, met focus op de meest relevante informatie voor jouw specifieke behoeften."
 
     prompt = department_prompts.get(department, "") + basic_prompt + f"\n\n{text}"
+    
+    llm = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model_name="gpt-4-015-preview", temperature=0.2, streaming=True)
+    chain = prompt | llm | StrOutputParser()
+    return chain.stream({
+        "text": text,
+        "order": "summarize",
+    })
+    
     response = openai.Completion.create(
         model="gpt-4",
         prompt=prompt,
