@@ -31,9 +31,12 @@ def transcribe_audio(file_path):
 
 department_questions = {
     "Bedrijven": [
+        "Waarom heeft de klant gebeld?",
         "Wat is de reden voor de mutatie of wijziging in de verzekering?",
         "Welk advies is gegeven en waarom?",
-        "Over welk product gaat het gesprek?"
+        "Wat is de datum?",
+        "Over welk product gaat het gesprek?",
+        "Wat zijn de actiepunten?"
     ],
     "Financieel Advies": [
         "Wat zijn de financiële doelstellingen van de klant?",
@@ -43,7 +46,11 @@ department_questions = {
     "Schadeafdeling": [
         "Wanneer is de schade opgetreden?",
         "Wat betreft de schade en aan welk object?",
-        "Zijn er al stappen ondernomen voor het melden van de schade?"
+        "Zijn er al stappen ondernomen voor het melden van de schade?",
+        "Is er een expert langsgeweest?",
+        "Zijn er foto's van de schade?",
+        "Wat zijn de actiepunten voor de klant?",
+        "Wat zijn de actiepunten voor de schadebehandelaar?"
     ],
     "Algemeen": [
         "Wat is de algemene vraag van de klant?",
