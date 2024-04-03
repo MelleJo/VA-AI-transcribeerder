@@ -23,11 +23,11 @@ def transcribe_audio(file_path):
     try:
         with open(file_path, "rb") as audio_file:
             transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
-            transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcription text not found."
+            transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcript was niet gevonden."
             return transcript_text
     except Exception as e:
         st.error(f"Transcription failed: {str(e)}")
-        return "Transcription failed."
+        return "Transcription mislukt."
 
 
 opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
@@ -44,8 +44,8 @@ def summarize_text(text, department):
     department_prompts = {
         "Verzekeringen": "Je bent expert in het samenvatten van gesprekken over verzekeringen.",
         "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
-        "Claims": "Je bent een expert in het samenvatten van gesprekken over claims.",
-        "Klantenservice": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
+        "Schadeafdeling": "Je bent een expert in het samenvatten van gesprekken over claims.",
+        "Algemeen": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
     }
 
     basic_prompt = "Hier is de input, dit ga je samenvatten."
@@ -112,10 +112,10 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
             st.text_area("Summary", value=summary, height=250)
             os.remove(tmp_audio.name)
     elif input_method == "Upload Audio":
-        st.warning("Please upload an audio file.")
+        st.warning("Upload een audio bestand.")
 
 elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Enter or paste the text here:")
-    if st.button("Summarize"):
+    if st.button("Samenvatten"):
         summary = summarize_text(text, department)
         st.text_area("Summary", value=summary, height=250)
