@@ -35,13 +35,13 @@ opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 def summarize_text(text, department):
     # Department-specific prompts setup
     department_prompts = {
-        "Verzekeringen": "You are an insurance expert summarizing policy conditions.",
-        "Financieel Advies": "As a financial advisor, summarize the underlying financial principles.",
-        "Claims": "As a claims handler, provide a summary focusing on claims and relevant policy conditions.",
-        "Klantenservice": "As a customer service representative, summarize the information in an easily understandable way."
+        "Verzekeringen": "Je bent expert in het samenvatten van gesprekken over verzekeringen.",
+        "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
+        "Claims": "Je bent een expert in het samenvatten van gesprekken over claims.",
+        "Klantenservice": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
     }
 
-    basic_prompt = "Here is a summary of the key points from the text, focusing on the most relevant information for your specific needs."
+    basic_prompt = "Hier is de input, dit ga je samenvatten."
 
     chat = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], temperature=0.5)
 
@@ -56,20 +56,20 @@ def summarize_text(text, department):
 
     return summary_text
 
-st.title("Document Summarizer")
+st.title("Gesprekssamenvatter")
 
-department = st.selectbox("Select your department", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
+department = st.selectbox("Kies je afdeling", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
 
-input_method = st.radio("Choose input method:", ["Upload Text", "Upload Audio", "Enter or Paste Text", "Record Audio"])
+input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload Audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
-if input_method == "Upload Text":
+if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
         st.text_area("Summary", value=summary, height=250)
 
-elif input_method in ["Upload Audio", "Record Audio"]:
+elif input_method in ["Upload Audio", "Neem audio op"]:
     if input_method == "Upload Audio":
         uploaded_audio = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
     else:
