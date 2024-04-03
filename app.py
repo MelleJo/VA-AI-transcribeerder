@@ -12,7 +12,7 @@ from langchain.chains import AnalyzeDocumentChain
 from langchain_community.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser, TextOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 
@@ -48,15 +48,19 @@ def summarize_text(text, department):
 
     basic_prompt = "Hieronder vind je een samenvatting van de belangrijkste punten uit de tekst. Deze samenvatting is bedoeld om je een snel overzicht te geven van de inhoud, met focus op de meest relevante informatie voor jouw specifieke behoeften."
 
-    prompt = department_prompts.get(department, "") + basic_prompt + f"\n\n{text}"
-    
-    llm = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model_name="gpt-4-015-preview", temperature=0.2, streaming=True)
-    chain = prompt | llm | StrOutputParser()
-    return chain.stream({
-        "text": text,
-        "opdracht": opdracht,
-    })
+    # Construct the full prompt
+    full_prompt = department_prompts.get(department, "") + basic_prompt + f"\n\n{text}"
 
+    # Initialize LangChain's OpenAI with the provided API key and desired model
+    llm = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-015-preview")
+
+    # Use LangChain's OpenAI to generate the summary based on the prompt
+    response = llm.query(prompt=full_prompt, temperature=0.2, max_tokens=1024)
+
+    # Assuming the response directly contains the text; adjust based on actual response structure
+    summary_text = response['choices'][0]['text'] if response.get('choices') else "Summary generation failed."
+
+    return summary_text
 st.title("Dossier Samenvatter")
 
 department = st.selectbox("Selecteer uw afdeling", ["Verzekeringen", "Financieel Advies", "Claims", "Klantenservice"])
