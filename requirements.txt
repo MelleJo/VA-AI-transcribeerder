@@ -11,3 +11,9 @@ humanize
 PyPDF2
 pydub
 streamlit-mic-recorder
+redis
+langchain-pinecone
+sentence_transformers
+faiss-cpu
+fuzzywuzzy
+python-Levenshtein
