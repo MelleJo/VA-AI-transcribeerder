@@ -83,6 +83,20 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
         uploaded_audio = None if not audio_data or 'bytes' not in audio_data else audio_data['bytes']
 
     if uploaded_audio is not None:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+            if input_method == "Upload Audio":
+                tmp_audio.write(uploaded_audio.getvalue())
+            else:
+                tmp_audio.write(uploaded_audio)
+            tmp_audio.flush()  # Ensure the data is written to the file
+            transcript = transcribe_audio(tmp_audio.name)
+            summary = summarize_text(transcript, department)
+            st.text_area("Transcript", value=transcript, height=250)
+            st.text_area("Summary", value=summary, height=250)
+            os.remove(tmp_audio.name)
+        uploaded_audio = None if not audio_data or 'bytes' not in audio_data else audio_data['bytes']
+
+    if uploaded_audio is not None:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".webm" if input_method == "Record Audio" else None) as tmp_audio:
             if input_method == "Upload Audio":
                 tmp_audio.write(uploaded_audio.getvalue())
