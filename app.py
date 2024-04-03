@@ -15,7 +15,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
-from python_docx import *
+import python_docx
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
