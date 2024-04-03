@@ -27,6 +27,9 @@ def transcribe_audio(file_path):
         st.error(f"Transcriptie mislukt: {str(e)}")
         return "Transcriptie mislukt."
 
+opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
+
+
 def summarize_text(text, department):
     department_prompts = {
         "Verzekeringen": """
@@ -51,16 +54,8 @@ def summarize_text(text, department):
     chain = prompt | llm | StrOutputParser()
     return chain.stream({
         "text": text,
-        "order": "summarize",
+        "opdracht": opdracht,
     })
-    
-    response = openai.Completion.create(
-        model="gpt-4",
-        prompt=prompt,
-        temperature=0.5,
-        max_tokens=1024,
-    )
-    return response.choices[0].text.strip()
 
 st.title("Dossier Samenvatter")
 
