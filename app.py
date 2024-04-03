@@ -20,12 +20,15 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def transcribe_audio(file_path):
     try:
-        transcript = client.audio.transcriptions.create(file=open(file_path), model="whisper-1")
-        transcript_text = transcript["data"]["text"]
-        return transcript_text
+        # Open the file in binary mode 'rb' for reading
+        with open(file_path, "rb") as audio_file:
+            transcript = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+            transcript_text = transcript["data"]["text"]
+            return transcript_text
     except Exception as e:
-        st.error(f"Transcriptie mislukt: {str(e)}")
-        return "Transcriptie mislukt."
+        st.error(f"Transcription failed: {str(e)}")
+        return "Transcription failed."
+
 
 opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 
