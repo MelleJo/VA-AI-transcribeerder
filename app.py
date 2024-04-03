@@ -4,7 +4,6 @@ from streamlit_mic_recorder import mic_recorder
 import tempfile
 import os
 import openai
-from langchain.llms import ChatOpenAI
 from langchain.chains import ChatPromptTemplate, StrOutputParser
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
