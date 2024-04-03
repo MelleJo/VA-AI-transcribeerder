@@ -15,6 +15,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
+import docx
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -65,7 +66,14 @@ input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Uploa
 if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
-        text = uploaded_file.getvalue().decode("utf-8")
+        # Check the file extension
+        if uploaded_file.name.endswith('.docx'):
+            # Handle Word documents
+            doc = docx.Document(uploaded_file)
+            text = '\n'.join([para.text for para in doc.paragraphs])
+        else:
+            # Handle plain text files
+            text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
         st.text_area("Summary", value=summary, height=250)
 
