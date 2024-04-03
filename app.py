@@ -59,7 +59,7 @@ def summarize_text(text, department):
 
     # Invoke the chat model and obtain the summary
     response = chat.invoke(messages)
-    summary_text = response.content if response else "Unable to generate summary."
+    summary_text = response.content if response else "Mislukt om een samenvatting te genereren."
 
     return summary_text
 
