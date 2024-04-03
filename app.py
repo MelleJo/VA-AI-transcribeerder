@@ -69,8 +69,12 @@ if input_method == "Upload tekst":
         # Check the file extension
         if uploaded_file.name.endswith('.docx'):
             # Handle Word documents
-            docx_bytes = uploaded_file.getvalue()
-            text = docx2pdf.convert(docx_bytes)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
+                tmp_docx.write(uploaded_file.getvalue())
+                tmp_docx_path = tmp_docx.name
+
+            text = docx2pdf.convert(tmp_docx_path)
+            os.remove(tmp_docx_path)
         else:
             # Handle plain text files
             text = uploaded_file.getvalue().decode("utf-8")
