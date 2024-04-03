@@ -29,7 +29,28 @@ def transcribe_audio(file_path):
         st.error(f"Transcription failed: {str(e)}")
         return "Transcription mislukt."
 
-
+department_questions = {
+    "Bedrijven": [
+        "Wat is de reden voor de mutatie of wijziging in de verzekering?",
+        "Welk advies is gegeven en waarom?",
+        "Over welk product gaat het gesprek?"
+    ],
+    "Financieel Advies": [
+        "Wat zijn de financiële doelstellingen van de klant?",
+        "Welke financiële producten zijn besproken?",
+        "Welk specifiek advies is gegeven?"
+    ],
+    "Schadeafdeling": [
+        "Wanneer is de schade opgetreden?",
+        "Wat betreft de schade en aan welk object?",
+        "Zijn er al stappen ondernomen voor het melden van de schade?"
+    ],
+    "Algemeen": [
+        "Wat is de algemene vraag van de klant?",
+        "Zijn er specifieke details die niet overgeslagen moeten worden?",
+        "Heeft de klant eerdere interacties gehad die relevant zijn?"
+    ]
+}
 
 def read_docx(file_path):
     doc = Document(file_path)
@@ -65,6 +86,11 @@ def summarize_text(text, department):
 st.title("Gesprekssamenvatter")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
+
+if department in department_questions:
+    st.subheader("Vragen om in je input te overwegen:")
+    for question in department_questions[department]:
+        st.text(f"- {question}")
 
 input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload Audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
