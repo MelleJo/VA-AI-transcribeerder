@@ -15,7 +15,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
-import docx2pdf
+from docx import Document
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -32,6 +32,12 @@ def transcribe_audio(file_path):
 
 opdracht = "Maak een samenvatting op basis van de prompts en de gegeven tekst"
 
+def read_docx(file_path):
+    doc = Document(file_path)
+    fullText = []
+    for para in doc.paragraphs:
+        fullText.append(para.text)
+    return '\n'.join(fullText)
 
 def summarize_text(text, department):
     # Department-specific prompts setup
@@ -68,15 +74,14 @@ if input_method == "Upload tekst":
     if uploaded_file is not None:
         # Check the file extension
         if uploaded_file.name.endswith('.docx'):
-            # Handle Word documents
+    # Handle Word documents (.docx)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
                 tmp_docx.write(uploaded_file.getvalue())
                 tmp_docx_path = tmp_docx.name
 
-            text = docx2pdf.convert(tmp_docx_path)
+            text = read_docx(tmp_docx_path)
             os.remove(tmp_docx_path)
         else:
-            # Handle plain text files
             text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
         st.text_area("Summary", value=summary, height=250)

@@ -13,4 +13,4 @@ faiss-cpu
 fuzzywuzzy
 python-Levenshtein
 streamlit-mic-recorder
-docx2pdf
+python-docx
