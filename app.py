@@ -89,7 +89,7 @@ def summarize_text(text, department):
 
     # Execute the chain to generate a summary
     try:
-        response = llm_chain.run({})
+        response = llm_chain.invoke({})
         summary_text = response.content if response else "Mislukt om een samenvatting te genereren."
     except Exception as e:
         st.error(f"Error generating summary: {e}")
