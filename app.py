@@ -20,10 +20,9 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def transcribe_audio(file_path):
     try:
-        # Open the file in binary mode 'rb' for reading
         with open(file_path, "rb") as audio_file:
-            transcript = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
-            transcript_text = transcript["data"]["text"]
+            transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+            transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcription text not found."
             return transcript_text
     except Exception as e:
         st.error(f"Transcription failed: {str(e)}")
