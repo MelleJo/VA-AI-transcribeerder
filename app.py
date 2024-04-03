@@ -16,11 +16,10 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 
 OpenAI.api_key = st.secrets["OPENAI_API_KEY"]
-client = OpenAI(openai_api_key=OpenAI.api_key)
 
 def transcribe_audio(file_path):
     try:
-        transcript = client.Audio.transcribe(file=open(file_path), model="whisper-1")
+        transcript = OpenAI.Audio.transcribe(file=open(file_path), model="whisper-1")
         transcript_text = transcript["data"]["text"]
         return transcript_text
     except Exception as e:
