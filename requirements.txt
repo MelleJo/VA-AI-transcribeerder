@@ -12,3 +12,4 @@ sentence_transformers
 faiss-cpu
 fuzzywuzzy
 python-Levenshtein
+streamlit_mic_recorder
