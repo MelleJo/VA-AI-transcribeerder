@@ -97,9 +97,7 @@ def summarize_text(text, department):
     return summary_text
 
 
-st.title("Gesprekssamenvatter").markdown(
-    "<h1 style='color:#5EA253; background-color:#D1F4D2; padding:15px; border-radius:10px; text-align:center; animation:fadeIn ease-in-out 2s;'>Gesprekssamenvatter</h1>",
-    unsafe_allow_html=True)
+st.title("Gesprekssamenvatter")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
 
