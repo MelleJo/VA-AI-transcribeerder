@@ -67,19 +67,19 @@ def read_docx(file_path):
     return '\n'.join(fullText)
 
 def summarize_text(text, department):
-    # Afdeling prompts
+    # Aangepaste afdelingsspecifieke prompts
     department_prompts = {
-        "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen, je hebt hierbij een speciale focus op bijvoorbeeld een mutatie of wijziging in de verzekering. Je legt vast wat er is geadviseerd, waarom en over welk product het gaat. Je zorgt ervoor dat het een nette opsomming is waarin geen details worden overgeslagen.",
-        "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
-        "Schadeafdeling": "Je bent een expert in het samenvatten van gesprekken met betrekking tot een schademelding. Je geeft aan wanneer de schade is opgetreden, wat de schade betreft en aan welk object de schade is.",
-        "Algemeen": "Je bent een expert in het samenvatten van gesprekken over allerlei soort vragen van klanten."
+        "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen. Je documenteert nauwkeurig adviesprocessen, inclusief klantbehoeften, de rationale achter adviezen, en productdetails. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming:",
+        "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat:",
+        "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken:",
+        "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:"
     }
 
-    basic_prompt = "Hier is de input, dit ga je samenvatten. Gebruik zoveel mogelijk bullet points om een overzichtelijk overzicht te maken."
-    combined_prompt = f"{department_prompts.get(department, '')}\n{basic_prompt}\n\n{text}"
+    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken."
+    combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
     # Initialize LangChain's ChatOpenAI with the provided API key and model
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.1)
 
     # Creating a chain
     prompt_template = ChatPromptTemplate.from_template(combined_prompt)
@@ -95,6 +95,7 @@ def summarize_text(text, department):
         summary_text = "Mislukt om een samenvatting te genereren."
 
     return summary_text
+
 
 
 st.title("Gesprekssamenvatter")
@@ -151,7 +152,7 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
             summary = summarize_text(transcript, department)
             st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
             if summary:
-                st.markdown(f"**Summary:**\n{summary}", unsafe_allow_html=True)
+                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
 
 
             os.remove(tmp_audio.name)
@@ -163,5 +164,5 @@ elif input_method == "Voer tekst in of plak tekst":
     if st.button("Samenvatten"):
         summary = summarize_text(text, department)
         if summary:
-            st.markdown(f"***'{summary}**", unsafe_allow_html=True)
+            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
         
