@@ -36,7 +36,8 @@ department_questions = {
         "Welk advies is gegeven en waarom? - samenvatting van de klantbehoefte",
         "Wat is de datum?",
         "Over welk product gaat het gesprek?",
-        "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?"
+        "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?",
+        "Wat moet er in de agenda komen en wanneer?"
     ],
     "Financieel Advies": [
         "Wat zijn de financiële doelstellingen van de klant?",
