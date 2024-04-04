@@ -33,10 +33,10 @@ department_questions = {
     "Bedrijven": [
         "Waarom heeft de klant gebeld?",
         "Wat is de reden voor de mutatie of wijziging in de verzekering?",
-        "Welk advies is gegeven en waarom?",
+        "Welk advies is gegeven en waarom? - samenvatting van de klantbehoefte",
         "Wat is de datum?",
         "Over welk product gaat het gesprek?",
-        "Wat zijn de actiepunten?"
+        "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?"
     ],
     "Financieel Advies": [
         "Wat zijn de financiële doelstellingen van de klant?",
@@ -67,7 +67,7 @@ def read_docx(file_path):
     return '\n'.join(fullText)
 
 def summarize_text(text, department):
-    # Department-specific prompts setup and combining with the input text
+    # Afdeling prompts
     department_prompts = {
         "Bedrijven": "Je bent expert in het samenvatten van gesprekken over verzekeringen, je hebt hierbij een speciale focus op bijvoorbeeld een mutatie of wijziging in de verzekering. Je legt vast wat er is geadviseerd, waarom en over welk product het gaat. Je zorgt ervoor dat het een nette opsomming is waarin geen details worden overgeslagen.",
         "Financieel Advies": "Je bent een expert in het samenvatten van gesprekken over financieel advies.",
@@ -79,7 +79,7 @@ def summarize_text(text, department):
     combined_prompt = f"{department_prompts.get(department, '')}\n{basic_prompt}\n\n{text}"
 
     # Initialize LangChain's ChatOpenAI with the provided API key and model
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.1)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.0)
 
     # Creating a chain
     prompt_template = ChatPromptTemplate.from_template(combined_prompt)
@@ -97,7 +97,9 @@ def summarize_text(text, department):
     return summary_text
 
 
-st.title("Gesprekssamenvatter")
+st.title("Gesprekssamenvatter").markdown(
+    "<h1 style='color:black; background-color:#F2C94C; padding:15px; border-radius:10px; text-align:center;'>Gesprekssamenvatter</h1>",
+    unsafe_allow_html=True)
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
 
