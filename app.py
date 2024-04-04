@@ -98,26 +98,8 @@ def summarize_text(text, department):
 
 
 st.title("Gesprekssamenvatter").markdown(
-    "<h1 style='color:#5EA253; background-color:#D1F4D2; padding:15px; border-radius:10px; text-align:center; animation:fadeIn 2s ease-in-out;'>Gesprekssamenvatter</h1>",
+    "<h1 style='color:#5EA253; background-color:#D1F4D2; padding:15px; border-radius:10px; text-align:center; animation:fadeIn ease-in-out 2s;'>Gesprekssamenvatter</h1>",
     unsafe_allow_html=True)
-
-@st.experimental_memo
-def make_cool_animation():
-    return """
-    @keyframes fadeIn {
-        0% {
-            opacity: 0;
-            transform: scale(.9);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    """
-
-st.markdown(make_cool_animation(), unsafe_allow_html=True)
-
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
 
