@@ -94,7 +94,7 @@ def summarize_text(text, department):
     combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
     # Initialize LangChain's ChatOpenAI with the provided API key and model
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0.1)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
 
     # Creating a chain
     prompt_template = ChatPromptTemplate.from_template(combined_prompt)
@@ -119,7 +119,7 @@ def update_gesprekslog(transcript, summary):
     st.session_state.gesprekslog = st.session_state.gesprekslog[:5]
 
 
-st.title("Gesprekssamenvatter - testversie 0.1.2.")
+st.title("Gesprekssamenvatter - testversie 0.1.3.")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo"])
 
