@@ -111,7 +111,7 @@ def summarize_text(text, department):
 
 st.title("Gesprekssamenvatter")
 
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"])
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo"])
 
 if department in department_questions:
     st.subheader("Vragen om in je input te overwegen:")
