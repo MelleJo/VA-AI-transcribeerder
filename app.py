@@ -171,7 +171,7 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
         st.warning("Upload een audio bestand.")
 
 elif input_method == "Voer tekst in of plak tekst":
-    text = st.text_area("Enter or paste the text here:")
+    text = st.text_area("Voeg tekst hier in:")
     if st.button("Samenvatten"):
         summary = summarize_text(text, department)
         if summary:
