@@ -19,6 +19,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
+import ffmpeg
 from ffmpy import FFmpeg
 from ffmpy.filters import *
 
