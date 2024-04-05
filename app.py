@@ -91,7 +91,7 @@ def summarize_text(text, department):
 
     }
 
-    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting."
+    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
     combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
     # Initialize LangChain's ChatOpenAI with the provided API key and model
@@ -209,7 +209,7 @@ for gesprek in st.session_state.gesprekslog:
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
 
         # Visuele scheiding toevoegen
-        st.markdown("""<hr style="height:2px;border-width:0;color:gray;background-color:gray">""", unsafe_allow_html=True)
+        st.markdown("""<hr style="height:10px;border-width:0;color:green;background-color:green">""", unsafe_allow_html=True)
 
         # Toon de samenvatting
         st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
