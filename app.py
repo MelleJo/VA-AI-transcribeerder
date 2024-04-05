@@ -209,15 +209,15 @@ for gesprek in st.session_state.gesprekslog:
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
 
         st.markdown("""
-    <style>
-    .divider {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        border-top: 3px solid #bbb;
-    }
-    </style>
-    <div class="divider"></div>
-    """, unsafe_allow_html=True)
+            <style>
+            .divider {
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+                border-top: 3px solid #bbb;
+            }
+            </style>
+            <div class="divider"></div>
+            """, unsafe_allow_html=True)
 
 
         # Toon de samenvatting
