@@ -19,6 +19,10 @@ from docx import Document
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+if 'gesprekslog' not in st.session_state:
+    st.session_state.gesprekslog = []
+
+
 def transcribe_audio(file_path):
     try:
         with open(file_path, "rb") as audio_file:
@@ -107,6 +111,12 @@ def summarize_text(text, department):
 
     return summary_text
 
+# Aanroepen na het genereren van de samenvatting
+def update_gesprekslog(transcript, summary):
+    # Voeg het nieuwe gesprek toe aan het begin van de lijst
+    st.session_state.gesprekslog.insert(0, {'transcript': transcript, 'summary': summary})
+    # Beperk de lijst tot de laatste vijf gesprekken
+    st.session_state.gesprekslog = st.session_state.gesprekslog[:5]
 
 
 st.title("Gesprekssamenvatter - testversie 0.1.2.")
@@ -177,3 +187,10 @@ elif input_method == "Voer tekst in of plak tekst":
         if summary:
             st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
         
+
+st.subheader("Laatste Gesprekken")
+
+for gesprek in st.session_state.gesprekslog:
+    with st.expander(f"Gesprek op {time.strftime('%Y-%m-%d %H:%M:%S')}"):
+        st.text_area("Transcript", value=gesprek['transcript'], height=100)
+        st.text_area("Samenvatting", value=gesprek['summary'], height=100)
