@@ -57,7 +57,15 @@ department_questions = {
         "Wat is de algemene vraag van de klant?",
         "Zijn er specifieke details die niet overgeslagen moeten worden?",
         "Heeft de klant eerdere interacties gehad die relevant zijn?"
+    ],
+    "Arbo": [
+    "Datum: Wanneer heeft het gesprek plaatsgevonden?",
+    "Wie gesproken: Was het een werknemer, familielid van werknemer, werkgever zelf, HR-personeel, bedrijfsarts, arbeidsdeskundige, of tweede spoorbegeleider?",
+    "Onderwerp van gesprek: Waarom hebben jullie elkaar gesproken?",
+    "Wat is er inhoudelijk besproken, en wat zijn de afspraken?",
+    "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
     ]
+
 }
 
 def read_docx(file_path):
@@ -73,7 +81,9 @@ def summarize_text(text, department):
         "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen. Je documenteert nauwkeurig adviesprocessen, inclusief klantbehoeften, de rationale achter adviezen, en productdetails. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming:",
         "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat:",
         "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken:",
-        "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:"
+        "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:",
+        "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere ondwerpen rondom casemanagerwerk van. Je zorgt ervoor dat details goed worden vastgelegd en dat het een compact en duidelijke notitie is. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming. Binnen de werkomgeving. Je documenteert de datum, betrokken partijen, de inhoud van het gesprek, en gemaakte afspraken. Zorg voor een duidelijke weergave van alle actiepunten en betrokken partijen:"
+
     }
 
     basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken."
