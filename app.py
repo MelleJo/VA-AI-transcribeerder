@@ -175,8 +175,8 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
     elif input_method == "Neem audio op":
         audio_data = mic_recorder(
             key="recorder",
-            start_prompt="Start recording",
-            stop_prompt="Stop recording",
+            start_prompt="Start opname",
+            stop_prompt="Stop opname",
             use_container_width=True,
             format="webm"
         )
