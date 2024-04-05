@@ -34,6 +34,14 @@ def vertaal_dag_eng_naar_nl(dag_engels):
     }
     return vertaling.get(dag_engels, dag_engels)  # Geeft de Nederlandse dag terug, of de Engelse als niet gevonden
 
+def split_audio(file_path, max_size=24000000):
+    audio = AudioSegment.from_file(file_path)
+    duration = len(audio)
+    chunks = duration // (max_size / (len(audio.raw_data) / duration))
+    return [audio[i:i + duration // chunks] for i in range(0, duration, duration // int(chunks))]
+
+
+
 
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
@@ -43,15 +51,22 @@ def get_local_time():
     return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
 
 def transcribe_audio(file_path):
-    with st.spinner("Transcriberen"):
+    with st.spinner("Transcriptie maken..."): 
+        transcript_text = ""
         try:
-            with open(file_path, "rb") as audio_file:
-                transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
-                transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcript was niet gevonden."
-                return transcript_text
+            audio_segments = split_audio(file_path)
+            for segment in audio_segments:
+                with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+                    segment.export(temp_file.name, format="wav")
+                    with open(temp_file.name, "rb") as audio_file:
+                        transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+                        if hasattr(transcription_response, 'text'):
+                            transcript_text += transcription_response.text + " "
+            return transcript_text.strip()
         except Exception as e:
             st.error(f"Transcription failed: {str(e)}")
             return "Transcription mislukt."
+
 
 department_questions = {
     "Bedrijven": [
