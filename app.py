@@ -201,11 +201,15 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
 
 
         
-
 st.subheader("Laatste Gesprekken")
 
 for gesprek in st.session_state.gesprekslog:
     with st.expander(f"Gesprek op {gesprek['time']}"):
+        # Toon het transcript
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
 
+        # Visuele scheiding toevoegen
+        st.markdown("""<hr style="height:2px;border-width:0;color:gray;background-color:gray">""", unsafe_allow_html=True)
+
+        # Toon de samenvatting
+        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
