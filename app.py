@@ -151,6 +151,19 @@ if input_method == "Upload tekst":
         if summary:
             st.markdown(f"**{summary}**", unsafe_allow_html=True)
 
+elif input_method == "Voer tekst in of plak tekst":
+    text = st.text_area("Voeg tekst hier in:", height=300)  # Maakt een tekstveld waar gebruikers tekst kunnen invoeren
+    if st.button("Samenvatten"):  # Een knop die gebruikers kunnen klikken nadat ze de tekst hebben ingevoerd
+        if text:  # Controleert of er tekst is ingevoerd voordat verder wordt gegaan
+            summary = summarize_text(text, department)  # Roept de functie aan om de tekst samen te vatten
+            if summary:
+                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                update_gesprekslog(text, summary)  # Voegt dit toe aan het gesprekslog
+            else:
+                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+        else:
+            st.warning("Voer alstublieft wat tekst in om te samenvatten.")
+
 
 elif input_method in ["Upload Audio", "Neem audio op"]:
     # Initialiseer uploaded_audio buiten de if/elif statements voor brede scope
