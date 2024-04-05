@@ -19,6 +19,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
+from ffmpy import FFmpeg
+from ffmpy.filters import *
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
