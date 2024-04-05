@@ -38,8 +38,15 @@ def vertaal_dag_eng_naar_nl(dag_engels):
 def split_audio(file_path, max_size=24000000):
     audio = AudioSegment.from_file(file_path)
     duration = len(audio)
-    chunks = duration // (max_size / (len(audio.raw_data) / duration))
-    return [audio[i:i + duration // chunks] for i in range(0, duration, duration // int(chunks))]
+    chunks_count = max(1, duration // (max_size / (len(audio.raw_data) / duration)))
+
+    # Als chunks_count 1 is, retourneer de hele audio in één stuk
+    if chunks_count == 1:
+        return [audio]
+
+    # Anders, splits de audio in de berekende aantal chunks
+    return [audio[i:i + duration // chunks_count] for i in range(0, duration, duration // int(chunks_count))]
+
 
 
 
