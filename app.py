@@ -22,6 +22,19 @@ from pydub import AudioSegment
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def vertaal_dag_eng_naar_nl(dag_engels):
+    vertaling = {
+        "Monday": "Maandag",
+        "Tuesday": "Dinsdag",
+        "Wednesday": "Woensdag",
+        "Thursday": "Donderdag",
+        "Friday": "Vrijdag",
+        "Saturday": "Zaterdag",
+        "Sunday": "Zondag"
+    }
+    return vertaling.get(dag_engels, dag_engels)  # Geeft de Nederlandse dag terug, of de Engelse als niet gevonden
+
+
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
 
@@ -97,8 +110,15 @@ def summarize_text(text, department):
 
         }
 
+        timezone = pytz.timezone("Europe/Amsterdam")
+        now = datetime.now(timezone)
+
+        dag_nl = vertaal_dag_eng_naar_nl(now.strftime('%A'))
+        formatted_date = now.strftime(f'%d-%m-%Y, {dag_nl}, %H:%M:%S')
+        samenvatting_header = f"Datum: {formatted_date}\n\n"
         basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
-        combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
+        combined_prompt = f"{samenvatting_header}{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
+
 
         # Initialize LangChain's ChatOpenAI with the provided API key and model
         chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
@@ -136,7 +156,7 @@ if department in department_questions:
     for question in department_questions[department]:
         st.text(f"- {question}")
 
-input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload Audio", "Voer tekst in of plak tekst", "Neem audio op"])
+input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
 if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
@@ -170,10 +190,10 @@ elif input_method == "Voer tekst in of plak tekst":
             st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
 
-elif input_method in ["Upload Audio", "Neem audio op"]:
+elif input_method in ["Upload audio", "Neem audio op"]:
     # Initialiseer uploaded_audio buiten de if/elif statements voor brede scope
     uploaded_audio = None
-    if input_method == "Upload Audio":
+    if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
         if uploaded_file is not None:
             uploaded_audio = uploaded_file.getvalue()
@@ -201,12 +221,12 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
             os.remove(tmp_audio.name)
     else:
-        if input_method == "Upload Audio":
+        if input_method == "Upload audio":
             st.warning("Upload een audio bestand.")
 
 
         
-st.subheader("Laatste Gesprekken")
+st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
 
 for gesprek in st.session_state.gesprekslog:
     with st.expander(f"Gesprek op {gesprek['time']}"):
