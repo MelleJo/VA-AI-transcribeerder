@@ -18,6 +18,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
+from pydub import AudioSegment
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -29,14 +30,15 @@ def get_local_time():
     return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
 
 def transcribe_audio(file_path):
-    try:
-        with open(file_path, "rb") as audio_file:
-            transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
-            transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcript was niet gevonden."
-            return transcript_text
-    except Exception as e:
-        st.error(f"Transcription failed: {str(e)}")
-        return "Transcription mislukt."
+    with st.spinner("Transcriberen"):
+        try:
+            with open(file_path, "rb") as audio_file:
+                transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+                transcript_text = transcription_response.text if hasattr(transcription_response, 'text') else "Transcript was niet gevonden."
+                return transcript_text
+        except Exception as e:
+            st.error(f"Transcription failed: {str(e)}")
+            return "Transcription mislukt."
 
 department_questions = {
     "Bedrijven": [
@@ -85,36 +87,36 @@ def read_docx(file_path):
     return '\n'.join(fullText)
 
 def summarize_text(text, department):
-    # Aangepaste afdelingsspecifieke prompts
-    department_prompts = {
-        "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen. Je documenteert nauwkeurig adviesprocessen, inclusief klantbehoeften, de rationale achter adviezen, en productdetails. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming:",
-        "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat:",
-        "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken:",
-        "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:",
-        "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere ondwerpen rondom casemanagerwerk van. Je zorgt ervoor dat details goed worden vastgelegd en dat het een compact en duidelijke notitie is. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming. Binnen de werkomgeving. Je documenteert de datum, met welke partij het gesprek was (indien bekend), de inhoud van het gesprek, en gemaakte afspraken. Zorg voor een duidelijke weergave van alle actiepunten voor alle betrokken partijen:"
+    with st.spinner("Samenvatting maken..."):
+        department_prompts = {
+            "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen. Je documenteert nauwkeurig adviesprocessen, inclusief klantbehoeften, de rationale achter adviezen, en productdetails. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming:",
+            "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat:",
+            "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken:",
+            "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:",
+            "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere ondwerpen rondom casemanagerwerk van. Je zorgt ervoor dat details goed worden vastgelegd en dat het een compact en duidelijke notitie is. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming. Binnen de werkomgeving. Je documenteert de datum, met welke partij het gesprek was (indien bekend), de inhoud van het gesprek, en gemaakte afspraken. Zorg voor een duidelijke weergave van alle actiepunten voor alle betrokken partijen:"
 
-    }
+        }
 
-    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
-    combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
+        basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
+        combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
-    # Initialize LangChain's ChatOpenAI with the provided API key and model
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+        # Initialize LangChain's ChatOpenAI with the provided API key and model
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
 
-    # Creating a chain
-    prompt_template = ChatPromptTemplate.from_template(combined_prompt)
-    llm_chain = prompt_template | chat_model | StrOutputParser()
+        # Creating a chain
+        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+        llm_chain = prompt_template | chat_model | StrOutputParser()
 
-    # Adjusting execution and error handling to directly use the string response
-    try:
-        summary_text = llm_chain.invoke({})  # Directly using the response as summary_text
-        if not summary_text:  # Checking if summary_text is empty or not generated
+        # Adjusting execution and error handling to directly use the string response
+        try:
+            summary_text = llm_chain.invoke({})  # Directly using the response as summary_text
+            if not summary_text:  # Checking if summary_text is empty or not generated
+                summary_text = "Mislukt om een samenvatting te genereren."
+        except Exception as e:
+            st.error(f"Error generating summary: {e}")
             summary_text = "Mislukt om een samenvatting te genereren."
-    except Exception as e:
-        st.error(f"Error generating summary: {e}")
-        summary_text = "Mislukt om een samenvatting te genereren."
 
-    return summary_text
+        return summary_text
 
 # Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
