@@ -86,7 +86,7 @@ def summarize_text(text, department):
 
     }
 
-    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Maar gebruik geen onnodig moeilijke woorden."
+    basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen."
     combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
     # Initialize LangChain's ChatOpenAI with the provided API key and model
