@@ -122,7 +122,7 @@ def update_gesprekslog(transcript, summary):
 
 
 
-st.title("Gesprekssamenvatter - testversie 0.1.3.")
+st.title("Gesprekssamenvatter - testversie 0.1.4.")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo"])
 
