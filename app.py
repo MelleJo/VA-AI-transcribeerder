@@ -64,10 +64,10 @@ department_questions = {
         "Heeft de klant eerdere interacties gehad die relevant zijn?"
     ],
     "Arbo": [
-    "Datum: Wanneer heeft het gesprek plaatsgevonden?",
-    "Wie gesproken: Was het een werknemer, familielid van werknemer, werkgever zelf, HR-personeel, bedrijfsarts, arbeidsdeskundige, of tweede spoorbegeleider?",
-    "Onderwerp van gesprek: Waarom hebben jullie elkaar gesproken?",
-    "Wat is er inhoudelijk besproken, en wat zijn de afspraken?",
+    "Wanneer heeft het gesprek plaatsgevonden?",
+    "Wie heb je gesproken?",
+    "Waarom hebben jullie elkaar gesproken?",
+    "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
     "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
     ]
 
