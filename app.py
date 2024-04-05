@@ -153,9 +153,10 @@ if input_method == "Upload tekst":
 
 
 elif input_method in ["Upload Audio", "Neem audio op"]:
+    uploaded_audio = None
     if input_method == "Upload Audio":
         uploaded_audio = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
-    else:
+    elif input_method == "Neem audio op":
         audio_data = mic_recorder(
             key="recorder",
             start_prompt="Start recording",
@@ -163,37 +164,30 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
             use_container_width=True,
             format="webm"
         )
-        uploaded_audio = None if not audio_data or 'bytes' not in audio_data else audio_data['bytes']
+        if audio_data and 'bytes' in audio_data:
+            uploaded_audio = audio_data['bytes']
 
     if uploaded_audio is not None:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-            if input_method == "Upload Audio":
-                tmp_audio.write(uploaded_audio.getvalue())
-            else:
-                tmp_audio.write(uploaded_audio)
+            tmp_audio.write(uploaded_audio)
             tmp_audio.flush()
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
+            update_gesprekslog(transcript, summary)  # Correct aangeroepen na samenvatting
             st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-
-
             os.remove(tmp_audio.name)
+
     elif input_method == "Upload Audio":
         st.warning("Upload een audio bestand.")
 
-elif input_method == "Voer tekst in of plak tekst":
-    text = st.text_area("Voeg tekst hier in:")
-    if st.button("Samenvatten"):
-        summary = summarize_text(text, department)
-        if summary:
-            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
         
 
 st.subheader("Laatste Gesprekken")
 
 for gesprek in st.session_state.gesprekslog:
-    with st.expander(f"Gesprek op {time.strftime('%Y-%m-%d %H:%M:%S')}"):
-        st.text_area("Transcript", value=gesprek['transcript'], height=100)
-        st.text_area("Samenvatting", value=gesprek['summary'], height=100)
+    with st.expander(f"Gesprek op {gesprek['time']}"):
+        st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
+        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
+
