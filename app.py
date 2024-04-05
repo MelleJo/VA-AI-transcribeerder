@@ -208,8 +208,17 @@ for gesprek in st.session_state.gesprekslog:
         # Toon het transcript
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
 
-        # Visuele scheiding toevoegen
-        st.markdown("""<hr style="height:10px;border-width:0;color:green;background-color:green">""", unsafe_allow_html=True)
+        st.markdown("""
+    <style>
+    .divider {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border-top: 3px solid #bbb;
+    }
+    </style>
+    <div class="divider"></div>
+    """, unsafe_allow_html=True)
+
 
         # Toon de samenvatting
         st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
