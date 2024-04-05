@@ -153,9 +153,12 @@ if input_method == "Upload tekst":
 
 
 elif input_method in ["Upload Audio", "Neem audio op"]:
+    # Initialiseer uploaded_audio buiten de if/elif statements voor brede scope
     uploaded_audio = None
     if input_method == "Upload Audio":
-        uploaded_audio = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+        uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+        if uploaded_file is not None:
+            uploaded_audio = uploaded_file.getvalue()
     elif input_method == "Neem audio op":
         audio_data = mic_recorder(
             key="recorder",
@@ -166,21 +169,8 @@ elif input_method in ["Upload Audio", "Neem audio op"]:
         )
         if audio_data and 'bytes' in audio_data:
             uploaded_audio = audio_data['bytes']
-
-elif input_method == "Voer tekst in of plak tekst":
-    text = st.text_area("Voeg tekst hier in:", height=300)  # Verhoog indien nodig de hoogte voor grotere tekstblokken
-    if st.button("Samenvatten"):
-        if text:  # Controleer of de tekst niet leeg is
-            summary = summarize_text(text, department)
-            if summary:
-                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                update_gesprekslog(text, summary)  # Voeg dit toe aan het gesprekslog
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-        else:
-            st.warning("Voer alstublieft wat tekst in om te samenvatten.")
-
-
+    
+    # Verwerk de audio alleen als uploaded_audio is ingesteld
     if uploaded_audio is not None:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
             tmp_audio.write(uploaded_audio)
@@ -192,9 +182,10 @@ elif input_method == "Voer tekst in of plak tekst":
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
             os.remove(tmp_audio.name)
+    else:
+        if input_method == "Upload Audio":
+            st.warning("Upload een audio bestand.")
 
-    elif input_method == "Upload Audio":
-        st.warning("Upload een audio bestand.")
 
         
 
