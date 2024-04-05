@@ -15,4 +15,3 @@ python-Levenshtein
 streamlit-mic-recorder
 python-docx
 datetime
-pydub
