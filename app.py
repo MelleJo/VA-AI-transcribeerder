@@ -3,7 +3,9 @@ from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
 import os
 import time
+import pytz
 import tempfile
+from datetime import datetime
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -22,7 +24,9 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
 
-
+def get_local_time():
+    timezone = pytz.timezone("Europe/Amsterdam")
+    return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
 
 def transcribe_audio(file_path):
     try:
