@@ -133,11 +133,8 @@ def summarize_text(text, department):
 
         }
 
-        timezone = pytz.timezone("Europe/Amsterdam")
-        now = datetime.now(timezone)
-
-        dag_nl = vertaal_dag_eng_naar_nl(now.strftime('%A'))
-        formatted_date = now.strftime(f'%d-%m-%Y, {dag_nl}, %H:%M:%S')
+        current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
+        formatted_date = current_time.strftime('%d-%m-%Y, %A, %H:%M:%S')
         samenvatting_header = f"Datum: {formatted_date}\n\n"
         basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
         combined_prompt = f"{samenvatting_header}{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
@@ -152,7 +149,7 @@ def summarize_text(text, department):
 
         # Adjusting execution and error handling to directly use the string response
         try:
-            summary_text = st.write(get_local_time) + llm_chain.invoke({})  # Directly using the response as summary_text
+            summary_text = llm_chain.invoke({})  # Directly using the response as summary_text
             if not summary_text:  # Checking if summary_text is empty or not generated
                 summary_text = "Mislukt om een samenvatting te genereren."
         except Exception as e:
@@ -160,7 +157,6 @@ def summarize_text(text, department):
             summary_text = "Mislukt om een samenvatting te genereren."
 
         return summary_text
-
 # Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
