@@ -171,7 +171,7 @@ def summarize_text(text, department):
         }
 
         current_time = f"{get_local_time()}"
-        basic_prompt = f"Vermeld eerst de datum en tijd van vandaag: {current_time}. Verwerk vervolgens de informatie uit het gesprek in een gestructureerde samenvatting. Begin met het onderwerp van het gesprek direct na de datum, gevolgd door een witregel. Documenteer het gesprek met duidelijke en beknopte taal, geschikt voor formele communicatie. Vermijd herhaling en zorg ervoor dat actiepunten duidelijk en specifiek zijn. Gebruik bullet points voor een overzichtelijke presentatie van de samenvatting, advies, en actiepunten. Zorg dat de samenvatting de Nederlandse grammaticaregels volgt, inclusief correcte capitalisatie en samenstelling van woorden. Sluit af met de actiepunten, geordend op prioriteit en duidelijk gespecificeerd, om een volledig overzicht te bieden van de vereiste vervolgstappen."
+        basic_prompt = f"Gezien dat de huidige datum {current_time} is, neem in overweging dat termen zoals 'aanstaande maandag' of 'volgende week dinsdag' verwijzen naar specifieke data gebaseerd op deze datum. Gebruik deze informatie om de datum van toekomstige gebeurtenissen accuraat te bepalen en te vermelden in de samenvatting. Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden. Maak verschillende kopjes met samenvatting, advies, en actiepunten."
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
 
@@ -283,11 +283,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
         if input_method == "Upload audio":
             st.warning("Upload een audio bestand.")
 
-# Onderaan je script, direct voor waar je de "Copy to Clipboard" functionaliteit initialiseert
-# en waar je de samenvatting weergeeft:
 
-# Controleer of de variabele 'summary' bestaat in de session state. 
-# Dit dient als een check om te zien of de samenvatting proces al gestart is.
 
 
 
