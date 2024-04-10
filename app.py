@@ -136,7 +136,7 @@ def summarize_text(text, department):
         }
 
         current_time = f"{get_local_time()}"
-        basic_prompt = f"Vermeld als eerst de datum en tijd van vandaag: {current_time}. Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden. Maak verschillende kopjes met samenvatting, advies, en actiepunten."
+        basic_prompt = f"Vermeld als eerst de datum en tijd van vandaag: {current_time}. Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden. Maak verschillende kopjes met samenvatting, advies, en actiepunten. Extraheer het onderwerp van de samenvatting en noem deze bovenaan de tekst, samen met de datum. Dus als eerst de datum, en dan het ondewerp op de volgende regel, dan een witregel en dan ga je verder met de rest."
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
 
@@ -168,7 +168,7 @@ def update_gesprekslog(transcript, summary):
 
 
 
-st.title("Gesprekssamenvatter - testversie 0.1.4.")
+st.title("Gesprekssamenvatter - testversie 0.1.5.")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo"])
 
