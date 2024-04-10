@@ -152,7 +152,7 @@ def summarize_text(text, department):
 
         # Adjusting execution and error handling to directly use the string response
         try:
-            summary_text = llm_chain.invoke({})  # Directly using the response as summary_text
+            summary_text = get_local_time + llm_chain.invoke({})  # Directly using the response as summary_text
             if not summary_text:  # Checking if summary_text is empty or not generated
                 summary_text = "Mislukt om een samenvatting te genereren."
         except Exception as e:
@@ -250,6 +250,9 @@ elif input_method in ["Upload audio", "Neem audio op"]:
 
         
 st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+
+
+
 
 for gesprek in st.session_state.gesprekslog:
     with st.expander(f"Gesprek op {gesprek['time']}"):
