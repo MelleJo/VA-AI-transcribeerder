@@ -245,9 +245,14 @@ elif input_method in ["Upload audio", "Neem audio op"]:
         if input_method == "Upload audio":
             st.warning("Upload een audio bestand.")
 
-# Copy to Clipboard functionality
-if summary:
-    # HTML and JavaScript for the button, with Streamlit-like styling
+# Onderaan je script, direct voor waar je de "Copy to Clipboard" functionaliteit initialiseert
+# en waar je de samenvatting weergeeft:
+
+# Controleer of de variabele 'summary' bestaat in de session state. 
+# Dit dient als een check om te zien of de samenvatting proces al gestart is.
+if 'summary' in st.session_state and st.session_state['summary']:
+    summary = st.session_state['summary']
+    # HTML en JavaScript voor de knop, met Streamlit-achtige styling
     styled_button_html = f"""
     <html>
     <head>
@@ -281,28 +286,20 @@ if summary:
     """
     components.html(styled_button_html, height=50)
 
-        
-st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+    st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
 
+    for gesprek in st.session_state.gesprekslog:
+        with st.expander(f"Gesprek op {gesprek['time']}"):
+            st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
+            st.markdown("""
+                <style>
+                .divider {
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
+                    border-top: 3px solid #bbb;
+                }
+                </style>
+                <div class="divider"></div>
+                """, unsafe_allow_html=True)
+            st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
 
-
-
-for gesprek in st.session_state.gesprekslog:
-    with st.expander(f"Gesprek op {gesprek['time']}"):
-        # Toon het transcript
-        st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-
-        st.markdown("""
-            <style>
-            .divider {
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-                border-top: 3px solid #bbb;
-            }
-            </style>
-            <div class="divider"></div>
-            """, unsafe_allow_html=True)
-
-
-        # Toon de samenvatting
-        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
