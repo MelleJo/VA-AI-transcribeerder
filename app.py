@@ -49,7 +49,7 @@ def split_audio(file_path, max_size=24000000):
     # Anders, splits de audio in de berekende aantal chunks
     return [audio[i:i + duration // chunks_count] for i in range(0, duration, duration // int(chunks_count))]
 
-def copy_function():
+# def copy_function():
     if 'summary' in st.session_state and st.session_state['summary']:
         summary = st.session_state['summary']
         # HTML en JavaScript voor de knop, met Streamlit-achtige styling
@@ -197,6 +197,43 @@ def summarize_text(text, department):
 
         return summary_text
     
+    if summary:
+        # HTML en JavaScript voor de knop, met Streamlit-achtige styling
+        styled_button_html = f"""
+        <html>
+        <head>
+        <style>
+            .copy-btn {{
+                color: #ffffff;
+                background-color: #4CAF50;
+                padding: 0.25em 0.75em;
+                font-size: 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 2px;
+                transition: background-color 0.3s;
+            }}
+            .copy-btn:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+        </head>
+        <body>
+        <input type="text" value="{summary}" id="summaryText" style="width:90%;margin-bottom:10px;">
+        <button class="copy-btn" onclick='navigator.clipboard.writeText(document.getElementById("summaryText").value)'>Kopieer</button>
+        <script>
+        const copyBtn = document.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', function(event) {{
+        alert('Samenvatting gekopieërd!');
+        }});
+        </script>
+        </body>
+        </html>
+        """
+        components.html(styled_button_html, height=100)
+    
+    
 
 # Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
@@ -235,7 +272,7 @@ if input_method == "Upload tekst":
         summary = summarize_text(text, department)
         if summary:
             st.markdown(f"**{summary}**", unsafe_allow_html=True)
-            st.button("Copy to Clipboard", on_click=copy_function)
+            #st.button("Copy to Clipboard", on_click=copy_function)
 
 elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Voeg tekst hier in:", height=300)  # Maakt een tekstveld waar gebruikers tekst kunnen invoeren
@@ -245,7 +282,7 @@ elif input_method == "Voer tekst in of plak tekst":
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
                 update_gesprekslog(text, summary)  # Voegt dit toe aan het gesprekslog
-                st.button("Copy to Clipboard", on_click=copy_function)
+                # st.button("Copy to Clipboard", on_click=copy_function)
             else:
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
         else:
@@ -281,7 +318,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                st.button("Copy to Clipboard", on_click=copy_function)
+                # st.button("Copy to Clipboard", on_click=copy_function)
             os.remove(tmp_audio.name)
     else:
         if input_method == "Upload audio":
