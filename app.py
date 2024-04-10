@@ -49,7 +49,42 @@ def split_audio(file_path, max_size=24000000):
     # Anders, splits de audio in de berekende aantal chunks
     return [audio[i:i + duration // chunks_count] for i in range(0, duration, duration // int(chunks_count))]
 
-
+def copy_function():
+    if 'summary' in st.session_state and st.session_state['summary']:
+        summary = st.session_state['summary']
+        # HTML en JavaScript voor de knop, met Streamlit-achtige styling
+        styled_button_html = f"""
+        <html>
+        <head>
+        <style>
+            .copy-btn {{
+                color: #ffffff;
+                background-color: #4CAF50;
+                padding: 0.25em 0.75em;
+                font-size: 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 2px;
+                transition: background-color 0.3s;
+            }}
+            .copy-btn:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+        </head>
+        <body>
+        <button class="copy-btn" onclick='navigator.clipboard.writeText(`{summary}`)'>Kopieer</button>
+        <script>
+        const copyBtn = document.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', function(event) {{
+        alert('Samenvatting gekopieërd!');
+        }});
+        </script>
+        </body>
+        </html>
+        """
+        components.html(styled_button_html, height=50)
 
 
 
@@ -127,7 +162,7 @@ def read_docx(file_path):
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
         department_prompts = {
-            "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen. Je documenteert nauwkeurig adviesprocessen, inclusief klantbehoeften, de rationale achter adviezen, en productdetails. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming:",
+            "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op de essentie van mutaties of wijzigingen in verzekeringen. Je taak is om zowel het adviesproces als de klantbehoeften nauwgezet te documenteren, inclusief de redenen achter de gegeven adviezen en de details van de besproken verzekeringsproducten. Belicht de actiepunten die voortvloeien uit het gesprek en leg de besluitvorming vast. Zorg ervoor dat je samenvatting de volgende onderdelen bevat: datum en tijd van het gesprek, een heldere omschrijving van de klantvraag, het gegeven advies, en concrete actiepunten voor zowel de klant als de medewerker.",
             "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat:",
             "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken:",
             "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat:",
@@ -136,7 +171,7 @@ def summarize_text(text, department):
         }
 
         current_time = f"{get_local_time()}"
-        basic_prompt = f"Vermeld als eerst de datum en tijd van vandaag: {current_time}. Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden. Maak verschillende kopjes met samenvatting, advies, en actiepunten. Extraheer het onderwerp van de samenvatting en noem deze bovenaan de tekst, samen met de datum. Dus als eerst de datum, en dan het ondewerp op de volgende regel, dan een witregel en dan ga je verder met de rest."
+        basic_prompt = f"Vermeld eerst de datum en tijd van vandaag: {current_time}. Verwerk vervolgens de informatie uit het gesprek in een gestructureerde samenvatting. Begin met het onderwerp van het gesprek direct na de datum, gevolgd door een witregel. Documenteer het gesprek met duidelijke en beknopte taal, geschikt voor formele communicatie. Vermijd herhaling en zorg ervoor dat actiepunten duidelijk en specifiek zijn. Gebruik bullet points voor een overzichtelijke presentatie van de samenvatting, advies, en actiepunten. Zorg dat de samenvatting de Nederlandse grammaticaregels volgt, inclusief correcte capitalisatie en samenstelling van woorden. Sluit af met de actiepunten, geordend op prioriteit en duidelijk gespecificeerd, om een volledig overzicht te bieden van de vereiste vervolgstappen."
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
 
@@ -196,6 +231,7 @@ if input_method == "Upload tekst":
         summary = summarize_text(text, department)
         if summary:
             st.markdown(f"**{summary}**", unsafe_allow_html=True)
+            st.button("Copy to Clipboard", on_click=copy_function)
 
 elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Voeg tekst hier in:", height=300)  # Maakt een tekstveld waar gebruikers tekst kunnen invoeren
@@ -205,6 +241,7 @@ elif input_method == "Voer tekst in of plak tekst":
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
                 update_gesprekslog(text, summary)  # Voegt dit toe aan het gesprekslog
+                st.button("Copy to Clipboard", on_click=copy_function)
             else:
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
         else:
@@ -240,6 +277,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                st.button("Copy to Clipboard", on_click=copy_function)
             os.remove(tmp_audio.name)
     else:
         if input_method == "Upload audio":
@@ -250,41 +288,8 @@ elif input_method in ["Upload audio", "Neem audio op"]:
 
 # Controleer of de variabele 'summary' bestaat in de session state. 
 # Dit dient als een check om te zien of de samenvatting proces al gestart is.
-if 'summary' in st.session_state and st.session_state['summary']:
-    summary = st.session_state['summary']
-    # HTML en JavaScript voor de knop, met Streamlit-achtige styling
-    styled_button_html = f"""
-    <html>
-    <head>
-    <style>
-        .copy-btn {{
-            color: #ffffff;
-            background-color: #4CAF50;
-            padding: 0.25em 0.75em;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 2px;
-            transition: background-color 0.3s;
-        }}
-        .copy-btn:hover {{
-            background-color: #45a049;
-        }}
-    </style>
-    </head>
-    <body>
-    <button class="copy-btn" onclick='navigator.clipboard.writeText(`{summary}`)'>Kopieer</button>
-    <script>
-    const copyBtn = document.querySelector('.copy-btn');
-    copyBtn.addEventListener('click', function(event) {{
-    alert('Samenvatting gekopieërd!');
-    }});
-    </script>
-    </body>
-    </html>
-    """
-    components.html(styled_button_html, height=50)
+
+
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
 
