@@ -19,6 +19,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
+import streamlit.components.v1 as components
+
 
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -155,6 +157,7 @@ def summarize_text(text, department):
             summary_text = "Mislukt om een samenvatting te genereren."
 
         return summary_text
+    
 
 # Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
@@ -242,6 +245,41 @@ elif input_method in ["Upload audio", "Neem audio op"]:
         if input_method == "Upload audio":
             st.warning("Upload een audio bestand.")
 
+# Copy to Clipboard functionality
+if summary:
+    # HTML and JavaScript for the button, with Streamlit-like styling
+    styled_button_html = f"""
+    <html>
+    <head>
+    <style>
+        .copy-btn {{
+            color: #ffffff;
+            background-color: #4CAF50;
+            padding: 0.25em 0.75em;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+            transition: background-color 0.3s;
+        }}
+        .copy-btn:hover {{
+            background-color: #45a049;
+        }}
+    </style>
+    </head>
+    <body>
+    <button class="copy-btn" onclick='navigator.clipboard.writeText(`{summary}`)'>Kopieer</button>
+    <script>
+    const copyBtn = document.querySelector('.copy-btn');
+    copyBtn.addEventListener('click', function(event) {{
+    alert('Samenvatting gekopieërd!');
+    }});
+    </script>
+    </body>
+    </html>
+    """
+    components.html(styled_button_html, height=50)
 
         
 st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
