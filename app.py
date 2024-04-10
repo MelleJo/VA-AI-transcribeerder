@@ -133,11 +133,9 @@ def summarize_text(text, department):
 
         }
 
-        current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
-        formatted_date = current_time.strftime('%d-%m-%Y, %A, %H:%M:%S')
-        samenvatting_header = f"Datum: {formatted_date}\n\n"
-        basic_prompt = "Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden."
-        combined_prompt = f"{samenvatting_header}{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
+        
+        basic_prompt = "Vermeld als eerst de datum en tijd van vandaag: {get_local_time()}\n. Hier is de input, samenvat deze tekst met zoveel mogelijk bullet points om een overzichtelijk overzicht te maken. Gebruik duidelijke, heldere taal die ook formeel genoeg is om eventueel met een andere partij te delen. Vermijd de herhaling, je hoeft alles maar één keer te noemen. Actiepunten moeten zo concreet mogelijk zijn. Gebruik geen vage taal, en houd de punten zo concreet mogelijk als in het transcript. Je hoeft geen actiepunten of disclaimers toe te voegen, straight to the point samenvatting. Zorg ervoor dat je de Nederlandse grammatica regels gebruikt qua capitalisatie en ook qua woorden aan elkaar houden. Maak verschillende kopjes met samenvatting, advies, en actiepunten."
+        combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
 
         # Initialize LangChain's ChatOpenAI with the provided API key and model
@@ -157,6 +155,7 @@ def summarize_text(text, department):
             summary_text = "Mislukt om een samenvatting te genereren."
 
         return summary_text
+
 # Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
