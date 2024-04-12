@@ -180,6 +180,7 @@ def summarize_text(text, department):
             "die zijn overeengekomen, inclusief eventuele deadlines."
             "Handhaaf een coherente, objectieve en complete weergave van het gesprek."
             "Verzin niets extra's, als alle belangrijke punten en details zijn aangegeven is het klaar."
+            "Als er iets niet is genoemd, dan hoef je dit ook niet over te nemen in de samenvatting."
         )
 
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
