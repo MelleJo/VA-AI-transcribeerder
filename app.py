@@ -182,6 +182,7 @@ def summarize_text(text, department):
             "Verzin niets extra's, als alle belangrijke punten en details zijn aangegeven is het klaar."
             "Als er iets niet is genoemd, dan hoef je dit ook niet over te nemen in de samenvatting."
             "Je hoeft geen disclaimer, of deadlines aan te geven op het moment dat er geen deadlines zijn gegeven."
+            "Je noemt alleen dingen uit het gesprek, dus als er bijvoorbeeld geen advies is gegeven, of geen actiepunten die je kunt herleiden, dan noem je ook niet dat er geen adviezen of actiepunten zijn."
         )
 
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
