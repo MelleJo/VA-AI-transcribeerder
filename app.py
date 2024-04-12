@@ -171,7 +171,7 @@ def summarize_text(text, department):
 
         current_time = get_local_time()
         basic_prompt = (
-            f"Vandaag is {current_time}. Benut deze informatie om een accurate en "
+            f"Vandaag is {current_time}. Vermeld dit altijd in de titel. Benut deze informatie om een accurate en "
             "gedetailleerde samenvatting, zo kort mogelijk met zo min mogelijk woorden, maar wel met alle details. "
             "Begin met de exacte datum en tijd van het gesprek. "
             "Identificeer het onderwerp van het gesprek. Detailleer het klantverzoek met "
