@@ -172,13 +172,14 @@ def summarize_text(text, department):
         current_time = get_local_time()
         basic_prompt = (
             f"Vandaag is {current_time}. Benut deze informatie om een accurate en "
-            "gedetailleerde samenvatting te maken van een klantgesprek gericht op "
-            "verzekeringswijzigingen en adviezen. Begin met de exacte datum en tijd van het gesprek. "
-            "Identificeer de klant en de reden van het gesprek. Detailleer het klantverzoek met "
-            "betrekking tot hun verzekeringspolis, inclusief eventuele zorgen of verzoeken om wijzigingen. "
+            "gedetailleerde samenvatting, zo kort mogelijk met zo min mogelijk woorden, maar wel met alle details. "
+            "Begin met de exacte datum en tijd van het gesprek. "
+            "Identificeer het onderwerp van het gesprek. Detailleer het klantverzoek met "
+            "alle details, inclusief eventuele zorgen of verzoeken om wijzigingen. "
             "Beschrijf het advies dat is gegeven en alternatieven die zijn voorgesteld. Specificeer de actiepunten "
-            "die zijn overeengekomen, inclusief eventuele deadlines. Voeg aanvullende opmerkingen toe die "
-            "relevant zijn voor het gesprek. Handhaaf een coherente, objectieve en complete weergave van het gesprek."
+            "die zijn overeengekomen, inclusief eventuele deadlines."
+            "Handhaaf een coherente, objectieve en complete weergave van het gesprek."
+            "Verzin niets extra's, als alle belangrijke punten en details zijn aangegeven is het klaar."
         )
 
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
