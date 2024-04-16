@@ -148,6 +148,9 @@ department_questions = {
     "Waarom hebben jullie elkaar gesproken?",
     "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
     "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
+    ],
+    "Algemene samenvatting": [
+        "Wat zijn de belangrijkste details?"
     ]
 
 }
@@ -166,7 +169,8 @@ def summarize_text(text, department):
             "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat.",
             "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken.",
             "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat.",
-            "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere onderwerpen rondom casemanagement. Je zorgt ervoor dat details goed worden vastgelegd. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming."
+            "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere onderwerpen rondom casemanagement. Je zorgt ervoor dat details goed worden vastgelegd. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming.",
+            "Algemene samenvatting": "Jij bent een expert in het samenvatting van elk soort notitie, gesprek of wat er ook maar wordt aangeleverd. Je geeft een complete samenvatting, met specifiek oog voor de details, maar je vermijd herhaling en probeert er voor te zorgen dat de samenvatting beknopt is. Maar volledigheid gaat altijd boven de beknoptheid."
         }
 
         current_time = get_local_time()
@@ -250,7 +254,7 @@ def update_gesprekslog(transcript, summary):
 
 st.title("Gesprekssamenvatter - testversie 0.1.5.")
 
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo"])
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting"])
 
 if department in department_questions:
     st.subheader("Vragen om in je input te overwegen:")
