@@ -103,13 +103,15 @@ def transcribe_audio(file_path):
     transcript_text = ""
     audio_segments = split_audio(file_path)
     total_segments = len(audio_segments)
-    progress_bar = st.progress(0)
-    progress_text_container = st.container()
+    progress_bar = st.progress(0)  # Initialize the progress bar
+    progress_text_container = st.container()  # Create a container for progress text
 
     try:
         for i, segment in enumerate(audio_segments):
-            with progress_text_container:
-                st.write(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+            # Display progress in the designated container
+            progress_text = f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid'
+            progress_text_container.empty()  # Clear previous text
+            progress_text_container.write(progress_text)  # Write new progress text
 
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 segment.export(temp_file.name, format="wav")
@@ -119,18 +121,16 @@ def transcribe_audio(file_path):
                     )
                     if hasattr(transcription_response, 'text'):
                         transcript_text += transcription_response.text + " "
-                    
-            progress_bar.progress((i + 1) / total_segments)
-            st.rerun()
+            
+            progress_bar.progress((i + 1) / total_segments)  # Update the progress bar
 
     except Exception as e:
-        with progress_text_container:
-            st.error(f"Transcriptie mislukt: {str(e)}")
+        progress_text_container.error(f"Transcriptie mislukt: {str(e)}")
         return "Transcriptie mislukt."
 
-    with progress_text_container:
-        st.success("Transcriptie voltooid.")
+    progress_text_container.success("Transcriptie voltooid.")
     return transcript_text.strip()
+
 
 
 
