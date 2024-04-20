@@ -121,7 +121,7 @@ def transcribe_audio(file_path):
                         transcript_text += transcription_response.text + " "
                     
             progress_bar.progress((i + 1) / total_segments)
-            st.experimental_rerun()  # Optionally force a rerun to ensure updates
+            st.rerun()
 
     except Exception as e:
         with progress_text_container:
