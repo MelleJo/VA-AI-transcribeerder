@@ -96,9 +96,9 @@ def get_local_time():
 
 def transcribe_audio(file_path):
     """
-    Transcribes audio by first splitting the audio file into smaller segments
+    Transcribes audio by first splitting the audio file into smaller segments,
     and then sending each segment to the OpenAI API for transcription,
-    while displaying progress in the Streamlit interface.
+    while displaying detailed progress in the Streamlit interface.
     """
     with st.spinner("Transcriptie maken..."):
         transcript_text = ""
@@ -106,7 +106,12 @@ def transcribe_audio(file_path):
             audio_segments = split_audio(file_path)
             total_segments = len(audio_segments)
             progress_bar = st.progress(0)  # Initialize the progress bar
+            progress_text = st.empty()  # Placeholder for progress text
+
             for i, segment in enumerate(audio_segments):
+                # Update the text below the progress bar to show detailed progress
+                progress_text.text(f'Processing chunk {i+1} of {total_segments} - {((i+1)/total_segments*100):.2f}% complete')
+
                 with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                     segment.export(temp_file.name, format="wav")
                     with open(temp_file.name, "rb") as audio_file:
@@ -115,11 +120,15 @@ def transcribe_audio(file_path):
                         )
                         if hasattr(transcription_response, 'text'):
                             transcript_text += transcription_response.text + " "
-                    # Update the progress bar after processing each segment
-                    progress_bar.progress((i + 1) / total_segments)
+                    
+                # Update the progress bar after processing each segment
+                progress_bar.progress((i + 1) / total_segments)
+
         except Exception as e:
-            st.error(f"Transcription failed: {str(e)}")
+            progress_text.text(f"Transcription failed: {str(e)}")  # Update text to show error
             return "Transcription mislukt."
+        
+        progress_text.text("Transcription complete.")  # Update text to show completion
         return transcript_text.strip()
 
 
