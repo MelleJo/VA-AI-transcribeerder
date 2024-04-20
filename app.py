@@ -96,43 +96,42 @@ def get_local_time():
 
 def transcribe_audio(file_path):
     transcript_text = ""
-    try:
-        audio_segments = split_audio(file_path)
-    except Exception as e:
-        st.error(f"Fout bij het segmenteren van het audio: {str(e)}")
-        return "Segmentatie mislukt."
+    
+    # Feedback geven voordat de segmentatie start
+    with st.spinner('Audio segmentatie wordt gestart...'):
+        try:
+            audio_segments = split_audio(file_path)
+        except Exception as e:
+            st.error(f"Fout bij het segmenteren van het audio: {str(e)}")
+            return "Segmentatie mislukt."
 
     total_segments = len(audio_segments)
     progress_bar = st.progress(0)
     progress_text = st.empty()
     progress_text.text("Start transcriptie...")  # Onmiddellijke feedback
 
-    try:
-        for i, segment in enumerate(audio_segments):
-            # Geef regelmatige updates
-            progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+    for i, segment in enumerate(audio_segments):
+        # Geef regelmatige updates
+        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
 
-            with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
-                segment.export(temp_file.name, format="wav")
-                with open(temp_file.name, "rb") as audio_file:
-                    try:
-                        transcription_response = client.audio.transcriptions.create(
-                            file=audio_file, model="whisper-1"
-                        )
-                        if hasattr(transcription_response, 'text'):
-                            transcript_text += transcription_response.text + " "
-                    except Exception as e:
-                        st.error(f"Fout bij het transcriberen: {str(e)}")
-                        continue  # Ga door met de volgende segment als er een fout is
+        with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+            segment.export(temp_file.name, format="wav")
+            with open(temp_file.name, "rb") as audio_file:
+                try:
+                    transcription_response = client.audio.transcriptions.create(
+                        file=audio_file, model="whisper-1"
+                    )
+                    if hasattr(transcription_response, 'text'):
+                        transcript_text += transcription_response.text + " "
+                except Exception as e:
+                    st.error(f"Fout bij het transcriberen: {str(e)}")
+                    continue  # Ga door met de volgende segment als er een fout is
 
-            progress_bar.progress((i + 1) / total_segments)
-
-    except Exception as e:
-        st.error(f"Onverwachte fout tijdens transcriptie: {str(e)}")
-        return "Transcriptie mislukt."
+        progress_bar.progress((i + 1) / total_segments)
 
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
+
 
 
 
