@@ -98,19 +98,19 @@ def transcribe_audio(file_path):
     """
     Transcribes audio by first splitting the audio file into smaller segments,
     and then sending each segment to the OpenAI API for transcription,
-    while displaying detailed progress in the Streamlit interface.
+    while displaying detailed progress in the Streamlit interface in Dutch.
     """
-    with st.spinner("Transcriptie maken..."):
+    with st.spinner("Transcriptie wordt gemaakt..."):
         transcript_text = ""
         try:
             audio_segments = split_audio(file_path)
             total_segments = len(audio_segments)
             progress_bar = st.progress(0)  # Initialize the progress bar
-            progress_text = st.empty()  # Placeholder for progress text
+            progress_text = st.text("Voorbereiding van de transcriptie...")  # Initial text
 
             for i, segment in enumerate(audio_segments):
                 # Update the text below the progress bar to show detailed progress
-                progress_text.text(f'Processing chunk {i+1} of {total_segments} - {((i+1)/total_segments*100):.2f}% complete')
+                progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
 
                 with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                     segment.export(temp_file.name, format="wav")
@@ -125,11 +125,12 @@ def transcribe_audio(file_path):
                 progress_bar.progress((i + 1) / total_segments)
 
         except Exception as e:
-            progress_text.text(f"Transcription failed: {str(e)}")  # Update text to show error
-            return "Transcription mislukt."
+            progress_text.text(f"Transcriptie mislukt: {str(e)}")  # Update text to show error in Dutch
+            return "Transcriptie mislukt."
         
-        progress_text.text("Transcription complete.")  # Update text to show completion
+        progress_text.text("Transcriptie voltooid.")  # Update text to show completion in Dutch
         return transcript_text.strip()
+
 
 
 
