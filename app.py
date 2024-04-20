@@ -279,7 +279,7 @@ def update_gesprekslog(transcript, summary):
     st.session_state.gesprekslog = st.session_state.gesprekslog[:5]
 
 
-st.title("Gesprekssamenvatter - testversie 0.1.5.")
+st.title("Gesprekssamenvatter - testversie 0.1.7.")
 
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting"])
 
@@ -330,9 +330,10 @@ elif input_method in ["Upload audio", "Neem audio op"]:
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
         if uploaded_file is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                tmp_audio.write(uploaded_file.getvalue())
-                tmp_audio.flush()  # Ensure data is written to disk
+            with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames...")
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                    tmp_audio.write(uploaded_file.getvalue())
+                    tmp_audio.flush()  # Ensure data is written to disk
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
             update_gesprekslog(transcript, summary)
