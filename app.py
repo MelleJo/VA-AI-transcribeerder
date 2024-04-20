@@ -95,39 +95,45 @@ def get_local_time():
     return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
 
 def transcribe_audio(file_path):
-    """
-    Transcribes audio by first splitting the audio file into smaller segments,
-    and then sending each segment to the OpenAI API for transcription,
-    while displaying detailed progress in the Streamlit interface in Dutch.
-    """
     transcript_text = ""
-    audio_segments = split_audio(file_path)
+    try:
+        audio_segments = split_audio(file_path)
+    except Exception as e:
+        st.error(f"Fout bij het segmenteren van het audio: {str(e)}")
+        return "Segmentatie mislukt."
+
     total_segments = len(audio_segments)
-    progress_bar = st.progress(0)  # Initialize the progress bar
-    progress_text = st.empty()  # Prepare a placeholder for the progress text
+    progress_bar = st.progress(0)
+    progress_text = st.empty()
+    progress_text.text("Start transcriptie...")  # Onmiddellijke feedback
 
     try:
         for i, segment in enumerate(audio_segments):
-            # Display progress using the 'empty' placeholder
+            # Geef regelmatige updates
             progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
 
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 segment.export(temp_file.name, format="wav")
                 with open(temp_file.name, "rb") as audio_file:
-                    transcription_response = client.audio.transcriptions.create(
-                        file=audio_file, model="whisper-1"
-                    )
-                    if hasattr(transcription_response, 'text'):
-                        transcript_text += transcription_response.text + " "
-            
-            progress_bar.progress((i + 1) / total_segments)  # Update the progress bar
+                    try:
+                        transcription_response = client.audio.transcriptions.create(
+                            file=audio_file, model="whisper-1"
+                        )
+                        if hasattr(transcription_response, 'text'):
+                            transcript_text += transcription_response.text + " "
+                    except Exception as e:
+                        st.error(f"Fout bij het transcriberen: {str(e)}")
+                        continue  # Ga door met de volgende segment als er een fout is
+
+            progress_bar.progress((i + 1) / total_segments)
 
     except Exception as e:
-        progress_text.error(f"Transcriptie mislukt: {str(e)}")
+        st.error(f"Onverwachte fout tijdens transcriptie: {str(e)}")
         return "Transcriptie mislukt."
 
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
+
 
 
 
