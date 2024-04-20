@@ -37,17 +37,16 @@ def vertaal_dag_eng_naar_nl(dag_engels):
     }
     return vertaling.get(dag_engels, dag_engels)  # Geeft de Nederlandse dag terug, of de Engelse als niet gevonden
 
-def split_audio(file_path, max_size=24000000):
+def split_audio(file_path, max_duration_ms=30000):
+    """
+    Splits the audio file into chunks that are less than or equal to max_duration_ms milliseconds.
+    """
     audio = AudioSegment.from_file(file_path)
-    duration = len(audio)
-    chunks_count = max(1, duration // (max_size / (len(audio.raw_data) / duration)))
+    chunks = []
+    for i in range(0, len(audio), max_duration_ms):
+        chunks.append(audio[i:i+max_duration_ms])
+    return chunks
 
-    # Als chunks_count 1 is, retourneer de hele audio in één stuk
-    if chunks_count == 1:
-        return [audio]
-
-    # Anders, splits de audio in de berekende aantal chunks
-    return [audio[i:i + duration // chunks_count] for i in range(0, duration, duration // int(chunks_count))]
 
 # def copy_function():
     if 'summary' in st.session_state and st.session_state['summary']:
@@ -96,7 +95,11 @@ def get_local_time():
     return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
 
 def transcribe_audio(file_path):
-    with st.spinner("Transcriptie maken..."): 
+    """
+    Transcribes audio by first splitting the audio file into smaller segments
+    and then sending each segment to the OpenAI API for transcription.
+    """
+    with st.spinner("Transcriptie maken..."):
         transcript_text = ""
         try:
             audio_segments = split_audio(file_path)
@@ -104,13 +107,15 @@ def transcribe_audio(file_path):
                 with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                     segment.export(temp_file.name, format="wav")
                     with open(temp_file.name, "rb") as audio_file:
+                        # Ensure to use the right model if 'whisper-1' has been deprecated or updated
                         transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
                         if hasattr(transcription_response, 'text'):
                             transcript_text += transcription_response.text + " "
-            return transcript_text.strip()
         except Exception as e:
             st.error(f"Transcription failed: {str(e)}")
             return "Transcription mislukt."
+        return transcript_text.strip()
+
 
 
 department_questions = {
@@ -191,7 +196,7 @@ def summarize_text(text, department):
 
         combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
 
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-turbo-2024-04-09", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
 
@@ -248,8 +253,6 @@ def update_gesprekslog(transcript, summary):
     current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
     st.session_state.gesprekslog.insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state.gesprekslog = st.session_state.gesprekslog[:5]
-
-
 
 
 st.title("Gesprekssamenvatter - testversie 0.1.5.")
