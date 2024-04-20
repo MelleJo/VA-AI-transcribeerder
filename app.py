@@ -104,14 +104,12 @@ def transcribe_audio(file_path):
     audio_segments = split_audio(file_path)
     total_segments = len(audio_segments)
     progress_bar = st.progress(0)  # Initialize the progress bar
-    progress_text_container = st.container()  # Create a container for progress text
+    progress_text = st.empty()  # Prepare a placeholder for the progress text
 
     try:
         for i, segment in enumerate(audio_segments):
-            # Display progress in the designated container
-            progress_text = f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid'
-            progress_text_container.empty()  # Clear previous text
-            progress_text_container.write(progress_text)  # Write new progress text
+            # Display progress using the 'empty' placeholder
+            progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
 
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 segment.export(temp_file.name, format="wav")
@@ -125,11 +123,12 @@ def transcribe_audio(file_path):
             progress_bar.progress((i + 1) / total_segments)  # Update the progress bar
 
     except Exception as e:
-        progress_text_container.error(f"Transcriptie mislukt: {str(e)}")
+        progress_text.error(f"Transcriptie mislukt: {str(e)}")
         return "Transcriptie mislukt."
 
-    progress_text_container.success("Transcriptie voltooid.")
+    progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
+
 
 
 
@@ -326,7 +325,17 @@ elif input_method in ["Upload audio", "Neem audio op"]:
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
         if uploaded_file is not None:
-            uploaded_audio = uploaded_file.getvalue()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                tmp_audio.write(uploaded_file.getvalue())
+                tmp_audio.flush()  # Ensure data is written to disk
+            transcript = transcribe_audio(tmp_audio.name)
+            summary = summarize_text(transcript, department)
+            update_gesprekslog(transcript, summary)
+            st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+            if summary:
+                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+            os.remove(tmp_audio.name)
+
     elif input_method == "Neem audio op":
         audio_data = mic_recorder(
             key="recorder",
