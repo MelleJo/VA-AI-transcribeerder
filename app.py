@@ -330,7 +330,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
         if uploaded_file is not None:
-            with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames...")
+            with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                     tmp_audio.write(uploaded_file.getvalue())
                     tmp_audio.flush()  # Ensure data is written to disk
