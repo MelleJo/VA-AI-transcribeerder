@@ -106,11 +106,11 @@ def transcribe_audio(file_path):
             audio_segments = split_audio(file_path)
             total_segments = len(audio_segments)
             progress_bar = st.progress(0)  # Initialize the progress bar
-            progress_text = st.text("Voorbereiding van de transcriptie...")  # Initial text
+            progress_text = st.empty()  # Placeholder for dynamic text
 
             for i, segment in enumerate(audio_segments):
-                # Update the text below the progress bar to show detailed progress
                 progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+                print(f'Processing chunk {i+1}/{total_segments}')  # Debug statement
 
                 with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                     segment.export(temp_file.name, format="wav")
@@ -121,15 +121,17 @@ def transcribe_audio(file_path):
                         if hasattr(transcription_response, 'text'):
                             transcript_text += transcription_response.text + " "
                     
-                # Update the progress bar after processing each segment
                 progress_bar.progress((i + 1) / total_segments)
 
         except Exception as e:
             progress_text.text(f"Transcriptie mislukt: {str(e)}")  # Update text to show error in Dutch
+            print(f"Error: {str(e)}")  # Debug statement
             return "Transcriptie mislukt."
         
         progress_text.text("Transcriptie voltooid.")  # Update text to show completion in Dutch
+        print("Transcription complete")  # Debug statement
         return transcript_text.strip()
+
 
 
 
