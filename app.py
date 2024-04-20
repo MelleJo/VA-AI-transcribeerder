@@ -100,37 +100,38 @@ def transcribe_audio(file_path):
     and then sending each segment to the OpenAI API for transcription,
     while displaying detailed progress in the Streamlit interface in Dutch.
     """
-    with st.spinner("Transcriptie wordt gemaakt..."):
-        transcript_text = ""
-        try:
-            audio_segments = split_audio(file_path)
-            total_segments = len(audio_segments)
-            progress_bar = st.progress(0)  # Initialize the progress bar
-            progress_text = st.empty()  # Placeholder for dynamic text
+    transcript_text = ""
+    audio_segments = split_audio(file_path)
+    total_segments = len(audio_segments)
+    progress_bar = st.progress(0)
+    progress_text_container = st.container()
 
-            for i, segment in enumerate(audio_segments):
-                progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
-                print(f'Processing chunk {i+1}/{total_segments}')  # Debug statement
+    try:
+        for i, segment in enumerate(audio_segments):
+            with progress_text_container:
+                st.write(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
 
-                with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
-                    segment.export(temp_file.name, format="wav")
-                    with open(temp_file.name, "rb") as audio_file:
-                        transcription_response = client.audio.transcriptions.create(
-                            file=audio_file, model="whisper-1"
-                        )
-                        if hasattr(transcription_response, 'text'):
-                            transcript_text += transcription_response.text + " "
+            with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+                segment.export(temp_file.name, format="wav")
+                with open(temp_file.name, "rb") as audio_file:
+                    transcription_response = client.audio.transcriptions.create(
+                        file=audio_file, model="whisper-1"
+                    )
+                    if hasattr(transcription_response, 'text'):
+                        transcript_text += transcription_response.text + " "
                     
-                progress_bar.progress((i + 1) / total_segments)
+            progress_bar.progress((i + 1) / total_segments)
+            st.experimental_rerun()  # Optionally force a rerun to ensure updates
 
-        except Exception as e:
-            progress_text.text(f"Transcriptie mislukt: {str(e)}")  # Update text to show error in Dutch
-            print(f"Error: {str(e)}")  # Debug statement
-            return "Transcriptie mislukt."
-        
-        progress_text.text("Transcriptie voltooid.")  # Update text to show completion in Dutch
-        print("Transcription complete")  # Debug statement
-        return transcript_text.strip()
+    except Exception as e:
+        with progress_text_container:
+            st.error(f"Transcriptie mislukt: {str(e)}")
+        return "Transcriptie mislukt."
+
+    with progress_text_container:
+        st.success("Transcriptie voltooid.")
+    return transcript_text.strip()
+
 
 
 
