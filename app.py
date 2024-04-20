@@ -97,24 +97,31 @@ def get_local_time():
 def transcribe_audio(file_path):
     """
     Transcribes audio by first splitting the audio file into smaller segments
-    and then sending each segment to the OpenAI API for transcription.
+    and then sending each segment to the OpenAI API for transcription,
+    while displaying progress in the Streamlit interface.
     """
     with st.spinner("Transcriptie maken..."):
         transcript_text = ""
         try:
             audio_segments = split_audio(file_path)
-            for segment in audio_segments:
+            total_segments = len(audio_segments)
+            progress_bar = st.progress(0)  # Initialize the progress bar
+            for i, segment in enumerate(audio_segments):
                 with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                     segment.export(temp_file.name, format="wav")
                     with open(temp_file.name, "rb") as audio_file:
-                        # Ensure to use the right model if 'whisper-1' has been deprecated or updated
-                        transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+                        transcription_response = client.audio.transcriptions.create(
+                            file=audio_file, model="whisper-1"
+                        )
                         if hasattr(transcription_response, 'text'):
                             transcript_text += transcription_response.text + " "
+                    # Update the progress bar after processing each segment
+                    progress_bar.progress((i + 1) / total_segments)
         except Exception as e:
             st.error(f"Transcription failed: {str(e)}")
             return "Transcription mislukt."
         return transcript_text.strip()
+
 
 
 
