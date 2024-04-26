@@ -22,6 +22,9 @@ import streamlit.components.v1 as components
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+if 'gesprekslog' not in st.session_state:
+    st.session_state['gesprekslog'] = []
+
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
         "Monday": "Maandag",
