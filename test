@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
 import os
+import time
 import pytz
 import tempfile
 from datetime import datetime
@@ -20,6 +21,8 @@ from docx import Document
 from pydub import AudioSegment
 import streamlit.components.v1 as components
 
+
+
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def vertaal_dag_eng_naar_nl(dag_engels):
@@ -32,14 +35,60 @@ def vertaal_dag_eng_naar_nl(dag_engels):
         "Saturday": "Zaterdag",
         "Sunday": "Zondag"
     }
-    return vertaling.get(dag_engels, dag_engels)
+    return vertaling.get(dag_engels, dag_engels)  # Geeft de Nederlandse dag terug, of de Engelse als niet gevonden
 
 def split_audio(file_path, max_duration_ms=30000):
+    """
+    Splits the audio file into chunks that are less than or equal to max_duration_ms milliseconds.
+    """
     audio = AudioSegment.from_file(file_path)
     chunks = []
     for i in range(0, len(audio), max_duration_ms):
         chunks.append(audio[i:i+max_duration_ms])
     return chunks
+
+
+# def copy_function():
+    if 'summary' in st.session_state and st.session_state['summary']:
+        summary = st.session_state['summary']
+        # HTML en JavaScript voor de knop, met Streamlit-achtige styling
+        styled_button_html = f"""
+        <html>
+        <head>
+        <style>
+            .copy-btn {{
+                color: #ffffff;
+                background-color: #4CAF50;
+                padding: 0.25em 0.75em;
+                font-size: 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 2px;
+                transition: background-color 0.3s;
+            }}
+            .copy-btn:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+        </head>
+        <body>
+        <button class="copy-btn" onclick='navigator.clipboard.writeText(`{summary}`)'>Kopieer</button>
+        <script>
+        const copyBtn = document.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', function(event) {{
+        alert('Samenvatting gekopieërd!');
+        }});
+        </script>
+        </body>
+        </html>
+        """
+        components.html(styled_button_html, height=50)
+
+
+ 
+if 'gesprekslog' not in st.session_state:
+    st.session_state['gesprekslog'] = []
 
 def get_local_time():
     timezone = pytz.timezone("Europe/Amsterdam")
@@ -47,6 +96,8 @@ def get_local_time():
 
 def transcribe_audio(file_path):
     transcript_text = ""
+     
+    # Feedback geven voordat de segmentatie start
     with st.spinner('Audio segmentatie wordt gestart...'):
         try:
             audio_segments = split_audio(file_path)
@@ -57,28 +108,45 @@ def transcribe_audio(file_path):
     total_segments = len(audio_segments)
     progress_bar = st.progress(0)
     progress_text = st.empty()
-    progress_text.text("Start transcriptie...")
+    progress_text.text("Start transcriptie...")  # Onmiddellijke feedback
+
     for i, segment in enumerate(audio_segments):
+        # Geef regelmatige updates
         progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+
         with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
                 try:
-                    transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
+                    transcription_response = client.audio.transcriptions.create(
+                        file=audio_file, model="whisper-1"
+                    )
                     if hasattr(transcription_response, 'text'):
                         transcript_text += transcription_response.text + " "
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
-                    continue
+                    continue  # Ga door met de volgende segment als er een fout is
+
         progress_bar.progress((i + 1) / total_segments)
+
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
+
+
+
+
+
+
+
+
+
+
 
 department_questions = {
     "Bedrijven": [
         "Waarom heeft de klant gebeld?",
         "Wat is de reden voor de mutatie of wijziging in de verzekering?",
-        "Welk advies is gegeven en waarom?",
+        "Welk advies is gegeven en waarom? - samenvatting van de klantbehoefte",
         "Wat is de datum?",
         "Over welk product gaat het gesprek?",
         "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?",
@@ -104,26 +172,28 @@ department_questions = {
         "Heeft de klant eerdere interacties gehad die relevant zijn?"
     ],
     "Arbo": [
-        "Wanneer heeft het gesprek plaatsgevonden?",
-        "Wie heb je gesproken?",
-        "Waarom hebben jullie elkaar gesproken?",
-        "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
-        "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
+    "Wanneer heeft het gesprek plaatsgevonden?",
+    "Wie heb je gesproken?",
+    "Waarom hebben jullie elkaar gesproken?",
+    "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
+    "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
     ],
     "Algemene samenvatting": [
         "Wat zijn de belangrijkste details?"
     ],
     "Ondersteuning Bedrijfsarts": [
-        "Voorstellen en introductie",
-        "Functie en werkuren per week",
-        "Huidige gezondheidssituatie",
-        "Lopende behandelingen",
-        "Medicatie",
-        "Vooruitzichten",
-        "Contact met werk",
-        "Werkhervattingsadvies",
-        "Uitleg over vervolgproces"
-    ]
+    "Voorstellen en introductie",
+    "Functie en werkuren per week",
+    "Huidige gezondheidssituatie",
+    "Lopende behandelingen",
+    "Medicatie",
+    "Vooruitzichten",
+    "Contact met werk",
+    "Werkhervattingsadvies",
+    "Uitleg over vervolgproces"
+]
+
+
 }
 
 def read_docx(file_path):
@@ -141,9 +211,9 @@ def summarize_text(text, department):
             "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken.",
             "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat.",
             "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere onderwerpen rondom casemanagement. Je zorgt ervoor dat details goed worden vastgelegd. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming.",
-            "Algemene samenvatting": "Jij bent een expert in het samenvatten van elk soort notitie, gesprek of wat er ook maar wordt aangeleverd. Je geeft een complete samenvatting, met specifiek oog voor de details, maar je vermijdt herhaling en probeert ervoor te zorgen dat de samenvatting beknopt is. Maar volledigheid gaat altijd boven de beknoptheid. Je zorgt ervoor dat alle afspraken, actiepunten en andere elementen duidelijk worden overgenomen. Het moet zo zijn dat als iemand de notitie leest, hij/zij net zoveel weet als wanneer hij bij het gesprek was.",
-            "Ondersteuning Bedrijfsarts": "Als expert in het samenvatten van gesprekken voor ondersteuning van een bedrijfsarts, concentreer je je op het algemene welzijn van de werknemer en relevante werkgerelateerde informatie zonder specifieke medische details te delen. Focus op het functioneren van de werknemer in zijn of haar rol, eventuele aanpassingen in het werk, en algemene adviezen over werkvoortzetting of aanpassingen die nodig zijn. Documenteer deze zonder specifieke gezondheidsinformatie te noemen om privacy te waarborgen."
+            "Algemene samenvatting": "Jij bent een expert in het samenvatting van elk soort notitie, gesprek of wat er ook maar wordt aangeleverd. Je geeft een complete samenvatting, met specifiek oog voor de details, maar je vermijd herhaling en probeert er voor te zorgen dat de samenvatting beknopt is. Maar volledigheid gaat altijd boven de beknoptheid. Je zorgt ervoor dat alle afspraken, actiepunten en andere elementen duidelijk worden overgenomen. Het moet zo zijn dat als iemand de notitie leest, hij/zij net zoveel weet als wanneer hij bij het gesprek was."
         }
+
         current_time = get_local_time()
         basic_prompt = (
             f"Vandaag is {current_time}. Vermeld dit altijd in de titel. Benut deze informatie om een accurate en "
@@ -176,14 +246,55 @@ def summarize_text(text, department):
             summary_text = "Mislukt om een samenvatting te genereren."
 
         return summary_text
+    
+    if summary:
+        # HTML en JavaScript voor de knop, met Streamlit-achtige styling
+        styled_button_html = f"""
+        <html>
+        <head>
+        <style>
+            .copy-btn {{
+                color: #ffffff;
+                background-color: #4CAF50;
+                padding: 0.25em 0.75em;
+                font-size: 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 2px;
+                transition: background-color 0.3s;
+            }}
+            .copy-btn:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+        </head>
+        <body>
+        <input type="text" value="{summary}" id="summaryText" style="width:90%;margin-bottom:10px;">
+        <button class="copy-btn" onclick='navigator.clipboard.writeText(document.getElementById("summaryText").value)'>Kopieer</button>
+        <script>
+        const copyBtn = document.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', function(event) {{
+        alert('Samenvatting gekopieërd!');
+        }});
+        </script>
+        </body>
+        </html>
+        """
+        components.html(styled_button_html, height=100)
+    
+    
 
+# Aanroepen na het genereren van de samenvatting
 def update_gesprekslog(transcript, summary):
-    current_time = get_local_time()
-    st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
-    st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
+    current_time = get_local_time()  # Gebruikt nu NL standaard voor tijdmarkering
+    st.session_state.gesprekslog.insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
+    st.session_state.gesprekslog = st.session_state.gesprekslog[:5]
+
 
 st.title("Gesprekssamenvatter - testversie 0.1.7.")
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts"])
+
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting"])
 
 if department in department_questions:
     st.subheader("Vragen om in je input te overwegen:")
@@ -195,10 +306,13 @@ input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Uploa
 if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
+        # Check the file extension
         if uploaded_file.name.endswith('.docx'):
+    # Handle Word documents (.docx)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
                 tmp_docx.write(uploaded_file.getvalue())
                 tmp_docx_path = tmp_docx.name
+
             text = read_docx(tmp_docx_path)
             os.remove(tmp_docx_path)
         else:
@@ -206,21 +320,25 @@ if input_method == "Upload tekst":
         summary = summarize_text(text, department)
         if summary:
             st.markdown(f"**{summary}**", unsafe_allow_html=True)
+            #st.button("Copy to Clipboard", on_click=copy_function)
 
 elif input_method == "Voer tekst in of plak tekst":
-    text = st.text_area("Voeg tekst hier in:", height=300)
-    if st.button("Samenvatten"):
-        if text:
-            summary = summarize_text(text, department)
+    text = st.text_area("Voeg tekst hier in:", height=300)  # Maakt een tekstveld waar gebruikers tekst kunnen invoeren
+    if st.button("Samenvatten"):  # Een knop die gebruikers kunnen klikken nadat ze de tekst hebben ingevoerd
+        if text:  # Controleert of er tekst is ingevoerd voordat verder wordt gegaan
+            summary = summarize_text(text, department)  # Roept de functie aan om de tekst samen te vatten
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                update_gesprekslog(text, summary)
+                update_gesprekslog(text, summary)  # Voegt dit toe aan het gesprekslog
+                # st.button("Copy to Clipboard", on_click=copy_function)
             else:
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
         else:
             st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
+
 elif input_method in ["Upload audio", "Neem audio op"]:
+    # Initialiseer uploaded_audio buiten de if/elif statements voor brede scope
     uploaded_audio = None
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
@@ -228,7 +346,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                     tmp_audio.write(uploaded_file.getvalue())
-                    tmp_audio.flush()
+                    tmp_audio.flush()  # Ensure data is written to disk
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
             update_gesprekslog(transcript, summary)
@@ -236,37 +354,53 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             if summary:
                 st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
             os.remove(tmp_audio.name)
+
     elif input_method == "Neem audio op":
-        audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
+        audio_data = mic_recorder(
+            key="recorder",
+            start_prompt="Start opname",
+            stop_prompt="Stop opname",
+            use_container_width=True,
+            format="webm"
+        )
         if audio_data and 'bytes' in audio_data:
             uploaded_audio = audio_data['bytes']
-        if uploaded_audio is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                tmp_audio.write(uploaded_audio)
-                tmp_audio.flush()
-                transcript = transcribe_audio(tmp_audio.name)
-                summary = summarize_text(transcript, department)
-                update_gesprekslog(transcript, summary)
-                st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
-                if summary:
-                    st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                os.remove(tmp_audio.name)
-        else:
-            if input_method == "Upload audio":
-                st.warning("Upload een audio bestand.")
+    
+    # Verwerk de audio alleen als uploaded_audio is ingesteld
+    if uploaded_audio is not None:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+            tmp_audio.write(uploaded_audio)
+            tmp_audio.flush()
+            transcript = transcribe_audio(tmp_audio.name)
+            summary = summarize_text(transcript, department)
+            update_gesprekslog(transcript, summary)  # Correct aangeroepen na samenvatting
+            st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+            if summary:
+                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                # st.button("Copy to Clipboard", on_click=copy_function)
+            os.remove(tmp_audio.name)
+    else:
+        if input_method == "Upload audio":
+            st.warning("Upload een audio bestand.")
 
-st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
-for gesprek in st.session_state['gesprekslog']:
-    with st.expander(f"Gesprek op {gesprek['time']}"):
-        st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-        st.markdown("""
-            <style>
-            .divider {
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-                border-top: 3px solid #bbb;
-            }
-            </style>
-            <div class="divider"></div>
-            """, unsafe_allow_html=True)
-        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
+
+
+
+
+    st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+
+    for gesprek in st.session_state.gesprekslog:
+        with st.expander(f"Gesprek op {gesprek['time']}"):
+            st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
+            st.markdown("""
+                <style>
+                .divider {
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
+                    border-top: 3px solid #bbb;
+                }
+                </style>
+                <div class="divider"></div>
+                """, unsafe_allow_html=True)
+            st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
+
