@@ -80,12 +80,20 @@ def transcribe_audio(file_path):
 def summarize_ondersteuning_bedrijfsarts(text):
     # Formuleren van de prompt voor GPT-4
     detailed_prompt = f"""
-    Analyseer het volgende gesprek en genereer een gestructureerd verslag met de volgende onderdelen:
-    1. Introductie en basisgegevens van de werknemer.
-    2. Details over de huidige gezondheidstoestand zonder specifieke medische informatie te onthullen.
-    3. Overzicht van de werkrelatie en huidige werkomstandigheden.
-    4. Advies voor werkhervatting en aanpassingen aan de werkplek.
+    Maak een gedetailleerd verslag op basis van de volgende informatie over een werknemer, zonder specifieke medische details te onthullen. Het verslag moet de volgende secties bevatten:
     
+    1. Introductie en Basisgegevens van de Werknemer:
+    [Introductie van de werknemer, functie, en normale werkuren]
+
+    2. Details over de Huidige Gezondheidstoestand:
+    [Algemene beschrijving van de gezondheidstoestand zonder specifieke medische details, zoals aanhoudende vermoeidheid en stressgerelateerde symptomen]
+
+    3. Overzicht van de Werkrelatie en Huidige Werkomstandigheden:
+    [Beschrijving van de werkrelatie en huidige omstandigheden op het werk, inclusief besprekingen over aanpassingen in werklast of werkuren]
+
+    4. Advies voor Werkhervatting en Aanpassingen aan de Werkplek:
+    [Adviezen voor aanpassingen aan de werkplek en strategieën voor een geleidelijke terugkeer naar werk]
+
     Gesprekstekst:
     {text}
     """
@@ -105,6 +113,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
         summary = "Mislukt om een samenvatting te genereren."
     
     return summary
+
 
 
 department_questions = {
