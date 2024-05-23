@@ -99,5 +99,5 @@ def summarize_ondersteuning_bedrijfsarts(text):
     """
     
     # Instellen van de LLM-keten
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4")
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o")
     prompt_template = Chat
