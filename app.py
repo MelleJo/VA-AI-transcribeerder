@@ -19,6 +19,7 @@ from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
 import streamlit.components.v1 as components
+import pandas as pd
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -78,7 +79,6 @@ def transcribe_audio(file_path):
     return transcript_text.strip()
 
 def summarize_ondersteuning_bedrijfsarts(text):
-    # Formuleren van de prompt voor GPT-4
     detailed_prompt = f"""
     Maak een gedetailleerd verslag op basis van de volgende informatie over een werknemer, zonder specifieke medische details te onthullen. Het verslag moet de volgende secties bevatten:
     
@@ -98,12 +98,10 @@ def summarize_ondersteuning_bedrijfsarts(text):
     {text}
     """
     
-    # Instellen van de LLM-keten
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
-    # Verkrijgen van het antwoord
     try:
         summary = llm_chain.invoke({})
         if not summary:
@@ -114,7 +112,77 @@ def summarize_ondersteuning_bedrijfsarts(text):
     
     return summary
 
+def summarize_onderhoudsadviesgesprek_tabel(text):
+    detailed_prompt = f"""
+    Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
 
+    Datum:
+    [Datum van het gesprek]
+
+    Aanwezig:
+    [Namen van de aanwezigen]
+
+    Introductie:
+    [Korte introductie van de situatie]
+
+    Situatie:
+    [Beschrijving van de huidige situatie]
+
+    Risico:
+    [Beschrijving van de risico's]
+
+    Gebruik de volgende tabelindeling voor zowel zakelijke als privé risico's:
+
+    Zakelijke Risico's:
+    | Risico           | Besproken | Actie voor         |
+    |------------------|-----------|--------------------|
+    | [Risico 1]       | [Details] | [Actie]            |
+    | [Risico 2]       | [Details] | [Actie]            |
+    | [Risico 3]       | [Details] | [Actie]            |
+    | [Risico 4]       | [Details] | [Actie]            |
+    | [Risico 5]       | [Details] | [Actie]            |
+
+    Privé Risico's:
+    | Risico           | Besproken | Actie voor         |
+    |------------------|-----------|--------------------|
+    | [Risico 1]       | [Details] | [Actie]            |
+    | [Risico 2]       | [Details] | [Actie]            |
+
+    Gesprekstekst:
+    {text}
+    """
+    
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+    prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
+    llm_chain = prompt_template | chat_model | StrOutputParser()
+    
+    try:
+        summary = llm_chain.invoke({})
+        if not summary:
+            summary = "Mislukt om een samenvatting te genereren."
+    except Exception as e:
+        st.error(f"Fout bij het genereren van samenvatting: {e}")
+        summary = "Mislukt om een samenvatting te genereren."
+    
+    if summary:
+        zakelijk_risico_start = summary.find("Zakelijke Risico's:")
+        prive_risico_start = summary.find("Privé Risico's:")
+        
+        zakelijk_risico_table = summary[zakelijk_risico_start:prive_risico_start].strip()
+        prive_risico_table = summary[prive_risico_start:].strip()
+        
+        def parse_table(table_text):
+            rows = table_text.split("\n")
+            headers = rows[1].split("|")[1:-1]
+            data = [row.split("|")[1:-1] for row in rows[3:]]
+            return pd.DataFrame(data, columns=headers)
+        
+        zakelijk_risico_df = parse_table(zakelijk_risico_table)
+        prive_risico_df = parse_table(prive_risico_table)
+        
+        return summary, zakelijk_risico_df, prive_risico_df
+    
+    return summary, None, None
 
 department_questions = {
     "Bedrijven": [
@@ -165,6 +233,13 @@ department_questions = {
         "Contact met werk",
         "Werkhervattingsadvies",
         "Uitleg over vervolgproces"
+    ],
+    "Onderhoudsadviesgesprek in tabelvorm": [
+        "Welke verzekeringen zijn besproken?",
+        "Welke risico's zijn besproken?",
+        "Welk specifiek advies is gegeven?",
+        "Zijn er belangrijke dingen die veranderen?",
+        "Moet er iets gewijzigd worden?"
     ]
 }
 
@@ -177,12 +252,23 @@ def read_docx(file_path):
 
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
-        if department == "Ondersteuning Bedrijfsarts":
+        if department == "Onderhoudsadviesgesprek in tabelvorm":
+            summary, zakelijk_risico_df, prive_risico_df = summarize_onderhoudsadviesgesprek_tabel(text)
+            if summary:
+                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                if zakelijk_risico_df is not None and prive_risico_df is not None:
+                    st.subheader("Zakelijke Risico's")
+                    st.table(zakelijk_risico_df)
+                    st.subheader("Privé Risico's")
+                    st.table(prive_risico_df)
+                return summary
+            else:
+                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+        elif department == "Ondersteuning Bedrijfsarts":
             return summarize_ondersteuning_bedrijfsarts(text)
         else:
-            # Bestaande logica voor andere afdelingen
             department_prompts = {
-                "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen en adviesprocessen. Documenteer klantbehoeften, de rationale achter adviezen, en de besproken verzekeringsproducten. Belicht actiepunten uit het gesprek en leg besluitvorming vast. Zorg ervoor dat je samenvatting helder de klantvraag, het gegeven advies, en concrete actiepunten bevat, inclusief de datum en tijd van het gesprek.",
+                "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen en adviesprocessen...",
                 "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat.",
                 "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken.",
                 "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat.",
@@ -206,7 +292,7 @@ def summarize_text(text, department):
                 "De taal is altijd in NL, zowel input als output."
             )
             combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
             prompt_template = ChatPromptTemplate.from_template(combined_prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             try:
@@ -223,8 +309,8 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
-st.title("Gesprekssamenvatter - testversie 0.1.7.")
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts"])
+st.title("Gesprekssamenvatter - testversie 0.1.8.")
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm"])
 
 if department in department_questions:
     st.subheader("Vragen om in je input te overwegen:")
