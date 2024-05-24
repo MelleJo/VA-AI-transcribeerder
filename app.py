@@ -114,7 +114,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
 
 def summarize_onderhoudsadviesgesprek_tabel(text):
     detailed_prompt = f"""
-    Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
+    Maak een beknopte en duidelijke samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
 
     **Datum**:
     [Datum van het gesprek]
@@ -186,6 +186,7 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
         return summary, zakelijk_risico_df, prive_risico_df
     
     return summary, None, None
+
 
 department_questions = {
     "Bedrijven": [
@@ -295,7 +296,7 @@ def summarize_text(text, department):
                 "De taal is altijd in NL, zowel input als output."
             )
             combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
             prompt_template = ChatPromptTemplate.from_template(combined_prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             try:
@@ -306,6 +307,7 @@ def summarize_text(text, department):
                 st.error(f"Fout bij het genereren van samenvatting: {e}")
                 summary_text = "Mislukt om een samenvatting te genereren."
             return summary_text
+
 
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()
