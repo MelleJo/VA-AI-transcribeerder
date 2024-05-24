@@ -116,39 +116,39 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     detailed_prompt = f"""
     Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
 
-    Datum:
+    **Datum**:
     [Datum van het gesprek]
 
-    Aanwezig:
-    [Namen van de aanwezigen]
+    **Aanwezig**:
+    - [Namen van de aanwezigen]
 
-    Introductie:
-    [Korte introductie van de situatie]
+    **Introductie**:
+    Geef een korte introductie van de context van het gesprek en de reden waarom het gesprek plaatsvond.
 
-    Situatie:
-    [Beschrijving van de huidige situatie]
+    **Situatie**:
+    Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
 
-    Risico:
-    [Beschrijving van de risico's]
+    **Risico's**:
+    Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant.
 
-    Gebruik de volgende tabelindeling voor zowel zakelijke als privé risico's:
+    **Zakelijke Risico's**:
 
-    Zakelijke Risico's:
-    | Risico           | Besproken | Actie voor         |
-    |------------------|-----------|--------------------|
-    | [Risico 1]       | [Details] | [Actie]            |
-    | [Risico 2]       | [Details] | [Actie]            |
-    | [Risico 3]       | [Details] | [Actie]            |
-    | [Risico 4]       | [Details] | [Actie]            |
-    | [Risico 5]       | [Details] | [Actie]            |
+    | Risico                        | Besproken | Actie                             | Actie voor    |
+    |-------------------------------|-----------|-----------------------------------|---------------|
+    | [Risico 1]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+    | [Risico 2]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+    | [Risico 3]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+    | [Risico 4]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+    | [Risico 5]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
 
-    Privé Risico's:
-    | Risico           | Besproken | Actie voor         |
-    |------------------|-----------|--------------------|
-    | [Risico 1]       | [Details] | [Actie]            |
-    | [Risico 2]       | [Details] | [Actie]            |
+    **Privé Risico's**:
 
-    Gesprekstekst:
+    | Risico | Besproken | Actie | Actie voor |
+    |--------|-----------|-------|------------|
+    | [Risico 1] | [Ja/Nee] | [Actie] | [Persoon] |
+    | [Risico 2] | [Ja/Nee] | [Actie] | [Persoon] |
+
+    **Gesprekstekst**:
     {text}
     """
     
@@ -183,72 +183,6 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
         return summary, zakelijk_risico_df, prive_risico_df
     
     return summary, None, None
-
-department_questions = {
-    "Bedrijven": [
-        "Waarom heeft de klant gebeld?",
-        "Wat is de reden voor de mutatie of wijziging in de verzekering?",
-        "Welk advies is gegeven en waarom?",
-        "Wat is de datum?",
-        "Over welk product gaat het gesprek?",
-        "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?",
-        "Wat moet er in de agenda komen en wanneer?"
-    ],
-    "Financieel Advies": [
-        "Wat zijn de financiële doelstellingen van de klant?",
-        "Welke financiële producten zijn besproken?",
-        "Welk specifiek advies is gegeven?"
-    ],
-    "Schadeafdeling": [
-        "Wanneer is de schade opgetreden?",
-        "Wat betreft de schade en aan welk object?",
-        "Zijn er al stappen ondernomen voor het melden van de schade?",
-        "Is er een expert langsgeweest?",
-        "Zijn er foto's van de schade?",
-        "Wat zijn de actiepunten voor de klant?",
-        "Wat zijn de actiepunten voor de schadebehandelaar?"
-    ],
-    "Algemeen": [
-        "Wat is de algemene vraag van de klant?",
-        "Zijn er specifieke details die niet overgeslagen moeten worden?",
-        "Heeft de klant eerdere interacties gehad die relevant zijn?"
-    ],
-    "Arbo": [
-        "Wanneer heeft het gesprek plaatsgevonden?",
-        "Wie heb je gesproken?",
-        "Waarom hebben jullie elkaar gesproken?",
-        "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
-        "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
-    ],
-    "Algemene samenvatting": [
-        "Wat zijn de belangrijkste details?"
-    ],
-    "Ondersteuning Bedrijfsarts": [
-        "Voorstellen en introductie",
-        "Functie en werkuren per week",
-        "Huidige gezondheidssituatie",
-        "Lopende behandelingen",
-        "Medicatie",
-        "Vooruitzichten",
-        "Contact met werk",
-        "Werkhervattingsadvies",
-        "Uitleg over vervolgproces"
-    ],
-    "Onderhoudsadviesgesprek in tabelvorm": [
-        "Welke verzekeringen zijn besproken?",
-        "Welke risico's zijn besproken?",
-        "Welk specifiek advies is gegeven?",
-        "Zijn er belangrijke dingen die veranderen?",
-        "Moet er iets gewijzigd worden?"
-    ]
-}
-
-def read_docx(file_path):
-    doc = Document(file_path)
-    fullText = []
-    for para in doc.paragraphs:
-        fullText.append(para.text)
-    return '\n'.join(fullText)
 
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
