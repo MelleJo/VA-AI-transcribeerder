@@ -152,7 +152,7 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     {text}
     """
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
