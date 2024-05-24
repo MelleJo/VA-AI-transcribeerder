@@ -152,7 +152,7 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     {text}
     """
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
@@ -173,8 +173,11 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
         
         def parse_table(table_text):
             rows = table_text.split("\n")
+            if len(rows) < 2:
+                st.error("Het lijkt erop dat de tabel niet correct is gegenereerd.")
+                return pd.DataFrame()
             headers = rows[1].split("|")[1:-1]
-            data = [row.split("|")[1:-1] for row in rows[3:]]
+            data = [row.split("|")[1:-1] for row in rows[3:] if row]
             return pd.DataFrame(data, columns=headers)
         
         zakelijk_risico_df = parse_table(zakelijk_risico_table)
@@ -292,7 +295,7 @@ def summarize_text(text, department):
                 "De taal is altijd in NL, zowel input als output."
             )
             combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
             prompt_template = ChatPromptTemplate.from_template(combined_prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             try:
@@ -391,7 +394,7 @@ for gesprek in st.session_state['gesprekslog']:
             .divider {
                 margin-top: 1rem;
                 margin-bottom: 1rem;
-                border-top: 3px solid #bbb;
+                border-top: 3px solid #bbb.
             }
             </style>
             <div class="divider"></div>
