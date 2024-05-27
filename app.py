@@ -21,7 +21,7 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-PROMPTS_DIR = "prompts/veldhuis-advies-groep/bedrijven/algemeen/MKB"
+PROMPTS_DIR = os.path.join(os.getcwd(), "prompts/veldhuis-advies-groep/bedrijven/algemeen/MKB")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -84,7 +84,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
     detailed_prompt = load_prompt("ondersteuning_bedrijfsarts_prompt.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
