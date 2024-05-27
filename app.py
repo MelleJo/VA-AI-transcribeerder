@@ -120,12 +120,14 @@ def summarize_text(text, department):
         department_prompt = load_prompt(prompt_file)
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
-        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
+        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}"
+        
         chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
+        
         try:
-            summary_text = llm_chain.invoke({})
+            summary_text = llm_chain.invoke({"text": text})
             if not summary_text:
                 summary_text = "Mislukt om een samenvatting te genereren."
         except Exception as e:
