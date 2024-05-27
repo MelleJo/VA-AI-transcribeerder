@@ -21,7 +21,8 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-PROMPTS_DIR = os.path.join(os.getcwd(), "prompts/veldhuis-advies-groep/bedrijven/algemeen/MKB")
+PROMPTS_DIR = os.path.abspath("prompts/veldhuis-advies-groep/bedrijven/MKB")
+QUESTIONS_DIR = os.path.abspath("questions")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -84,7 +85,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
     detailed_prompt = load_prompt("ondersteuning_bedrijfsarts_prompt.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
@@ -102,7 +103,7 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     detailed_prompt = load_prompt("onderhoudsadviesgesprek_tabel_prompt.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
@@ -142,64 +143,10 @@ def load_prompt(file_name):
     with open(path, "r", encoding="utf-8") as file:
         return file.read()
 
-department_questions = {
-    "Bedrijven": [
-        "Waarom heeft de klant gebeld?",
-        "Wat is de reden voor de mutatie of wijziging in de verzekering?",
-        "Welk advies is gegeven en waarom?",
-        "Wat is de datum?",
-        "Over welk product gaat het gesprek?",
-        "Wat zijn de actiepunten voor de klant, wat zijn de actiepunten voor de collega, of voor jezelf?",
-        "Wat moet er in de agenda komen en wanneer?"
-    ],
-    "Financieel Advies": [
-        "Wat zijn de financiële doelstellingen van de klant?",
-        "Welke financiële producten zijn besproken?",
-        "Welk specifiek advies is gegeven?"
-    ],
-    "Schadeafdeling": [
-        "Wanneer is de schade opgetreden?",
-        "Wat betreft de schade en aan welk object?",
-        "Zijn er al stappen ondernomen voor het melden van de schade?",
-        "Is er een expert langsgeweest?",
-        "Zijn er foto's van de schade?",
-        "Wat zijn de actiepunten voor de klant?",
-        "Wat zijn de actiepunten voor de schadebehandelaar?"
-    ],
-    "Algemeen": [
-        "Wat is de algemene vraag van de klant?",
-        "Zijn er specifieke details die niet overgeslagen moeten worden?",
-        "Heeft de klant eerdere interacties gehad die relevant zijn?"
-    ],
-    "Arbo": [
-        "Wanneer heeft het gesprek plaatsgevonden?",
-        "Wie heb je gesproken?",
-        "Waarom hebben jullie elkaar gesproken?",
-        "Wat is er inhoudelijk besproken, en zijn er afspraken gemaakt?",
-        "Actiepunten: Voor jezelf, de andere partij, of naar een collega toe?"
-    ],
-    "Algemene samenvatting": [
-        "Wat zijn de belangrijkste details?"
-    ],
-    "Ondersteuning Bedrijfsarts": [
-        "Voorstellen en introductie",
-        "Functie en werkuren per week",
-        "Huidige gezondheidssituatie",
-        "Lopende behandelingen",
-        "Medicatie",
-        "Vooruitzichten",
-        "Contact met werk",
-        "Werkhervattingsadvies",
-        "Uitleg over vervolgproces"
-    ],
-    "Onderhoudsadviesgesprek in tabelvorm": [
-        "Welke verzekeringen zijn besproken?",
-        "Welke risico's zijn besproken?",
-        "Welk specifiek advies is gegeven?",
-        "Zijn er belangrijke dingen die veranderen?",
-        "Moet er iets gewijzigd worden?"
-    ]
-}
+def load_questions(file_name):
+    path = os.path.join(QUESTIONS_DIR, file_name)
+    with open(path, "r", encoding="utf-8") as file:
+        return file.readlines()
 
 def read_docx(file_path):
     doc = Document(file_path)
@@ -230,7 +177,7 @@ def summarize_text(text, department):
             basic_prompt = load_prompt("basic_prompt.txt")
             current_time = get_local_time()
             combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
             prompt_template = ChatPromptTemplate.from_template(combined_prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             try:
@@ -250,10 +197,11 @@ def update_gesprekslog(transcript, summary):
 st.title("Gesprekssamenvatter - testversie 0.1.8.")
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm"])
 
-if department in department_questions:
+if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm"]:
     st.subheader("Vragen om in je input te overwegen:")
-    for question in department_questions[department]:
-        st.text(f"- {question}")
+    questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+    for question in questions:
+        st.text(f"- {question.strip()}")
 
 input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
@@ -335,3 +283,6 @@ for gesprek in st.session_state['gesprekslog']:
             <div class="divider"></div>
             """, unsafe_allow_html=True)
         st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
+
+
+
