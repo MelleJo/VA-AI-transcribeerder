@@ -21,6 +21,8 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
+PROMPTS_DIR = "prompts/veldhuis-advies-groep/bedrijven/algemeen/MKB"
+
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 if 'gesprekslog' not in st.session_state:
@@ -82,7 +84,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
     detailed_prompt = load_prompt("ondersteuning_bedrijfsarts_prompt.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
     llm_chain = prompt_template | chat_model | StrOutputParser()
     
@@ -136,7 +138,8 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     return summary, None, None
 
 def load_prompt(file_name):
-    with open(file_name, "r", encoding="utf-8") as file:
+    path = os.path.join(PROMPTS_DIR, file_name)
+    with open(path, "r", encoding="utf-8") as file:
         return file.read()
 
 department_questions = {
