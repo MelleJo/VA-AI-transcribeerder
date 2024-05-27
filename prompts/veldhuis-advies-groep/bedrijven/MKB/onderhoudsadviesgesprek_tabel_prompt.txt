@@ -35,5 +35,14 @@ Herhaal dus zo min mogelijk.
 | [Risico 1] | [Ja/Nee] | [Actie] | [Persoon] |
 | [Risico 2] | [Ja/Nee] | [Actie] | [Persoon] |
 
-**Gesprekstekst**:
-{text}
+**Samenvatting in punten**:
+Geef nog de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in een samenvatting in bullet points weer.
+Wees zo beknopt mogelijk bij dit onderdeel, gebruik geen extra woorden.
+
+**Conclusie**:
+Geef een super korte conclusie van het gesprek.
+
+**Actiepunten**:
+Geef een lijst van actiepunten die je hebt gemaakt.	Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid.
+Deze benoem je ook zo kort mogelijk. En alleen echte acties, dus niet abstracte punten. Deze herken je automatisch uit de tekst, en niet alleen actiepunten die expliciet zijn genoemd.
+
