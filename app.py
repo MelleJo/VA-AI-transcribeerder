@@ -22,7 +22,7 @@ import streamlit.components.v1 as components
 import pandas as pd
 
 
-BASE_DIR = os.path.join(os.getcwd(), "preloaded_pdfs", "PolisvoorwaardenVA")
+#BASE_DIR = os.path.join(os.getcwd(), "preloaded_pdfs", "PolisvoorwaardenVA")
 
 PROMPTS_DIR = os.path.join(os.getcwd(), "prompts")
 QUESTIONS_DIR = os.path.join(os.getcwd(), "questions")
