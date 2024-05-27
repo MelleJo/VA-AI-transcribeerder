@@ -14,6 +14,7 @@ Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de k
 Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade
 Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet.
 Je verzint geen informatie of risico's die niet besproken zijn, stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat.
+Je doet zelf geen aannames of adviezen, je legt enkel een verslag vast van het transcript. Dus je voegt zelfs niets toe. Je legt het puur op een gestructureerde manier vast.
 
 Als bijvoorbeeld privé risico's niet zijn besproken, dan geef je geen lege tabel, maar dan geef je de tabel gewoon niet. 
 Houd de samenvatting zo beknopt mogelijk, zo lang alle details er maar in blijven staan.
