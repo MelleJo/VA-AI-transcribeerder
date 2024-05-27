@@ -21,8 +21,11 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-PROMPTS_DIR = os.path.abspath("prompts")
-QUESTIONS_DIR = os.path.abspath("questions")
+
+BASE_DIR = os.path.join(os.getcwd(), "preloaded_pdfs", "PolisvoorwaardenVA")
+
+PROMPTS_DIR = os.path.join(os.getcwd(), "prompts")
+QUESTIONS_DIR = os.path.join(os.getcwd(), "questions")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
