@@ -20,21 +20,27 @@ Herhaal dus zo min mogelijk.
 
 **Zakelijke Risico's**:
 
-| Risico                        | Besproken | Actie                             | Actie voor    |
-|-------------------------------|-----------|-----------------------------------|---------------|
-| [Risico 1]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-| [Risico 2]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-| [Risico 3]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-| [Risico 4]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-| [Risico 5]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+| Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
+|-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
+| [Risico 1]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 2]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 3]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 4]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
+| [ect.]                        | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
 
 **Privé Risico's**:
 
-| Risico | Besproken | Actie | Actie voor |
-|--------|-----------|-------|------------|
-| [Risico 1] | [Ja/Nee] | [Actie] | [Persoon] |
-| [Risico 2] | [Ja/Nee] | [Actie] | [Persoon] |
-
+| Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
+|-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
+| [Risico 1]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 2]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
+|                               |           | - [Detail 2]                         |                                   |               |
 **Samenvatting in punten**:
 Geef nog de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in een samenvatting in bullet points weer.
 Wees zo beknopt mogelijk bij dit onderdeel, gebruik geen extra woorden.
