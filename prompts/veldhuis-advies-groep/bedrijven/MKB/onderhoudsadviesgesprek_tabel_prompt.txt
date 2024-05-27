@@ -10,7 +10,7 @@ Geef een korte introductie van de context van het gesprek en de reden waarom het
 Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
 
 **Risico's**:
-Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. Neem alleen de risico's op die daadwerkelijk zijn besproken. Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade. Als een risico niet aan bod is gekomen, noem dit dan niet.
+Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant. Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade. Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet. Je verzint geen informatie of risico's die niet besproken zijn. Stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat. Je doet zelf geen aannames of adviezen, je legt enkel een verslag vast van het transcript.
 
 **Zakelijke Risico's**:
 
@@ -27,10 +27,10 @@ Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de k
 | [Risico 2]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
 
 **Samenvatting in punten**:
-Geef nog de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in een samenvatting in bullet points weer.
+Geef de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in bullet points weer.
 
 **Conclusie**:
-Geef een super korte conclusie van het gesprek.
+Geef een korte conclusie van het gesprek.
 
 **Actiepunten**:
-Geef een lijst van actiepunten die je hebt gemaakt. Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid.
+Geef een lijst van actiepunten die je hebt gemaakt. Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid. Noem alleen echte acties, geen abstracte punten.

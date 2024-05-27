@@ -107,11 +107,11 @@ def read_docx(file_path):
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
         department_prompts = {
-            "Bedrijven": "veldhuis-advies-groep/bedrijven/algemeen/klant_verzoek_telefonisch.txt",
+            "Bedrijven": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-            "Schadeafdeling": "veldhuis-advies-groep/schade/schadeafdeling_prompt.txt",
+            "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
-            "Arbo": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
+            "Arbo": "arbo/algemeen_arbo.txt",
             "Algemene samenvatting": "algemeen/telefoon/algemene_samenvatting.txt",
             "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
             "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt"
