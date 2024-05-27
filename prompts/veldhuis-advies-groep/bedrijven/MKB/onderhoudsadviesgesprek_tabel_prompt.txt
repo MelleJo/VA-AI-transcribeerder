@@ -3,9 +3,6 @@ Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvor
 **Datum**:
 [Datum van het gesprek]
 
-**Aanwezig**:
-- [Namen van de aanwezigen]
-
 **Introductie**:
 Geef een korte introductie van de context van het gesprek en de reden waarom het gesprek plaatsvond.
 
@@ -13,7 +10,13 @@ Geef een korte introductie van de context van het gesprek en de reden waarom het
 Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
 
 **Risico's**:
-Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant.
+Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant.
+Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade
+Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet.
+
+Als bijvoorbeeld privé risico's niet zijn besproken, dan geef je geen lege tabel, maar dan geef je de tabel gewoon niet. 
+Houd de samenvatting zo beknopt mogelijk, zo lang alle details er maar in blijven staan.
+Herhaal dus zo min mogelijk.
 
 **Zakelijke Risico's**:
 
