@@ -21,11 +21,8 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-
-#BASE_DIR = os.path.join(os.getcwd(), "preloaded_pdfs", "PolisvoorwaardenVA")
-
-PROMPTS_DIR = os.path.join(os.getcwd(), "prompts")
-QUESTIONS_DIR = os.path.join(os.getcwd(), "questions")
+PROMPTS_DIR = os.path.abspath("prompts")
+QUESTIONS_DIR = os.path.abspath("questions")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -84,70 +81,19 @@ def transcribe_audio(file_path):
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
-def summarize_ondersteuning_bedrijfsarts(text):
-    detailed_prompt = load_prompt("arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt")
-    detailed_prompt = detailed_prompt.format(text=text)
-    
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-    prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
-    llm_chain = prompt_template | chat_model | StrOutputParser()
-    
-    try:
-        summary = llm_chain.invoke({})
-        if not summary:
-            summary = "Mislukt om een samenvatting te genereren."
-    except Exception as e:
-        st.error(f"Fout bij het genereren van samenvatting: {e}")
-        summary = "Mislukt om een samenvatting te genereren."
-    
-    return summary
-
-def summarize_onderhoudsadviesgesprek_tabel(text):
-    detailed_prompt = load_prompt("veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt")
-    detailed_prompt = detailed_prompt.format(text=text)
-    
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-    prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
-    llm_chain = prompt_template | chat_model | StrOutputParser()
-    
-    try:
-        summary = llm_chain.invoke({})
-        if not summary:
-            summary = "Mislukt om een samenvatting te genereren."
-    except Exception as e:
-        st.error(f"Fout bij het genereren van samenvatting: {e}")
-        summary = "Mislukt om een samenvatting te genereren."
-    
-    def parse_table(table_text):
-        rows = table_text.split("\n")
-        if len(rows) < 2:
-            st.error("Het lijkt erop dat de tabel niet correct is gegenereerd.")
-            return pd.DataFrame()
-        headers = [header.strip() for header in rows[1].split("|")[1:-1]]
-        data = [row.split("|")[1:-1] for row in rows[3:] if row]
-        return pd.DataFrame(data, columns=headers)
-    
-    if summary:
-        zakelijk_risico_start = summary.find("Zakelijke Risico's:")
-        prive_risico_start = summary.find("Privé Risico's:")
-        
-        zakelijk_risico_table = summary[zakelijk_risico_start:prive_risico_start].strip()
-        prive_risico_table = summary[prive_risico_start:].strip()
-        
-        zakelijk_risico_df = parse_table(zakelijk_risico_table)
-        prive_risico_df = parse_table(prive_risico_table)
-        
-        return summary, zakelijk_risico_df, prive_risico_df
-    
-    return summary, None, None
-
 def load_prompt(file_name):
     path = os.path.join(PROMPTS_DIR, file_name)
+    if not os.path.exists(path):
+        st.error(f"Bestand niet gevonden: {path}")
+        raise FileNotFoundError(f"Bestand niet gevonden: {path}")
     with open(path, "r", encoding="utf-8") as file:
         return file.read()
 
 def load_questions(file_name):
     path = os.path.join(QUESTIONS_DIR, file_name)
+    if not os.path.exists(path):
+        st.error(f"Bestand niet gevonden: {path}")
+        raise FileNotFoundError(f"Bestand niet gevonden: {path}")
     with open(path, "r", encoding="utf-8") as file:
         return file.readlines()
 
@@ -160,37 +106,32 @@ def read_docx(file_path):
 
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
-        if department == "Onderhoudsadviesgesprek in tabelvorm":
-            summary, zakelijk_risico_df, prive_risico_df = summarize_onderhoudsadviesgesprek_tabel(text)
-            if summary:
-                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                if zakelijk_risico_df is not None and prive_risico_df is not None:
-                    st.subheader("Zakelijke Risico's")
-                    st.table(zakelijk_risico_df)
-                    st.subheader("Privé Risico's")
-                    st.table(prive_risico_df)
-                return summary
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-        elif department == "Ondersteuning Bedrijfsarts":
-            return summarize_ondersteuning_bedrijfsarts(text)
-        else:
-            prompt_file = f"veldhuis-advies-groep/bedrijven/MKB/{department.lower().replace(' ', '_')}_prompt.txt"
-            department_prompt = load_prompt(prompt_file)
-            basic_prompt = load_prompt("util/basic_prompt.txt")
-            current_time = get_local_time()
-            combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-            prompt_template = ChatPromptTemplate.from_template(combined_prompt)
-            llm_chain = prompt_template | chat_model | StrOutputParser()
-            try:
-                summary_text = llm_chain.invoke({})
-                if not summary_text:
-                    summary_text = "Mislukt om een samenvatting te genereren."
-            except Exception as e:
-                st.error(f"Fout bij het genereren van samenvatting: {e}")
+        department_prompts = {
+            "Bedrijven": "veldhuis-advies-groep/bedrijven/algemeen/klant_verzoek_telefonisch.txt",
+            "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+            "Schadeafdeling": "veldhuis-advies-groep/schade/schadeafdeling_prompt.txt",
+            "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
+            "Arbo": "arbo/algemeen_arbo.txt",
+            "Algemene samenvatting": "algemeen/algemene_samenvatting.txt",
+            "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
+            "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt"
+        }
+        prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
+        department_prompt = load_prompt(prompt_file)
+        basic_prompt = load_prompt("util/basic_prompt.txt")
+        current_time = get_local_time()
+        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+        llm_chain = prompt_template | chat_model | StrOutputParser()
+        try:
+            summary_text = llm_chain.invoke({})
+            if not summary_text:
                 summary_text = "Mislukt om een samenvatting te genereren."
-            return summary_text
+        except Exception as e:
+            st.error(f"Fout bij het genereren van samenvatting: {e}")
+            summary_text = "Mislukt om een samenvatting te genereren."
+        return summary_text
 
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()
@@ -221,7 +162,7 @@ if input_method == "Upload tekst":
             text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
         if summary:
-            st.markdown(f"**{summary}**", unsafe_allow_html=True)
+            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
 
 elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Voeg tekst hier in:", height=300)
