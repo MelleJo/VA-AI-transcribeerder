@@ -13,6 +13,7 @@ Beschrijf de huidige situatie van de klant en eventuele veranderingen die releva
 Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant.
 Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade
 Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet.
+Je verzint geen informatie of risico's die niet besproken zijn, stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat.
 
 Als bijvoorbeeld privé risico's niet zijn besproken, dan geef je geen lege tabel, maar dan geef je de tabel gewoon niet. 
 Houd de samenvatting zo beknopt mogelijk, zo lang alle details er maar in blijven staan.
