@@ -21,7 +21,7 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-PROMPTS_DIR = os.path.abspath("prompts/veldhuis-advies-groep/bedrijven/MKB")
+PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -82,7 +82,7 @@ def transcribe_audio(file_path):
     return transcript_text.strip()
 
 def summarize_ondersteuning_bedrijfsarts(text):
-    detailed_prompt = load_prompt("ondersteuning_bedrijfsarts_prompt.txt")
+    detailed_prompt = load_prompt("arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
@@ -100,7 +100,7 @@ def summarize_ondersteuning_bedrijfsarts(text):
     return summary
 
 def summarize_onderhoudsadviesgesprek_tabel(text):
-    detailed_prompt = load_prompt("onderhoudsadviesgesprek_tabel_prompt.txt")
+    detailed_prompt = load_prompt("veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt")
     detailed_prompt = detailed_prompt.format(text=text)
     
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
@@ -172,9 +172,9 @@ def summarize_text(text, department):
         elif department == "Ondersteuning Bedrijfsarts":
             return summarize_ondersteuning_bedrijfsarts(text)
         else:
-            prompt_file = f"{department.lower().replace(' ', '_')}_prompt.txt"
+            prompt_file = f"veldhuis-advies-groep/bedrijven/MKB/{department.lower().replace(' ', '_')}_prompt.txt"
             department_prompt = load_prompt(prompt_file)
-            basic_prompt = load_prompt("basic_prompt.txt")
+            basic_prompt = load_prompt("util/basic_prompt.txt")
             current_time = get_local_time()
             combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
             chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
@@ -283,6 +283,3 @@ for gesprek in st.session_state['gesprekslog']:
             <div class="divider"></div>
             """, unsafe_allow_html=True)
         st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
-
-
-
