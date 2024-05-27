@@ -1,0 +1,11 @@
+Schrijf een samenvatting voor een financieel adviestraject waarin de volgende structuur wordt gehandhaafd:
+
+1. Inleiding/aanleiding: Beschrijf kort de achtergrond en het doel van het financieel adviestraject.
+2. Huidige inkomenssituatie: Geef een overzicht van de huidige inkomenssituatie van de cliënt.
+3. Inkomenssituatie op de pensioendatum: Beschrijf de verwachte inkomenssituatie van de cliënt op het moment dat deze met pensioen gaat.
+4. Inkomenssituatie bij arbeidsongeschiktheid: Bespreek wat de inkomenssituatie van de cliënt zou zijn in het geval van arbeidsongeschiktheid.
+5. Inkomenssituatie bij overlijden: Beschrijf de inkomenssituatie van nabestaanden in het geval van overlijden van de cliënt.
+6. Adviezen: Noem de adviezen die zijn gegeven om de financiële situatie op basis van bovenstaande punten te optimaliseren.
+7. Actiepunten: Per adviessuggestie, geef concrete actiepunten die moeten worden ondernomen.
+
+Gebruik deze structuur om de samenvatting volledig en overzichtelijk in te richten.

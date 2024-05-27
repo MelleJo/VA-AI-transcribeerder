@@ -79,24 +79,8 @@ def transcribe_audio(file_path):
     return transcript_text.strip()
 
 def summarize_ondersteuning_bedrijfsarts(text):
-    detailed_prompt = f"""
-    Maak een gedetailleerd verslag op basis van de volgende informatie over een werknemer, zonder specifieke medische details te onthullen. Het verslag moet de volgende secties bevatten:
-    
-    1. Introductie en Basisgegevens van de Werknemer:
-    [Introductie van de werknemer, functie, en normale werkuren]
-
-    2. Details over de Huidige Gezondheidstoestand:
-    [Algemene beschrijving van de gezondheidstoestand zonder specifieke medische details, zoals aanhoudende vermoeidheid en stressgerelateerde symptomen]
-
-    3. Overzicht van de Werkrelatie en Huidige Werkomstandigheden:
-    [Beschrijving van de werkrelatie en huidige omstandigheden op het werk, inclusief besprekingen over aanpassingen in werklast of werkuren]
-
-    4. Advies voor Werkhervatting en Aanpassingen aan de Werkplek:
-    [Adviezen voor aanpassingen aan de werkplek en strategieën voor een geleidelijke terugkeer naar werk]
-
-    Gesprekstekst:
-    {text}
-    """
+    detailed_prompt = load_prompt("ondersteuning_bedrijfsarts_prompt.txt")
+    detailed_prompt = detailed_prompt.format(text=text)
     
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
@@ -113,44 +97,8 @@ def summarize_ondersteuning_bedrijfsarts(text):
     return summary
 
 def summarize_onderhoudsadviesgesprek_tabel(text):
-    detailed_prompt = f"""
-    Maak een beknopte en duidelijke samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
-
-    **Datum**:
-    [Datum van het gesprek]
-
-    **Aanwezig**:
-    - [Namen van de aanwezigen]
-
-    **Introductie**:
-    Geef een korte introductie van de context van het gesprek en de reden waarom het gesprek plaatsvond.
-
-    **Situatie**:
-    Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
-
-    **Risico's**:
-    Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant.
-
-    **Zakelijke Risico's**:
-
-    | Risico                        | Besproken | Actie                             | Actie voor    |
-    |-------------------------------|-----------|-----------------------------------|---------------|
-    | [Risico 1]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-    | [Risico 2]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-    | [Risico 3]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-    | [Risico 4]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-    | [Risico 5]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
-
-    **Privé Risico's**:
-
-    | Risico | Besproken | Actie | Actie voor |
-    |--------|-----------|-------|------------|
-    | [Risico 1] | [Ja/Nee] | [Actie] | [Persoon] |
-    | [Risico 2] | [Ja/Nee] | [Actie] | [Persoon] |
-
-    **Gesprekstekst**:
-    {text}
-    """
+    detailed_prompt = load_prompt("onderhoudsadviesgesprek_tabel_prompt.txt")
+    detailed_prompt = detailed_prompt.format(text=text)
     
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(detailed_prompt)
@@ -187,6 +135,9 @@ def summarize_onderhoudsadviesgesprek_tabel(text):
     
     return summary, None, None
 
+def load_prompt(file_name):
+    with open(file_name, "r", encoding="utf-8") as file:
+        return file.read()
 
 department_questions = {
     "Bedrijven": [
@@ -271,32 +222,12 @@ def summarize_text(text, department):
         elif department == "Ondersteuning Bedrijfsarts":
             return summarize_ondersteuning_bedrijfsarts(text)
         else:
-            department_prompts = {
-                "Bedrijven": "Als expert in het samenvatten van zakelijke verzekeringsgesprekken, focus je op mutaties of wijzigingen in verzekeringen en adviesprocessen...",
-                "Financieel Advies": "Je bent gespecialiseerd in het samenvatten van financieel adviesgesprekken. Jouw doel is om de financiële doelstellingen van de klant, de besproken financiële producten, en het gegeven advies helder te documenteren. Zorg voor een beknopte samenvatting die de kernpunten en aanbevelingen omvat.",
-                "Schadeafdeling": "Als expert in het documenteren van gesprekken over schademeldingen, leg je de focus op de details van de schade, het object, de timing, en de ondernomen stappen. Samenvat deze tekst door de schadeomvang, betrokken objecten, en de actiepunten voor zowel de klant als de schadebehandelaar duidelijk te maken.",
-                "Algemeen": "Je bent een expert in het samenvatten van algemene klantvragen en gesprekken. Jouw taak is om specifieke details, klantvragen, en relevante actiepunten te identificeren en te documenteren. Zorg voor een duidelijke en gestructureerde samenvatting die de belangrijkste punten en eventuele vervolgstappen bevat.",
-                "Arbo": "Als expert in het samenvatten van Arbo-gerelateerde gesprekken, focus je op de vastlegging van notities over arbogesprekken of andere onderwerpen rondom casemanagement. Je zorgt ervoor dat details goed worden vastgelegd. Je let extra goed op wie er is gesproken, wat er is besproken, wat voor afspraken er zijn gemaakt, en wat is er inhoudelijk besproken. Samenvat deze tekst met aandacht voor de essentiële actiepunten en besluitvorming.",
-                "Algemene samenvatting": "Jij bent een expert in het samenvatten van elk soort notitie, gesprek of wat er ook maar wordt aangeleverd. Je geeft een complete samenvatting, met specifiek oog voor de details, maar je vermijdt herhaling en probeert ervoor te zorgen dat de samenvatting beknopt is. Maar volledigheid gaat altijd boven de beknoptheid. Je zorgt ervoor dat alle afspraken, actiepunten en andere elementen duidelijk worden overgenomen. Het moet zo zijn dat als iemand de notitie leest, hij/zij net zoveel weet als wanneer hij bij het gesprek was."
-            }
+            prompt_file = f"{department.lower().replace(' ', '_')}_prompt.txt"
+            department_prompt = load_prompt(prompt_file)
+            basic_prompt = load_prompt("basic_prompt.txt")
             current_time = get_local_time()
-            basic_prompt = (
-                f"Vandaag is {current_time}. Vermeld dit altijd in de titel. Benut deze informatie om een accurate en "
-                "gedetailleerde samenvatting, zo kort mogelijk met zo min mogelijk woorden, maar wel met alle details. "
-                "Begin met de exacte datum en tijd van het gesprek. "
-                "Identificeer het onderwerp van het gesprek. Detailleer het klantverzoek met "
-                "alle details, inclusief eventuele zorgen of verzoeken om wijzigingen. "
-                "Beschrijf het advies dat is gegeven en alternatieven die zijn voorgesteld. Specificeer de actiepunten "
-                "die zijn overeengekomen, inclusief eventuele deadlines."
-                "Handhaaf een coherente, objectieve en complete weergave van het gesprek."
-                "Verzin niets extra's, als alle belangrijke punten en details zijn aangegeven is het klaar."
-                "Als er iets niet is genoemd, dan hoef je dit ook niet over te nemen in de samenvatting."
-                "Je hoeft geen disclaimer, of deadlines aan te geven op het moment dat er geen deadlines zijn gegeven."
-                "Je noemt alleen dingen uit het gesprek, dus als er bijvoorbeeld geen advies is gegeven, of geen actiepunten die je kunt herleiden, dan noem je ook niet dat er geen adviezen of actiepunten zijn.",
-                "De taal is altijd in NL, zowel input als output."
-            )
-            combined_prompt = f"{department_prompts.get(department, '')}\n\n{basic_prompt}\n\n{text}"
-            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+            combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
+            chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-0125-preview", temperature=0)
             prompt_template = ChatPromptTemplate.from_template(combined_prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             try:
@@ -307,7 +238,6 @@ def summarize_text(text, department):
                 st.error(f"Fout bij het genereren van samenvatting: {e}")
                 summary_text = "Mislukt om een samenvatting te genereren."
             return summary_text
-
 
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()

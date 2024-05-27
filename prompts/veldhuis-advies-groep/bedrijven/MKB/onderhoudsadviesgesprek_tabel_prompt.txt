@@ -1,0 +1,36 @@
+Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
+
+**Datum**:
+[Datum van het gesprek]
+
+**Aanwezig**:
+- [Namen van de aanwezigen]
+
+**Introductie**:
+Geef een korte introductie van de context van het gesprek en de reden waarom het gesprek plaatsvond.
+
+**Situatie**:
+Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
+
+**Risico's**:
+Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant.
+
+**Zakelijke Risico's**:
+
+| Risico                        | Besproken | Actie                             | Actie voor    |
+|-------------------------------|-----------|-----------------------------------|---------------|
+| [Risico 1]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+| [Risico 2]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+| [Risico 3]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+| [Risico 4]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+| [Risico 5]                    | [Ja/Nee]  | [Actie]                           | [Persoon]     |
+
+**Privé Risico's**:
+
+| Risico | Besproken | Actie | Actie voor |
+|--------|-----------|-------|------------|
+| [Risico 1] | [Ja/Nee] | [Actie] | [Persoon] |
+| [Risico 2] | [Ja/Nee] | [Actie] | [Persoon] |
+
+**Gesprekstekst**:
+{text}
