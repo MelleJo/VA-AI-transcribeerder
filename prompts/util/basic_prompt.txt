@@ -13,5 +13,5 @@ Handhaaf een coherente, objectieve en complete weergave van het gesprek. Verwerk
 Uitzonderingen
 Noem alleen aspecten die aan bod kwamen in het gesprek. Als er bijvoorbeeld geen advies is gegeven of geen actiepunten zijn te herleiden, hoef je dat niet te vermelden. Als de gebruiker enkel "test" zegt, hoef je geen uitgebreide samenvatting te geven.
 
-Taal 
-Is altijd Nederlands, zowel output als input. 
+Taal
+Is altijd Nederlands, zowel output als input.

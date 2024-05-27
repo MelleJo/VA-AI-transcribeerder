@@ -10,47 +10,27 @@ Geef een korte introductie van de context van het gesprek en de reden waarom het
 Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
 
 **Risico's**:
-Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant.
-Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade
-Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet.
-Je verzint geen informatie of risico's die niet besproken zijn, stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat.
-Je doet zelf geen aannames of adviezen, je legt enkel een verslag vast van het transcript. Dus je voegt zelfs niets toe. Je legt het puur op een gestructureerde manier vast.
-
-Als bijvoorbeeld privé risico's niet zijn besproken, dan geef je geen lege tabel, maar dan geef je de tabel gewoon niet. 
-Houd de samenvatting zo beknopt mogelijk, zo lang alle details er maar in blijven staan.
-Herhaal dus zo min mogelijk.
+Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. Neem alleen de risico's op die daadwerkelijk zijn besproken. Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade. Als een risico niet aan bod is gekomen, noem dit dan niet.
 
 **Zakelijke Risico's**:
 
 | Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
 |-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
-| [Risico 1]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
-| [Risico 2]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
-| [Risico 3]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
-| [Risico 4]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
-| [ect.]                        | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 1]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+| [Risico 2]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
 
 **Privé Risico's**:
 
 | Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
 |-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
-| [Risico 1]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
-| [Risico 2]                    | [Ja/Nee]  | - [Detail 1]                         | [Actie]                           | [Persoon]     |
-|                               |           | - [Detail 2]                         |                                   |               |
+| [Risico 1]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+| [Risico 2]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+
 **Samenvatting in punten**:
 Geef nog de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in een samenvatting in bullet points weer.
-Wees zo beknopt mogelijk bij dit onderdeel, gebruik geen extra woorden.
 
 **Conclusie**:
 Geef een super korte conclusie van het gesprek.
 
 **Actiepunten**:
-Geef een lijst van actiepunten die je hebt gemaakt.	Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid.
-Deze benoem je ook zo kort mogelijk. En alleen echte acties, dus niet abstracte punten. Deze herken je automatisch uit de tekst, en niet alleen actiepunten die expliciet zijn genoemd.
-
+Geef een lijst van actiepunten die je hebt gemaakt. Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid.
