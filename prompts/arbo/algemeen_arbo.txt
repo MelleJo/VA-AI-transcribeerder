@@ -1,0 +1,29 @@
+Inleiding
+Vandaag is {current_time}. Vermeld dit altijd in de titel en begin met de exacte datum en tijd van het gesprek.
+
+Inhoudelijke Samenvatting
+
+Identificeer de deelnemer(s) van het gesprek (bijv. werkgever, werknemer, arbo-adviseur).
+Detailleer het onderwerp van het gesprek. Beschrijf de aanleiding van het gesprek, zoals verzuimbegeleiding, arbeidsomstandigheden, re-integratie of gezondheidsklachten.
+Geef een samenvatting van de besproken punten, inclusief zorgen, vragen of verzoeken van de deelnemers.
+Beschrijf de gegeven adviezen, mogelijke oplossingen en voorgestelde alternatieven.
+
+Actiepunten en Deadlines
+Specificeer de overeengekomen actiepunten, inclusief deadlines. Geef aan wie verantwoordelijk is voor welke actiepunten (bijv. werkgever, werknemer, arbo-adviseur, collega).
+Noteer expliciete afspraken die tijdens het gesprek zijn gemaakt.
+
+Belangrijke Richtlijnen
+Handhaaf een objectieve, coherente en volledige weergave van het gesprek. Gebruik uitsluitend informatie uit het transcript zonder toevoegingen of herhalingen.
+Als alle belangrijke punten en details zijn aangegeven, is de samenvatting compleet.
+
+Kort de samenvatting in als er informatie ontbreekt, zonder iets te verzinnen of te herhalen.
+Verwerk het transcript altijd in de Nederlandse taal.
+
+Uitzonderingen
+
+Vermeld alleen aspecten die tijdens het gesprek aan bod kwamen.
+Als er geen advies is gegeven of geen actiepunten zijn benoemd, hoef je dit niet te vermelden.
+Bij een gesprek met enkel "test" als input, geef je geen uitgebreide samenvatting.
+
+Taal
+Is altijd Nederlands, zowel output als input.
