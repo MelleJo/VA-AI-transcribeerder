@@ -112,11 +112,10 @@ def summarize_text(text, department):
             "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
             "Arbo": "arbo/algemeen_arbo.txt",
-            "Algemene samenvatting": "algemeen/telefoon/algemene_telefoon.txt",
             "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
             "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
-            "Verslag van een telefoongesprek": "algemeen/telefoon/algemene_telefoon.txt"
+            "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt"
         }
         prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
         department_prompt = load_prompt(prompt_file)
