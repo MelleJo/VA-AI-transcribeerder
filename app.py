@@ -112,7 +112,7 @@ def summarize_text(text, department):
             "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
             "Arbo": "arbo/algemeen_arbo.txt",
-            "Algemene samenvatting": "algemeen/telefoon/algemene_samenvatting.txt",
+            "Algemene samenvatting": "algemeen/telefoon/algemene_telefoon.txt",
             "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
             "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt"
