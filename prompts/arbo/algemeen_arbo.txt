@@ -1,5 +1,6 @@
 Inleiding
-Vandaag is {current_time}. Vermeld dit altijd in de titel en begin met de exacte datum en tijd van het gesprek.
+
+
 
 Inhoudelijke Samenvatting
 
