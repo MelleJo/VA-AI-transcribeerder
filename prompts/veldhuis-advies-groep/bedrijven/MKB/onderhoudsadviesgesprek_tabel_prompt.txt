@@ -11,12 +11,12 @@ Beschrijf de huidige situatie van de klant en eventuele veranderingen die releva
 Indien besproken: 
 - Wat is de huidige status van de klant?
 - Wat is de huidige status van de verzekering?
-- Wat is de huidige status van de bv-structuur?
+- Wat is de huidige status van de bedrijfsstructuur?
 - Wat is de huidige status van de overige punten?
 
 **Algemeen**:
 Hier benoem je, indien genoemd, alles over communicatie, prolongatie, opzeggingen, facturen, overige handelingen die niet per se binnen of bij een bepaald risico passen. \
-Personeelswijziging, ziektefrequentie, et cetera.
+Personeelswijziging, ziektefrequentie, et cetera. Al deze dingen benoem je alleen als ze echt zijn besproken. 
 
 
 **Risico's**:
@@ -28,6 +28,7 @@ In het geval dat er verschillende bv's zijn besproken, dan is het belangrijk dat
 
 
 **Zakelijke Risico's**:
+Per bv maak je een aparte tabel (indien er meerdere bv's zijn genoemd)
 
 | Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
 |-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
