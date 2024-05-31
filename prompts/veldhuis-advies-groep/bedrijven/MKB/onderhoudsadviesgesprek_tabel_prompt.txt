@@ -8,6 +8,16 @@ Geef een korte introductie van de context van het gesprek en de reden waarom het
 
 **Situatie**:
 Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
+Indien besproken: 
+- Wat is de huidige status van de klant?
+- Wat is de huidige status van de verzekering?
+- Wat is de huidige status van de bv-structuur?
+- Wat is de huidige status van de overige punten?
+
+**Algemeen**:
+Hier benoem je, indien genoemd, alles over communicatie, prolongatie, opzeggingen, facturen, overige handelingen die niet per se binnen of bij een bepaald risico passen. \
+Personeelswijziging, ziektefrequentie, et cetera.
+
 
 **Risico's**:
 Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant. Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade. Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet. Je verzint geen informatie of risico's die niet besproken zijn. Stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat. Je doet zelf geen aannames of adviezen, je legt enkel een verslag vast van het transcript.
@@ -37,3 +47,5 @@ Hier komen ook de details, alleen als deze ook zijn besproken, over bedrijfsvoer
 
 **Actiepunten**:
 Geef een lijst van actiepunten die je hebt gemaakt. Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid. Noem alleen echte acties, geen abstracte punten.
+Indien er deadlines zijn genoemd dan neem je die ook mee.
+
