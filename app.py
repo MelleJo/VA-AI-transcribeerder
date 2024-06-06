@@ -115,7 +115,8 @@ def summarize_text(text, department):
             "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
             "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
-            "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt"
+            "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
+            "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
         }
         prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
         department_prompt = load_prompt(prompt_file)
@@ -140,9 +141,9 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
 st.title("Gesprekssamenvatter - testversie 0.1.8.")
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek"])
+department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "test-prompt (alleen voor Melle!)"])
 
-if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek"]:
+if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "test-prompt (alleen voor Melle!)"]:
     st.subheader("Vragen om in je input te overwegen:")
     questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
     for question in questions:
