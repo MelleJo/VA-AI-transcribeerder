@@ -21,6 +21,9 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
+st.write(st.config.get_option("server.maxUploadSize"))
+
+
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
 
