@@ -21,6 +21,8 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
+os.environ["STREAMLIT_CONFIG_FILE"] = os.path.join(os.getcwd(), "config.toml")
+
 st.write(st.config.get_option("server.maxUploadSize"))
 
 
