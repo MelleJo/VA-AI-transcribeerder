@@ -20,6 +20,7 @@ from docx import Document
 from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
+import pyperclip
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -77,7 +78,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total segments)
+        progress_bar.progress((i + 1) / total_segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
@@ -141,6 +142,31 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
+def copy_to_clipboard(transcript, summary):
+    text_to_copy = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                font-size: 10pt;
+            }}
+            h1 {{
+                font-weight: bold;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Transcript</h1>
+        <p>{transcript}</p>
+        <h1>Summary</h1>
+        <p>{summary}</p>
+    </body>
+    </html>
+    """
+    pyperclip.copy(text_to_copy)
+    st.success("Transcript and summary copied to clipboard!")
+
 st.title("Gesprekssamenvatter - testversie 0.1.8.")
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
 
@@ -149,3 +175,14 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
     for question in questions:
         st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
+
+# Example usage
+transcript = "This is a sample transcript."
+summary = "This is a sample summary."
+
+if st.button("Copy Transcript and Summary to Clipboard"):
+    copy_to_clipboard(transcript, summary)
+
+# Display the transcript and summary for demonstration purposes
+st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
