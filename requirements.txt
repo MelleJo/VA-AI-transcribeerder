@@ -18,3 +18,4 @@ datetime
 ffmpeg-python
 ffmpy
 pydub
+pyperclip
