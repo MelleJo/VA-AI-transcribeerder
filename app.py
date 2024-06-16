@@ -21,7 +21,16 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-
+st.markdown(
+    """
+    <style>
+    .arial-font {
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -167,7 +176,7 @@ if input_method == "Upload tekst":
             text = uploaded_file.getvalue().decode("utf-8")
         summary = summarize_text(text, department)
         if summary:
-            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+            st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
 
 elif input_method == "Voer tekst in of plak tekst":
     text = st.text_area("Voeg tekst hier in:", height=300)
@@ -175,7 +184,7 @@ elif input_method == "Voer tekst in of plak tekst":
         if text:
             summary = summarize_text(text, department)
             if summary:
-                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
                 update_gesprekslog(text, summary)
             else:
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
@@ -194,9 +203,9 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             transcript = transcribe_audio(tmp_audio.name)
             summary = summarize_text(transcript, department)
             update_gesprekslog(transcript, summary)
-            st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+            st.markdown(f'<p class="arial-font">{transcript}</p>', unsafe_allow_html=True)
             if summary:
-                st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
             os.remove(tmp_audio.name)
     elif input_method == "Neem audio op":
         audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
@@ -209,9 +218,9 @@ elif input_method in ["Upload audio", "Neem audio op"]:
                 transcript = transcribe_audio(tmp_audio.name)
                 summary = summarize_text(transcript, department)
                 update_gesprekslog(transcript, summary)
-                st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+                st.markdown(f'<p class="arial-font">{transcript}</p>', unsafe_allow_html=True)
                 if summary:
-                    st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                    st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
                 os.remove(tmp_audio.name)
         else:
             if input_method == "Upload audio":
@@ -221,7 +230,8 @@ st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
 for gesprek in st.session_state['gesprekslog']:
     with st.expander(f"Gesprek op {gesprek['time']}"):
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-        st.markdown("""
+        st.markdown(
+            """
             <style>
             .divider {
                 margin-top: 1rem;
@@ -231,4 +241,4 @@ for gesprek in st.session_state['gesprekslog']:
             </style>
             <div class="divider"></div>
             """, unsafe_allow_html=True)
-        st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
+        st.markdown(f'<p class="arial-font">{gesprek["summary"]}</p>', unsafe_allow_html=True)
