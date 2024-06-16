@@ -161,7 +161,7 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     for question in questions:
         st.markdown(f'<p class="arial-font">- {question.strip()}</p>', unsafe_allow_html=True)
 
-input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"], format_func=lambda x: f'<span class="arial-font">{x}</span>', unsafe_allow_html=True)
+input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
 if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
