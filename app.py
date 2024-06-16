@@ -176,7 +176,7 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     for question in questions:
         st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-# Example usage of the copy functionality
+# Add the button to copy to clipboard
 if st.button("Copy Transcript and Summary to Clipboard"):
     if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
         transcript = st.session_state['gesprekslog'][0]['transcript']
