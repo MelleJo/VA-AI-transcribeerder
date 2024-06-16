@@ -1,3 +1,5 @@
 [server]
 maxUploadSize=1028
-font = arial
+
+[theme]
+font=arial
