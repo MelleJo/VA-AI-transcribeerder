@@ -21,20 +21,6 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-# Inject custom CSS for Arial font
-st.markdown("""
-    <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        font-size: 10px;
-    }
-    .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        font-family: 'Arial', sans-serif;
-        font-size: 10px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
 
@@ -91,7 +77,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total_segments)
+        progress_bar.progress((i + 1) / total segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
@@ -162,86 +148,4 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     st.subheader("Vragen/onderwerpen om in je input te overwegen:")
     questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
     for question in questions:
-        st.markdown(f'<p class="arial-font">- {question.strip()}</p>', unsafe_allow_html=True)
-
-input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
-
-if input_method == "Upload tekst":
-    uploaded_file = st.file_uploader("Choose a file")
-    if uploaded_file is not None:
-        if uploaded_file.name.endswith('.docx'):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
-                tmp_docx.write(uploaded_file.getvalue())
-                tmp_docx_path = tmp_docx.name
-            text = read_docx(tmp_docx_path)
-            os.remove(tmp_docx_path)
-        else:
-            text = uploaded_file.getvalue().decode("utf-8")
-        summary = summarize_text(text, department)
-        if summary:
-            st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
-
-elif input_method == "Voer tekst in of plak tekst":
-    text = st.text_area("Voeg tekst hier in:", height=300)
-    if st.button("Samenvatten"):
-        if text:
-            summary = summarize_text(text, department)
-            if summary:
-                st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
-                update_gesprekslog(text, summary)
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-        else:
-            st.warning("Voer alstublieft wat tekst in om te samenvatten.")
-
-elif input_method in ["Upload audio", "Neem audio op"]:
-    uploaded_audio = None
-    if input_method == "Upload audio":
-        uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
-        if uploaded_file is not None:
-            with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                    tmp_audio.write(uploaded_file.getvalue())
-                    tmp_audio.flush()
-            transcript = transcribe_audio(tmp_audio.name)
-            summary = summarize_text(transcript, department)
-            update_gesprekslog(transcript, summary)
-            st.markdown(f'<p class="arial-font">{transcript}</p>', unsafe_allow_html=True)
-            if summary:
-                st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
-            os.remove(tmp_audio.name)
-    elif input_method == "Neem audio op":
-        audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
-        if audio_data and 'bytes' in audio_data:
-            uploaded_audio = audio_data['bytes']
-        if uploaded_audio is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                tmp_audio.write(uploaded_audio)
-                tmp_audio.flush()
-                transcript = transcribe_audio(tmp_audio.name)
-                summary = summarize_text(transcript, department)
-                update_gesprekslog(transcript, summary)
-                st.markdown(f'<p class="arial-font">{transcript}</p>', unsafe_allow_html=True)
-                if summary:
-                    st.markdown(f'<p class="arial-font">{summary}</p>', unsafe_allow_html=True)
-                os.remove(tmp_audio.name)
-        else:
-            if input_method == "Upload audio":
-                st.warning("Upload een audio bestand.")
-
-st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
-for gesprek in st.session_state['gesprekslog']:
-    with st.expander(f"Gesprek op {gesprek['time']}"):
-        st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-        st.markdown(
-            """
-            <style>
-            .divider {
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-                border-top: 3px solid #bbb;
-            }
-            </style>
-            <div class="divider"></div>
-            """, unsafe_allow_html=True)
-        st.markdown(f'<p class="arial-font">{gesprek["summary"]}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
