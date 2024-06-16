@@ -21,16 +21,19 @@ from pydub import AudioSegment
 import streamlit.components.v1 as components
 import pandas as pd
 
-st.markdown(
-    """
+# Inject custom CSS for Arial font
+st.markdown("""
     <style>
-    .arial-font {
-        font-family: Arial;
+    body {
+        font-family: 'Arial', sans-serif;
+        font-size: 10px;
+    }
+    .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        font-family: 'Arial', sans-serif;
         font-size: 10px;
     }
     </style>
-    """, unsafe_allow_html=True
-)
+    """, unsafe_allow_html=True)
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -152,11 +155,11 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
-st.markdown('<h1 class="arial-font">Gesprekssamenvatter - testversie 0.1.8.</h1>', unsafe_allow_html=True)
+st.title("Gesprekssamenvatter - testversie 0.1.8.")
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
 
 if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-    st.markdown('<h2 class="arial-font">Vragen/onderwerpen om in je input te overwegen:</h2>', unsafe_allow_html=True)
+    st.subheader("Vragen/onderwerpen om in je input te overwegen:")
     questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
     for question in questions:
         st.markdown(f'<p class="arial-font">- {question.strip()}</p>', unsafe_allow_html=True)
@@ -226,7 +229,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             if input_method == "Upload audio":
                 st.warning("Upload een audio bestand.")
 
-st.markdown('<h2 class="arial-font">Laatste vijf gesprekken (verdwijnen na herladen pagina!)</h2>', unsafe_allow_html=True)
+st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
 for gesprek in st.session_state['gesprekslog']:
     with st.expander(f"Gesprek op {gesprek['time']}"):
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
