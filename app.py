@@ -188,6 +188,6 @@ if st.button("Samenvatten"):
         st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
         st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
 
-        # Add the button to copy to clipboard
+        # Add the button to copy to clipboard 
         if st.button("Copy Transcript and Summary to Clipboard"):
             copy_to_clipboard(transcript, summary)
