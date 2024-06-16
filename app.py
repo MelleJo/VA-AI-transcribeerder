@@ -176,13 +176,18 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     for question in questions:
         st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-# Display the latest transcript and summary
-if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
-    transcript = st.session_state['gesprekslog'][0]['transcript']
-    summary = st.session_state['gesprekslog'][0]['summary']
-    st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-    st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
-    
-    # Add the button to copy to clipboard
-    if st.button("Copy Transcript and Summary to Clipboard"):
-        copy_to_clipboard(transcript, summary)
+# Add the text input and summarize button
+text_input = st.text_area("Voeg tekst hier in:")
+if st.button("Samenvatten"):
+    if text_input:
+        transcript = text_input  # Assuming transcript is the input text for now
+        summary = summarize_text(text_input, department)
+        update_gesprekslog(transcript, summary)
+
+        # Display the latest transcript and summary
+        st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+        st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+
+        # Add the button to copy to clipboard
+        if st.button("Copy Transcript and Summary to Clipboard"):
+            copy_to_clipboard(transcript, summary)
