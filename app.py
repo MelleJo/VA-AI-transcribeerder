@@ -25,7 +25,7 @@ st.markdown(
     """
     <style>
     .arial-font {
-        font-family: Arial, sans-serif;
+        font-family: Arial;
         font-size: 10px;
     }
     </style>
@@ -152,16 +152,16 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
-st.title("Gesprekssamenvatter - testversie 0.1.8.")
+st.markdown('<h1 class="arial-font">Gesprekssamenvatter - testversie 0.1.8.</h1>', unsafe_allow_html=True)
 department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
 
 if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-    st.subheader("Vragen/onderwerpen om in je input te overwegen:")
+    st.markdown('<h2 class="arial-font">Vragen/onderwerpen om in je input te overwegen:</h2>', unsafe_allow_html=True)
     questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
     for question in questions:
-        st.text(f"- {question.strip()}")
+        st.markdown(f'<p class="arial-font">- {question.strip()}</p>', unsafe_allow_html=True)
 
-input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
+input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"], format_func=lambda x: f'<span class="arial-font">{x}</span>', unsafe_allow_html=True)
 
 if input_method == "Upload tekst":
     uploaded_file = st.file_uploader("Choose a file")
@@ -226,7 +226,7 @@ elif input_method in ["Upload audio", "Neem audio op"]:
             if input_method == "Upload audio":
                 st.warning("Upload een audio bestand.")
 
-st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+st.markdown('<h2 class="arial-font">Laatste vijf gesprekken (verdwijnen na herladen pagina!)</h2>', unsafe_allow_html=True)
 for gesprek in st.session_state['gesprekslog']:
     with st.expander(f"Gesprek op {gesprek['time']}"):
         st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
