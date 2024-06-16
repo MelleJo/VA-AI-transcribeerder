@@ -176,13 +176,16 @@ if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen"
     for question in questions:
         st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-# Example usage
-transcript = "This is a sample transcript."
-summary = "This is a sample summary."
-
+# Example usage of the copy functionality
 if st.button("Copy Transcript and Summary to Clipboard"):
-    copy_to_clipboard(transcript, summary)
+    if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
+        transcript = st.session_state['gesprekslog'][0]['transcript']
+        summary = st.session_state['gesprekslog'][0]['summary']
+        copy_to_clipboard(transcript, summary)
 
-# Display the transcript and summary for demonstration purposes
-st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+# Display the latest transcript and summary for demonstration purposes
+if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
+    transcript = st.session_state['gesprekslog'][0]['transcript']
+    summary = st.session_state['gesprekslog'][0]['summary']
+    st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+    st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
