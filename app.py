@@ -20,6 +20,7 @@ from pydub import AudioSegment
 import pandas as pd
 import pyperclip
 from tenacity import *
+from tenacity-asyncio import tenacity.asyncio
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
