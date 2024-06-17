@@ -67,7 +67,7 @@ def transcribe_audio(file_path):
     progress_text = st.empty()
     progress_text.text("Start transcriptie...")
     for i, segment in enumerate(audio_segments):
-        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/totalsegments*100):.2f}% voltooid')
         with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
@@ -78,7 +78,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total segments)
+        progress_bar.progress((i + 1) / total_segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
@@ -168,30 +168,32 @@ def copy_to_clipboard(transcript, summary):
     st.success("Transcript and summary copied to clipboard!")
 
 def main():
-    st.title("Gesprekssamenvatter - testversie 0.1.9.")
-    department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
-    if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-        st.subheader("Vragen/onderwerpen om in je input te overwegen:")
-        questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
-        for question in questions:
-            st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
+    with st.sidebar:
+        department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
+        if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
+            st.subheader("Vragen/onderwerpen om in je input te overwegen:")
+            questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+            for question in questions:
+                st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-    # Add the text input and summarize button
-    text_input = st.text_area("Voeg tekst hier in:")
-    if st.button("Samenvatten"):
-        if text_input:
-            transcript = text_input  # Assuming transcript is the input text for now
-            summary = summarize_text(text_input, department)
-            update_gesprekslog(transcript, summary)
+        # Add the text input and summarize button
+        text_input = st.text_area("Voeg tekst hier in:")
+        summarize_button = st.button("Samenvatten")
 
-            # Display the latest transcript and summary
-            st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-            st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
-                      
+    if summarize_button and text_input:
+        transcript = text_input  # Assuming transcript is the input text for now
+        summary = summarize_text(text_input, department)
+        update_gesprekslog(transcript, summary)
 
-    if st.button("Kopieer transcript en samenvatting"):
-        copy_to_clipboard(transcript, summary)
+        # Display the latest transcript and summary
+        st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+        st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+
+        # Add the button to copy to clipboard
+        if st.button("Copy Transcript and Summary to Clipboard"):
+            copy_to_clipboard(transcript, summary)
 
 if __name__ == "__main__":
     main()
