@@ -67,7 +67,7 @@ def transcribe_audio(file_path):
     progress_text = st.empty()
     progress_text.text("Start transcriptie...")
     for i, segment in enumerate(audio_segments):
-        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/totalsegments*100):.2f}% voltooid')
+        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
         with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
