@@ -19,6 +19,7 @@ from docx import Document
 from pydub import AudioSegment
 import pandas as pd
 import pyperclip
+from tenacity import *
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
