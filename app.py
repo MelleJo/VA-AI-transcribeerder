@@ -1,6 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-from streamlit_mic_recorder import mic_recorder
 import os
 import pytz
 import tempfile
@@ -18,7 +17,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
-import streamlit.components.v1 as components
 import pandas as pd
 import pyperclip
 
@@ -78,7 +76,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total_segments)
+        progress_bar.progress((i + 1) / total segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
@@ -171,6 +169,7 @@ def main():
     st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
     with st.sidebar:
+        st.header("Settings")
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
         if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
             st.subheader("Vragen/onderwerpen om in je input te overwegen:")
