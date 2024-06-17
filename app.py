@@ -18,7 +18,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 from docx import Document
 from pydub import AudioSegment
-import streamlit.components.v1 as components
 import pandas as pd
 import pyperclip
 
@@ -125,7 +124,7 @@ def summarize_text(text, department):
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         try:
@@ -167,25 +166,55 @@ def copy_to_clipboard(transcript, summary):
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard!")
 
-st.title("Gesprekssamenvatter - testversie 0.1.8.")
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
+def main():
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
-if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-    st.subheader("Vragen/onderwerpen om in je input te overwegen:")
-    questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
-    for question in questions:
-        st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
+    with st.sidebar:
+        department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
+        if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
+            st.subheader("Vragen/onderwerpen om in je input te overwegen:")
+            questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+            for question in questions:
+                st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-# Add the button to copy to clipboard
-if st.button("Copy Transcript and Summary to Clipboard"):
-    if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
-        transcript = st.session_state['gesprekslog'][0]['transcript']
-        summary = st.session_state['gesprekslog'][0]['summary']
-        copy_to_clipboard(transcript, summary)
+        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer", "Bestand uploaden", "Audio inspreken"))
+        
+        if input_method == "Tekstinvoer":
+            text_input = st.text_area("Voeg tekst hier in:")
+            summarize_button = st.button("Samenvatten")
+        elif input_method == "Bestand uploaden":
+            uploaded_file = st.file_uploader("Upload een bestand", type=["pdf", "docx", "txt"])
+            summarize_button = st.button("Samenvatten")
+        elif input_method == "Audio inspreken":
+            audio_data = mic_recorder(record_button_text="Start opname")
+            summarize_button = st.button("Samenvatten")
 
-# Display the latest transcript and summary for demonstration purposes
-if 'gesprekslog' in st.session_state and st.session_state['gesprekslog']:
-    transcript = st.session_state['gesprekslog'][0]['transcript']
-    summary = st.session_state['gesprekslog'][0]['summary']
-    st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-    st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+    if summarize_button:
+        transcript = ""
+        if input_method == "Tekstinvoer" and text_input:
+            transcript = text_input
+        elif input_method == "Bestand uploaden" and uploaded_file:
+            if uploaded_file.type == "application/pdf":
+                pdf_reader = PdfReader(uploaded_file)
+                transcript = "\n".join(page.extract_text() for page in pdf_reader.pages)
+            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                transcript = read_docx(uploaded_file)
+            elif uploaded_file.type == "text/plain":
+                transcript = uploaded_file.read().decode("utf-8")
+        elif input_method == "Audio inspreken" and audio_data:
+            with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
+                temp_audio_file.write(audio_data)
+                transcript = transcribe_audio(temp_audio_file.name)
+
+        if transcript:
+            summary = summarize_text(transcript, department)
+            update_gesprekslog(transcript, summary)
+
+            st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+            st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+
+            if st.button("Copy Transcript and Summary to Clipboard"):
+                copy_to_clipboard(transcript, summary)
+
+if __name__ == "__main__":
+    main()
