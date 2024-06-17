@@ -206,7 +206,7 @@ def main():
                 transcript = uploaded_file.read().decode("utf-8")
         elif input_method == "Audio inspreken" and audio_data:
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-                temp_audio_file.write(audio_data)
+                temp_audio_file.write(audio_data.tobytes())
                 temp_audio_file.seek(0)
                 transcript = transcribe_audio(temp_audio_file.name)
         elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
