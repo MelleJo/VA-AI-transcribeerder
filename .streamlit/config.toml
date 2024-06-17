@@ -1,10 +1,2 @@
 [server]
 maxUploadSize=1028
-
-[theme]
-base="dark"
-primaryColor="#3498db"  # A nice blue color
-backgroundColor="#1e1e1e"  # Dark background for a sleek look
-secondaryBackgroundColor="#2c2c2c"  # Slightly lighter background for contrast
-textColor="#ffffff"  # White text for readability
-font="sans serif"  # Modern sans serif font
