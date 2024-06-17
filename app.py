@@ -182,6 +182,11 @@ def main():
 
         input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken", "Audio bestand uploaden"))
 
+        summarize_button = False
+        text_input = None
+        uploaded_file = None
+        uploaded_audio_file = None
+
         if input_method == "Tekstinvoer of plak tekst":
             text_input = st.text_area("Type of plak je tekst hier:")
             summarize_button = st.button("Samenvatten")
@@ -192,11 +197,12 @@ def main():
             audio_data = mic_recorder()
             if audio_data and audio_data["audio_data"]:
                 st.session_state['audio_data'] = audio_data["audio_data"]
+                summarize_button = True  # Automatically trigger summarization after recording
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
 
-    if summarize_button or (input_method == "Audio inspreken" and st.session_state['audio_data']):
+    if summarize_button:
         transcript = ""
         if input_method == "Tekstinvoer of plak tekst" and text_input:
             transcript = text_input
