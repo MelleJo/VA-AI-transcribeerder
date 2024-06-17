@@ -78,7 +78,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total_segments)
+        progress_bar.progress((i + 1) / total segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
@@ -167,27 +167,31 @@ def copy_to_clipboard(transcript, summary):
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard!")
 
-st.title("Gesprekssamenvatter - testversie 0.1.8.")
-department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
+def main():
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
+    department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
 
-if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-    st.subheader("Vragen/onderwerpen om in je input te overwegen:")
-    questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
-    for question in questions:
-        st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
+    if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
+        st.subheader("Vragen/onderwerpen om in je input te overwegen:")
+        questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+        for question in questions:
+            st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-# Add the text input and summarize button
-text_input = st.text_area("Voeg tekst hier in:")
-if st.button("Samenvatten"):
-    if text_input:
-        transcript = text_input  # Assuming transcript is the input text for now
-        summary = summarize_text(text_input, department)
-        update_gesprekslog(transcript, summary)
+    # Add the text input and summarize button
+    text_input = st.text_area("Voeg tekst hier in:")
+    if st.button("Samenvatten"):
+        if text_input:
+            transcript = text_input  # Assuming transcript is the input text for now
+            summary = summarize_text(text_input, department)
+            update_gesprekslog(transcript, summary)
 
-        # Display the latest transcript and summary
-        st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-        st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+            # Display the latest transcript and summary
+            st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+            st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
 
-        # Add the button to copy to clipboard 
-        if st.button("Copy Transcript and Summary to Clipboard"):
-            copy_to_clipboard(transcript, summary)
+            # Add the button to copy to clipboard
+            if st.button("Copy Transcript and Summary to Clipboard"):
+                copy_to_clipboard(transcript, summary)
+
+if __name__ == "__main__":
+    main()
