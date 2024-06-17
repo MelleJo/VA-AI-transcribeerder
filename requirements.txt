@@ -20,4 +20,4 @@ ffmpy
 pydub
 pyperclip
 tenacity
-tenacity_asyncio
+tenacity-asyncio
