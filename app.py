@@ -186,7 +186,7 @@ def main():
             uploaded_file = st.file_uploader("Upload een bestand", type=["pdf", "docx", "txt"])
             summarize_button = st.button("Samenvatten")
         elif input_method == "Audio inspreken":
-            audio_data = mic_recorder(record_button_text="Start opname")
+            audio_data = mic_recorder()
             summarize_button = st.button("Samenvatten")
 
     if summarize_button:
@@ -204,6 +204,7 @@ def main():
         elif input_method == "Audio inspreken" and audio_data:
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
                 temp_audio_file.write(audio_data)
+                temp_audio_file.seek(0)
                 transcript = transcribe_audio(temp_audio_file.name)
 
         if transcript:
@@ -218,4 +219,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
