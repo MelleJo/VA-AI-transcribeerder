@@ -29,6 +29,9 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
 
+if 'audio_data' not in st.session_state:
+    st.session_state['audio_data'] = None
+
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
         "Monday": "Maandag",
@@ -124,7 +127,7 @@ def summarize_text(text, department):
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4-o", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         try:
@@ -167,7 +170,7 @@ def copy_to_clipboard(transcript, summary):
     st.success("Transcript and summary copied to clipboard!")
 
 def main():
-    st.title("!!! Ik ben de app aan het updaten en veranderen en is dus vandaag niet/slecht beschikbaar. Bedankt voor het begrip :) ")
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
     with st.sidebar:
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
@@ -187,12 +190,13 @@ def main():
             summarize_button = st.button("Samenvatten")
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
-            summarize_button = st.button("Samenvatten")
+            if audio_data and audio_data["audio_data"]:
+                st.session_state['audio_data'] = audio_data["audio_data"]
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
 
-    if summarize_button:
+    if summarize_button or (input_method == "Audio inspreken" and st.session_state['audio_data']):
         transcript = ""
         if input_method == "Tekstinvoer of plak tekst" and text_input:
             transcript = text_input
@@ -204,11 +208,12 @@ def main():
                 transcript = read_docx(uploaded_file)
             elif uploaded_file.type == "text/plain":
                 transcript = uploaded_file.read().decode("utf-8")
-        elif input_method == "Audio inspreken" and audio_data:
+        elif input_method == "Audio inspreken" and st.session_state['audio_data']:
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-                temp_audio_file.write(audio_data.tobytes())
+                temp_audio_file.write(st.session_state['audio_data'])
                 temp_audio_file.seek(0)
                 transcript = transcribe_audio(temp_audio_file.name)
+            st.session_state['audio_data'] = None
         elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 temp_file.write(uploaded_audio_file.read())
@@ -227,4 +232,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
