@@ -177,7 +177,7 @@ def main():
             for question in questions:
                 st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken"))
+        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken", "Audio bestand uploaden"))
 
         if input_method == "Tekstinvoer of plak tekst":
             text_input = st.text_area("Type of plak je tekst hier:")
@@ -187,6 +187,9 @@ def main():
             summarize_button = st.button("Samenvatten")
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
+            summarize_button = st.button("Samenvatten")
+        elif input_method == "Audio bestand uploaden":
+            uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
 
     if summarize_button:
@@ -206,6 +209,11 @@ def main():
                 temp_audio_file.write(audio_data)
                 temp_audio_file.seek(0)
                 transcript = transcribe_audio(temp_audio_file.name)
+        elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
+            with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+                temp_file.write(uploaded_audio_file.read())
+                temp_file.seek(0)
+                transcript = transcribe_audio(temp_file.name)
 
         if transcript:
             summary = summarize_text(transcript, department)
@@ -219,6 +227,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
