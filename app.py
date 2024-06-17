@@ -195,8 +195,8 @@ def main():
             summarize_button = st.button("Samenvatten")
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
-            if audio_data and audio_data["audio_data"]:
-                st.session_state['audio_data'] = audio_data["audio_data"]
+            if audio_data is not None:
+                st.session_state['audio_data'] = audio_data
                 summarize_button = True  # Automatically trigger summarization after recording
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
@@ -214,12 +214,13 @@ def main():
                 transcript = read_docx(uploaded_file)
             elif uploaded_file.type == "text/plain":
                 transcript = uploaded_file.read().decode("utf-8")
-        elif input_method == "Audio inspreken" and st.session_state['audio_data']:
+        elif input_method == "Audio inspreken" and 'audio_data' in st.session_state:
+            audio_data = st.session_state['audio_data']
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-                temp_audio_file.write(st.session_state['audio_data'])
+                temp_audio_file.write(audio_data)
                 temp_audio_file.seek(0)
                 transcript = transcribe_audio(temp_audio_file.name)
-            st.session_state['audio_data'] = None
+            del st.session_state['audio_data']  # Clear the audio data after processing
         elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 temp_file.write(uploaded_audio_file.read())
@@ -238,3 +239,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
