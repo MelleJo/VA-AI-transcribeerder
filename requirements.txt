@@ -19,3 +19,4 @@ ffmpeg-python
 ffmpy
 pydub
 pyperclip
+tenacity==8.0.1  # Use a version that doesn't import tenacity.asyncio
