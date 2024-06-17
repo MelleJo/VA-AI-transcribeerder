@@ -19,5 +19,3 @@ ffmpeg-python
 ffmpy
 pydub
 pyperclip
-tenacity
-tenacity-asyncio
