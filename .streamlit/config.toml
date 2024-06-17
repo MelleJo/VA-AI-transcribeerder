@@ -2,8 +2,9 @@
 maxUploadSize=1028
 
 [theme]
-primaryColor="#62B02F"
-backgroundColor="#184E8E"
-secondaryBackgroundColor="#FFFFFF"
-textColor="#262730"
-font="sans serif"
+base="dark"
+primaryColor="#3498db"  # A nice blue color
+backgroundColor="#1e1e1e"  # Dark background for a sleek look
+secondaryBackgroundColor="#2c2c2c"  # Slightly lighter background for contrast
+textColor="#ffffff"  # White text for readability
+font="sans serif"  # Modern sans serif font
