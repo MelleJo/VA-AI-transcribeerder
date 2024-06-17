@@ -177,10 +177,10 @@ def main():
             for question in questions:
                 st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
 
-        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer", "Bestand uploaden", "Audio inspreken"))
-        
-        if input_method == "Tekstinvoer":
-            text_input = st.text_area("Voeg tekst hier in:")
+        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken"))
+
+        if input_method == "Tekstinvoer of plak tekst":
+            text_input = st.text_area("Type of plak je tekst hier:")
             summarize_button = st.button("Samenvatten")
         elif input_method == "Bestand uploaden":
             uploaded_file = st.file_uploader("Upload een bestand", type=["pdf", "docx", "txt"])
@@ -191,7 +191,7 @@ def main():
 
     if summarize_button:
         transcript = ""
-        if input_method == "Tekstinvoer" and text_input:
+        if input_method == "Tekstinvoer of plak tekst" and text_input:
             transcript = text_input
         elif input_method == "Bestand uploaden" and uploaded_file:
             if uploaded_file.type == "application/pdf":
@@ -218,3 +218,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
