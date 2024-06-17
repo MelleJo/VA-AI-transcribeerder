@@ -78,7 +78,7 @@ def transcribe_audio(file_path):
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
-        progress_bar.progress((i + 1) / total segments)
+        progress_bar.progress((i + 1) / total_segments)
     progress_text.success("Transcriptie voltooid.")
     return transcript_text.strip()
 
