@@ -170,7 +170,7 @@ def copy_to_clipboard(transcript, summary):
     st.success("Transcript and summary copied to clipboard!")
 
 def main():
-    st.title("Gesprekssamenvatter - testversie 0.1.8.")
+    st.title("!!! Ik ben de tool aan het updaten, het is momenteel even niet beschikbaar. Bedankt voor het begrip! :) ")
 
     with st.sidebar:
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
