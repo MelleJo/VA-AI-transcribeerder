@@ -182,70 +182,79 @@ def main():
 
         input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken", "Audio bestand uploaden"))
 
-        summarize_button = False
         text_input = None
         uploaded_file = None
         uploaded_audio_file = None
 
         if input_method == "Tekstinvoer of plak tekst":
             text_input = st.text_area("Type of plak je tekst hier:")
-            summarize_button = st.button("Samenvatten")
+            if st.button("Samenvatten"):
+                process_text_input(text_input, department)
         elif input_method == "Bestand uploaden":
             uploaded_file = st.file_uploader("Upload een bestand", type=["pdf", "docx", "txt"])
-            summarize_button = st.button("Samenvatten")
+            if st.button("Samenvatten"):
+                process_file_upload(uploaded_file, department)
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
             if audio_data is not None and isinstance(audio_data, dict) and 'data' in audio_data:
                 st.session_state['audio_data'] = audio_data['data']
-                st.session_state['audio_ready'] = True
                 st.write("Audio data received.")
-                summarize_button = True  # Automatically trigger summarization after recording
+                process_audio_input(department)
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
-            summarize_button = st.button("Samenvatten")
+            if st.button("Samenvatten"):
+                process_audio_file_upload(uploaded_audio_file, department)
 
-    if summarize_button or ('audio_ready' in st.session_state and st.session_state['audio_ready']):
-        st.write("Summarization button clicked or audio ready.")
-        transcript = ""
-        if input_method == "Tekstinvoer of plak tekst" and text_input:
-            transcript = text_input
-        elif input_method == "Bestand uploaden" and uploaded_file:
-            if uploaded_file.type == "application/pdf":
-                pdf_reader = PdfReader(uploaded_file)
-                transcript = "\n".join(page.extract_text() for page in pdf_reader.pages)
-            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                transcript = read_docx(uploaded_file)
-            elif uploaded_file.type == "text/plain":
-                transcript = uploaded_file.read().decode("utf-8")
-        elif input_method == "Audio inspreken" and 'audio_data' in st.session_state:
-            audio_data = st.session_state['audio_data']
-            st.write("Starting transcription...")
-            with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-                try:
-                    temp_audio_file.write(audio_data)
-                    temp_audio_file.seek(0)
-                    transcript = transcribe_audio(temp_audio_file.name)
-                except Exception as e:
-                    st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
-                finally:
-                    del st.session_state['audio_data']  # Clear the audio data after processing
-                    st.session_state['audio_ready'] = False
-        elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
-            with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
-                temp_file.write(uploaded_audio_file.read())
-                temp_file.seek(0)
-                transcript = transcribe_audio(temp_file.name)
+def process_text_input(text_input, department):
+    if text_input:
+        transcript = text_input
+        process_transcript(transcript, department)
 
-        if transcript:
-            st.write("Starting summarization...")
-            summary = summarize_text(transcript, department)
-            update_gesprekslog(transcript, summary)
+def process_file_upload(uploaded_file, department):
+    if uploaded_file:
+        if uploaded_file.type == "application/pdf":
+            pdf_reader = PdfReader(uploaded_file)
+            transcript = "\n".join(page.extract_text() for page in pdf_reader.pages)
+        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            transcript = read_docx(uploaded_file)
+        elif uploaded_file.type == "text/plain":
+            transcript = uploaded_file.read().decode("utf-8")
+        process_transcript(transcript, department)
 
-            st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-            st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+def process_audio_input(department):
+    if 'audio_data' in st.session_state:
+        audio_data = st.session_state['audio_data']
+        st.write("Starting transcription...")
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
+            try:
+                temp_audio_file.write(audio_data)
+                temp_audio_file.seek(0)
+                transcript = transcribe_audio(temp_audio_file.name)
+                process_transcript(transcript, department)
+            except Exception as e:
+                st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
+            finally:
+                del st.session_state['audio_data']  # Clear the audio data after processing
 
-            if st.button("Copy Transcript and Summary to Clipboard"):
-                copy_to_clipboard(transcript, summary)
+def process_audio_file_upload(uploaded_audio_file, department):
+    if uploaded_audio_file:
+        with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+            temp_file.write(uploaded_audio_file.read())
+            temp_file.seek(0)
+            transcript = transcribe_audio(temp_file.name)
+            process_transcript(transcript, department)
+
+def process_transcript(transcript, department):
+    if transcript:
+        st.write("Starting summarization...")
+        summary = summarize_text(transcript, department)
+        update_gesprekslog(transcript, summary)
+
+        st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
+        st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
+
+        if st.button("Copy Transcript and Summary to Clipboard"):
+            copy_to_clipboard(transcript, summary)
 
 if __name__ == "__main__":
     main()
