@@ -170,7 +170,7 @@ def copy_to_clipboard(transcript, summary):
     st.success("Transcript and summary copied to clipboard!")
 
 def main():
-    st.title("!!! Ik ben de tool aan het updaten, het is momenteel even niet beschikbaar. Bedankt voor het begrip! :) ")
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
     with st.sidebar:
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
@@ -195,8 +195,8 @@ def main():
             summarize_button = st.button("Samenvatten")
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
-            if audio_data is not None:
-                st.session_state['audio_data'] = audio_data
+            if audio_data is not None and isinstance(audio_data, dict) and 'data' in audio_data:
+                st.session_state['audio_data'] = audio_data['data']
                 summarize_button = True  # Automatically trigger summarization after recording
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
