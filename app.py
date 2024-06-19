@@ -202,7 +202,7 @@ def main():
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
 
-    if summarize_button:
+    if summarize_button or ('audio_data' in st.session_state and st.session_state['audio_data']):
         transcript = ""
         if input_method == "Tekstinvoer of plak tekst" and text_input:
             transcript = text_input
@@ -216,6 +216,7 @@ def main():
                 transcript = uploaded_file.read().decode("utf-8")
         elif input_method == "Audio inspreken" and 'audio_data' in st.session_state:
             audio_data = st.session_state['audio_data']
+            st.write("Starting transcription...")
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
                 try:
                     temp_audio_file.write(audio_data)
@@ -232,6 +233,7 @@ def main():
                 transcript = transcribe_audio(temp_file.name)
 
         if transcript:
+            st.write("Starting summarization...")
             summary = summarize_text(transcript, department)
             update_gesprekslog(transcript, summary)
 
@@ -243,3 +245,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
