@@ -199,6 +199,7 @@ def main():
                 st.session_state['audio_data'] = audio_data['data']
                 st.session_state['audio_ready'] = True
                 st.write("Audio data received.")
+                summarize_button = True  # Automatically trigger summarization after recording
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
