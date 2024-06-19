@@ -197,12 +197,14 @@ def main():
             audio_data = mic_recorder()
             if audio_data is not None and isinstance(audio_data, dict) and 'data' in audio_data:
                 st.session_state['audio_data'] = audio_data['data']
-                summarize_button = True  # Automatically trigger summarization after recording
+                st.session_state['audio_ready'] = True
+                st.write("Audio data received.")
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             summarize_button = st.button("Samenvatten")
 
-    if summarize_button or ('audio_data' in st.session_state and st.session_state['audio_data']):
+    if summarize_button or ('audio_ready' in st.session_state and st.session_state['audio_ready']):
+        st.write("Summarization button clicked or audio ready.")
         transcript = ""
         if input_method == "Tekstinvoer of plak tekst" and text_input:
             transcript = text_input
@@ -226,6 +228,7 @@ def main():
                     st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
                 finally:
                     del st.session_state['audio_data']  # Clear the audio data after processing
+                    st.session_state['audio_ready'] = False
         elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 temp_file.write(uploaded_audio_file.read())
@@ -245,4 +248,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
