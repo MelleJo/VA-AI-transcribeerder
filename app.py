@@ -257,4 +257,4 @@ def process_transcript(transcript, department):
             copy_to_clipboard(transcript, summary)
 
 if __name__ == "__main__":
-    main()
+    main() 
