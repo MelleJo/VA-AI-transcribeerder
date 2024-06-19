@@ -217,10 +217,14 @@ def main():
         elif input_method == "Audio inspreken" and 'audio_data' in st.session_state:
             audio_data = st.session_state['audio_data']
             with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-                temp_audio_file.write(audio_data)
-                temp_audio_file.seek(0)
-                transcript = transcribe_audio(temp_audio_file.name)
-            del st.session_state['audio_data']  # Clear the audio data after processing
+                try:
+                    temp_audio_file.write(audio_data)
+                    temp_audio_file.seek(0)
+                    transcript = transcribe_audio(temp_audio_file.name)
+                except Exception as e:
+                    st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
+                finally:
+                    del st.session_state['audio_data']  # Clear the audio data after processing
         elif input_method == "Audio bestand uploaden" and uploaded_audio_file:
             with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
                 temp_file.write(uploaded_audio_file.read())
@@ -239,4 +243,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
