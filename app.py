@@ -2,23 +2,12 @@ import streamlit as st
 from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
 import os
-import pytz
 import tempfile
-from datetime import datetime
 from PyPDF2 import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain.chains import AnalyzeDocumentChain
-from langchain_community.callbacks import get_openai_callback
-from langchain.chains.question_answering import load_qa_chain
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from fuzzywuzzy import process
+from datetime import datetime
 from docx import Document
 from pydub import AudioSegment
-import pandas as pd
+import pytz
 import pyperclip
 
 PROMPTS_DIR = os.path.abspath("prompts")
@@ -28,9 +17,6 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
-
-if 'audio_data' not in st.session_state:
-    st.session_state['audio_data'] = None
 
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
@@ -182,10 +168,6 @@ def main():
 
         input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken", "Audio bestand uploaden"))
 
-        text_input = None
-        uploaded_file = None
-        uploaded_audio_file = None
-
         if input_method == "Tekstinvoer of plak tekst":
             text_input = st.text_area("Type of plak je tekst hier:")
             if st.button("Samenvatten"):
@@ -197,9 +179,8 @@ def main():
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
             if audio_data is not None and isinstance(audio_data, dict) and 'data' in audio_data:
-                st.session_state['audio_data'] = audio_data['data']
                 st.write("Audio data received.")
-                process_audio_input(department)
+                process_audio_input(audio_data['data'], department)
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             if st.button("Samenvatten"):
@@ -221,20 +202,16 @@ def process_file_upload(uploaded_file, department):
             transcript = uploaded_file.read().decode("utf-8")
         process_transcript(transcript, department)
 
-def process_audio_input(department):
-    if 'audio_data' in st.session_state:
-        audio_data = st.session_state['audio_data']
-        st.write("Starting transcription...")
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-            try:
-                temp_audio_file.write(audio_data)
-                temp_audio_file.seek(0)
-                transcript = transcribe_audio(temp_audio_file.name)
-                process_transcript(transcript, department)
-            except Exception as e:
-                st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
-            finally:
-                del st.session_state['audio_data']  # Clear the audio data after processing
+def process_audio_input(audio_data, department):
+    st.write("Starting transcription...")
+    with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
+        try:
+            temp_audio_file.write(audio_data)
+            temp_audio_file.seek(0)
+            transcript = transcribe_audio(temp_audio_file.name)
+            process_transcript(transcript, department)
+        except Exception as e:
+            st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
 
 def process_audio_file_upload(uploaded_audio_file, department):
     if uploaded_audio_file:
@@ -257,4 +234,4 @@ def process_transcript(transcript, department):
             copy_to_clipboard(transcript, summary)
 
 if __name__ == "__main__":
-    main() 
+    main()
