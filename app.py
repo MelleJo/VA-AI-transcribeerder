@@ -178,13 +178,19 @@ def main():
                 process_file_upload(uploaded_file, department)
         elif input_method == "Audio inspreken":
             audio_data = mic_recorder()
-            if audio_data is not None and isinstance(audio_data, dict) and 'data' in audio_data:
-                st.write("Audio data received.")
-                process_audio_input(audio_data['data'], department)
+            if audio_data and isinstance(audio_data, dict) and 'data' in audio_data:
+                st.session_state['audio_data'] = audio_data['data']
+                st.session_state['audio_ready'] = True
+                st.experimental_rerun()
         elif input_method == "Audio bestand uploaden":
             uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
             if st.button("Samenvatten"):
                 process_audio_file_upload(uploaded_audio_file, department)
+
+    if 'audio_ready' in st.session_state and st.session_state['audio_ready']:
+        st.session_state['audio_ready'] = False
+        st.write("Starting transcription...")
+        process_audio_input(st.session_state['audio_data'], department)
 
 def process_text_input(text_input, department):
     if text_input:
