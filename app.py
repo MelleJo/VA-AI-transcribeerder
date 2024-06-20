@@ -179,68 +179,69 @@ def main():
 
         input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
-        if input_method == "Upload tekst":
-            uploaded_file = st.file_uploader("Choose a file")
-            if uploaded_file is not None:
-                if uploaded_file.name.endswith('.docx'):
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
-                        tmp_docx.write(uploaded_file.getvalue())
-                        tmp_docx_path = tmp_docx.name
-                    text = read_docx(tmp_docx_path)
-                    os.remove(tmp_docx_path)
-                else:
-                    text = uploaded_file.getvalue().decode("utf-8")
+    transcript = ""
+    summary = ""
+
+    if input_method == "Upload tekst":
+        uploaded_file = st.file_uploader("Choose a file")
+        if uploaded_file is not None:
+            if uploaded_file.name.endswith('.docx'):
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
+                    tmp_docx.write(uploaded_file.getvalue())
+                    tmp_docx_path = tmp_docx.name
+                text = read_docx(tmp_docx_path)
+                os.remove(tmp_docx_path)
+            else:
+                text = uploaded_file.getvalue().decode("utf-8")
+            summary = summarize_text(text, department)
+            if summary:
+                transcript = text
+
+    elif input_method == "Voer tekst in of plak tekst":
+        text = st.text_area("Voeg tekst hier in:", height=300)
+        if st.button("Samenvatten"):
+            if text:
                 summary = summarize_text(text, department)
                 if summary:
-                    st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-
-        elif input_method == "Voer tekst in of plak tekst":
-            text = st.text_area("Voeg tekst hier in:", height=300)
-            if st.button("Samenvatten"):
-                if text:
-                    summary = summarize_text(text, department)
-                    if summary:
-                        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                        update_gesprekslog(text, summary)
-                    else:
-                        st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+                    transcript = text
+                    update_gesprekslog(text, summary)
                 else:
-                    st.warning("Voer alstublieft wat tekst in om te samenvatten.")
+                    st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+            else:
+                st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
-        elif input_method in ["Upload audio", "Neem audio op"]:
-            uploaded_audio = None
-            if input_method == "Upload audio":
-                uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
-                if uploaded_file is not None:
-                    with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                            tmp_audio.write(uploaded_file.getvalue())
-                            tmp_audio.flush()
+    elif input_method in ["Upload audio", "Neem audio op"]:
+        uploaded_audio = None
+        if input_method == "Upload audio":
+            uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+            if uploaded_file is not None:
+                with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                        tmp_audio.write(uploaded_file.getvalue())
+                        tmp_audio.flush()
+                transcript = transcribe_audio(tmp_audio.name)
+                summary = summarize_text(transcript, department)
+                update_gesprekslog(transcript, summary)
+                os.remove(tmp_audio.name)
+        elif input_method == "Neem audio op":
+            audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
+            if audio_data and 'bytes' in audio_data:
+                uploaded_audio = audio_data['bytes']
+            if uploaded_audio is not None:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                    tmp_audio.write(uploaded_audio)
+                    tmp_audio.flush()
                     transcript = transcribe_audio(tmp_audio.name)
                     summary = summarize_text(transcript, department)
                     update_gesprekslog(transcript, summary)
-                    st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
-                    if summary:
-                        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
                     os.remove(tmp_audio.name)
-            elif input_method == "Neem audio op":
-                audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
-                if audio_data and 'bytes' in audio_data:
-                    uploaded_audio = audio_data['bytes']
-                if uploaded_audio is not None:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                        tmp_audio.write(uploaded_audio)
-                        tmp_audio.flush()
-                        transcript = transcribe_audio(tmp_audio.name)
-                        summary = summarize_text(transcript, department)
-                        update_gesprekslog(transcript, summary)
-                        st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
-                        if summary:
-                            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
-                        os.remove(tmp_audio.name)
-                else:
-                    if input_method == "Upload audio":
-                        st.warning("Upload een audio bestand.")
+            else:
+                if input_method == "Upload audio":
+                    st.warning("Upload een audio bestand.")
+
+    if transcript and summary:
+        st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
     for gesprek in st.session_state['gesprekslog']:
