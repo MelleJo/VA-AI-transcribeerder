@@ -3,8 +3,8 @@ from openai import OpenAI
 from streamlit_mic_recorder import mic_recorder
 import os
 import tempfile
-from PyPDF2 import PdfReader
 from datetime import datetime
+from PyPDF2 import PdfReader
 from docx import Document
 from pydub import AudioSegment
 import pytz
@@ -19,6 +19,8 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
+import streamlit.components.v1 as components
+import pandas as pd
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -115,8 +117,7 @@ def summarize_text(text, department):
             "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
             "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
             "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
-            "test-prompt (alleen voor Melle!)": "util/test_prompt.txt",
-            "Deelnemersgesprekken collectief pensioen": "veldhuis-advies/collectief/deelnemersgesprek.txt"
+            "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
         }
         prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
         department_prompt = load_prompt(prompt_file)
@@ -166,88 +167,96 @@ def copy_to_clipboard(transcript, summary):
     st.success("Transcript and summary copied to clipboard!")
 
 def main():
-    st.title("Inspreekfunctie werkt tijdelijk niet - ik werk er aan")
+    st.title("Gesprekssamenvatter - testversie 0.1.8.")
 
     with st.sidebar:
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
         if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
-            st.subheader("Vragen/onderwerpen om in je input te overwegen:")
+            st.subheader("Vragen om in je input te overwegen:")
             questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
             for question in questions:
-                st.markdown(f'<p>- {question.strip()}</p>', unsafe_allow_html=True)
+                st.text(f"- {question.strip()}")
 
-        input_method = st.radio("Kies je invoermethode", ("Tekstinvoer of plak tekst", "Bestand uploaden", "Audio inspreken", "Audio bestand uploaden"))
+        input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
-        if input_method == "Tekstinvoer of plak tekst":
-            text_input = st.text_area("Type of plak je tekst hier:")
+        if input_method == "Upload tekst":
+            uploaded_file = st.file_uploader("Choose a file")
+            if uploaded_file is not None:
+                if uploaded_file.name.endswith('.docx'):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
+                        tmp_docx.write(uploaded_file.getvalue())
+                        tmp_docx_path = tmp_docx.name
+                    text = read_docx(tmp_docx_path)
+                    os.remove(tmp_docx_path)
+                else:
+                    text = uploaded_file.getvalue().decode("utf-8")
+                summary = summarize_text(text, department)
+                if summary:
+                    st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+
+        elif input_method == "Voer tekst in of plak tekst":
+            text = st.text_area("Voeg tekst hier in:", height=300)
             if st.button("Samenvatten"):
-                process_text_input(text_input, department)
-        elif input_method == "Bestand uploaden":
-            uploaded_file = st.file_uploader("Upload een bestand", type=["pdf", "docx", "txt"])
-            if st.button("Samenvatten"):
-                process_file_upload(uploaded_file, department)
-        elif input_method == "Audio inspreken":
-            audio_data = mic_recorder()
-            if audio_data and isinstance(audio_data, dict) and 'data' in audio_data:
-                st.session_state['audio_data'] = audio_data['data']
-                st.session_state['audio_ready'] = True
-                st.experimental_rerun()
-        elif input_method == "Audio bestand uploaden":
-            uploaded_audio_file = st.file_uploader("Upload een audiobestand", type=["wav", "mp3", "m4a"])
-            if st.button("Samenvatten"):
-                process_audio_file_upload(uploaded_audio_file, department)
+                if text:
+                    summary = summarize_text(text, department)
+                    if summary:
+                        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                        update_gesprekslog(text, summary)
+                    else:
+                        st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+                else:
+                    st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
-    if 'audio_ready' in st.session_state and st.session_state['audio_ready']:
-        st.session_state['audio_ready'] = False
-        st.write("Starting transcription...")
-        process_audio_input(st.session_state['audio_data'], department)
+        elif input_method in ["Upload audio", "Neem audio op"]:
+            uploaded_audio = None
+            if input_method == "Upload audio":
+                uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+                if uploaded_file is not None:
+                    with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                            tmp_audio.write(uploaded_file.getvalue())
+                            tmp_audio.flush()
+                    transcript = transcribe_audio(tmp_audio.name)
+                    summary = summarize_text(transcript, department)
+                    update_gesprekslog(transcript, summary)
+                    st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+                    if summary:
+                        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                    os.remove(tmp_audio.name)
+            elif input_method == "Neem audio op":
+                audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
+                if audio_data and 'bytes' in audio_data:
+                    uploaded_audio = audio_data['bytes']
+                if uploaded_audio is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                        tmp_audio.write(uploaded_audio)
+                        tmp_audio.flush()
+                        transcript = transcribe_audio(tmp_audio.name)
+                        summary = summarize_text(transcript, department)
+                        update_gesprekslog(transcript, summary)
+                        st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
+                        if summary:
+                            st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+                        os.remove(tmp_audio.name)
+                else:
+                    if input_method == "Upload audio":
+                        st.warning("Upload een audio bestand.")
 
-def process_text_input(text_input, department):
-    if text_input:
-        transcript = text_input
-        process_transcript(transcript, department)
-
-def process_file_upload(uploaded_file, department):
-    if uploaded_file:
-        if uploaded_file.type == "application/pdf":
-            pdf_reader = PdfReader(uploaded_file)
-            transcript = "\n".join(page.extract_text() for page in pdf_reader.pages)
-        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            transcript = read_docx(uploaded_file)
-        elif uploaded_file.type == "text/plain":
-            transcript = uploaded_file.read().decode("utf-8")
-        process_transcript(transcript, department)
-
-def process_audio_input(audio_data, department):
-    st.write("Starting transcription...")
-    with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_audio_file:
-        try:
-            temp_audio_file.write(audio_data)
-            temp_audio_file.seek(0)
-            transcript = transcribe_audio(temp_audio_file.name)
-            process_transcript(transcript, department)
-        except Exception as e:
-            st.error(f"Fout bij het schrijven van de audio data: {str(e)}")
-
-def process_audio_file_upload(uploaded_audio_file, department):
-    if uploaded_audio_file:
-        with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
-            temp_file.write(uploaded_audio_file.read())
-            temp_file.seek(0)
-            transcript = transcribe_audio(temp_file.name)
-            process_transcript(transcript, department)
-
-def process_transcript(transcript, department):
-    if transcript:
-        st.write("Starting summarization...")
-        summary = summarize_text(transcript, department)
-        update_gesprekslog(transcript, summary)
-
-        st.markdown(f"<h1>Transcript</h1><p>{transcript}</p>", unsafe_allow_html=True)
-        st.markdown(f"<h1>Summary</h1><p>{summary}</p>", unsafe_allow_html=True)
-
-        if st.button("Copy Transcript and Summary to Clipboard"):
-            copy_to_clipboard(transcript, summary)
+    st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+    for gesprek in st.session_state['gesprekslog']:
+        with st.expander(f"Gesprek op {gesprek['time']}"):
+            st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
+            st.markdown("""
+                <style>
+                .divider {
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
+                    border-top: 3px solid #bbb;
+                }
+                </style>
+                <div class="divider"></div>
+                """, unsafe_allow_html=True)
+            st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
 
 if __name__ == "__main__":
     main()
