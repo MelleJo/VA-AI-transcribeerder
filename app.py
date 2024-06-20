@@ -239,9 +239,12 @@ def main():
                 if input_method == "Upload audio":
                     st.warning("Upload een audio bestand.")
 
+    # Display transcript and summary on the main screen
     if transcript and summary:
-        st.markdown(f"**Transcript:**\n{transcript}", unsafe_allow_html=True)
-        st.markdown(f"**Samenvatting:**\n{summary}", unsafe_allow_html=True)
+        st.markdown("### Transcript")
+        st.text_area("", value=transcript, height=200, key="main_transcript")
+        st.markdown("### Samenvatting")
+        st.text_area("", value=summary, height=200, key="main_summary")
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
     for gesprek in st.session_state['gesprekslog']:
