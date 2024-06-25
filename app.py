@@ -282,4 +282,30 @@ def main():
         with col1:
             st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
             st.markdown('<h3>Transcript</h3>', unsafe_allow_html=True)
-            st.markdown(f'<div class="content
+            st.markdown(f'<div class="content">{html.escape(transcript)}</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="summary-box">', unsafe_allow_html=True)
+            st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content">{html.escape(summary)}</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        if st.button("Kopieer naar klembord"):
+            copy_to_clipboard(transcript, summary)
+
+    st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
+    for gesprek in st.session_state['gesprekslog']:
+        with st.expander(f"Gesprek op {gesprek['time']}"):
+            st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
+            st.markdown('<h4>Transcript</h4>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('<div class="summary-box">', unsafe_allow_html=True)
+            st.markdown('<h4>Samenvatting</h4>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content">{html.escape(gesprek["summary"])}</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
