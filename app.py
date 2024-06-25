@@ -167,11 +167,6 @@ def copy_to_clipboard(transcript, summary_html):
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard in RTF format!")
 
-# Use string concatenation for summary_html
-summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
-
-
-
 def escape_markdown(text):
     # List of characters to escape
     chars = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!']
@@ -235,7 +230,6 @@ def main():
     summary = ""
     summary_html = ""
 
-
     if input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
         if uploaded_file is not None:
@@ -256,7 +250,6 @@ def main():
             if summary:
                 transcript = text
                 summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
-
 
     elif input_method == "Voer tekst in of plak tekst":
         text = st.text_area("Voeg tekst hier in:", height=300)
