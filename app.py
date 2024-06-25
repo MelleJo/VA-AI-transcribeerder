@@ -28,8 +28,19 @@ QUESTIONS_DIR = os.path.abspath("questions")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+# Initialize session state variables
 if 'gesprekslog' not in st.session_state:
     st.session_state['gesprekslog'] = []
+if 'transcript' not in st.session_state:
+    st.session_state['transcript'] = ""
+if 'summary' not in st.session_state:
+    st.session_state['summary'] = ""
+if 'input_text' not in st.session_state:
+    st.session_state['input_text'] = ""
+if 'department' not in st.session_state:
+    st.session_state['department'] = "Bedrijven"
+if 'input_method' not in st.session_state:
+    st.session_state['input_method'] = "Voer tekst in of plak tekst"
 
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
@@ -150,7 +161,7 @@ def copy_to_clipboard(transcript, summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.title("Gesprekssamenvatter - testversie 0.2.1")
+    st.title("Gesprekssamenvatter - testversie 0.2.2")
 
     st.markdown("""
     <style>
@@ -190,98 +201,96 @@ def main():
     """, unsafe_allow_html=True)
 
     with st.sidebar:
-        department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
-        if department in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
+        st.session_state['department'] = st.selectbox("Kies je afdeling", 
+            ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", 
+             "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", 
+             "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"],
+            key='department_select')
+        
+        if st.session_state['department'] in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
             st.subheader("Vragen om in je input te overwegen:")
-            questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+            questions = load_questions(f"{st.session_state['department'].lower().replace(' ', '_')}.txt")
             for question in questions:
                 st.markdown(f"- {question.strip()}")
 
-        input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
+        st.session_state['input_method'] = st.radio("Wat wil je laten samenvatten?", 
+                                                    ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"],
+                                                    key='input_method_radio')
 
-    transcript = ""
-    summary = ""
-
-    if input_method == "Upload tekst":
+    if st.session_state['input_method'] == "Upload tekst":
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
         if uploaded_file is not None:
             if uploaded_file.name.endswith('.docx'):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
                     tmp_docx.write(uploaded_file.getvalue())
                     tmp_docx_path = tmp_docx.name
-                text = read_docx(tmp_docx_path)
+                st.session_state['transcript'] = read_docx(tmp_docx_path)
                 os.remove(tmp_docx_path)
             elif uploaded_file.name.endswith('.pdf'):
                 pdf_reader = PdfReader(uploaded_file)
-                text = ""
+                st.session_state['transcript'] = ""
                 for page in pdf_reader.pages:
-                    text += page.extract_text()
+                    st.session_state['transcript'] += page.extract_text()
             else:
-                text = uploaded_file.getvalue().decode("utf-8")
-            summary = summarize_text(text, department)
-            if summary:
-                transcript = text
-                update_gesprekslog(text, summary)
+                st.session_state['transcript'] = uploaded_file.getvalue().decode("utf-8")
+            
+            if st.button("Genereer Samenvatting"):
+                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
 
-    elif input_method == "Voer tekst in of plak tekst":
-        text = st.text_area("Voeg tekst hier in:", height=300)
+    elif st.session_state['input_method'] == "Voer tekst in of plak tekst":
+        st.session_state['input_text'] = st.text_area("Voeg tekst hier in:", 
+                                                      value=st.session_state['input_text'], 
+                                                      height=300,
+                                                      key='input_text_area')
         if st.button("Samenvatten"):
-            if text:
-                summary = summarize_text(text, department)
-                if summary:
-                    transcript = text
-                    update_gesprekslog(text, summary)
-                else:
-                    st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+            if st.session_state['input_text']:
+                st.session_state['transcript'] = st.session_state['input_text']
+                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
             else:
                 st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
-    elif input_method in ["Upload audio", "Neem audio op"]:
-        uploaded_audio = None
-        if input_method == "Upload audio":
+    elif st.session_state['input_method'] in ["Upload audio", "Neem audio op"]:
+        if st.session_state['input_method'] == "Upload audio":
             uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
             if uploaded_file is not None:
                 with st.spinner("Voorbereiden van het audiobestand, dit kan langer duren bij langere opnames..."):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                         tmp_audio.write(uploaded_file.getvalue())
                         tmp_audio.flush()
-                transcript = transcribe_audio(tmp_audio.name)
-                summary = summarize_text(transcript, department)
-                update_gesprekslog(transcript, summary)
-                os.remove(tmp_audio.name)
-        elif input_method == "Neem audio op":
+                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                    os.remove(tmp_audio.name)
+        elif st.session_state['input_method'] == "Neem audio op":
             audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
             if audio_data and 'bytes' in audio_data:
-                uploaded_audio = audio_data['bytes']
-            if uploaded_audio is not None:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                    tmp_audio.write(uploaded_audio)
+                    tmp_audio.write(audio_data['bytes'])
                     tmp_audio.flush()
-                    transcript = transcribe_audio(tmp_audio.name)
-                    summary = summarize_text(transcript, department)
-                    update_gesprekslog(transcript, summary)
+                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
                     os.remove(tmp_audio.name)
-            else:
-                if input_method == "Upload audio":
-                    st.warning("Upload een audio bestand.")
+        
+        if st.session_state['transcript'] and st.button("Genereer Samenvatting"):
+            st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+            update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
 
     # Display transcript and summary on the main screen
-    # Display transcript and summary on the main screen
-    if transcript and summary:
+    if st.session_state['transcript']:
         with st.expander("Toon Transcript", expanded=False):
             st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
             st.markdown('<h4>Transcript</h4>', unsafe_allow_html=True)
-            st.markdown(f'<div class="content">{html.escape(transcript)}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content">{html.escape(st.session_state["transcript"])}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-        
+    
+    if st.session_state['summary']:
         st.markdown('<div class="summary-box">', unsafe_allow_html=True)
         st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
-        st.markdown(summary, unsafe_allow_html=True)
+        st.markdown(st.session_state['summary'], unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="copy-button">', unsafe_allow_html=True)
         if st.button("Kopieer naar klembord"):
-            copy_to_clipboard(transcript, summary)
+            copy_to_clipboard(st.session_state['transcript'], st.session_state['summary'])
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
