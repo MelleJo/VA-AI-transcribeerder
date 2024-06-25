@@ -261,7 +261,7 @@ def main():
                 summary = summarize_text(text, department)
                 if summary:
                     transcript = text
-                    summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
+                    summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
                     update_gesprekslog(text, summary)
                 else:
                     st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
