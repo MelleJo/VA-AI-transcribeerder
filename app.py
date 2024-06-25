@@ -125,7 +125,7 @@ def summarize_text(text, department):
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         try:
@@ -142,37 +142,10 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
-def html_to_rtf(html_content):
-    rtf_content = (
-        "{\\rtf1\\ansi\n"
-        "{\\fonttbl\\f0\\fnil Arial;}\n"
-        "\\f0\\fs20\n"
-        + html_content.replace('<b>', '\\b ').replace('</b>', ' \\b0').replace('<i>', '\\i ').replace('</i>', ' \\i0').replace('<br>', '\\par ').replace('<p>', '\\par ').replace('</p>', '') +
-        "\n}"
-    )
-    return rtf_content
-
-def copy_to_clipboard(transcript, summary_html):
-    rtf_summary = html_to_rtf(summary_html)
-    text_to_copy = (
-        "{\\rtf1\\ansi\n"
-        "{\\fonttbl\\f0\\fnil Arial;}\n"
-        "\\f0\\fs20\n"
-        "\\b Transcript \\b0\\par\n"
-        + transcript.replace('\n', '\\par ') + "\\par\\par\n"
-        "\\b Summary \\b0\\par\n"
-        + rtf_summary +
-        "\n}"
-    )
+def copy_to_clipboard(transcript, summary):
+    text_to_copy = f"Transcript:\n\n{transcript}\n\nSummary:\n\n{summary}"
     pyperclip.copy(text_to_copy)
-    st.success("Transcript and summary copied to clipboard in RTF format!")
-
-def escape_markdown(text):
-    # List of characters to escape
-    chars = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!']
-    for char in chars:
-        text = text.replace(char, '\\' + char)
-    return text
+    st.success("Transcript and summary copied to clipboard!")
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
@@ -228,7 +201,6 @@ def main():
 
     transcript = ""
     summary = ""
-    summary_html = ""
 
     if input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
@@ -249,7 +221,7 @@ def main():
             summary = summarize_text(text, department)
             if summary:
                 transcript = text
-                summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
+                update_gesprekslog(text, summary)
 
     elif input_method == "Voer tekst in of plak tekst":
         text = st.text_area("Voeg tekst hier in:", height=300)
@@ -258,7 +230,6 @@ def main():
                 summary = summarize_text(text, department)
                 if summary:
                     transcript = text
-                    summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
                     update_gesprekslog(text, summary)
                 else:
                     st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
@@ -276,7 +247,6 @@ def main():
                         tmp_audio.flush()
                 transcript = transcribe_audio(tmp_audio.name)
                 summary = summarize_text(transcript, department)
-                summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
                 update_gesprekslog(transcript, summary)
                 os.remove(tmp_audio.name)
         elif input_method == "Neem audio op":
@@ -289,13 +259,13 @@ def main():
                     tmp_audio.flush()
                     transcript = transcribe_audio(tmp_audio.name)
                     summary = summarize_text(transcript, department)
-                    summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
                     update_gesprekslog(transcript, summary)
                     os.remove(tmp_audio.name)
             else:
                 if input_method == "Upload audio":
                     st.warning("Upload een audio bestand.")
 
+    # Display transcript and summary on the main screen
     # Display transcript and summary on the main screen
     if transcript and summary:
         with st.expander("Toon Transcript", expanded=False):
@@ -306,12 +276,12 @@ def main():
         
         st.markdown('<div class="summary-box">', unsafe_allow_html=True)
         st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
-        st.markdown(summary_html, unsafe_allow_html=True)
+        st.markdown(summary, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="copy-button">', unsafe_allow_html=True)
         if st.button("Kopieer naar klembord"):
-            copy_to_clipboard(transcript, summary_html)
+            copy_to_clipboard(transcript, summary)
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
@@ -324,13 +294,7 @@ def main():
 
             st.markdown('<div class="summary-box">', unsafe_allow_html=True)
             st.markdown('<h4>Samenvatting</h4>', unsafe_allow_html=True)
-            summary_lines = gesprek["summary"].split('\n')
-            for line in summary_lines:
-                if line.strip():
-                    if line.startswith('•') or line.startswith('-'):
-                        st.markdown(f"<p>{html.escape(line)}</p>", unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"<p><strong>{html.escape(line)}</strong></p>", unsafe_allow_html=True)
+            st.markdown(gesprek["summary"], unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
