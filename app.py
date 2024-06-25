@@ -21,6 +21,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from fuzzywuzzy import process
 import streamlit.components.v1 as components
 import pandas as pd
+import html
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -124,7 +125,7 @@ def summarize_text(text, department):
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         try:
@@ -166,8 +167,38 @@ def copy_to_clipboard(transcript, summary):
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard!")
 
+def escape_markdown(text):
+    # List of characters to escape
+    chars = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!']
+    for char in chars:
+        text = text.replace(char, '\\' + char)
+    return text
+
 def main():
-    st.title("Gesprekssamenvatter - testversie 0.1.9.")
+    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+    
+    st.title("Gesprekssamenvatter - testversie 0.2.0")
+
+    st.markdown("""
+    <style>
+    .transcript-box, .summary-box {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+    }
+    .transcript-box h3, .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     with st.sidebar:
         department = st.selectbox("Kies je afdeling", ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"])
@@ -175,7 +206,7 @@ def main():
             st.subheader("Vragen om in je input te overwegen:")
             questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
             for question in questions:
-                st.text(f"- {question.strip()}")
+                st.markdown(f"- {question.strip()}")
 
         input_method = st.radio("Wat wil je laten samenvatten?", ["Upload tekst", "Upload audio", "Voer tekst in of plak tekst", "Neem audio op"])
 
@@ -183,7 +214,7 @@ def main():
     summary = ""
 
     if input_method == "Upload tekst":
-        uploaded_file = st.file_uploader("Choose a file")
+        uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
         if uploaded_file is not None:
             if uploaded_file.name.endswith('.docx'):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
@@ -191,6 +222,11 @@ def main():
                     tmp_docx_path = tmp_docx.name
                 text = read_docx(tmp_docx_path)
                 os.remove(tmp_docx_path)
+            elif uploaded_file.name.endswith('.pdf'):
+                pdf_reader = PdfReader(uploaded_file)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
             else:
                 text = uploaded_file.getvalue().decode("utf-8")
             summary = summarize_text(text, department)
@@ -241,26 +277,9 @@ def main():
 
     # Display transcript and summary on the main screen
     if transcript and summary:
-        st.markdown("### Transcript")
-        st.text_area("", value=transcript, height=200, key="main_transcript")
-        st.markdown("### Samenvatting")
-        st.text_area("", value=summary, height=200, key="main_summary")
-
-    st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
-    for gesprek in st.session_state['gesprekslog']:
-        with st.expander(f"Gesprek op {gesprek['time']}"):
-            st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
-            st.markdown("""
-                <style>
-                .divider {
-                    margin-top: 1rem;
-                    margin-bottom: 1rem;
-                    border-top: 3px solid #bbb;
-                }
-                </style>
-                <div class="divider"></div>
-                """, unsafe_allow_html=True)
-            st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
-
-if __name__ == "__main__":
-    main()
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
+            st.markdown('<h3>Transcript</h3>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content
