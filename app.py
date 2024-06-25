@@ -163,7 +163,16 @@ def copy_to_clipboard(transcript, summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.title("Gesprekssamenvatter - testversie 0.3.0")
+    st.title("Gesprekssamenvatter - testversie 0.3.3")
+
+    # Initialize additional session state variables
+    if 'transcription_done' not in st.session_state:
+        st.session_state['transcription_done'] = False
+    if 'summarization_done' not in st.session_state:
+        st.session_state['summarization_done'] = False
+    if 'processing_complete' not in st.session_state:
+        st.session_state['processing_complete'] = False
+
 
     st.markdown("""
     <style>
@@ -255,37 +264,38 @@ def main():
                 else:
                     st.warning("Voer alstublieft wat tekst in om te samenvatten.")
 
-        elif st.session_state['input_method'] == "Upload audio":
-            uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
-            if uploaded_file is not None and not st.session_state['processing_audio']:
-                st.session_state['processing_audio'] = True
-                with st.spinner("Transcriberen van audio..."):
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                        tmp_audio.write(uploaded_file.getvalue())
-                        tmp_audio.flush()
-                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
-                    os.remove(tmp_audio.name)
-                with st.spinner("Genereren van samenvatting..."):
-                    st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
-                st.session_state['processing_audio'] = False
-                st.experimental_rerun()
-
-        elif st.session_state['input_method'] == "Neem audio op":
-            audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
-            if audio_data and 'bytes' in audio_data and not st.session_state['processing_audio']:
-                st.session_state['processing_audio'] = True
-                with st.spinner("Transcriberen van audio..."):
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
-                        tmp_audio.write(audio_data['bytes'])
-                        tmp_audio.flush()
-                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
-                    os.remove(tmp_audio.name)
-                with st.spinner("Genereren van samenvatting..."):
-                    st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
-                st.session_state['processing_audio'] = False
-                st.experimental_rerun()
+        elif st.session_state['input_method'] in ["Upload audio", "Neem audio op"]:
+            if not st.session_state['processing_complete']:
+                if st.session_state['input_method'] == "Upload audio":
+                    uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+                    if uploaded_file is not None and not st.session_state['transcription_done']:
+                        with st.spinner("Transcriberen van audio..."):
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                                tmp_audio.write(uploaded_file.getvalue())
+                                tmp_audio.flush()
+                            st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                            os.remove(tmp_audio.name)
+                        st.session_state['transcription_done'] = True
+                        st.rerun()
+                elif st.session_state['input_method'] == "Neem audio op":
+                    audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
+                    if audio_data and 'bytes' in audio_data and not st.session_state['transcription_done']:
+                        with st.spinner("Transcriberen van audio..."):
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                                tmp_audio.write(audio_data['bytes'])
+                                tmp_audio.flush()
+                            st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                            os.remove(tmp_audio.name)
+                        st.session_state['transcription_done'] = True
+                        st.rerun()
+                
+                if st.session_state['transcription_done'] and not st.session_state['summarization_done']:
+                    with st.spinner("Genereren van samenvatting..."):
+                        st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                    update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                    st.session_state['summarization_done'] = True
+                    st.session_state['processing_complete'] = True
+                    st.rerun()
 
         # Display transcript and summary
         if st.session_state['transcript']:
@@ -313,6 +323,12 @@ def main():
         st.markdown("Samenvatting:")
         st.markdown(gesprek["summary"], unsafe_allow_html=True)
         st.markdown("---")
+
+    # Reset flags if input method changes
+    if st.session_state['input_method'] not in ["Upload audio", "Neem audio op"]:
+        st.session_state['transcription_done'] = False
+        st.session_state['summarization_done'] = False
+        st.session_state['processing_complete'] = False
 
 if __name__ == "__main__":
     main()
