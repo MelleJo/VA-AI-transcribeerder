@@ -167,6 +167,10 @@ def copy_to_clipboard(transcript, summary_html):
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard in RTF format!")
 
+# Use string concatenation for summary_html
+summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
+
+
 
 def escape_markdown(text):
     # List of characters to escape
