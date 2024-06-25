@@ -142,19 +142,31 @@ def update_gesprekslog(transcript, summary):
     st.session_state['gesprekslog'].insert(0, {'time': current_time, 'transcript': transcript, 'summary': summary})
     st.session_state['gesprekslog'] = st.session_state['gesprekslog'][:5]
 
-def copy_to_clipboard(transcript, summary):
-    text_to_copy = f"""
-    {{\\rtf1\\ansi
-    {{\\fonttbl\\f0\\fnil Arial;}}
-    \\f0\\fs20
-    \\b Transcript \\b0\\par
-    {transcript.replace('\n', '\\par ')}\\par\\par
-    \\b Summary \\b0\\par
-    {summary.replace('\n', '\\par ')}
-    }}
-    """
+def html_to_rtf(html_content):
+    rtf_content = (
+        "{\\rtf1\\ansi\n"
+        "{\\fonttbl\\f0\\fnil Arial;}\n"
+        "\\f0\\fs20\n"
+        + html_content.replace('<b>', '\\b ').replace('</b>', ' \\b0').replace('<i>', '\\i ').replace('</i>', ' \\i0').replace('<br>', '\\par ').replace('<p>', '\\par ').replace('</p>', '') +
+        "\n}"
+    )
+    return rtf_content
+
+def copy_to_clipboard(transcript, summary_html):
+    rtf_summary = html_to_rtf(summary_html)
+    text_to_copy = (
+        "{\\rtf1\\ansi\n"
+        "{\\fonttbl\\f0\\fnil Arial;}\n"
+        "\\f0\\fs20\n"
+        "\\b Transcript \\b0\\par\n"
+        + transcript.replace('\n', '\\par ') + "\\par\\par\n"
+        "\\b Summary \\b0\\par\n"
+        + rtf_summary +
+        "\n}"
+    )
     pyperclip.copy(text_to_copy)
     st.success("Transcript and summary copied to clipboard in RTF format!")
+
 
 def escape_markdown(text):
     # List of characters to escape
@@ -217,6 +229,7 @@ def main():
 
     transcript = ""
     summary = ""
+    summary_html = ""
 
     if input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
@@ -237,6 +250,7 @@ def main():
             summary = summarize_text(text, department)
             if summary:
                 transcript = text
+                summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
 
     elif input_method == "Voer tekst in of plak tekst":
         text = st.text_area("Voeg tekst hier in:", height=300)
@@ -245,6 +259,7 @@ def main():
                 summary = summarize_text(text, department)
                 if summary:
                     transcript = text
+                    summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
                     update_gesprekslog(text, summary)
                 else:
                     st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
@@ -262,6 +277,7 @@ def main():
                         tmp_audio.flush()
                 transcript = transcribe_audio(tmp_audio.name)
                 summary = summarize_text(transcript, department)
+                summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
                 update_gesprekslog(transcript, summary)
                 os.remove(tmp_audio.name)
         elif input_method == "Neem audio op":
@@ -274,6 +290,7 @@ def main():
                     tmp_audio.flush()
                     transcript = transcribe_audio(tmp_audio.name)
                     summary = summarize_text(transcript, department)
+                    summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
                     update_gesprekslog(transcript, summary)
                     os.remove(tmp_audio.name)
             else:
@@ -290,18 +307,12 @@ def main():
         
         st.markdown('<div class="summary-box">', unsafe_allow_html=True)
         st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
-        summary_lines = summary.split('\n')
-        for line in summary_lines:
-            if line.strip():
-                if line.startswith('•') or line.startswith('-'):
-                    st.markdown(f"<p>{html.escape(line)}</p>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<p><strong>{html.escape(line)}</strong></p>", unsafe_allow_html=True)
+        st.markdown(summary_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="copy-button">', unsafe_allow_html=True)
         if st.button("Kopieer naar klembord"):
-            copy_to_clipboard(transcript, summary)
+            copy_to_clipboard(transcript, summary_html)
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
