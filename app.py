@@ -229,7 +229,7 @@ def main():
 
     transcript = ""
     summary = ""
-    summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
+    summary_html = ""
 
 
     if input_method == "Upload tekst":
@@ -251,7 +251,8 @@ def main():
             summary = summarize_text(text, department)
             if summary:
                 transcript = text
-                summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
+                summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
+
 
     elif input_method == "Voer tekst in of plak tekst":
         text = st.text_area("Voeg tekst hier in:", height=300)
