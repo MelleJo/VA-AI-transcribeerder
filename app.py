@@ -177,25 +177,41 @@ def escape_markdown(text):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.title("Gesprekssamenvatter - testversie 0.2.0")
+    st.title("Gesprekssamenvatter - testversie 0.2.1")
 
     st.markdown("""
     <style>
-    .transcript-box, .summary-box {
+    .summary-box {
+        border: 2px solid #3498db;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        background-color: #f0f8ff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    .transcript-box {
         border: 1px solid #ddd;
         border-radius: 5px;
         padding: 10px;
         margin-bottom: 20px;
         background-color: #f9f9f9;
     }
-    .transcript-box h3, .summary-box h3 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 10px;
-    }
-    .content {
-        white-space: pre-wrap;
-        word-wrap: break-word;
+    .copy-button {
+        text-align: center;
+        margin-top: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -277,22 +293,27 @@ def main():
 
     # Display transcript and summary on the main screen
     if transcript and summary:
-        col1, col2 = st.columns(2)
-        
-        with col1:
+        with st.expander("Toon Transcript", expanded=False):
             st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
-            st.markdown('<h3>Transcript</h3>', unsafe_allow_html=True)
+            st.markdown('<h4>Transcript</h4>', unsafe_allow_html=True)
             st.markdown(f'<div class="content">{html.escape(transcript)}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
         
-        with col2:
-            st.markdown('<div class="summary-box">', unsafe_allow_html=True)
-            st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
-            st.markdown(f'<div class="content">{html.escape(summary)}</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="summary-box">', unsafe_allow_html=True)
+        st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
+        summary_lines = summary.split('\n')
+        for line in summary_lines:
+            if line.strip():
+                if line.startswith('•') or line.startswith('-'):
+                    st.markdown(f"<p>{html.escape(line)}</p>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<p><strong>{html.escape(line)}</strong></p>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
+        st.markdown('<div class="copy-button">', unsafe_allow_html=True)
         if st.button("Kopieer naar klembord"):
             copy_to_clipboard(transcript, summary)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
     for gesprek in st.session_state['gesprekslog']:
@@ -304,7 +325,13 @@ def main():
 
             st.markdown('<div class="summary-box">', unsafe_allow_html=True)
             st.markdown('<h4>Samenvatting</h4>', unsafe_allow_html=True)
-            st.markdown(f'<div class="content">{html.escape(gesprek["summary"])}</div>', unsafe_allow_html=True)
+            summary_lines = gesprek["summary"].split('\n')
+            for line in summary_lines:
+                if line.strip():
+                    if line.startswith('•') or line.startswith('-'):
+                        st.markdown(f"<p>{html.escape(line)}</p>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<p><strong>{html.escape(line)}</strong></p>", unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
