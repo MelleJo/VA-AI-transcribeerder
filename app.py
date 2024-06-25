@@ -144,28 +144,17 @@ def update_gesprekslog(transcript, summary):
 
 def copy_to_clipboard(transcript, summary):
     text_to_copy = f"""
-    <html>
-    <head>
-        <style>
-            body {{
-                font-family: Arial, sans-serif;
-                font-size: 10pt;
-            }}
-            h1 {{
-                font-weight: bold;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>Transcript</h1>
-        <p>{transcript}</p>
-        <h1>Summary</h1>
-        <p>{summary}</p>
-    </body>
-    </html>
+    {{\\rtf1\\ansi
+    {{\\fonttbl\\f0\\fnil Arial;}}
+    \\f0\\fs20
+    \\b Transcript \\b0\\par
+    {transcript.replace('\n', '\\par ')}\\par\\par
+    \\b Summary \\b0\\par
+    {summary.replace('\n', '\\par ')}
+    }}
     """
     pyperclip.copy(text_to_copy)
-    st.success("Transcript and summary copied to clipboard!")
+    st.success("Transcript and summary copied to clipboard in RTF format!")
 
 def escape_markdown(text):
     # List of characters to escape
