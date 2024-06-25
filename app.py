@@ -259,15 +259,15 @@ def main():
             uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
             if uploaded_file is not None and not st.session_state['processing_audio']:
                 st.session_state['processing_audio'] = True
-                with st.spinner("Verwerken van audio..."):
+                with st.spinner("Transcriberen van audio..."):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                         tmp_audio.write(uploaded_file.getvalue())
                         tmp_audio.flush()
                     st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
                     os.remove(tmp_audio.name)
-                    st.session_state['summary']
+                with st.spinner("Genereren van samenvatting..."):
                     st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-                    update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
                 st.session_state['processing_audio'] = False
                 st.experimental_rerun()
 
@@ -275,14 +275,15 @@ def main():
             audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
             if audio_data and 'bytes' in audio_data and not st.session_state['processing_audio']:
                 st.session_state['processing_audio'] = True
-                with st.spinner("Verwerken van audio..."):
+                with st.spinner("Transcriberen van audio..."):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                         tmp_audio.write(audio_data['bytes'])
                         tmp_audio.flush()
                     st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
                     os.remove(tmp_audio.name)
+                with st.spinner("Genereren van samenvatting..."):
                     st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-                    update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
                 st.session_state['processing_audio'] = False
                 st.experimental_rerun()
 
@@ -304,14 +305,14 @@ def main():
                 copy_to_clipboard(st.session_state['transcript'], st.session_state['summary'])
 
     # Display conversation history
-    with st.expander("Laatste vijf gesprekken"):
-        for i, gesprek in enumerate(st.session_state['gesprekslog']):
-            st.markdown(f"**Gesprek {i+1} op {gesprek['time']}**")
-            with st.expander("Toon Transcript"):
-                st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
-            with st.expander("Toon Samenvatting"):
-                st.markdown(gesprek["summary"], unsafe_allow_html=True)
-            st.markdown("---")
+    st.subheader("Laatste vijf gesprekken")
+    for i, gesprek in enumerate(st.session_state['gesprekslog']):
+        st.markdown(f"**Gesprek {i+1} op {gesprek['time']}**")
+        st.markdown("Transcript:")
+        st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
+        st.markdown("Samenvatting:")
+        st.markdown(gesprek["summary"], unsafe_allow_html=True)
+        st.markdown("---")
 
 if __name__ == "__main__":
     main()
