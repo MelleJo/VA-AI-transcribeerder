@@ -229,7 +229,8 @@ def main():
 
     transcript = ""
     summary = ""
-    summary_html = ""
+    summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
+
 
     if input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
