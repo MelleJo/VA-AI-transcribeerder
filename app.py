@@ -279,7 +279,7 @@ def main():
                         tmp_audio.flush()
                 transcript = transcribe_audio(tmp_audio.name)
                 summary = summarize_text(transcript, department)
-                summary_html = f"<p>{summary.replace('\n', '<br>')}</p>"
+                summary_html = "<p>" + summary.replace('\n', '<br>') + "</p>"
                 update_gesprekslog(transcript, summary)
                 os.remove(tmp_audio.name)
         elif input_method == "Neem audio op":
