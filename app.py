@@ -242,14 +242,14 @@ def main():
     # Display transcript and summary on the main screen
     if transcript and summary:
         st.markdown("### Transcript")
-        transcript_content = st_quill(value=transcript, html=True, readonly=True, key="main_transcript")
+        st.text_area("", value=transcript, height=200, key="main_transcript")
         st.markdown("### Samenvatting")
-        summary_content = st_quill(value=summary, html=True, readonly=True, key="main_summary")
+        st.text_area("", value=summary, height=200, key="main_summary")
 
     st.subheader("Laatste vijf gesprekken (verdwijnen na herladen pagina!)")
     for gesprek in st.session_state['gesprekslog']:
         with st.expander(f"Gesprek op {gesprek['time']}"):
-            st_quill(value=gesprek['transcript'], html=True, readonly=True, key=f"trans_{gesprek['time']}")
+            st.text_area("Transcript", value=gesprek['transcript'], height=100, key=f"trans_{gesprek['time']}")
             st.markdown("""
                 <style>
                 .divider {
@@ -260,7 +260,7 @@ def main():
                 </style>
                 <div class="divider"></div>
                 """, unsafe_allow_html=True)
-            st_quill(value=gesprek['summary'], html=True, readonly=True, key=f"sum_{gesprek['time']}")
+            st.text_area("Samenvatting", value=gesprek['summary'], height=100, key=f"sum_{gesprek['time']}")
 
 if __name__ == "__main__":
     main()
