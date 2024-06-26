@@ -21,3 +21,5 @@ pydub
 pyperclip
 tenacity==8.3.0
 streamlit-quill
+streamlit-option-menu
+streamlit-lottie
