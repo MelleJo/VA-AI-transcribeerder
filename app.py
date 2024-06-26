@@ -133,6 +133,14 @@ def summarize_chunk(chunk, department):
     llm_chain = prompt_template | chat_model | StrOutputParser()
     return llm_chain.invoke({})
 
+def load_prompt(file_name):
+    path = os.path.join(PROMPTS_DIR, file_name)
+    if not os.path.exists(path):
+        st.error(f"Bestand niet gevonden: {path}")
+        raise FileNotFoundError(f"Bestand niet gevonden: {path}")
+    with open(path, "r", encoding="utf-8") as file:
+        return file.read()
+
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
         department_prompts = {
@@ -151,7 +159,11 @@ def summarize_text(text, department):
         department_prompt = load_prompt(prompt_file)
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
-        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
+        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
+        
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+        llm_chain = prompt_template | chat_model | StrOutputParser()
         
         chunk_size = 4000  # Adjust based on your model's token limit
         chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
@@ -160,14 +172,14 @@ def summarize_text(text, department):
         progress_bar = st.progress(0)
         for i, chunk in enumerate(chunks):
             try:
-                summary = summarize_chunk(chunk, department)
+                summary = llm_chain.invoke({"text": chunk})
                 summaries.append(summary)
             except Exception as e:
                 st.error(f"Error summarizing chunk {i+1}/{len(chunks)}: {str(e)}")
             progress_bar.progress((i + 1) / len(chunks))
         
         # Summarize the summaries
-        final_summary = summarize_chunk("\n".join(summaries), department)
+        final_summary = llm_chain.invoke({"text": "\n".join(summaries)})
         
         return final_summary
 
@@ -184,38 +196,47 @@ def copy_to_clipboard(transcript, summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.title("Gesprekssamenvatter - versie 2024")
+    st.title("Gesprekssamenvatter - 0.2.1")
 
     st.markdown("""
     <style>
     .main {
-        background-color: #f0f2f6;
-        color: #1e1e1e;
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     .stButton>button {
         background-color: #4CAF50;
         color: white;
         border: none;
-        padding: 10px 24px;
+        padding: 12px 28px;
         text-align: center;
         text-decoration: none;
         display: inline-block;
         font-size: 16px;
         margin: 4px 2px;
         cursor: pointer;
-        border-radius: 12px;
-        transition-duration: 0.4s;
+        border-radius: 30px;
+        transition: all 0.3s ease 0s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
     .stButton>button:hover {
         background-color: #45a049;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-7px);
     }
     .summary-box {
-        border: 2px solid #3498db;
-        border-radius: 10px;
-        padding: 20px;
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
         margin: 20px 0;
         background-color: #ffffff;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .summary-box:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
     }
     .summary-box h3 {
         color: #2c3e50;
@@ -223,19 +244,22 @@ def main():
         padding-bottom: 10px;
         margin-bottom: 20px;
         text-align: center;
+        font-weight: 600;
     }
     .content {
         white-space: pre-wrap;
         word-wrap: break-word;
         font-size: 16px;
-        line-height: 1.6;
+        line-height: 1.8;
+        color: #34495e;
     }
     .transcript-box {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
         margin-bottom: 20px;
         background-color: #f9f9f9;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     }
     .copy-button {
         text-align: center;
@@ -243,6 +267,19 @@ def main():
     }
     .stProgress > div > div > div > div {
         background-color: #3498db;
+    }
+    .stSelectbox {
+        color: #2c3e50;
+    }
+    .stSelectbox > div > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+    }
+    .stRadio > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     </style>
     """, unsafe_allow_html=True)
