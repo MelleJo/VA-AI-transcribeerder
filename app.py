@@ -26,31 +26,6 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from streamlit_option_menu import option_menu
-from streamlit_lottie import st_lottie
-import requests
-import json
-
-def load_lottie_url(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
-def set_background(image_file):
-    with open(image_file, "rb") as f:
-        img_data = f.read()
-    b64_encoded = base64.b64encode(img_data).decode()
-    style = f"""
-        <style>
-        .stApp {{
-            background-image: url(data:image/png;base64,{b64_encoded});
-            background-size: cover;
-        }}
-        </style>
-    """
-    st.markdown(style, unsafe_allow_html=True)
-
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_first_name=""):
     try:
@@ -285,177 +260,213 @@ def copy_to_clipboard(transcript, summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    # Set a subtle background image
-    set_background('images\shapelined-_JBKdviweXI-unsplash.jpg')  # Replace with actual path
+    st.title("Gesprekssamenvatter - 0.2.1")
 
-    # Custom CSS for a modern, sleek design
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
-    }
-    
     .main {
-        background-color: rgba(255,255,255,0.9);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
-    
-    h1, h2, h3 {
-        color: #1e3a8a;
-    }
-    
     .stButton>button {
-        border-radius: 50px;
-        padding: 0.5rem 2rem;
-        font-weight: 600;
-        background-color: #3b82f6;
+        background-color: #4CAF50;
         color: white;
         border: none;
+        padding: 12px 28px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s ease 0s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-7px);
+    }
+    .summary-box {
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
-    
-    .stButton>button:hover {
-        background-color: #2563eb;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .summary-box:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
     }
-    
-    .stTextInput>div>div>input {
-        border-radius: 50px;
+    .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
     }
-    
-    .stTextArea>div>div>textarea {
-        border-radius: 15px;
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #34495e;
     }
-    
-    .feedback-card {
-        background-color: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-top: 2rem;
+    .transcript-box {
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     }
-    
-    .css-1d391kg {
-        padding-top: 3.5rem;
+    .copy-button {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #3498db;
+    }
+    .stSelectbox {
+        color: #2c3e50;
+    }
+    .stSelectbox > div > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+    }
+    .stRadio > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Animated logo
-    lottie_url = "https://assets5.lottiefiles.com/packages/lf20_bsPjV4.json"  # Replace with a more suitable animation
-    lottie_json = load_lottie_url(lottie_url)
-    
     col1, col2 = st.columns([1, 3])
+
     with col1:
-        st_lottie(lottie_json, speed=1, height=150, key="logo")
+        st.session_state['department'] = st.selectbox("Kies je afdeling", 
+            ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", 
+             "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", 
+             "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"],
+            key='department_select')
+        
+        if st.session_state['department'] in ["Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting", "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering", "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"]:
+            with st.expander("Vragen om te overwegen"):
+                questions = load_questions(f"{st.session_state['department'].lower().replace(' ', '_')}.txt")
+                for question in questions:
+                    st.markdown(f"- {question.strip()}")
+
+        st.session_state['input_method'] = st.radio("Wat wil je laten samenvatten?", 
+                                                    ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"],
+                                                    key='input_method_radio')
+
     with col2:
-        st.title("Gesprekssamenvatter")
-        st.subheader("Vereenvoudig uw gesprekken met AI")
-
-    # Modern navigation
-    selected = option_menu(
-        menu_title=None,
-        options=["Transcriberen", "Samenvatten", "Feedback"],
-        icons=["mic", "file-text", "chat-dots"],
-        menu_icon="cast",
-        default_index=0,
-        orientation="horizontal",
-        styles={
-            "container": {"padding": "0!important", "background-color": "#f0f9ff"},
-            "icon": {"color": "#3b82f6", "font-size": "20px"}, 
-            "nav-link": {"font-size": "16px", "text-align": "center", "margin":"0px", "--hover-color": "#eee"},
-            "nav-link-selected": {"background-color": "#3b82f6", "color": "white"},
-        }
-    )
-
-    if selected == "Transcriberen":
-        st.header("Transcribeer uw gesprek")
-        
-        input_method = st.radio(
-            "Hoe wilt u uw gesprek invoeren?",
-            ("Audio opnemen", "Audio uploaden", "Tekst invoeren"),
-            horizontal=True
-        )
-
-        if input_method == "Audio opnemen":
-            # Use your existing audio recording functionality here
-            audio_bytes = audio_recorder(
-                key="audio_recorder",
-                text="Klik om op te nemen",
-                recording_color="#e74c3c",
-                neutral_color="#3498db",
-                icon_name="microphone",
-                icon_size="6x"
-            )
-            if audio_bytes:
-                st.audio(audio_bytes, format="audio/wav")
-                if st.button("Transcriberen", key="transcribe_recorded"):
-                    # Use your existing transcription function here
-                    st.session_state['transcript'] = transcribe_audio(audio_bytes)
-                    st.success("Transcriptie voltooid!")
-
-        elif input_method == "Audio uploaden":
-            uploaded_file = st.file_uploader("Upload een audiobestand", type=['mp3', 'wav', 'm4a'])
+        if st.session_state['input_method'] == "Upload tekst":
+            uploaded_file = st.file_uploader("Choose a file", type=['txt', 'docx', 'pdf'])
             if uploaded_file is not None:
-                if st.button("Transcriberen", key="transcribe_uploaded"):
-                    # Use your existing transcription function here
-                    st.session_state['transcript'] = transcribe_audio(uploaded_file)
-                    st.success("Transcriptie voltooid!")
-
-        else:
-            st.session_state['input_text'] = st.text_area("Voer uw gesprekstekst in", height=300)
-            if st.button("Verwerken", key="process_text"):
-                st.session_state['transcript'] = st.session_state['input_text']
-                st.success("Tekst verwerkt!")
-
-    elif selected == "Samenvatten":
-        st.header("Vat uw gesprek samen")
-        
-        if 'transcript' in st.session_state and st.session_state['transcript']:
-            st.text_area("Transcript", st.session_state['transcript'], height=200)
-            
-            if st.button("Samenvatten", key="summarize"):
-                # Use your existing summarization function here
-                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-                st.success("Samenvatting gegenereerd!")
-            
-            if 'summary' in st.session_state and st.session_state['summary']:
-                st.markdown("### Samenvatting")
-                st.write(st.session_state['summary'])
-        else:
-            st.warning("Transcribeer eerst een gesprek voordat u het samenvat.")
-
-    elif selected == "Feedback":
-        st.header("Geef ons feedback")
-        
-        with st.form(key="feedback_form"):
-            user_name = st.text_input("Uw naam")
-            feedback_type = st.radio("Hoe was uw ervaring?", ["Positief", "Negatief"])
-            feedback_text = st.text_area("Uw feedback (optioneel)")
-            submit_button = st.form_submit_button(label="Verstuur feedback")
-
-            if submit_button:
-                if user_name:
-                    # Use your existing feedback submission function here
-                    send_feedback_email(
-                        transcript=st.session_state.get('transcript', ''),
-                        summary=st.session_state.get('summary', ''),
-                        feedback=feedback_type,
-                        additional_feedback=feedback_text,
-                        user_first_name=user_name
-                    )
-                    st.success("Bedankt voor uw feedback!")
+                if uploaded_file.name.endswith('.docx'):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_docx:
+                        tmp_docx.write(uploaded_file.getvalue())
+                        tmp_docx_path = tmp_docx.name
+                    st.session_state['transcript'] = read_docx(tmp_docx_path)
+                    os.remove(tmp_docx_path)
+                elif uploaded_file.name.endswith('.pdf'):
+                    pdf_reader = PdfReader(uploaded_file)
+                    st.session_state['transcript'] = ""
+                    for page in pdf_reader.pages:
+                        st.session_state['transcript'] += page.extract_text()
                 else:
-                    st.error("Vul alstublieft uw naam in.")
+                    st.session_state['transcript'] = uploaded_file.getvalue().decode("utf-8")
+                
+                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
 
-    # Footer
-    st.markdown("---")
-    st.markdown("Wat vind je van deze tool? Laat het me weten middels de feedbackfunctie. Bedankt!")
+        elif st.session_state['input_method'] == "Voer tekst in of plak tekst":
+            st.session_state['input_text'] = st.text_area("Voeg tekst hier in:", 
+                                                          value=st.session_state['input_text'], 
+                                                          height=300,
+                                                          key='input_text_area')
+            if st.button("Samenvatten", key='summarize_button'):
+                if st.session_state['input_text']:
+                    st.session_state['transcript'] = st.session_state['input_text']
+                    st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                    update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                else:
+                    st.warning("Voer alstublieft wat tekst in om te samenvatten.")
+
+        elif st.session_state['input_method'] in ["Upload audio", "Neem audio op"]:
+            if not st.session_state['processing_complete']:
+                if st.session_state['input_method'] == "Upload audio":
+                    uploaded_file = st.file_uploader("Upload an audio file", type=['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm'])
+                    if uploaded_file is not None and not st.session_state['transcription_done']:
+                        with st.spinner("Transcriberen van audio..."):
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                                tmp_audio.write(uploaded_file.getvalue())
+                                tmp_audio.flush()
+                            st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                            os.remove(tmp_audio.name)
+                        st.session_state['transcription_done'] = True
+                        st.rerun()
+                elif st.session_state['input_method'] == "Neem audio op":
+                    audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
+                    if audio_data and 'bytes' in audio_data and not st.session_state['transcription_done']:
+                        with st.spinner("Transcriberen van audio..."):
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+                                tmp_audio.write(audio_data['bytes'])
+                                tmp_audio.flush()
+                            st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                            os.remove(tmp_audio.name)
+                        st.session_state['transcription_done'] = True
+                        st.rerun()
+                
+                if st.session_state['transcription_done'] and not st.session_state['summarization_done']:
+                    with st.spinner("Genereren van samenvatting..."):
+                        st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
+                    update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                    st.session_state['summarization_done'] = True
+                    st.session_state['processing_complete'] = True
+                    st.rerun()
+
+        # Display transcript and summary
+        if st.session_state['transcript']:
+            with st.expander("Toon Transcript", expanded=False):
+                st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
+                st.markdown('<h4>Transcript</h4>', unsafe_allow_html=True)
+                st.markdown(f'<div class="content">{html.escape(st.session_state["transcript"])}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+        
+        if st.session_state['summary']:
+            st.markdown('<div class="summary-box">', unsafe_allow_html=True)
+            st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
+            st.markdown(st.session_state['summary'], unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
+                copy_to_clipboard(st.session_state['transcript'], st.session_state['summary'])
+            if st.session_state.get('summary'):
+                feedback_form() 
+
+    # Display conversation history
+    st.subheader("Laatste vijf gesprekken")
+    for i, gesprek in enumerate(st.session_state['gesprekslog']):
+        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
+            st.markdown("**Transcript:**")
+            st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
+            st.markdown("**Samenvatting:**")
+            st.markdown(gesprek["summary"], unsafe_allow_html=True)
+
+    # Reset flags if input method changes
+    if st.session_state['input_method'] not in ["Upload audio", "Neem audio op"]:
+        st.session_state['transcription_done'] = False
+        st.session_state['summarization_done'] = False
+        st.session_state['processing_complete'] = False
 
 if __name__ == "__main__":
     main()
