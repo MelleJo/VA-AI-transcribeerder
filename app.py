@@ -286,7 +286,7 @@ def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
     # Set a subtle background image
-    set_background('C:\Users\melle\Documents\Projecten\Gesprekssamenvatter\VA-AI-transcribeerder\shapelined-_JBKdviweXI-unsplash.jpg')  # Replace with actual path
+    set_background('VA-AI-transcribeerder\shapelined-_JBKdviweXI-unsplash.jpg')  # Replace with actual path
 
     # Custom CSS for a modern, sleek design
     st.markdown("""
