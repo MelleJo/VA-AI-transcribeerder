@@ -22,6 +22,7 @@ from fuzzywuzzy import process
 import streamlit.components.v1 as components
 import pandas as pd
 import html
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 PROMPTS_DIR = os.path.abspath("prompts")
 QUESTIONS_DIR = os.path.abspath("questions")
@@ -43,6 +44,12 @@ if 'input_method' not in st.session_state:
     st.session_state['input_method'] = "Voer tekst in of plak tekst"
 if 'processing_audio' not in st.session_state:
     st.session_state['processing_audio'] = False
+if 'transcription_done' not in st.session_state:
+    st.session_state['transcription_done'] = False
+if 'summarization_done' not in st.session_state:
+    st.session_state['summarization_done'] = False
+if 'processing_complete' not in st.session_state:
+    st.session_state['processing_complete'] = False
 
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
@@ -119,6 +126,13 @@ def read_docx(file_path):
         fullText.append(para.text)
     return '\n'.join(fullText)
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+def summarize_chunk(chunk, department):
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
+    prompt_template = ChatPromptTemplate.from_template(f"Summarize the following text:\n\n{chunk}")
+    llm_chain = prompt_template | chat_model | StrOutputParser()
+    return llm_chain.invoke({})
+
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
         department_prompts = {
@@ -138,17 +152,24 @@ def summarize_text(text, department):
         basic_prompt = load_prompt("util/basic_prompt.txt")
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{text}"
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
-        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
-        llm_chain = prompt_template | chat_model | StrOutputParser()
-        try:
-            summary_text = llm_chain.invoke({"text": text})
-            if not summary_text:
-                summary_text = "Mislukt om een samenvatting te genereren."
-        except Exception as e:
-            st.error(f"Fout bij het genereren van samenvatting: {e}")
-            summary_text = "Mislukt om een samenvatting te genereren."
-        return summary_text
+        
+        chunk_size = 4000  # Adjust based on your model's token limit
+        chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+        
+        summaries = []
+        progress_bar = st.progress(0)
+        for i, chunk in enumerate(chunks):
+            try:
+                summary = summarize_chunk(chunk, department)
+                summaries.append(summary)
+            except Exception as e:
+                st.error(f"Error summarizing chunk {i+1}/{len(chunks)}: {str(e)}")
+            progress_bar.progress((i + 1) / len(chunks))
+        
+        # Summarize the summaries
+        final_summary = summarize_chunk("\n".join(summaries), department)
+        
+        return final_summary
 
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()
@@ -163,25 +184,37 @@ def copy_to_clipboard(transcript, summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.title("Gesprekssamenvatter - testversie 0.3.3")
-
-    # Initialize additional session state variables
-    if 'transcription_done' not in st.session_state:
-        st.session_state['transcription_done'] = False
-    if 'summarization_done' not in st.session_state:
-        st.session_state['summarization_done'] = False
-    if 'processing_complete' not in st.session_state:
-        st.session_state['processing_complete'] = False
-
+    st.title("Gesprekssamenvatter - versie 2024")
 
     st.markdown("""
     <style>
+    .main {
+        background-color: #f0f2f6;
+        color: #1e1e1e;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition-duration: 0.4s;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+    }
     .summary-box {
         border: 2px solid #3498db;
         border-radius: 10px;
         padding: 20px;
         margin: 20px 0;
-        background-color: #f0f8ff;
+        background-color: #ffffff;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .summary-box h3 {
@@ -207,6 +240,9 @@ def main():
     .copy-button {
         text-align: center;
         margin-top: 20px;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #3498db;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -256,7 +292,7 @@ def main():
                                                           value=st.session_state['input_text'], 
                                                           height=300,
                                                           key='input_text_area')
-            if st.button("Samenvatten"):
+            if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state['input_text']:
                     st.session_state['transcript'] = st.session_state['input_text']
                     st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
@@ -311,18 +347,17 @@ def main():
             st.markdown(st.session_state['summary'], unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-            if st.button("Kopieer naar klembord"):
+            if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
                 copy_to_clipboard(st.session_state['transcript'], st.session_state['summary'])
 
     # Display conversation history
     st.subheader("Laatste vijf gesprekken")
     for i, gesprek in enumerate(st.session_state['gesprekslog']):
-        st.markdown(f"**Gesprek {i+1} op {gesprek['time']}**")
-        st.markdown("Transcript:")
-        st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
-        st.markdown("Samenvatting:")
-        st.markdown(gesprek["summary"], unsafe_allow_html=True)
-        st.markdown("---")
+        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
+            st.markdown("**Transcript:**")
+            st.markdown(f'<div class="content">{html.escape(gesprek["transcript"])}</div>', unsafe_allow_html=True)
+            st.markdown("**Samenvatting:**")
+            st.markdown(gesprek["summary"], unsafe_allow_html=True)
 
     # Reset flags if input method changes
     if st.session_state['input_method'] not in ["Upload audio", "Neem audio op"]:
