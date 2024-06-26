@@ -37,6 +37,20 @@ def load_lottie_url(url: str):
         return None
     return r.json()
 
+def set_background(image_file):
+    with open(image_file, "rb") as f:
+        img_data = f.read()
+    b64_encoded = base64.b64encode(img_data).decode()
+    style = f"""
+        <style>
+        .stApp {{
+            background-image: url(data:image/png;base64,{b64_encoded});
+            background-size: cover;
+        }}
+        </style>
+    """
+    st.markdown(style, unsafe_allow_html=True)
+
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_first_name=""):
     try:
@@ -270,43 +284,52 @@ def copy_to_clipboard(transcript, summary):
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+    
+    # Set a subtle background image
+    set_background('path_to_your_background_image.png')  # Replace with actual path
 
-    # Custom CSS for a modern, Apple-like design
+    # Custom CSS for a modern, sleek design
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
     
     .main {
-        background-color: #f5f7fa;
-    }
-    
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     h1, h2, h3 {
-        color: #1a202c;
+        color: #1e3a8a;
     }
     
     .stButton>button {
         border-radius: 50px;
         padding: 0.5rem 2rem;
         font-weight: 600;
-        background-color: #3182ce;
+        background-color: #3b82f6;
         color: white;
         border: none;
         transition: all 0.3s ease;
     }
     
     .stButton>button:hover {
-        background-color: #2c5282;
+        background-color: #2563eb;
         transform: translateY(-2px);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stTextInput>div>div>input {
+        border-radius: 50px;
+    }
+    
+    .stTextArea>div>div>textarea {
+        border-radius: 15px;
     }
     
     .feedback-card {
@@ -317,27 +340,24 @@ def main():
         margin-top: 2rem;
     }
     
-    .stTextInput>div>div>input {
-        border-radius: 50px;
-    }
-    
-    .stTextArea>div>div>textarea {
-        border-radius: 15px;
+    .css-1d391kg {
+        padding-top: 3.5rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Header with Lottie animation
+    # Animated logo
+    lottie_url = "https://assets5.lottiefiles.com/packages/lf20_bsPjV4.json"  # Replace with a more suitable animation
+    lottie_json = load_lottie_url(lottie_url)
+    
     col1, col2 = st.columns([1, 3])
     with col1:
-        lottie_url = "https://assets5.lottiefiles.com/packages/lf20_bsPjV4.json"
-        lottie_json = load_lottie_url(lottie_url)
-        st_lottie(lottie_json, speed=1, height=150, key="initial")
+        st_lottie(lottie_json, speed=1, height=150, key="logo")
     with col2:
         st.title("Gesprekssamenvatter")
         st.subheader("Vereenvoudig uw gesprekken met AI")
 
-    # Navigation
+    # Modern navigation
     selected = option_menu(
         menu_title=None,
         options=["Transcriberen", "Samenvatten", "Feedback"],
@@ -345,6 +365,12 @@ def main():
         menu_icon="cast",
         default_index=0,
         orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f0f9ff"},
+            "icon": {"color": "#3b82f6", "font-size": "20px"}, 
+            "nav-link": {"font-size": "16px", "text-align": "center", "margin":"0px", "--hover-color": "#eee"},
+            "nav-link-selected": {"background-color": "#3b82f6", "color": "white"},
+        }
     )
 
     if selected == "Transcriberen":
@@ -352,24 +378,40 @@ def main():
         
         input_method = st.radio(
             "Hoe wilt u uw gesprek invoeren?",
-            ("Audio opnemen", "Audio uploaden", "Tekst invoeren")
+            ("Audio opnemen", "Audio uploaden", "Tekst invoeren"),
+            horizontal=True
         )
 
         if input_method == "Audio opnemen":
-            # Implement audio recording functionality
-            st.write("Audio opname functionaliteit hier implementeren")
+            # Use your existing audio recording functionality here
+            audio_bytes = audio_recorder(
+                key="audio_recorder",
+                text="Klik om op te nemen",
+                recording_color="#e74c3c",
+                neutral_color="#3498db",
+                icon_name="microphone",
+                icon_size="6x"
+            )
+            if audio_bytes:
+                st.audio(audio_bytes, format="audio/wav")
+                if st.button("Transcriberen", key="transcribe_recorded"):
+                    # Use your existing transcription function here
+                    st.session_state['transcript'] = transcribe_audio(audio_bytes)
+                    st.success("Transcriptie voltooid!")
+
         elif input_method == "Audio uploaden":
             uploaded_file = st.file_uploader("Upload een audiobestand", type=['mp3', 'wav', 'm4a'])
             if uploaded_file is not None:
-                # Process the uploaded audio file
-                st.success("Audiobestand succesvol geüpload!")
+                if st.button("Transcriberen", key="transcribe_uploaded"):
+                    # Use your existing transcription function here
+                    st.session_state['transcript'] = transcribe_audio(uploaded_file)
+                    st.success("Transcriptie voltooid!")
+
         else:
             st.session_state['input_text'] = st.text_area("Voer uw gesprekstekst in", height=300)
-
-        if st.button("Transcriberen"):
-            # Implement transcription logic here
-            st.session_state['transcript'] = "Dit is een voorbeeld transcript."
-            st.success("Transcriptie voltooid!")
+            if st.button("Verwerken", key="process_text"):
+                st.session_state['transcript'] = st.session_state['input_text']
+                st.success("Tekst verwerkt!")
 
     elif selected == "Samenvatten":
         st.header("Vat uw gesprek samen")
@@ -377,9 +419,9 @@ def main():
         if 'transcript' in st.session_state and st.session_state['transcript']:
             st.text_area("Transcript", st.session_state['transcript'], height=200)
             
-            if st.button("Samenvatten"):
-                # Implement summarization logic here
-                st.session_state['summary'] = "Dit is een voorbeeld samenvatting."
+            if st.button("Samenvatten", key="summarize"):
+                # Use your existing summarization function here
+                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
                 st.success("Samenvatting gegenereerd!")
             
             if 'summary' in st.session_state and st.session_state['summary']:
@@ -399,14 +441,21 @@ def main():
 
             if submit_button:
                 if user_name:
-                    # Implement feedback submission logic here
+                    # Use your existing feedback submission function here
+                    send_feedback_email(
+                        transcript=st.session_state.get('transcript', ''),
+                        summary=st.session_state.get('summary', ''),
+                        feedback=feedback_type,
+                        additional_feedback=feedback_text,
+                        user_first_name=user_name
+                    )
                     st.success("Bedankt voor uw feedback!")
                 else:
                     st.error("Vul alstublieft uw naam in.")
 
     # Footer
     st.markdown("---")
-    st.markdown("Gemaakt met ❤️ door het AI-team")
+    st.markdown("Wat vind je van deze tool? Laat het me weten middels de feedbackfunctie. Bedankt!")
 
 if __name__ == "__main__":
     main()
