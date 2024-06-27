@@ -1,12 +1,12 @@
 import os
 import streamlit as st
-from utils.audio_processing import transcribe_audio, process_audio_input
-from utils.file_processing import process_uploaded_file
-from services.summarization_service import summarize_text
-from ui.components import setup_page_style, display_transcript, display_summary
-from ui.pages import render_feedback_form, render_conversation_history
-from services.openai_service import initialize_openai_client
-from utils.text_processing import update_gesprekslog, copy_to_clipboard
+from src.utils.audio_processing import transcribe_audio, process_audio_input
+from src.utils.file_processing import process_uploaded_file
+from src.services.summarization_service import summarize_text
+from src.ui.components import setup_page_style, display_transcript, display_summary
+from src.ui.pages import render_feedback_form, render_conversation_history
+from src.services.openai_service import initialize_openai_client
+from src.utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -37,11 +37,31 @@ def main():
     
     st.title("Gesprekssamenvatter - 0.2.1")
 
+    # Initialize session state for department if it doesn't exist
+    if 'department' not in st.session_state:
+        st.session_state['department'] = config["DEPARTMENTS"][0]
+
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        department = st.selectbox("Kies je afdeling", config["DEPARTMENTS"], key='department_select')
+        # Use the session state to set the default value of the selectbox
+        department = st.selectbox(
+            "Kies je afdeling", 
+            config["DEPARTMENTS"], 
+            key='department_select',
+            index=config["DEPARTMENTS"].index(st.session_state['department'])
+        )
+        
+        # Update the session state when a new department is selected
+        st.session_state['department'] = department
+
         input_method = st.radio("Wat wil je laten samenvatten?", config["INPUT_METHODS"], key='input_method_radio')
+
+        if department in config["DEPARTMENTS"]:
+            with st.expander("Vragen om te overwegen"):
+                questions = load_questions(f"{department.lower().replace(' ', '_')}.txt")
+                for question in questions:
+                    st.markdown(f"- {question.strip()}")
 
     with col2:
         if input_method == "Upload tekst":

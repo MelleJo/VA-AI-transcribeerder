@@ -32,7 +32,7 @@ def summarize_text(text, department):
         current_time = get_local_time()
         combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
         
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         
