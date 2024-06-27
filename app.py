@@ -1,13 +1,14 @@
 import streamlit as st
-from src.config import load_config
-from src.utils.audio_processing import transcribe_audio
-from src.utils.file_processing import process_uploaded_file
-from src.services.summarization_service import summarize_text
-from src.ui.components import setup_page_style, display_transcript, display_summary
-from src.ui.pages import render_feedback_form, render_conversation_history
-from src.services.openai_service import initialize_openai_client
-from src.utils.text_processing import update_gesprekslog, copy_to_clipboard
-from src.utils.audio_processing import process_audio_input
+from .src.config import load_config
+from .src.utils.audio_processing import transcribe_audio
+from .src.utils.file_processing import process_uploaded_file
+from .src.services.summarization_service import summarize_text
+from .src.ui.components import setup_page_style, display_transcript, display_summary
+from .src.ui.pages import render_feedback_form, render_conversation_history
+from .src.services.openai_service import initialize_openai_client
+from .src.utils.text_processing import update_gesprekslog, copy_to_clipboard
+from .src.utils.audio_processing import process_audio_input
+
 
 def main():
     config = load_config()
