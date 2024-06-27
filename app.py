@@ -6,7 +6,7 @@ project_root = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, project_root)
 
 import streamlit as st
-from src.config.py import load_config
+from src.config import load_config
 from src.utils.audio_processing import transcribe_audio, process_audio_input
 from src.utils.file_processing import process_uploaded_file
 from src.services.summarization_service import summarize_text
