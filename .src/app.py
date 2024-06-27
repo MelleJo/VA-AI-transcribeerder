@@ -5,7 +5,7 @@ from utils.file_processing import process_uploaded_file
 from services.summarization_service import summarize_text
 from ui.components import setup_page_style, display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
-from services.openai_service import initialize_openai_client, perform_gpt4_operation
+from services.openai_service import perform_gpt4_operation
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 
 # Configuration
