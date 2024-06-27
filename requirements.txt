@@ -1,3 +1,4 @@
+-e .
 streamlit
 openai
 PyPDF2
@@ -23,4 +24,3 @@ tenacity==8.3.0
 streamlit-quill
 streamlit-option-menu
 streamlit-lottie
--e .

@@ -9,8 +9,8 @@ from services.openai_service import initialize_openai_client
 from utils.text_processing import update_gesprekslog, copy_to_clipboard
 
 # Configuration
-PROMPTS_DIR = os.path.abspath("prompts")
-QUESTIONS_DIR = os.path.abspath("questions")
+PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
+QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
 DEPARTMENTS = [
     "Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting",
