@@ -1,12 +1,12 @@
 import os
 import streamlit as st
-from .utils.audio_processing import transcribe_audio, process_audio_input
-from .utils.file_processing import process_uploaded_file
-from .services.summarization_service import summarize_text
-from .ui.components import setup_page_style, display_transcript, display_summary
-from .ui.pages import render_feedback_form, render_conversation_history
-from .services.openai_service import perform_gpt4_operation
-from .utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
+from utils.audio_processing import transcribe_audio, process_audio_input
+from utils.file_processing import process_uploaded_file
+from services.summarization_service import summarize_text
+from ui.components import setup_page_style, display_transcript, display_summary
+from ui.pages import render_feedback_form, render_conversation_history
+from services.openai_service import perform_gpt4_operation
+from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
