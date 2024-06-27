@@ -8,6 +8,8 @@ from ui.pages import render_feedback_form, render_conversation_history
 from services.openai_service import perform_gpt4_operation
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 
+
+
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
 QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
