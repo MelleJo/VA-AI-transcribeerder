@@ -1,16 +1,19 @@
 import os
 import sys
 
-# Add the project root to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the .src directory to the Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+sys.path.insert(0, current_dir)
 
 import streamlit as st
+from services.openai_service import perform_gpt4_operation
 from utils.audio_processing import transcribe_audio, process_audio_input
 from utils.file_processing import process_uploaded_file
 from services.summarization_service import summarize_text
 from ui.components import setup_page_style, display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
-from services.openai_service import perform_gpt4_operation
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 
 
