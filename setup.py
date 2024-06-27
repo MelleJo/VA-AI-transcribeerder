@@ -3,5 +3,5 @@ from setuptools import setup, find_packages
 setup(
     name="va-ai-transcribeerder",
     version="0.1",
-    packages=find_packages(),
+    packages=find_packages(exclude=["prompts", "questions", "streamlit"]),
 )
