@@ -1,12 +1,5 @@
 import os
-import sys
-
-# Add the project root to the Python path
-project_root = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, project_root)
-
 import streamlit as st
-from va_ai_transcribeerder.src.config import load_config
 from src.utils.audio_processing import transcribe_audio, process_audio_input
 from src.utils.file_processing import process_uploaded_file
 from src.services.summarization_service import summarize_text
@@ -15,11 +8,33 @@ from src.ui.pages import render_feedback_form, render_conversation_history
 from src.services.openai_service import initialize_openai_client
 from src.utils.text_processing import update_gesprekslog, copy_to_clipboard
 
+# Configuration
+PROMPTS_DIR = os.path.abspath("prompts")
+QUESTIONS_DIR = os.path.abspath("questions")
+
+DEPARTMENTS = [
+    "Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting",
+    "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering",
+    "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"
+]
+
+INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"]
+
+def load_config():
+    return {
+        "PROMPTS_DIR": PROMPTS_DIR,
+        "QUESTIONS_DIR": QUESTIONS_DIR,
+        "DEPARTMENTS": DEPARTMENTS,
+        "INPUT_METHODS": INPUT_METHODS,
+    }
+
+# Initialize OpenAI client
+initialize_openai_client(st.secrets["OPENAI_API_KEY"])
+
 def main():
     config = load_config()
     setup_page_style()
-    initialize_openai_client(st.secrets["OPENAI_API_KEY"])
-
+    
     st.title("Gesprekssamenvatter - 0.2.1")
 
     col1, col2 = st.columns([1, 3])
