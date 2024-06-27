@@ -1,3 +1,10 @@
+import os
+import sys
+
+# Add the project root to the Python path
+project_root = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
+
 import streamlit as st
 from src.config import load_config
 from src.utils.audio_processing import transcribe_audio, process_audio_input
@@ -7,7 +14,6 @@ from src.ui.components import setup_page_style, display_transcript, display_summ
 from src.ui.pages import render_feedback_form, render_conversation_history
 from src.services.openai_service import initialize_openai_client
 from src.utils.text_processing import update_gesprekslog, copy_to_clipboard
-
 
 def main():
     config = load_config()
