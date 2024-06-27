@@ -1,12 +1,12 @@
 import os
 import streamlit as st
-from src.utils.audio_processing import transcribe_audio, process_audio_input
-from src.utils.file_processing import process_uploaded_file
-from src.services.summarization_service import summarize_text
-from src.ui.components import setup_page_style, display_transcript, display_summary
-from src.ui.pages import render_feedback_form, render_conversation_history
-from src.services.openai_service import initialize_openai_client
-from src.utils.text_processing import update_gesprekslog, copy_to_clipboard
+from utils.audio_processing import transcribe_audio, process_audio_input
+from utils.file_processing import process_uploaded_file
+from services.summarization_service import summarize_text
+from ui.components import setup_page_style, display_transcript, display_summary
+from ui.pages import render_feedback_form, render_conversation_history
+from services.openai_service import initialize_openai_client
+from utils.text_processing import update_gesprekslog, copy_to_clipboard
 
 # Configuration
 PROMPTS_DIR = os.path.abspath("prompts")
@@ -40,8 +40,8 @@ def main():
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        department = st.selectbox("Kies je afdeling", config.DEPARTMENTS, key='department_select')
-        input_method = st.radio("Wat wil je laten samenvatten?", config.INPUT_METHODS, key='input_method_radio')
+        department = st.selectbox("Kies je afdeling", config["DEPARTMENTS"], key='department_select')
+        input_method = st.radio("Wat wil je laten samenvatten?", config["INPUT_METHODS"], key='input_method_radio')
 
     with col2:
         if input_method == "Upload tekst":
