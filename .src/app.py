@@ -8,8 +8,13 @@ from services.summarization_service import summarize_text
 from ui.components import setup_page_style, display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
+import json
 
+def load_product_descriptions():
+    with open('product_descriptions.json', 'r') as file:
+        return json.load(file)
 
+product_descriptions = load_product_descriptions()
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -46,6 +51,20 @@ def initialize_session_state():
         st.session_state.transcript = ""
     if 'gesprekslog' not in st.session_state:
         st.session_state.gesprekslog = []
+
+def display_product_descriptions():
+    st.subheader("Productbeschrijvingen toevoegen")
+    selected_products = st.multiselect(
+        "Selecteer producten om toe te voegen aan de samenvatting:",
+        options=list(product_descriptions.keys()),
+        format_func=lambda x: product_descriptions[x]['title']
+    )
+    
+    if selected_products:
+        st.markdown("## Productinformatie")
+        for product in selected_products:
+            st.markdown(f"### {product_descriptions[product]['title']}")
+            st.markdown(product_descriptions[product]['description'])
 
 def main():
     config = load_config()
@@ -134,6 +153,10 @@ def main():
 
             if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
                 copy_to_clipboard(st.session_state.transcript, st.session_state.summary)
+            
+            # Nieuwe sectie voor productbeschrijvingen
+            display_product_descriptions()
+            
             render_feedback_form()
 
     render_conversation_history()
