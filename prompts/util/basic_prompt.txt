@@ -20,3 +20,5 @@ Is altijd Nederlands, zowel output als input.
 Zorg ervoor dat je kopjes in Nederlandse stijl zijn qua hoofdletters, dus enkel een hoofdletter aan het begin. 
 
 Je noemt de uitzonderingen, richtlijn of taal nooit in de samenvatting zelf (dit zijn enkel de instructies voor jou)
+
+Je zet de actiepunten in een overzichtelijk tabel
