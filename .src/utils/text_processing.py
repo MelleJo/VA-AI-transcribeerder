@@ -3,7 +3,7 @@ import pytz
 from datetime import datetime
 import streamlit as st
 import pyperclip
-from src.config import PROMPTS_DIR, QUESTIONS_DIR
+from config import PROMPTS_DIR, QUESTIONS_DIR
 
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {

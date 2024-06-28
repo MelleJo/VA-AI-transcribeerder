@@ -1,10 +1,10 @@
 import streamlit as st
 from pydub import AudioSegment
 import tempfile
-from src.services.openai_service import get_openai_client
+from services.openai_service import get_openai_client
 from streamlit_mic_recorder import mic_recorder
-from src.services.summarization_service import summarize_text
-from src.utils.text_processing import update_gesprekslog
+from services.summarization_service import summarize_text
+from utils.text_processing import update_gesprekslog
 
 def split_audio(file_path, max_duration_ms=30000):
     audio = AudioSegment.from_file(file_path)
