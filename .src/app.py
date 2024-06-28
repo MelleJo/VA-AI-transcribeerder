@@ -1,39 +1,17 @@
 import os
 import sys
+import json
 import streamlit as st
 from openai_service import perform_gpt4_operation
 from utils.audio_processing import transcribe_audio, process_audio_input
 from utils.file_processing import process_uploaded_file
 from services.summarization_service import summarize_text
-from ui.components import setup_page_style, display_transcript, display_summary
+from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
-import json
 
-
-def load_product_descriptions():
-    # Bepaal het pad naar de directory waarin app.py zich bevindt
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Construct het volledige pad naar product_descriptions.json
-    json_path = os.path.join(current_dir, 'product_descriptions.json')
-    
-    try:
-        with open(json_path, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        st.warning(f"Bestand 'product_descriptions.json' niet gevonden op locatie: {json_path}")
-        return {}  # Return een leeg dictionary als fallback
-    except json.JSONDecodeError:
-        st.error(f"Fout bij het decoderen van 'product_descriptions.json'. Controleer of het bestand valide JSON bevat.")
-        return {}
-    except Exception as e:
-        st.error(f"Er is een onverwachte fout opgetreden bij het laden van 'product_descriptions.json': {str(e)}")
-        return {}
-
-# Laad de productbeschrijvingen
-product_descriptions = load_product_descriptions()
-
+# Streamlit configuratie
+st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -71,6 +49,28 @@ def initialize_session_state():
     if 'gesprekslog' not in st.session_state:
         st.session_state.gesprekslog = []
 
+def load_product_descriptions():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(current_dir, 'product_descriptions.json')
+    
+    try:
+        with open(json_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            # Debug: Toon de eerste 500 karakters van de inhoud
+            st.text(f"Eerste 500 karakters van JSON inhoud:\n{content[:500]}")
+            return json.loads(content)
+    except FileNotFoundError:
+        st.warning(f"Bestand 'product_descriptions.json' niet gevonden op locatie: {json_path}")
+    except json.JSONDecodeError as e:
+        st.error(f"Fout bij het decoderen van 'product_descriptions.json': {str(e)}")
+        st.text(f"Probleem op positie: {e.pos}")
+    except Exception as e:
+        st.error(f"Onverwachte fout bij het laden van 'product_descriptions.json': {str(e)}")
+    
+    return {}  # Return een leeg dictionary als fallback
+
+product_descriptions = load_product_descriptions()
+
 def display_product_descriptions():
     st.subheader("Productbeschrijvingen toevoegen")
     selected_products = st.multiselect(
@@ -93,7 +93,6 @@ def display_product_descriptions():
 
 def main():
     config = load_config()
-    setup_page_style()
     initialize_session_state()
     
     st.title("Gesprekssamenvatter - 0.2.1")
