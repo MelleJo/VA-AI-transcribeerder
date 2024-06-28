@@ -49,19 +49,19 @@ def initialize_session_state():
         'department': DEPARTMENTS[0],
         'input_text': "",
         'transcript': "",
-        'gesprekslog': []
+        'gesprekslog': [],
+        'product_info': "",
+        'selected_products': []
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
 
 def display_product_descriptions(product_descriptions):
-    st.subheader("Productbeschrijvingen toevoegen")
     if not product_descriptions:
         st.warning("Geen productbeschrijvingen beschikbaar.")
         return
     
-    # Flatten the nested structure if necessary
     flattened_descriptions = {}
     for key, value in product_descriptions.items():
         if isinstance(value, dict) and 'title' in value:
@@ -72,22 +72,21 @@ def display_product_descriptions(product_descriptions):
                     flattened_descriptions[f"{key} - {subkey}"] = subvalue
 
     selected_products = st.multiselect(
-        "Selecteer producten:",
+        "Selecteer producten voor extra informatie:",
         options=list(flattened_descriptions.keys()),
         format_func=lambda x: flattened_descriptions[x]['title']
     )
     
-    if selected_products:
-        product_info = "## Productinformatie\n\n"
-        for product in selected_products:
-            product_info += f"### {flattened_descriptions[product]['title']}\n"
-            product_info += f"{flattened_descriptions[product]['description']}\n\n"
-        
-        if st.session_state.modified_summary:
-            st.session_state.modified_summary += "\n\n" + product_info
+    if selected_products != st.session_state.selected_products:
+        st.session_state.selected_products = selected_products
+        if selected_products:
+            st.session_state.product_info = "## Extra informatie over de besproken producten\n\n"
+            for product in selected_products:
+                st.session_state.product_info += f"### {flattened_descriptions[product]['title']}\n"
+                st.session_state.product_info += f"{flattened_descriptions[product]['description']}\n\n"
+            st.success("Productinformatie is bijgewerkt.")
         else:
-            st.session_state.modified_summary = st.session_state.summary + "\n\n" + product_info
-        st.success("Productbeschrijvingen toegevoegd aan de samenvatting.")
+            st.session_state.product_info = ""
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
@@ -95,7 +94,7 @@ def main():
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter versie 0.2.3.")
+    st.title("Gesprekssamenvatter Pro 🚀")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
@@ -173,12 +172,16 @@ def main():
             
             display_product_descriptions(product_descriptions)
             
-            if st.session_state.modified_summary:
+            if st.session_state.modified_summary or st.session_state.product_info:
                 st.markdown("### 📑 Bewerkte Samenvatting")
-                st.markdown(st.session_state.modified_summary)
+                if st.session_state.modified_summary:
+                    st.markdown(st.session_state.modified_summary)
+                if st.session_state.product_info:
+                    st.markdown(st.session_state.product_info)
 
             if st.button("📋 Kopieer naar klembord", key='copy_clipboard_button'):
-                copy_to_clipboard(st.session_state.transcript, st.session_state.modified_summary or st.session_state.summary)
+                full_text = (st.session_state.modified_summary or st.session_state.summary) + "\n\n" + st.session_state.product_info
+                copy_to_clipboard(st.session_state.transcript, full_text)
             
             render_feedback_form()
 
