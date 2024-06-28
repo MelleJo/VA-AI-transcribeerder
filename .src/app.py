@@ -9,6 +9,7 @@ from services.summarization_service import summarize_text
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
+from st_copy_to_clipboard import st_copy_to_clipboard
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -179,9 +180,18 @@ def main():
                 if st.session_state.product_info:
                     st.markdown(st.session_state.product_info)
 
-            if st.button("📋 Kopieer naar klembord", key='copy_clipboard_button'):
-                full_text = (st.session_state.modified_summary or st.session_state.summary) + "\n\n" + st.session_state.product_info
-                copy_to_clipboard(st.session_state.transcript, full_text)
+            if st.session_state.modified_summary or st.session_state.product_info:
+                st.markdown("### 📑 Bewerkte Samenvatting")
+                full_text = ""
+                if st.session_state.modified_summary:
+                    full_text += st.session_state.modified_summary + "\n\n"
+                    st.markdown(st.session_state.modified_summary)
+                if st.session_state.product_info:
+                    full_text += st.session_state.product_info
+                    st.markdown(st.session_state.product_info)
+                
+                # Voeg de kopieerfunctionaliteit toe
+                st_copy_to_clipboard(full_text, "Kopieer naar klembord")
             
             render_feedback_form()
 
