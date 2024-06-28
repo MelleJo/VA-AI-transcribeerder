@@ -246,7 +246,7 @@ def main():
                     st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
                     st.experimental_rerun()
 
-    st.markdown("### 🛠️ Vervolgacties")
+        st.markdown("### 🛠️ Vervolgacties")
 
             st.markdown("### 🛠️ Vervolgacties")
             
