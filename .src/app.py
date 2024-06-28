@@ -8,8 +8,10 @@ from utils.file_processing import process_uploaded_file
 from services.summarization_service import summarize_text
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
-from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
+from utils.text_processing import update_gesprekslog, load_questions
 from st_copy_to_clipboard import st_copy_to_clipboard
+from docx import Document
+from io import BytesIO
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -89,13 +91,20 @@ def display_product_descriptions(product_descriptions):
         else:
             st.session_state.product_info = ""
 
+def create_docx(content):
+    doc = Document()
+    doc.add_paragraph(content)
+    bio = BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter versie 0.2.3.")
+    st.title("Gesprekssamenvatter versie 0.2.4")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
@@ -147,6 +156,19 @@ def main():
         display_summary(st.session_state.summary)
 
         if st.session_state.summary:
+            st.markdown("### 📑 Oorspronkelijke Samenvatting")
+            st.markdown(st.session_state.summary)
+            col1, col2 = st.columns(2)
+            with col1:
+                st_copy_to_clipboard(st.session_state.summary, "Kopieer tekst")
+            with col2:
+                st.download_button(
+                    label="Download als .docx",
+                    data=create_docx(st.session_state.summary),
+                    file_name="oorspronkelijke_samenvatting.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+
             st.markdown("### 🛠️ Vervolgacties")
             
             col1, col2, col3 = st.columns(3)
@@ -173,16 +195,9 @@ def main():
             
             display_product_descriptions(product_descriptions)
             
+            full_text = ""
             if st.session_state.modified_summary or st.session_state.product_info:
                 st.markdown("### 📑 Bewerkte Samenvatting")
-                if st.session_state.modified_summary:
-                    st.markdown(st.session_state.modified_summary)
-                if st.session_state.product_info:
-                    st.markdown(st.session_state.product_info)
-
-            if st.session_state.modified_summary or st.session_state.product_info:
-                st.markdown("### 📑 Bewerkte Samenvatting")
-                full_text = ""
                 if st.session_state.modified_summary:
                     full_text += st.session_state.modified_summary + "\n\n"
                     st.markdown(st.session_state.modified_summary)
@@ -190,8 +205,16 @@ def main():
                     full_text += st.session_state.product_info
                     st.markdown(st.session_state.product_info)
                 
-            # Voeg de kopieerfunctionaliteit toe
-            st_copy_to_clipboard(full_text, "Kopieer naar klembord")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st_copy_to_clipboard(full_text, "Kopieer tekst")
+                with col2:
+                    st.download_button(
+                        label="Download als .docx",
+                        data=create_docx(full_text),
+                        file_name="bewerkte_samenvatting.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    )
             
             render_feedback_form()
 
