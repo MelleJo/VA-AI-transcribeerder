@@ -11,7 +11,10 @@ from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, load_questions
 from st_copy_to_clipboard import st_copy_to_clipboard
 from docx import Document
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
 from io import BytesIO
+import bleach
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -47,8 +50,8 @@ def load_product_descriptions():
 def initialize_session_state():
     defaults = {
         'summary': "",
-        'modified_summary': "",
-        'show_custom_operation': False,
+        'summary_versions': [],
+        'current_version_index': -1,
         'department': DEPARTMENTS[0],
         'input_text': "",
         'transcript': "",
@@ -91,12 +94,28 @@ def display_product_descriptions(product_descriptions):
         else:
             st.session_state.product_info = ""
 
-def create_docx(content):
+def create_safe_docx(content):
     doc = Document()
-    doc.add_paragraph(content)
+    style = doc.styles.add_style('CustomStyle', WD_STYLE_TYPE.PARAGRAPH)
+    font = style.font
+    font.name = 'Calibri'
+    font.size = Pt(11)
+    
+    # Sanitize the content
+    clean_content = bleach.clean(content, tags=['p', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'br'], strip=True)
+    
+    paragraphs = clean_content.split('\n')
+    for para in paragraphs:
+        p = doc.add_paragraph(para, style='CustomStyle')
+
     bio = BytesIO()
     doc.save(bio)
     return bio.getvalue()
+
+def update_summary(new_summary):
+    st.session_state.summary_versions.append(new_summary)
+    st.session_state.current_version_index = len(st.session_state.summary_versions) - 1
+    st.session_state.summary = new_summary
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
@@ -104,7 +123,7 @@ def main():
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter versie 0.2.4")
+    st.title("Gesprekssamenvatter versie 0.2.5")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
@@ -133,8 +152,9 @@ def main():
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
-                st.session_state.summary = summarize_text(st.session_state.transcript, department)
-                update_gesprekslog(st.session_state.transcript, st.session_state.summary)
+                new_summary = summarize_text(st.session_state.transcript, department)
+                update_summary(new_summary)
+                update_gesprekslog(st.session_state.transcript, new_summary)
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
@@ -144,8 +164,9 @@ def main():
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
-                    st.session_state.summary = summarize_text(st.session_state.transcript, department)
-                    update_gesprekslog(st.session_state.transcript, st.session_state.summary)
+                    new_summary = summarize_text(st.session_state.transcript, department)
+                    update_summary(new_summary)
+                    update_gesprekslog(st.session_state.transcript, new_summary)
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
@@ -153,21 +174,33 @@ def main():
             process_audio_input(input_method)
 
         display_transcript(st.session_state.transcript)
-        display_summary(st.session_state.summary)
-
+        
         if st.session_state.summary:
-            st.markdown("### 📑 Oorspronkelijke Samenvatting")
+            st.markdown("### 📑 Samenvatting")
             st.markdown(st.session_state.summary)
-            col1, col2 = st.columns(2)
+            
+            col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
                 st_copy_to_clipboard(st.session_state.summary, "Kopieer tekst")
             with col2:
                 st.download_button(
                     label="Download als .docx",
-                    data=create_docx(st.session_state.summary),
-                    file_name="oorspronkelijke_samenvatting.docx",
+                    data=create_safe_docx(st.session_state.summary),
+                    file_name="samenvatting.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
+            with col3:
+                col_prev, col_next = st.columns(2)
+                with col_prev:
+                    if st.button("⬅️ Vorige versie") and st.session_state.current_version_index > 0:
+                        st.session_state.current_version_index -= 1
+                        st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
+                        st.experimental_rerun()
+                with col_next:
+                    if st.button("Volgende versie ➡️") and st.session_state.current_version_index < len(st.session_state.summary_versions) - 1:
+                        st.session_state.current_version_index += 1
+                        st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
+                        st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
             
@@ -175,15 +208,18 @@ def main():
             
             with col1:
                 if st.button("🔍 Maak korter"):
-                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
+                    update_summary(new_summary)
             
             with col2:
                 if st.button("📊 Zet om in rapport"):
-                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
+                    update_summary(new_summary)
             
             with col3:
                 if st.button("📌 Extraheer actiepunten"):
-                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
+                    update_summary(new_summary)
             
             st.markdown("---")
             
@@ -191,30 +227,10 @@ def main():
                                              placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
-                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
+                    new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
+                    update_summary(new_summary)
             
             display_product_descriptions(product_descriptions)
-            
-            full_text = ""
-            if st.session_state.modified_summary or st.session_state.product_info:
-                st.markdown("### 📑 Bewerkte Samenvatting")
-                if st.session_state.modified_summary:
-                    full_text += st.session_state.modified_summary + "\n\n"
-                    st.markdown(st.session_state.modified_summary)
-                if st.session_state.product_info:
-                    full_text += st.session_state.product_info
-                    st.markdown(st.session_state.product_info)
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st_copy_to_clipboard(full_text, "Kopieer tekst")
-                with col2:
-                    st.download_button(
-                        label="Download als .docx",
-                        data=create_docx(full_text),
-                        file_name="bewerkte_samenvatting.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
             
             render_feedback_form()
 
