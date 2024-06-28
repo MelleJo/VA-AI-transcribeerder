@@ -61,17 +61,27 @@ def display_product_descriptions(product_descriptions):
         st.warning("Geen productbeschrijvingen beschikbaar.")
         return
     
+    # Flatten the nested structure if necessary
+    flattened_descriptions = {}
+    for key, value in product_descriptions.items():
+        if isinstance(value, dict) and 'title' in value:
+            flattened_descriptions[key] = value
+        elif isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                if isinstance(subvalue, dict) and 'title' in subvalue:
+                    flattened_descriptions[f"{key} - {subkey}"] = subvalue
+
     selected_products = st.multiselect(
         "Selecteer producten:",
-        options=list(product_descriptions.keys()),
-        format_func=lambda x: product_descriptions[x]['title']
+        options=list(flattened_descriptions.keys()),
+        format_func=lambda x: flattened_descriptions[x]['title']
     )
     
     if selected_products:
         product_info = "## Productinformatie\n\n"
         for product in selected_products:
-            product_info += f"### {product_descriptions[product]['title']}\n"
-            product_info += f"{product_descriptions[product]['description']}\n\n"
+            product_info += f"### {flattened_descriptions[product]['title']}\n"
+            product_info += f"{flattened_descriptions[product]['description']}\n\n"
         
         if st.session_state.modified_summary:
             st.session_state.modified_summary += "\n\n" + product_info
@@ -85,7 +95,7 @@ def main():
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter - versie 0.2.3.")
+    st.title("Gesprekssamenvatter versie 0.2.3.")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
