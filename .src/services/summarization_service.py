@@ -7,7 +7,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def summarize_chunk(chunk, department):
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     prompt_template = ChatPromptTemplate.from_template(f"Summarize the following text:\n\n{chunk}")
     llm_chain = prompt_template | chat_model | StrOutputParser()
     return llm_chain.invoke({})
