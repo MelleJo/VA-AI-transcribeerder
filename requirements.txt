@@ -1,4 +1,3 @@
--e .
 streamlit
 openai
 PyPDF2
