@@ -10,11 +10,30 @@ from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, copy_to_clipboard, load_questions
 import json
 
-def load_product_descriptions():
-    with open('product_descriptions.json', 'r') as file:
-        return json.load(file)
 
+def load_product_descriptions():
+    # Bepaal het pad naar de directory waarin app.py zich bevindt
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Construct het volledige pad naar product_descriptions.json
+    json_path = os.path.join(current_dir, 'product_descriptions.json')
+    
+    try:
+        with open(json_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        st.warning(f"Bestand 'product_descriptions.json' niet gevonden op locatie: {json_path}")
+        return {}  # Return een leeg dictionary als fallback
+    except json.JSONDecodeError:
+        st.error(f"Fout bij het decoderen van 'product_descriptions.json'. Controleer of het bestand valide JSON bevat.")
+        return {}
+    except Exception as e:
+        st.error(f"Er is een onverwachte fout opgetreden bij het laden van 'product_descriptions.json': {str(e)}")
+        return {}
+
+# Laad de productbeschrijvingen
 product_descriptions = load_product_descriptions()
+
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
