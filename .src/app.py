@@ -81,7 +81,7 @@ def main():
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter Pro 🚀")
+    st.title("Gesprekssamenvatter - versie 0.2.3.")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
