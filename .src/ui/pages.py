@@ -1,5 +1,5 @@
 import streamlit as st
-from src.services.email_service import send_feedback_email
+from services.email_service import send_feedback_email
 import html
 
 def render_feedback_form():
