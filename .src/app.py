@@ -15,6 +15,7 @@ from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
 from io import BytesIO
 import bleach
+import base64
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -177,28 +178,75 @@ def main():
         
         if st.session_state.summary:
             st.markdown("### 📑 Samenvatting")
-            st.markdown(st.session_state.summary)
             
-            col1, col2, col3, col4 = st.columns(4)
+            # Maak een box voor de samenvatting
+            st.markdown("""
+            <style>
+            .summary-box {
+                border: 2px solid #4CAF50;
+                border-radius: 10px;
+                padding: 20px;
+                background-color: #f1f8e9;
+                position: relative;
+            }
+            .summary-title {
+                position: absolute;
+                top: -15px;
+                left: 10px;
+                background-color: white;
+                padding: 0 10px;
+                font-weight: bold;
+            }
+            .summary-buttons {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+            <div class="summary-box">
+                <div class="summary-title">Samenvatting</div>
+                {st.session_state.summary}
+                <div class="summary-buttons">
+                    <button onclick="copyToClipboard()">Kopieer</button>
+                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(st.session_state.summary)).decode()}" download="samenvatting.docx">
+                        <button>Download</button>
+                    </a>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # JavaScript voor kopiëren naar klembord
+            st.markdown("""
+            <script>
+            function copyToClipboard() {
+                const el = document.createElement('textarea');
+                el.value = document.querySelector('.summary-box').innerText;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('Samenvatting gekopieerd naar klembord!');
+            }
+            </script>
+            """, unsafe_allow_html=True)
+
+            # Versie navigatie onder de box
+            col1, col2 = st.columns(2)
             with col1:
-                st_copy_to_clipboard(st.session_state.summary, "Kopieer tekst")
-            with col2:
-                st.download_button(
-                    label="Download als .docx",
-                    data=create_safe_docx(st.session_state.summary),
-                    file_name="samenvatting.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
-            with col3:
                 if st.button("⬅️ Vorige versie") and st.session_state.current_version_index > 0:
                     st.session_state.current_version_index -= 1
                     st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
                     st.experimental_rerun()
-            with col4:
+            with col2:
                 if st.button("Volgende versie ➡️") and st.session_state.current_version_index < len(st.session_state.summary_versions) - 1:
                     st.session_state.current_version_index += 1
                     st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
                     st.experimental_rerun()
+
+    st.markdown("### 🛠️ Vervolgacties")
 
             st.markdown("### 🛠️ Vervolgacties")
             
