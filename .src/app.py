@@ -179,7 +179,7 @@ def main():
             st.markdown("### 📑 Samenvatting")
             st.markdown(st.session_state.summary)
             
-            col1, col2, col3 = st.columns([1, 1, 2])
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st_copy_to_clipboard(st.session_state.summary, "Kopieer tekst")
             with col2:
@@ -190,17 +190,15 @@ def main():
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
             with col3:
-                col_prev, col_next = st.columns(2)
-                with col_prev:
-                    if st.button("⬅️ Vorige versie") and st.session_state.current_version_index > 0:
-                        st.session_state.current_version_index -= 1
-                        st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
-                        st.experimental_rerun()
-                with col_next:
-                    if st.button("Volgende versie ➡️") and st.session_state.current_version_index < len(st.session_state.summary_versions) - 1:
-                        st.session_state.current_version_index += 1
-                        st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
-                        st.experimental_rerun()
+                if st.button("⬅️ Vorige versie") and st.session_state.current_version_index > 0:
+                    st.session_state.current_version_index -= 1
+                    st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
+                    st.experimental_rerun()
+            with col4:
+                if st.button("Volgende versie ➡️") and st.session_state.current_version_index < len(st.session_state.summary_versions) - 1:
+                    st.session_state.current_version_index += 1
+                    st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
+                    st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
             
