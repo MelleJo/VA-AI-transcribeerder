@@ -55,8 +55,12 @@ def initialize_session_state():
         if key not in st.session_state:
             st.session_state[key] = value
 
-def display_product_descriptions():
+def display_product_descriptions(product_descriptions):
     st.subheader("Productbeschrijvingen toevoegen")
+    if not product_descriptions:
+        st.warning("Geen productbeschrijvingen beschikbaar.")
+        return
+    
     selected_products = st.multiselect(
         "Selecteer producten:",
         options=list(product_descriptions.keys()),
@@ -81,7 +85,7 @@ def main():
     config = load_config()
     initialize_session_state()
     
-    st.title("Gesprekssamenvatter - versie 0.2.3.")
+    st.title("Gesprekssamenvatter Pro 🚀")
     st.markdown("---")
 
     col1, col2 = st.columns([1, 3])
@@ -157,7 +161,7 @@ def main():
                 with st.spinner("Bezig met bewerking..."):
                     st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
             
-            display_product_descriptions()
+            display_product_descriptions(product_descriptions)
             
             if st.session_state.modified_summary:
                 st.markdown("### 📑 Bewerkte Samenvatting")
