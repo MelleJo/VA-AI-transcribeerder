@@ -190,8 +190,8 @@ def main():
                     full_text += st.session_state.product_info
                     st.markdown(st.session_state.product_info)
                 
-                # Voeg de kopieerfunctionaliteit toe
-                st_copy_to_clipboard(full_text, "Kopieer naar klembord")
+            # Voeg de kopieerfunctionaliteit toe
+            st_copy_to_clipboard(full_text, "Kopieer naar klembord")
             
             render_feedback_form()
 
