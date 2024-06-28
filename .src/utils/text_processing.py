@@ -5,6 +5,10 @@ import streamlit as st
 import pyperclip
 from config import PROMPTS_DIR, QUESTIONS_DIR
 
+def copy_to_clipboard(transcript, summary):
+    text_to_copy = f"Transcript:\n\n{transcript}\n\nSamenvatting:\n\n{summary}"
+    return text_to_copy
+
 def vertaal_dag_eng_naar_nl(dag_engels):
     vertaling = {
         "Monday": "Maandag",
