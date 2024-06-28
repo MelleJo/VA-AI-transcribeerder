@@ -61,10 +61,16 @@ def display_product_descriptions():
     )
     
     if selected_products:
-        st.markdown("## Productinformatie")
+        product_info = "## Productinformatie\n\n"
         for product in selected_products:
-            st.markdown(f"### {product_descriptions[product]['title']}")
-            st.markdown(product_descriptions[product]['description'])
+            product_info += f"### {product_descriptions[product]['title']}\n"
+            product_info += f"{product_descriptions[product]['description']}\n\n"
+        
+        if 'modified_summary' in st.session_state and st.session_state.modified_summary:
+            st.session_state.modified_summary += "\n\n" + product_info
+        else:
+            st.session_state.modified_summary = st.session_state.summary + "\n\n" + product_info
+        st.success("Productbeschrijvingen toegevoegd aan de samenvatting.")
 
 def main():
     config = load_config()
@@ -122,7 +128,7 @@ def main():
         if st.session_state.summary:
             st.subheader("Vervolgacties")
             
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
             
             with col1:
                 if st.button("Maak korter"):
@@ -132,18 +138,15 @@ def main():
                 if st.button("Zet om in rapport"):
                     st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
             
-            with col3:
-                if st.button("Extraheer actiepunten"):
-                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
+            if st.button("Extraheer actiepunten"):
+                st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
             
-            if st.button("Aangepaste bewerking"):
-                st.session_state.show_custom_operation = True
+            custom_operation = st.text_input("Typ je gewenste bewerking:", key="custom_operation_input", placeholder="Bijvoorbeeld: Voeg een conclusie toe")
+            if st.button("Voer aangepaste bewerking uit"):
+                with st.spinner("Bezig met bewerking..."):
+                    st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
             
-            if st.session_state.show_custom_operation:
-                custom_operation = st.text_input("Typ je gewenste bewerking:", key="custom_operation_input")
-                if st.button("Voer uit"):
-                    with st.spinner("Bezig met bewerking..."):
-                        st.session_state.modified_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
+            display_product_descriptions()
             
             if st.session_state.modified_summary:
                 st.markdown('<div class="modified-summary-box">', unsafe_allow_html=True)
@@ -152,10 +155,7 @@ def main():
                 st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
-                copy_to_clipboard(st.session_state.transcript, st.session_state.summary)
-            
-            # Nieuwe sectie voor productbeschrijvingen
-            display_product_descriptions()
+                copy_to_clipboard(st.session_state.transcript, st.session_state.modified_summary or st.session_state.summary)
             
             render_feedback_form()
 
