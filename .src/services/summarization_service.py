@@ -40,18 +40,45 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
     return encoding.decode(encoded[:limit])
 
 def summarize_text(text, department):
-    with st.spinner("Samenvatting maken..."):
-        combined_prompt = get_combined_prompt(department)
-        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
-        llm_chain = prompt_template | chat_model | StrOutputParser()
+    start_time = time.time()
+    
+    prompt_start = time.time()
+    combined_prompt = get_combined_prompt(department)
+    prompt_end = time.time()
+    prompt_time = prompt_end - prompt_start
+    
+    model_start = time.time()
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    model_end = time.time()
+    model_time = model_end - model_start
+    
+    chain_start = time.time()
+    prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+    llm_chain = prompt_template | chat_model | StrOutputParser()
+    chain_end = time.time()
+    chain_time = chain_end - chain_start
+    
+    try:
+        invoke_start = time.time()
+        summary = llm_chain.invoke({"text": text})
+        invoke_end = time.time()
+        invoke_time = invoke_end - invoke_start
         
-        try:
-            # First attempt: quick summary without token counting
-            return llm_chain.invoke({"text": text})
-        except Exception as e:
-            st.warning("Initial summarization failed. Attempting detailed processing...")
-            return fallback_summarization(text, combined_prompt, chat_model)
+        end_time = time.time()
+        total_time = end_time - start_time
+        
+        timing_info = {
+            "prompt_preparation": prompt_time,
+            "model_initialization": model_time,
+            "chain_creation": chain_time,
+            "summarization": invoke_time,
+            "total_time": total_time
+        }
+        
+        return summary, timing_info
+    except Exception as e:
+        st.warning("Initial summarization failed. Attempting detailed processing...")
+        return fallback_summarization(text, combined_prompt, chat_model)
 
 def fallback_summarization(text, prompt, chat_model):
     prompt_tokens = num_tokens_from_string(prompt, "gpt-4o")
