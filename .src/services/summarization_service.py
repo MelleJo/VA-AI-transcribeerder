@@ -5,6 +5,30 @@ from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
 import tiktoken
 
+@st.cache_data
+def load_department_prompts():
+    return {
+        "Bedrijven": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
+        "Arbo": "arbo/algemeen_arbo.txt",
+        "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
+        "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
+        "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
+        "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
+    }
+
+@st.cache_data
+def get_combined_prompt(department):
+    department_prompts = load_department_prompts()
+    prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
+    department_prompt = load_prompt(prompt_file)
+    basic_prompt = load_prompt("util/basic_prompt.txt")
+    current_time = get_local_time()
+    return f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
+
 def num_tokens_from_string(string: str, model_name: str = "gpt-4o") -> int:
     encoding = tiktoken.encoding_for_model(model_name)
     return len(encoding.encode(string))
@@ -16,41 +40,36 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
 
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
-        department_prompts = {
-            "Bedrijven": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-            "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-            "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-            "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
-            "Arbo": "arbo/algemeen_arbo.txt",
-            "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
-            "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-            "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
-            "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
-            "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
-        }
-        prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
-        department_prompt = load_prompt(prompt_file)
-        basic_prompt = load_prompt("util/basic_prompt.txt")
-        current_time = get_local_time()
-        combined_prompt = f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
-        
+        combined_prompt = get_combined_prompt(department)
         chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         
-        prompt_tokens = num_tokens_from_string(combined_prompt, "gpt-4o")
-        text_tokens = num_tokens_from_string(text, "gpt-4o")
-        total_tokens = prompt_tokens + text_tokens
-        
-        if total_tokens > 120000:
-            st.warning("Text is too long. Using two-pass summarization.")
-            return two_pass_summarization(text, combined_prompt, chat_model, prompt_tokens)
-        
         try:
+            # First attempt: quick summary without token counting
+            return llm_chain.invoke({"text": text})
+        except Exception as e:
+            st.warning("Initial summarization failed. Attempting detailed processing...")
+            return fallback_summarization(text, combined_prompt, chat_model)
+
+def fallback_summarization(text, prompt, chat_model):
+    prompt_tokens = num_tokens_from_string(prompt, "gpt-4o")
+    text_tokens = num_tokens_from_string(text, "gpt-4o")
+    total_tokens = prompt_tokens + text_tokens
+    
+    if total_tokens <= 120000:
+        # If it's within limits, try again with the full text
+        try:
+            prompt_template = ChatPromptTemplate.from_template(prompt)
+            llm_chain = prompt_template | chat_model | StrOutputParser()
             return llm_chain.invoke({"text": text})
         except Exception as e:
             st.error(f"Error summarizing text: {str(e)}")
             return None
+    else:
+        # If it's too long, use two-pass summarization
+        st.warning("Text is too long. Using two-pass summarization.")
+        return two_pass_summarization(text, prompt, chat_model, prompt_tokens)
 
 def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
     first_chunk_tokens = 120000 - prompt_tokens - 1000
