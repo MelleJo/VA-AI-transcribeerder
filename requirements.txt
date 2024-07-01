@@ -25,3 +25,4 @@ streamlit-option-menu
 streamlit-lottie
 st-copy-to-clipboard
 bleach
+tiktoken
