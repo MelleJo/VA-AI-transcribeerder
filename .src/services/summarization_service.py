@@ -3,23 +3,17 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
-from tenacity import retry, stop_after_attempt, wait_exponential
 import tiktoken
 
 def num_tokens_from_string(string: str, model_name: str = "gpt-4o") -> int:
-    """Returns the number of tokens in a text string."""
     encoding = tiktoken.encoding_for_model(model_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
+    return len(encoding.encode(string))
 
 def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4o") -> str:
-    """Truncates the text to the specified token limit."""
     encoding = tiktoken.encoding_for_model(model_name)
     encoded = encoding.encode(text)
-    truncated = encoded[:limit]
-    return encoding.decode(truncated)
+    return encoding.decode(encoded[:limit])
 
-@retry(stop=stop_attempt_number=3, wait=wait_exponential(multiplier=1, min=4, max=10))
 def summarize_text(text, department):
     with st.spinner("Samenvatting maken..."):
         department_prompts = {
@@ -44,36 +38,30 @@ def summarize_text(text, department):
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
         
-        # Calculate total tokens
         prompt_tokens = num_tokens_from_string(combined_prompt, "gpt-4o")
         text_tokens = num_tokens_from_string(text, "gpt-4o")
         total_tokens = prompt_tokens + text_tokens
         
-        # If total tokens exceed the limit, use two-pass summarization
-        if total_tokens > 120000:  # Using 120k as a safety margin
+        if total_tokens > 120000:
             st.warning("Text is too long. Using two-pass summarization.")
             return two_pass_summarization(text, combined_prompt, chat_model, prompt_tokens)
         
         try:
-            summary = llm_chain.invoke({"text": text})
-            return summary
+            return llm_chain.invoke({"text": text})
         except Exception as e:
             st.error(f"Error summarizing text: {str(e)}")
             return None
 
 def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
-    # First pass: Summarize the first chunk
-    first_chunk_tokens = 120000 - prompt_tokens - 1000  # Leave some margin
+    first_chunk_tokens = 120000 - prompt_tokens - 1000
     first_chunk = truncate_text_to_token_limit(text, first_chunk_tokens)
     
     first_prompt = ChatPromptTemplate.from_template(f"{prompt}\n\n{{text}}")
     first_chain = first_prompt | chat_model | StrOutputParser()
     first_summary = first_chain.invoke({"text": first_chunk})
     
-    # Check if there's remaining text to summarize
     remaining_text = text[len(first_chunk):]
     if remaining_text:
-        # Second pass: Summarize the remaining text
         second_prompt = ChatPromptTemplate.from_template(
             f"{prompt}\n\nThis is a continuation of a longer text. "
             f"The first part was summarized as follows:\n\n{first_summary}\n\n"
@@ -82,17 +70,15 @@ def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
         second_chain = second_prompt | chat_model | StrOutputParser()
         second_summary = second_chain.invoke({"text": remaining_text})
         
-        # Combine summaries
         final_prompt = ChatPromptTemplate.from_template(
             "Combine these two summaries into a cohesive final summary:\n\n"
             "First part: {first_summary}\n\n"
             "Second part: {second_summary}"
         )
         final_chain = final_prompt | chat_model | StrOutputParser()
-        final_summary = final_chain.invoke({
+        return final_chain.invoke({
             "first_summary": first_summary,
             "second_summary": second_summary
         })
-        return final_summary
     else:
         return first_summary
