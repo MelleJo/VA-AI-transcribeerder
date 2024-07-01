@@ -16,6 +16,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from io import BytesIO
 import bleach
 import base64
+import time
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -159,29 +160,84 @@ def main():
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
-                                                       value=st.session_state.input_text, 
-                                                       height=200,
-                                                       key='input_text_area')
+                                                    value=st.session_state.input_text, 
+                                                    height=200,
+                                                    key='input_text_area')
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
                     progress_placeholder = st.empty()
-                    new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
                     
-                    if new_summary:
-                        update_summary(new_summary)
-                        update_gesprekslog(st.session_state.transcript, new_summary)
+                    # Add progress counters
+                    with st.spinner("Samenvatting maken..."):
+                        start_time = time.time()
+                        new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
+                        end_time = time.time()
                         
-                        progress_placeholder.success("Samenvatting voltooid!")
-                        st.subheader("Samenvatting")
-                        st.markdown(new_summary)
-                        
-                        if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
-                            st_copy_to_clipboard(st.session_state.transcript + "\n\n" + new_summary)
-                        
-                        render_feedback_form()
-                    else:
-                        progress_placeholder.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
+                        if new_summary:
+                            update_summary(new_summary)
+                            update_gesprekslog(st.session_state.transcript, new_summary)
+                            
+                            progress_placeholder.success(f"Samenvatting voltooid in {end_time - start_time:.2f} seconden!")
+                            
+                            # Display the summary in the nice formatted box
+                            st.markdown("### 📑 Samenvatting")
+                            st.markdown("""
+                            <style>
+                            .summary-box {
+                                border: 2px solid #4CAF50;
+                                border-radius: 10px;
+                                padding: 20px;
+                                background-color: #f1f8e9;
+                                position: relative;
+                            }
+                            .summary-title {
+                                position: absolute;
+                                top: -15px;
+                                left: 10px;
+                                background-color: white;
+                                padding: 0 10px;
+                                font-weight: bold;
+                            }
+                            .summary-buttons {
+                                position: absolute;
+                                bottom: 10px;
+                                right: 10px;
+                            }
+                            </style>
+                            """, unsafe_allow_html=True)
+
+                            st.markdown(f"""
+                            <div class="summary-box">
+                                <div class="summary-title">Samenvatting</div>
+                                {new_summary}
+                                <div class="summary-buttons">
+                                    <button onclick="copyToClipboard()">Kopieer</button>
+                                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(new_summary)).decode()}" download="samenvatting.docx">
+                                        <button>Download</button>
+                                    </a>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                            # JavaScript for copying to clipboard
+                            st.markdown("""
+                            <script>
+                            function copyToClipboard() {
+                                const el = document.createElement('textarea');
+                                el.value = document.querySelector('.summary-box').innerText;
+                                document.body.appendChild(el);
+                                el.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(el);
+                                alert('Samenvatting gekopieerd naar klembord!');
+                            }
+                            </script>
+                            """, unsafe_allow_html=True)
+                            
+                            render_feedback_form()
+                        else:
+                            progress_placeholder.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
