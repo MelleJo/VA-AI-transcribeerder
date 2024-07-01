@@ -165,9 +165,23 @@ def main():
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
-                    new_summary = summarize_text(st.session_state.transcript, department)
-                    update_summary(new_summary)
-                    update_gesprekslog(st.session_state.transcript, new_summary)
+                    progress_placeholder = st.empty()
+                    new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
+                    
+                    if new_summary:
+                        update_summary(new_summary)
+                        update_gesprekslog(st.session_state.transcript, new_summary)
+                        
+                        progress_placeholder.success("Samenvatting voltooid!")
+                        st.subheader("Samenvatting")
+                        st.markdown(new_summary)
+                        
+                        if st.button("Kopieer naar klembord", key='copy_clipboard_button'):
+                            st_copy_to_clipboard(st.session_state.transcript + "\n\n" + new_summary)
+                        
+                        render_feedback_form()
+                    else:
+                        progress_placeholder.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
@@ -246,7 +260,6 @@ def main():
                     st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
                     st.experimental_rerun()
 
-
             st.markdown("### 🛠️ Vervolgacties")
             
             col1, col2, col3 = st.columns(3)
@@ -276,8 +289,6 @@ def main():
                     update_summary(new_summary)
             
             display_product_descriptions(product_descriptions)
-            
-            render_feedback_form()
 
     st.markdown("---")
     render_conversation_history()
