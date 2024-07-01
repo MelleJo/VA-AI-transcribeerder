@@ -160,26 +160,41 @@ def main():
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
-                                                    value=st.session_state.input_text, 
-                                                    height=200,
-                                                    key='input_text_area')
+                                                       value=st.session_state.input_text, 
+                                                       height=200,
+                                                       key='input_text_area')
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
-                    progress_placeholder = st.empty()
                     
-                    # Add progress counters
                     with st.spinner("Samenvatting maken..."):
                         start_time = time.time()
-                        new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
-                        end_time = time.time()
                         
+                        # Step 1: Prepare data
+                        step1_start = time.time()
+                        # Add your data preparation code here
+                        step1_end = time.time()
+                        st.info(f"Stap 1 (Voorbereiding): {step1_end - step1_start:.2f} seconden")
+
+                        # Step 2: Generate summary
+                        step2_start = time.time()
+                        new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
+                        step2_end = time.time()
+                        st.info(f"Stap 2 (Samenvatting genereren): {step2_end - step2_start:.2f} seconden")
+
+                        # Step 3: Post-processing
+                        step3_start = time.time()
                         if new_summary:
                             update_summary(new_summary)
                             update_gesprekslog(st.session_state.transcript, new_summary)
-                            
-                            progress_placeholder.success(f"Samenvatting voltooid in {end_time - start_time:.2f} seconden!")
-                            
+                        step3_end = time.time()
+                        st.info(f"Stap 3 (Nabewerking): {step3_end - step3_start:.2f} seconden")
+
+                        end_time = time.time()
+                        total_time = end_time - start_time
+                        st.success(f"Samenvatting voltooid in {total_time:.2f} seconden!")
+
+                        if new_summary:
                             # Display the summary in the nice formatted box
                             st.markdown("### 📑 Samenvatting")
                             st.markdown("""
@@ -237,7 +252,7 @@ def main():
                             
                             render_feedback_form()
                         else:
-                            progress_placeholder.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
+                            st.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
@@ -245,77 +260,8 @@ def main():
             process_audio_input(input_method)
 
         display_transcript(st.session_state.transcript)
-        
+
         if st.session_state.summary:
-            st.markdown("### 📑 Samenvatting")
-            
-            # Maak een box voor de samenvatting
-            st.markdown("""
-            <style>
-            .summary-box {
-                border: 2px solid #4CAF50;
-                border-radius: 10px;
-                padding: 20px;
-                background-color: #f1f8e9;
-                position: relative;
-            }
-            .summary-title {
-                position: absolute;
-                top: -15px;
-                left: 10px;
-                background-color: white;
-                padding: 0 10px;
-                font-weight: bold;
-            }
-            .summary-buttons {
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <div class="summary-box">
-                <div class="summary-title">Samenvatting</div>
-                {st.session_state.summary}
-                <div class="summary-buttons">
-                    <button onclick="copyToClipboard()">Kopieer</button>
-                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(st.session_state.summary)).decode()}" download="samenvatting.docx">
-                        <button>Download</button>
-                    </a>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # JavaScript voor kopiëren naar klembord
-            st.markdown("""
-            <script>
-            function copyToClipboard() {
-                const el = document.createElement('textarea');
-                el.value = document.querySelector('.summary-box').innerText;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                alert('Samenvatting gekopieerd naar klembord!');
-            }
-            </script>
-            """, unsafe_allow_html=True)
-
-            # Versie navigatie onder de box
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("⬅️ Vorige versie") and st.session_state.current_version_index > 0:
-                    st.session_state.current_version_index -= 1
-                    st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
-                    st.experimental_rerun()
-            with col2:
-                if st.button("Volgende versie ➡️") and st.session_state.current_version_index < len(st.session_state.summary_versions) - 1:
-                    st.session_state.current_version_index += 1
-                    st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version_index]
-                    st.experimental_rerun()
-
             st.markdown("### 🛠️ Vervolgacties")
             
             col1, col2, col3 = st.columns(3)
