@@ -78,33 +78,48 @@ def summarize_text(text, department):
         return summary, timing_info
     except Exception as e:
         st.warning("Initial summarization failed. Attempting detailed processing...")
-        return fallback_summarization(text, combined_prompt, chat_model)
+        return fallback_summarization(text, combined_prompt, chat_model, start_time)
 
-def fallback_summarization(text, prompt, chat_model):
+def fallback_summarization(text, prompt, chat_model, start_time):
     prompt_tokens = num_tokens_from_string(prompt, "gpt-4o")
     text_tokens = num_tokens_from_string(text, "gpt-4o")
     total_tokens = prompt_tokens + text_tokens
     
     if total_tokens <= 120000:
-        # If it's within limits, try again with the full text
         try:
+            invoke_start = time.time()
             prompt_template = ChatPromptTemplate.from_template(prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
-            return llm_chain.invoke({"text": text})
+            summary = llm_chain.invoke({"text": text})
+            invoke_end = time.time()
+            
+            end_time = time.time()
+            total_time = end_time - start_time
+            
+            timing_info = {
+                "prompt_preparation": 0,  # Already accounted for in the main function
+                "model_initialization": 0,  # Already accounted for in the main function
+                "chain_creation": 0,  # Negligible in this case
+                "summarization": invoke_end - invoke_start,
+                "total_time": total_time
+            }
+            
+            return summary, timing_info
         except Exception as e:
             st.error(f"Error summarizing text: {str(e)}")
-            return None
+            return None, {"error": str(e), "total_time": time.time() - start_time}
     else:
-        # If it's too long, use two-pass summarization
         st.warning("Text is too long. Using two-pass summarization.")
-        return two_pass_summarization(text, prompt, chat_model, prompt_tokens)
+        return two_pass_summarization(text, prompt, chat_model, prompt_tokens, start_time)
 
-def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
+def two_pass_summarization(text, prompt, chat_model, prompt_tokens, start_time):
     first_chunk_tokens = 120000 - prompt_tokens - 1000
     first_chunk = truncate_text_to_token_limit(text, first_chunk_tokens)
     
     first_prompt = ChatPromptTemplate.from_template(f"{prompt}\n\n{{text}}")
     first_chain = first_prompt | chat_model | StrOutputParser()
+    
+    invoke_start = time.time()
     first_summary = first_chain.invoke({"text": first_chunk})
     
     remaining_text = text[len(first_chunk):]
@@ -123,9 +138,24 @@ def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
             "Second part: {second_summary}"
         )
         final_chain = final_prompt | chat_model | StrOutputParser()
-        return final_chain.invoke({
+        final_summary = final_chain.invoke({
             "first_summary": first_summary,
             "second_summary": second_summary
         })
     else:
-        return first_summary
+        final_summary = first_summary
+    
+    invoke_end = time.time()
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    
+    timing_info = {
+        "prompt_preparation": 0,  # Already accounted for in the main function
+        "model_initialization": 0,  # Already accounted for in the main function
+        "chain_creation": 0,  # Negligible in this case
+        "summarization": invoke_end - invoke_start,
+        "total_time": total_time
+    }
+    
+    return final_summary, timing_info
