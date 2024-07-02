@@ -17,8 +17,6 @@ from io import BytesIO
 import bleach
 import base64
 import time
-from services.summarization_service import summarize_text
-
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -155,10 +153,10 @@ def main():
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
-                new_summary, timing_info = summarize_text(st.session_state.transcript, department)
-                if new_summary:
-                    update_summary(new_summary)
-                    update_gesprekslog(st.session_state.transcript, new_summary)
+                result = summarize_text(st.session_state.transcript, department)
+                if result["summary"]:
+                    update_summary(result["summary"])
+                    update_gesprekslog(st.session_state.transcript, result["summary"])
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
@@ -170,18 +168,19 @@ def main():
                     st.session_state.transcript = st.session_state.input_text
                     
                     with st.spinner("Samenvatting maken..."):
-                        new_summary, timing_info = summarize_text(st.session_state.transcript, st.session_state.department)
+                        result = summarize_text(st.session_state.transcript, st.session_state.department)
                         
                         # Display timing information
+                        timing_info = result["timing_info"]
                         st.success(f"Proces voltooid in {timing_info['total_time']:.2f} seconden!")
                         st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
                         st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
                         st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
                         st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
 
-                        if new_summary:
-                            update_summary(new_summary)
-                            update_gesprekslog(st.session_state.transcript, new_summary)
+                        if result["summary"]:
+                            update_summary(result["summary"])
+                            update_gesprekslog(st.session_state.transcript, result["summary"])
 
                             # Display the summary in the nice formatted box
                             st.markdown("### 📑 Samenvatting")
@@ -213,10 +212,10 @@ def main():
                             st.markdown(f"""
                             <div class="summary-box">
                                 <div class="summary-title">Samenvatting</div>
-                                {new_summary}
+                                {result["summary"]}
                                 <div class="summary-buttons">
                                     <button onclick="copyToClipboard()">Kopieer</button>
-                                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(new_summary)).decode()}" download="samenvatting.docx">
+                                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(result["summary"])).decode()}" download="samenvatting.docx">
                                         <button>Download</button>
                                     </a>
                                 </div>

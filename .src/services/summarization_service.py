@@ -41,33 +41,41 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
 
 def summarize_text(text, department):
     start_time = time.time()
-    timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0, "total_time": 0}
-    summary = None
+    result = {
+        "summary": None,
+        "timing_info": {
+            "prompt_preparation": 0,
+            "model_initialization": 0,
+            "chain_creation": 0,
+            "summarization": 0,
+            "total_time": 0
+        }
+    }
     
     try:
         prompt_start = time.time()
         combined_prompt = get_combined_prompt(department)
-        timing_info["prompt_preparation"] = time.time() - prompt_start
+        result["timing_info"]["prompt_preparation"] = time.time() - prompt_start
 
         model_start = time.time()
         chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-        timing_info["model_initialization"] = time.time() - model_start
+        result["timing_info"]["model_initialization"] = time.time() - model_start
 
         chain_start = time.time()
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         llm_chain = prompt_template | chat_model | StrOutputParser()
-        timing_info["chain_creation"] = time.time() - chain_start
+        result["timing_info"]["chain_creation"] = time.time() - chain_start
 
         invoke_start = time.time()
-        summary = llm_chain.invoke({"text": text})
-        timing_info["summarization"] = time.time() - invoke_start
+        result["summary"] = llm_chain.invoke({"text": text})
+        result["timing_info"]["summarization"] = time.time() - invoke_start
 
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
     
     finally:
-        timing_info["total_time"] = time.time() - start_time
-        return summary, timing_info
+        result["timing_info"]["total_time"] = time.time() - start_time
+        return result
 
 def fallback_summarization(text, prompt, chat_model, start_time):
     timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0}
