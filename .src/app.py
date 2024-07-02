@@ -176,94 +176,97 @@ def main():
             except Exception as e:
                 st.error(f"Fout bij het verwerken van audio: {str(e)}")
 
-        if st.button("Samenvatten", key='summarize_button'):
-            if st.session_state.input_text or st.session_state.transcript:
-                with st.spinner("Samenvatting maken..."):
-                    start_time = time.time()
+        pythonCopyif st.button("Samenvatten", key='summarize_button'):
+    if st.session_state.input_text:
+        st.session_state.transcript = st.session_state.input_text
+        
+        with st.spinner("Samenvatting maken..."):
+            start_time = time.time()
+            
+            # Generate summary
+            result = summarize_text(st.session_state.transcript, st.session_state.department)
+            
+            end_time = time.time()
+            total_time = end_time - start_time
+            
+            # Display timing information
+            st.success(f"Proces voltooid in {total_time:.2f} seconden!")
+            
+            if isinstance(result, dict) and "timing_info" in result and "summary" in result:
+                timing_info = result["timing_info"]
+                new_summary = result["summary"]
+                
+                st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
+                st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
+                st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
+                st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
+
+                if new_summary:
+                    update_summary(new_summary)
+                    update_gesprekslog(st.session_state.transcript, new_summary)
+
+                    # Display the summary in the nice formatted box
+                    st.markdown("### 📑 Samenvatting")
+                    st.markdown("""
+                    <style>
+                    .summary-box {
+                        border: 2px solid #4CAF50;
+                        border-radius: 10px;
+                        padding: 20px;
+                        background-color: #f1f8e9;
+                        position: relative;
+                    }
+                    .summary-title {
+                        position: absolute;
+                        top: -15px;
+                        left: 10px;
+                        background-color: white;
+                        padding: 0 10px;
+                        font-weight: bold;
+                    }
+                    .summary-buttons {
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+                    st.markdown(f"""
+                    <div class="summary-box">
+                        <div class="summary-title">Samenvatting</div>
+                        {new_summary}
+                        <div class="summary-buttons">
+                            <button onclick="copyToClipboard()">Kopieer</button>
+                            <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(new_summary)).decode()}" download="samenvatting.docx">
+                                <button>Download</button>
+                            </a>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    # JavaScript for copying to clipboard
+                    st.markdown("""
+                    <script>
+                    function copyToClipboard() {
+                        const el = document.createElement('textarea');
+                        el.value = document.querySelector('.summary-box').innerText;
+                        document.body.appendChild(el);
+                        el.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(el);
+                        alert('Samenvatting gekopieerd naar klembord!');
+                    }
+                    </script>
+                    """, unsafe_allow_html=True)
                     
-                    text_to_summarize = st.session_state.transcript if st.session_state.transcript else st.session_state.input_text
-                    st.write(f"Debug: About to call summarize_text with text length {len(text_to_summarize)} and department {st.session_state.department}")
-                    
-                    try:
-                        result = summarize_text(text_to_summarize, st.session_state.department)
-                        st.write(f"Debug: Result from summarize_text: {result}")
-                        
-                        if isinstance(result, dict) and "timing_info" in result and "summary" in result:
-                            timing_info = result["timing_info"]
-                            new_summary = result["summary"]
-                            
-                            st.success(f"Proces voltooid in {timing_info['total_time']:.2f} seconden!")
-                            st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
-                            st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
-                            st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
-                            st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
-
-                            if new_summary:
-                                update_summary(new_summary)
-                                update_gesprekslog(text_to_summarize, new_summary)
-
-                                st.markdown("### 📑 Samenvatting")
-                                st.markdown("""
-                                <style>
-                                .summary-box {
-                                    border: 2px solid #4CAF50;
-                                    border-radius: 10px;
-                                    padding: 20px;
-                                    background-color: #f1f8e9;
-                                    position: relative;
-                                }
-                                .summary-title {
-                                    position: absolute;
-                                    top: -15px;
-                                    left: 10px;
-                                    background-color: white;
-                                    padding: 0 10px;
-                                    font-weight: bold;
-                                }
-                                .summary-buttons {
-                                    position: absolute;
-                                    bottom: 10px;
-                                    right: 10px;
-                                }
-                                </style>
-                                """, unsafe_allow_html=True)
-
-                                st.markdown(f"""
-                                <div class="summary-box">
-                                    <div class="summary-title">Samenvatting</div>
-                                    {new_summary}
-                                    <div class="summary-buttons">
-                                        <button onclick="copyToClipboard()">Kopieer</button>
-                                        <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(new_summary)).decode()}" download="samenvatting.docx">
-                                            <button>Download</button>
-                                        </a>
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
-
-                                st.markdown("""
-                                <script>
-                                function copyToClipboard() {
-                                    const el = document.createElement('textarea');
-                                    el.value = document.querySelector('.summary-box').innerText;
-                                    document.body.appendChild(el);
-                                    el.select();
-                                    document.execCommand('copy');
-                                    document.body.removeChild(el);
-                                    alert('Samenvatting gekopieerd naar klembord!');
-                                }
-                                </script>
-                                """, unsafe_allow_html=True)
-                                
-                                render_feedback_form()
-                            else:
-                                st.error("Er is geen samenvatting gegenereerd. Controleer de foutmelding hierboven.")
-                        else:
-                            st.error(f"Onverwacht resultaat van summarize_text: {result}")
-                    except Exception as e:
-                        st.error(f"Er is een fout opgetreden bij het maken van de samenvatting: {str(e)}")
+                    render_feedback_form()
+                else:
+                    st.error("Er is geen samenvatting gegenereerd. Controleer de foutmelding hierboven.")
             else:
-                st.warning("Voer alstublieft tekst in of upload een bestand om samen te vatten.")
+                st.error(f"Onverwacht resultaat van summarize_text: {result}")
+    else:
+        st.warning("Voer alstublieft tekst in om samen te vatten.")
 
         display_transcript(st.session_state.transcript)
 
