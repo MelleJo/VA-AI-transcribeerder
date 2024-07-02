@@ -1,13 +1,122 @@
+import os
+import sys
+import json
 import streamlit as st
-import time
-import base64
-from services.summarization_service import summarize_text
-from utils.audio_processing import process_audio_input
-from utils.file_processing import process_uploaded_file
-from utils.text_processing import update_gesprekslog, load_questions
-from ui.components import display_transcript
-from ui.pages import render_feedback_form, render_conversation_history
 from openai_service import perform_gpt4_operation
+from utils.audio_processing import transcribe_audio, process_audio_input
+from utils.file_processing import process_uploaded_file
+from services.summarization_service import summarize_text
+from ui.components import display_transcript, display_summary
+from ui.pages import render_feedback_form, render_conversation_history
+from utils.text_processing import update_gesprekslog, load_questions
+from st_copy_to_clipboard import st_copy_to_clipboard
+from docx import Document
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
+from io import BytesIO
+import bleach
+import base64
+import time
+
+# Configuration
+PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
+QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
+
+DEPARTMENTS = [
+    "Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting",
+    "Ondersteuning Bedrijfsarts", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering",
+    "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"
+]
+
+INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"]
+
+def load_config():
+    return {
+        "PROMPTS_DIR": PROMPTS_DIR,
+        "QUESTIONS_DIR": QUESTIONS_DIR,
+        "DEPARTMENTS": DEPARTMENTS,
+        "INPUT_METHODS": INPUT_METHODS,
+    }
+
+def load_product_descriptions():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(current_dir, 'product_descriptions.json')
+    
+    try:
+        with open(json_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except Exception as e:
+        st.error(f"Error loading product descriptions: {str(e)}")
+        return {}
+
+def initialize_session_state():
+    defaults = {
+        'summary': "",
+        'summary_versions': [],
+        'current_version_index': -1,
+        'department': DEPARTMENTS[0],
+        'input_text': "",
+        'transcript': "",
+        'gesprekslog': [],
+        'product_info': "",
+        'selected_products': []
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+def display_product_descriptions(product_descriptions):
+    if not product_descriptions:
+        st.warning("Geen productbeschrijvingen beschikbaar.")
+        return
+    
+    flattened_descriptions = {}
+    for key, value in product_descriptions.items():
+        if isinstance(value, dict) and 'title' in value:
+            flattened_descriptions[key] = value
+        elif isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                if isinstance(subvalue, dict) and 'title' in subvalue:
+                    flattened_descriptions[f"{key} - {subkey}"] = subvalue
+
+    selected_products = st.multiselect(
+        "Selecteer producten voor extra informatie:",
+        options=list(flattened_descriptions.keys()),
+        format_func=lambda x: flattened_descriptions[x]['title']
+    )
+    
+    if selected_products != st.session_state.selected_products:
+        st.session_state.selected_products = selected_products
+        if selected_products:
+            st.session_state.product_info = "## Extra informatie over de besproken producten\n\n"
+            for product in selected_products:
+                st.session_state.product_info += f"### {flattened_descriptions[product]['title']}\n"
+                st.session_state.product_info += f"{flattened_descriptions[product]['description']}\n\n"
+            st.success("Productinformatie is bijgewerkt.")
+        else:
+            st.session_state.product_info = ""
+
+def create_safe_docx(content):
+    doc = Document()
+    style = doc.styles.add_style('CustomStyle', WD_STYLE_TYPE.PARAGRAPH)
+    font = style.font
+    font.name = 'Calibri'
+    font.size = Pt(11)
+    
+    clean_content = bleach.clean(content, tags=['p', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'br'], strip=True)
+    
+    paragraphs = clean_content.split('\n')
+    for para in paragraphs:
+        p = doc.add_paragraph(para, style='CustomStyle')
+
+    bio = BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
+def update_summary(new_summary):
+    st.session_state.summary_versions.append(new_summary)
+    st.session_state.current_version_index = len(st.session_state.summary_versions) - 1
+    st.session_state.summary = new_summary
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
