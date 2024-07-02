@@ -17,6 +17,8 @@ from io import BytesIO
 import bleach
 import base64
 import time
+from services.summarization_service import summarize_text
+
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -154,29 +156,24 @@ def main():
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
                 new_summary, timing_info = summarize_text(st.session_state.transcript, department)
-                update_summary(new_summary)
-                update_gesprekslog(st.session_state.transcript, new_summary)
+                if new_summary:
+                    update_summary(new_summary)
+                    update_gesprekslog(st.session_state.transcript, new_summary)
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
-                                                    value=st.session_state.input_text, 
-                                                    height=200,
-                                                    key='input_text_area')
+                                                       value=st.session_state.input_text, 
+                                                       height=200,
+                                                       key='input_text_area')
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
                     
                     with st.spinner("Samenvatting maken..."):
-                        start_time = time.time()
-                        
-                        # Generate summary
                         new_summary, timing_info = summarize_text(st.session_state.transcript, st.session_state.department)
                         
-                        end_time = time.time()
-                        total_time = end_time - start_time
-                        
                         # Display timing information
-                        st.success(f"Proces voltooid in {total_time:.2f} seconden!")
+                        st.success(f"Proces voltooid in {timing_info['total_time']:.2f} seconden!")
                         st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
                         st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
                         st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
