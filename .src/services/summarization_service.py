@@ -41,7 +41,7 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
 
 def summarize_text(text, department):
     start_time = time.time()
-    timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0}
+    timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0, "total_time": 0}
     
     try:
         prompt_start = time.time()
@@ -65,8 +65,9 @@ def summarize_text(text, department):
         return summary, timing_info
 
     except Exception as e:
-        st.warning("Initial summarization failed. Attempting detailed processing...")
-        return fallback_summarization(text, combined_prompt, chat_model, start_time)
+        st.error(f"Error in summarization: {str(e)}")
+        timing_info["total_time"] = time.time() - start_time
+        return None, timing_info
 
 def fallback_summarization(text, prompt, chat_model, start_time):
     timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0}
