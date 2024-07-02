@@ -40,6 +40,8 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
     return encoding.decode(encoded[:limit])
 
 def summarize_text(text, department):
+    st.write(f"Debug: summarize_text called with text length {len(text)} and department {department}")
+    
     start_time = time.time()
     result = {
         "summary": None,
@@ -72,9 +74,11 @@ def summarize_text(text, department):
 
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
+        result["error"] = str(e)
     
     finally:
         result["timing_info"]["total_time"] = time.time() - start_time
+        st.write(f"Debug: summarize_text returning result: {result}")
         return result
 
 def fallback_summarization(text, prompt, chat_model, start_time):
