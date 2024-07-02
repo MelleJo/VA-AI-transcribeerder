@@ -152,61 +152,39 @@ def main():
 
     with col2:
         st.markdown("### 📝 Invoer & Samenvatting")
-        
         if input_method == "Upload tekst":
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
-                try:
-                    st.session_state.transcript = process_uploaded_file(uploaded_file)
-                    st.success("Bestand succesvol geüpload en verwerkt.")
-                except Exception as e:
-                    st.error(f"Fout bij het verwerken van het bestand: {str(e)}")
+                st.session_state.transcript = process_uploaded_file(uploaded_file)
+                new_summary = summarize_text(st.session_state.transcript, department)
+                update_summary(new_summary)
+                update_gesprekslog(st.session_state.transcript, new_summary)
 
         elif input_method == "Voer tekst in of plak tekst":
-            st.session_state.input_text = st.text_area(
-                "Voer tekst in:", 
-                value=st.session_state.input_text, 
-                height=200,
-                key='input_text_area'
-            )
-
-        elif input_method in ["Upload audio", "Neem audio op"]:
-            try:
-                process_audio_input(input_method)
-            except Exception as e:
-                st.error(f"Fout bij het verwerken van audio: {str(e)}")
-
-        
-        if st.button("Samenvatten", key='summarize_button'):
-            if st.session_state.input_text:
-                st.session_state.transcript = st.session_state.input_text
-                
-                with st.spinner("Samenvatting maken..."):
-                    start_time = time.time()
+            st.session_state.input_text = st.text_area("Voer tekst in:", 
+                                                       value=st.session_state.input_text, 
+                                                       height=200,
+                                                       key='input_text_area')
+            if st.button("Samenvatten", key='summarize_button'):
+                if st.session_state.input_text:
+                    st.session_state.transcript = st.session_state.input_text
                     
-                    # Generate summary
-                    result = summarize_text(st.session_state.transcript, st.session_state.department)
-                    
-                    end_time = time.time()
-                    total_time = end_time - start_time
-                    
-                    # Display timing information
-                    st.success(f"Proces voltooid in {total_time:.2f} seconden!")
-                    
-                    if isinstance(result, dict) and "timing_info" in result and "summary" in result:
-                        timing_info = result["timing_info"]
-                        new_summary = result["summary"]
+                    with st.spinner("Samenvatting maken..."):
+                        start_time = time.time()
                         
-                        st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
-                        st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
-                        st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
-                        st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
+                        st.write(f"Debug: About to call summarize_text with text length {len(st.session_state.transcript)} and department {st.session_state.department}")
+                        new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
+                        st.write(f"Debug: Result from summarize_text: {new_summary[:100]}...")  # Show first 100 chars
+                        
+                        end_time = time.time()
+                        total_time = end_time - start_time
+                        
+                        st.success(f"Samenvatting voltooid in {total_time:.2f} seconden!")
 
                         if new_summary:
                             update_summary(new_summary)
                             update_gesprekslog(st.session_state.transcript, new_summary)
 
-                            # Display the summary in the nice formatted box
                             st.markdown("### 📑 Samenvatting")
                             st.markdown("""
                             <style>
@@ -246,7 +224,6 @@ def main():
                             </div>
                             """, unsafe_allow_html=True)
 
-                            # JavaScript for copying to clipboard
                             st.markdown("""
                             <script>
                             function copyToClipboard() {
@@ -264,10 +241,11 @@ def main():
                             render_feedback_form()
                         else:
                             st.error("Er is geen samenvatting gegenereerd. Controleer de foutmelding hierboven.")
-                    else:
-                        st.error(f"Onverwacht resultaat van summarize_text: {result}")
-            else:
-                st.warning("Voer alstublieft tekst in om samen te vatten.")
+                else:
+                    st.warning("Voer alstublieft tekst in om samen te vatten.")
+
+        elif input_method in ["Upload audio", "Neem audio op"]:
+            process_audio_input(input_method)
 
         display_transcript(st.session_state.transcript)
 
@@ -278,33 +256,18 @@ def main():
             
             with col1:
                 if st.button("🔍 Maak korter"):
-                    with st.spinner("Samenvatting inkorten..."):
-                        try:
-                            new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
-                            update_summary(new_summary)
-                            st.success("Samenvatting is ingekort.")
-                        except Exception as e:
-                            st.error(f"Fout bij het inkorten van de samenvatting: {str(e)}")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
+                    update_summary(new_summary)
             
             with col2:
                 if st.button("📊 Zet om in rapport"):
-                    with st.spinner("Rapport genereren..."):
-                        try:
-                            new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
-                            update_summary(new_summary)
-                            st.success("Rapport is gegenereerd.")
-                        except Exception as e:
-                            st.error(f"Fout bij het genereren van het rapport: {str(e)}")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
+                    update_summary(new_summary)
             
             with col3:
                 if st.button("📌 Extraheer actiepunten"):
-                    with st.spinner("Actiepunten extraheren..."):
-                        try:
-                            new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
-                            update_summary(new_summary)
-                            st.success("Actiepunten zijn geëxtraheerd.")
-                        except Exception as e:
-                            st.error(f"Fout bij het extraheren van actiepunten: {str(e)}")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
+                    update_summary(new_summary)
             
             st.markdown("---")
             
@@ -312,12 +275,8 @@ def main():
                                              placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
-                    try:
-                        new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
-                        update_summary(new_summary)
-                        st.success("Aangepaste bewerking is uitgevoerd.")
-                    except Exception as e:
-                        st.error(f"Fout bij het uitvoeren van de aangepaste bewerking: {str(e)}")
+                    new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
+                    update_summary(new_summary)
             
             display_product_descriptions(product_descriptions)
 
@@ -325,9 +284,5 @@ def main():
     render_conversation_history()
 
 if __name__ == "__main__":
-    try:
-        product_descriptions = load_product_descriptions()
-        main()
-    except Exception as e:
-        st.error(f"Er is een onverwachte fout opgetreden: {str(e)}")
-        st.write("Debug: Stacktrace:", st.exception(e))
+    product_descriptions = load_product_descriptions()
+    main()
