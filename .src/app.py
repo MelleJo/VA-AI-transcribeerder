@@ -103,7 +103,6 @@ def create_safe_docx(content):
     font.name = 'Calibri'
     font.size = Pt(11)
     
-    # Sanitize the content
     clean_content = bleach.clean(content, tags=['p', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'br'], strip=True)
     
     paragraphs = clean_content.split('\n')
@@ -154,15 +153,15 @@ def main():
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
-                new_summary = summarize_text(st.session_state.transcript, department)
+                new_summary, timing_info = summarize_text(st.session_state.transcript, department)
                 update_summary(new_summary)
                 update_gesprekslog(st.session_state.transcript, new_summary)
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
-                                                    value=st.session_state.input_text, 
-                                                    height=200,
-                                                    key='input_text_area')
+                                                       value=st.session_state.input_text, 
+                                                       height=200,
+                                                       key='input_text_area')
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
@@ -170,39 +169,22 @@ def main():
                     with st.spinner("Samenvatting maken..."):
                         start_time = time.time()
                         
-                        # Step 1: Prepare data
-                        step1_start = time.time()
-                        # Add your data preparation code here if needed
-                        step1_end = time.time()
-                        st.info(f"Stap 1 (Voorbereiding): {step1_end - step1_start:.2f} seconden")
-
-                        # Step 2: Generate summary
-                        # Step 2: Generate summary
-                        step2_start = time.time()
+                        # Generate summary
                         new_summary, timing_info = summarize_text(st.session_state.transcript, st.session_state.department)
-                        step2_end = time.time()
-                        st.info(f"Stap 2 (Samenvatting genereren): {step2_end - step2_start:.2f} seconden")
-
-                        # Display detailed timing information
-                        if "error" not in timing_info:
-                            st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
-                            st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
-                            st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
-                            st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
-                        else:
-                            st.error(f"Er is een fout opgetreden: {timing_info['error']}")
-
-                        # Step 3: Post-processing
-                        step3_start = time.time()
+                        
                         if new_summary:
                             update_summary(new_summary)
                             update_gesprekslog(st.session_state.transcript, new_summary)
-                        step3_end = time.time()
-                        st.info(f"Stap 3 (Nabewerking): {step3_end - step3_start:.2f} seconden")
-
+                        
                         end_time = time.time()
                         total_time = end_time - start_time
+                        
+                        # Display timing information
                         st.success(f"Samenvatting voltooid in {total_time:.2f} seconden!")
+                        st.info(f"Prompt voorbereiding: {timing_info['prompt_preparation']:.2f} seconden")
+                        st.info(f"Model initialisatie: {timing_info['model_initialization']:.2f} seconden")
+                        st.info(f"Chain creatie: {timing_info['chain_creation']:.2f} seconden")
+                        st.info(f"Samenvatting generatie: {timing_info['summarization']:.2f} seconden")
 
                         if new_summary:
                             # Display the summary in the nice formatted box

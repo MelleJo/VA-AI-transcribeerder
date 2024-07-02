@@ -41,85 +41,65 @@ def truncate_text_to_token_limit(text: str, limit: int, model_name: str = "gpt-4
 
 def summarize_text(text, department):
     start_time = time.time()
-    
-    prompt_start = time.time()
-    combined_prompt = get_combined_prompt(department)
-    prompt_end = time.time()
-    prompt_time = prompt_end - prompt_start
-    
-    model_start = time.time()
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
-    model_end = time.time()
-    model_time = model_end - model_start
-    
-    chain_start = time.time()
-    prompt_template = ChatPromptTemplate.from_template(combined_prompt)
-    llm_chain = prompt_template | chat_model | StrOutputParser()
-    chain_end = time.time()
-    chain_time = chain_end - chain_start
+    timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0}
     
     try:
+        prompt_start = time.time()
+        combined_prompt = get_combined_prompt(department)
+        timing_info["prompt_preparation"] = time.time() - prompt_start
+
+        model_start = time.time()
+        chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+        timing_info["model_initialization"] = time.time() - model_start
+
+        chain_start = time.time()
+        prompt_template = ChatPromptTemplate.from_template(combined_prompt)
+        llm_chain = prompt_template | chat_model | StrOutputParser()
+        timing_info["chain_creation"] = time.time() - chain_start
+
         invoke_start = time.time()
         summary = llm_chain.invoke({"text": text})
-        invoke_end = time.time()
-        invoke_time = invoke_end - invoke_start
-        
-        end_time = time.time()
-        total_time = end_time - start_time
-        
-        timing_info = {
-            "prompt_preparation": prompt_time,
-            "model_initialization": model_time,
-            "chain_creation": chain_time,
-            "summarization": invoke_time,
-            "total_time": total_time
-        }
-        
+        timing_info["summarization"] = time.time() - invoke_start
+
+        timing_info["total_time"] = time.time() - start_time
         return summary, timing_info
+
     except Exception as e:
         st.warning("Initial summarization failed. Attempting detailed processing...")
         return fallback_summarization(text, combined_prompt, chat_model, start_time)
 
 def fallback_summarization(text, prompt, chat_model, start_time):
-    prompt_tokens = num_tokens_from_string(prompt, "gpt-4o")
-    text_tokens = num_tokens_from_string(text, "gpt-4o")
-    total_tokens = prompt_tokens + text_tokens
+    timing_info = {"prompt_preparation": 0, "model_initialization": 0, "chain_creation": 0, "summarization": 0}
     
-    if total_tokens <= 120000:
-        try:
+    try:
+        prompt_tokens = num_tokens_from_string(prompt, "gpt-4o")
+        text_tokens = num_tokens_from_string(text, "gpt-4o")
+        total_tokens = prompt_tokens + text_tokens
+
+        if total_tokens <= 120000:
             invoke_start = time.time()
             prompt_template = ChatPromptTemplate.from_template(prompt)
             llm_chain = prompt_template | chat_model | StrOutputParser()
             summary = llm_chain.invoke({"text": text})
-            invoke_end = time.time()
-            
-            end_time = time.time()
-            total_time = end_time - start_time
-            
-            timing_info = {
-                "prompt_preparation": 0,  # Already accounted for in the main function
-                "model_initialization": 0,  # Already accounted for in the main function
-                "chain_creation": 0,  # Negligible in this case
-                "summarization": invoke_end - invoke_start,
-                "total_time": total_time
-            }
-            
-            return summary, timing_info
-        except Exception as e:
-            st.error(f"Error summarizing text: {str(e)}")
-            return None, {"error": str(e), "total_time": time.time() - start_time}
-    else:
-        st.warning("Text is too long. Using two-pass summarization.")
-        return two_pass_summarization(text, prompt, chat_model, prompt_tokens, start_time)
+            timing_info["summarization"] = time.time() - invoke_start
+        else:
+            st.warning("Text is too long. Using two-pass summarization.")
+            summary = two_pass_summarization(text, prompt, chat_model, prompt_tokens)
+            timing_info["summarization"] = time.time() - start_time
 
-def two_pass_summarization(text, prompt, chat_model, prompt_tokens, start_time):
+        timing_info["total_time"] = time.time() - start_time
+        return summary, timing_info
+
+    except Exception as e:
+        st.error(f"Error in fallback summarization: {str(e)}")
+        return None, {"error": str(e), "total_time": time.time() - start_time}
+
+def two_pass_summarization(text, prompt, chat_model, prompt_tokens):
     first_chunk_tokens = 120000 - prompt_tokens - 1000
     first_chunk = truncate_text_to_token_limit(text, first_chunk_tokens)
     
     first_prompt = ChatPromptTemplate.from_template(f"{prompt}\n\n{{text}}")
     first_chain = first_prompt | chat_model | StrOutputParser()
-    
-    invoke_start = time.time()
     first_summary = first_chain.invoke({"text": first_chunk})
     
     remaining_text = text[len(first_chunk):]
@@ -142,20 +122,6 @@ def two_pass_summarization(text, prompt, chat_model, prompt_tokens, start_time):
             "first_summary": first_summary,
             "second_summary": second_summary
         })
+        return final_summary
     else:
-        final_summary = first_summary
-    
-    invoke_end = time.time()
-    
-    end_time = time.time()
-    total_time = end_time - start_time
-    
-    timing_info = {
-        "prompt_preparation": 0,  # Already accounted for in the main function
-        "model_initialization": 0,  # Already accounted for in the main function
-        "chain_creation": 0,  # Negligible in this case
-        "summarization": invoke_end - invoke_start,
-        "total_time": total_time
-    }
-    
-    return final_summary, timing_info
+        return first_summary
