@@ -214,13 +214,12 @@ def main():
             st.markdown("""
             <script>
             function copyToClipboard() {
-                const el = document.createElement('textarea');
-                el.value = document.querySelector('div[style*="border: 2px solid #4CAF50"]').innerText;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                alert('Samenvatting gekopieerd naar klembord!');
+                const summaryText = document.querySelector('div[style*="border: 2px solid #4CAF50"] > div:nth-child(2)').innerText;
+                navigator.clipboard.writeText(summaryText).then(function() {
+                    alert('Samenvatting gekopieerd naar klembord!');
+                }, function() {
+                    alert('Kopiëren naar klembord is mislukt. Probeer het opnieuw.');
+                });
             }
             </script>
             """, unsafe_allow_html=True)
@@ -238,28 +237,40 @@ def main():
 
             st.markdown("### 🛠️ Vervolgacties")
             
+            st.markdown("""
+            <style>
+            .stButton>button {
+                width: 100%;
+                height: 60px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                if st.button("🔍 Maak korter"):
+                if st.button("🔍 Maak korter", key="make_shorter"):
                     new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
                     update_summary(new_summary)
             
             with col2:
-                if st.button("📊 Zet om in rapport"):
+                if st.button("📊 Zet om in rapport", key="convert_to_report"):
                     new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
                     update_summary(new_summary)
             
             with col3:
-                if st.button("📌 Extraheer actiepunten"):
+                if st.button("📌 Extraheer actiepunten", key="extract_action_points"):
                     new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
                     update_summary(new_summary)
             
             st.markdown("---")
             
-            custom_operation = st.text_input("🔧 Aangepaste bewerking:", key="custom_operation_input", 
+            st.markdown("### 🔧 Aangepaste bewerking")
+            custom_operation = st.text_input("Voer uw aangepaste bewerking in:", key="custom_operation_input", 
                                              placeholder="Bijvoorbeeld: Voeg een conclusie toe")
-            if st.button("Uitvoeren"):
+            if st.button("Uitvoeren", key="execute_custom"):
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
                     update_summary(new_summary)
