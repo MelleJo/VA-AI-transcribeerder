@@ -196,39 +196,54 @@ def main():
             st.markdown("### 📑 Samenvatting")
             
             summary_html = f"""
-            <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f1f8e9; position: relative;">
+            <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f1f8e9; position: relative; margin-bottom: 20px;">
                 <div style="position: absolute; top: -15px; left: 10px; background-color: white; padding: 0 10px; font-weight: bold;">Samenvatting</div>
-                {st.session_state.summary}
+                <div style="margin-bottom: 40px;">
+                    {st.session_state.summary}
+                </div>
+                <div style="position: absolute; bottom: 10px; right: 10px;">
+                    <button onclick="copyToClipboard()" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Kopieer</button>
+                </div>
             </div>
             """
             
             st.markdown(summary_html, unsafe_allow_html=True)
             
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("Kopieer naar klembord"):
-                    st.session_state.clipboard_content = st.session_state.summary
-                    st.success("Samenvatting gekopieerd naar klembord!")
+            # JavaScript for copying to clipboard
+            st.markdown("""
+            <script>
+            function copyToClipboard() {
+                const el = document.createElement('textarea');
+                el.value = document.querySelector('.summary-box').innerText;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('Samenvatting gekopieerd naar klembord!');
+            }
+            </script>
+            """, unsafe_allow_html=True)
             
-            with col2:
-                docx_bytes = create_safe_docx(st.session_state.summary)
-                st.download_button(
-                    label="Download als Word-document",
-                    data=docx_bytes,
-                    file_name="samenvatting.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
+            # Download button
+            docx_bytes = create_safe_docx(st.session_state.summary)
+            st.download_button(
+                label="Download als Word-document",
+                data=docx_bytes,
+                file_name="samenvatting.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                key="download_button"
+            )
             
-            with col3:
-                if len(st.session_state.summary_versions) > 1:
-                    version_index = st.selectbox("Selecteer versie:", 
-                                                 range(len(st.session_state.summary_versions)),
-                                                 format_func=lambda x: f"Versie {x+1}",
-                                                 index=st.session_state.current_version_index)
-                    if version_index != st.session_state.current_version_index:
-                        st.session_state.current_version_index = version_index
-                        st.session_state.summary = st.session_state.summary_versions[version_index]
-                        st.experimental_rerun()
+            # Version control
+            if len(st.session_state.summary_versions) > 1:
+                version_index = st.selectbox("Selecteer versie:", 
+                                            range(len(st.session_state.summary_versions)),
+                                            format_func=lambda x: f"Versie {x+1}",
+                                            index=st.session_state.current_version_index)
+                if version_index != st.session_state.current_version_index:
+                    st.session_state.current_version_index = version_index
+                    st.session_state.summary = st.session_state.summary_versions[version_index]
+                    st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
             
@@ -248,11 +263,11 @@ def main():
                 if st.button("📌 Extraheer actiepunten"):
                     new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
                     update_summary(new_summary)
-            
+
             st.markdown("---")
             
             custom_operation = st.text_input("🔧 Aangepaste bewerking:", key="custom_operation_input", 
-                                             placeholder="Bijvoorbeeld: Voeg een conclusie toe")
+                                            placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
