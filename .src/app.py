@@ -203,6 +203,7 @@ def main():
                 </div>
                 <div style="position: absolute; bottom: 10px; right: 10px;">
                     <button onclick="copyToClipboard()" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Kopieer</button>
+                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(st.session_state.summary)).decode()}" download="samenvatting.docx" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Download</a>
                 </div>
             </div>
             """
@@ -214,7 +215,7 @@ def main():
             <script>
             function copyToClipboard() {
                 const el = document.createElement('textarea');
-                el.value = document.querySelector('.summary-box').innerText;
+                el.value = document.querySelector('div[style*="border: 2px solid #4CAF50"]').innerText;
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
@@ -224,22 +225,12 @@ def main():
             </script>
             """, unsafe_allow_html=True)
             
-            # Download button
-            docx_bytes = create_safe_docx(st.session_state.summary)
-            st.download_button(
-                label="Download als Word-document",
-                data=docx_bytes,
-                file_name="samenvatting.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                key="download_button"
-            )
-            
             # Version control
             if len(st.session_state.summary_versions) > 1:
                 version_index = st.selectbox("Selecteer versie:", 
-                                            range(len(st.session_state.summary_versions)),
-                                            format_func=lambda x: f"Versie {x+1}",
-                                            index=st.session_state.current_version_index)
+                                             range(len(st.session_state.summary_versions)),
+                                             format_func=lambda x: f"Versie {x+1}",
+                                             index=st.session_state.current_version_index)
                 if version_index != st.session_state.current_version_index:
                     st.session_state.current_version_index = version_index
                     st.session_state.summary = st.session_state.summary_versions[version_index]
@@ -263,11 +254,11 @@ def main():
                 if st.button("📌 Extraheer actiepunten"):
                     new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
                     update_summary(new_summary)
-
+            
             st.markdown("---")
             
             custom_operation = st.text_input("🔧 Aangepaste bewerking:", key="custom_operation_input", 
-                                            placeholder="Bijvoorbeeld: Voeg een conclusie toe")
+                                             placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
