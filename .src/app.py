@@ -17,6 +17,7 @@ from io import BytesIO
 import bleach
 import base64
 import time
+from summarization_service import run_summarization
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -159,9 +160,14 @@ def main():
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
-                new_summary = summarize_text(st.session_state.transcript, department)
-                update_summary(new_summary)
-                update_gesprekslog(st.session_state.transcript, new_summary)
+                with st.spinner("Samenvatting maken..."):
+                    result = run_summarization(st.session_state.transcript, department)
+                if result["error"] is None:
+                    update_summary(result["summary"])
+                    update_gesprekslog(st.session_state.transcript, result["summary"])
+                    st.success("Samenvatting voltooid!")
+                else:
+                    st.error(f"Er is een fout opgetreden: {result['error']}")
 
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
@@ -173,17 +179,14 @@ def main():
                     st.session_state.transcript = st.session_state.input_text
                     
                     with st.spinner("Samenvatting maken..."):
-                        start_time = time.time()
-                        new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
-                        end_time = time.time()
-                        
-                        if new_summary:
-                            update_summary(new_summary)
-                            update_gesprekslog(st.session_state.transcript, new_summary)
-                            
-                            st.success(f"Samenvatting voltooid in {end_time - start_time:.2f} seconden!")
-                        else:
-                            st.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
+                        result = run_summarization(st.session_state.transcript, st.session_state.department)
+                    
+                    if result["error"] is None:
+                        update_summary(result["summary"])
+                        update_gesprekslog(st.session_state.transcript, result["summary"])
+                        st.success("Samenvatting voltooid!")
+                    else:
+                        st.error(f"Er is een fout opgetreden: {result['error']}")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
