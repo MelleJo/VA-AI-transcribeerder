@@ -5,7 +5,7 @@ import streamlit as st
 from openai_service import perform_gpt4_operation
 from utils.audio_processing import transcribe_audio, process_audio_input
 from utils.file_processing import process_uploaded_file
-from services.summarization_service import summarize_text
+from services.summarization_service import summarize_text, run_summarization
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, load_questions
@@ -17,7 +17,6 @@ from io import BytesIO
 import bleach
 import base64
 import time
-from summarization_service import run_summarization
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
