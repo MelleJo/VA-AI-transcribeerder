@@ -85,16 +85,22 @@ def display_product_descriptions(product_descriptions):
         format_func=lambda x: flattened_descriptions[x]['title']
     )
     
-    if selected_products != st.session_state.selected_products:
-        st.session_state.selected_products = selected_products
+    if st.button("Toevoegen aan samenvatting"):
         if selected_products:
-            st.session_state.product_info = "## Extra informatie over de besproken producten\n\n"
+            product_info = "## Extra informatie over de besproken producten\n\n"
             for product in selected_products:
-                st.session_state.product_info += f"### {flattened_descriptions[product]['title']}\n"
-                st.session_state.product_info += f"{flattened_descriptions[product]['description']}\n\n"
-            st.success("Productinformatie is bijgewerkt.")
+                product_info += f"### {flattened_descriptions[product]['title']}\n"
+                product_info += f"{flattened_descriptions[product]['description']}\n\n"
+            
+            if 'summary' in st.session_state and st.session_state.summary:
+                st.session_state.summary += "\n\n" + product_info
+            else:
+                st.session_state.summary = product_info
+            
+            st.success("Productinformatie is toegevoegd aan de samenvatting.")
+            st.experimental_rerun()
         else:
-            st.session_state.product_info = ""
+            st.warning("Selecteer eerst producten om toe te voegen.")
 
 def create_safe_docx(content):
     doc = Document()
@@ -251,7 +257,7 @@ def main():
             render_feedback_form()
 
             st.markdown("### 🛠️ Vervolgacties")
-            
+        
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -278,13 +284,16 @@ def main():
             st.markdown("---")
             
             custom_operation = st.text_input("🔧 Aangepaste bewerking:", key="custom_operation_input", 
-                                             placeholder="Bijvoorbeeld: Voeg een conclusie toe")
+                                            placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
                     st.session_state.summary = new_summary
                     st.experimental_rerun()
             
+            st.markdown("---")
+            
+            st.markdown("### 📚 Product Informatie")
             display_product_descriptions(product_descriptions)
 
     st.markdown("---")
