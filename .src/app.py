@@ -127,11 +127,8 @@ def update_summary(new_summary):
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
-    st.write("Debug: Starting main function")
     config = load_config()
-    st.write("Debug: Config loaded")
     initialize_session_state()
-    st.write("Debug: Session state initialized")
     
     st.title("Gesprekssamenvatter versie 0.2.5")
     st.markdown("---")
@@ -163,7 +160,7 @@ def main():
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
                 new_summary = summarize_text(st.session_state.transcript, department)
-                st.session_state.summary = new_summary
+                update_summary(new_summary)
                 update_gesprekslog(st.session_state.transcript, new_summary)
 
         elif input_method == "Voer tekst in of plak tekst":
@@ -177,21 +174,16 @@ def main():
                     
                     with st.spinner("Samenvatting maken..."):
                         start_time = time.time()
-                        
-                        st.write(f"Debug: About to call summarize_text with text length {len(st.session_state.transcript)} and department {st.session_state.department}")
                         new_summary = summarize_text(st.session_state.transcript, st.session_state.department)
-                        st.write(f"Debug: Result from summarize_text: {new_summary[:100]}...")  # Show first 100 chars
-                        
                         end_time = time.time()
-                        total_time = end_time - start_time
                         
-                        st.success(f"Samenvatting voltooid in {total_time:.2f} seconden!")
-
                         if new_summary:
-                            st.session_state.summary = new_summary
+                            update_summary(new_summary)
                             update_gesprekslog(st.session_state.transcript, new_summary)
+                            
+                            st.success(f"Samenvatting voltooid in {end_time - start_time:.2f} seconden!")
                         else:
-                            st.error("Er is geen samenvatting gegenereerd. Controleer de foutmelding hierboven.")
+                            st.error("Er is een fout opgetreden bij het maken van de samenvatting. Probeer het opnieuw.")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
 
@@ -202,98 +194,75 @@ def main():
 
         if st.session_state.summary:
             st.markdown("### 📑 Samenvatting")
-            st.markdown("""
-            <style>
-            .summary-box {
-                border: 2px solid #4CAF50;
-                border-radius: 10px;
-                padding: 20px;
-                background-color: #f1f8e9;
-                position: relative;
-            }
-            .summary-title {
-                position: absolute;
-                top: -15px;
-                left: 10px;
-                background-color: white;
-                padding: 0 10px;
-                font-weight: bold;
-            }
-            .summary-buttons {
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <div class="summary-box">
-                <div class="summary-title">Samenvatting</div>
-                {st.session_state.summary}
-                <div class="summary-buttons">
-                    <button onclick="copyToClipboard()">Kopieer</button>
-                    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(st.session_state.summary)).decode()}" download="samenvatting.docx">
-                        <button>Download</button>
-                    </a>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            st.markdown("""
-            <script>
-            function copyToClipboard() {
-                const el = document.createElement('textarea');
-                el.value = document.querySelector('.summary-box').innerText;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                alert('Samenvatting gekopieerd naar klembord!');
-            }
-            </script>
-            """, unsafe_allow_html=True)
             
-            render_feedback_form()
+            summary_html = f"""
+            <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f1f8e9; position: relative;">
+                <div style="position: absolute; top: -15px; left: 10px; background-color: white; padding: 0 10px; font-weight: bold;">Samenvatting</div>
+                {st.session_state.summary}
+            </div>
+            """
+            
+            st.markdown(summary_html, unsafe_allow_html=True)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("Kopieer naar klembord"):
+                    st.session_state.clipboard_content = st.session_state.summary
+                    st.success("Samenvatting gekopieerd naar klembord!")
+            
+            with col2:
+                docx_bytes = create_safe_docx(st.session_state.summary)
+                st.download_button(
+                    label="Download als Word-document",
+                    data=docx_bytes,
+                    file_name="samenvatting.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+            
+            with col3:
+                if len(st.session_state.summary_versions) > 1:
+                    version_index = st.selectbox("Selecteer versie:", 
+                                                 range(len(st.session_state.summary_versions)),
+                                                 format_func=lambda x: f"Versie {x+1}",
+                                                 index=st.session_state.current_version_index)
+                    if version_index != st.session_state.current_version_index:
+                        st.session_state.current_version_index = version_index
+                        st.session_state.summary = st.session_state.summary_versions[version_index]
+                        st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
-        
+            
             col1, col2, col3 = st.columns(3)
             
             with col1:
                 if st.button("🔍 Maak korter"):
-                    with st.spinner("Samenvatting inkorten..."):
-                        new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
-                        st.session_state.summary = new_summary
-                        st.experimental_rerun()
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
+                    update_summary(new_summary)
             
             with col2:
                 if st.button("📊 Zet om in rapport"):
-                    with st.spinner("Rapport genereren..."):
-                        new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
-                        st.session_state.summary = new_summary
-                        st.experimental_rerun()
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
+                    update_summary(new_summary)
             
             with col3:
                 if st.button("📌 Extraheer actiepunten"):
-                    with st.spinner("Actiepunten extraheren..."):
-                        new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
-                        st.session_state.summary = new_summary
-                        st.experimental_rerun()
+                    new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
+                    update_summary(new_summary)
             
             st.markdown("---")
             
             custom_operation = st.text_input("🔧 Aangepaste bewerking:", key="custom_operation_input", 
-                                            placeholder="Bijvoorbeeld: Voeg een conclusie toe")
+                                             placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren"):
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
-                    st.session_state.summary = new_summary
-                    st.experimental_rerun()
+                    update_summary(new_summary)
             
-            st.markdown("---")
+            # Display product information
+            if st.session_state.product_info:
+                st.markdown("### 📚 Productinformatie")
+                st.markdown(st.session_state.product_info)
             
-            st.markdown("### 📚 Product Informatie")
             display_product_descriptions(product_descriptions)
 
     st.markdown("---")
