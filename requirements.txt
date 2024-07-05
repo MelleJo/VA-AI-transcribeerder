@@ -4,7 +4,6 @@ PyPDF2
 langchain_community
 langchain_openai
 langchain
-pinecone-client
 langchain_core
 sentence_transformers
 faiss-cpu
