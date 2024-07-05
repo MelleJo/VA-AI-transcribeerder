@@ -6,8 +6,6 @@ langchain_openai
 langchain
 pinecone-client
 langchain_core
-redis
-langchain-pinecone
 sentence_transformers
 faiss-cpu
 fuzzywuzzy
