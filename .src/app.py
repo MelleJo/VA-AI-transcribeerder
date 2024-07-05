@@ -124,6 +124,10 @@ def update_summary(new_summary):
     st.session_state.current_version_index = len(st.session_state.summary_versions) - 1
     st.session_state.summary = new_summary
 
+def display_department_info(department):
+    if department == "Deelnemersgesprekken collectief pensioen":
+        st.info("Let op: Voor deze afdeling wordt een uitgebreider, rapportstijl verslag gemaakt.")
+
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
@@ -144,6 +148,8 @@ def main():
             index=config["DEPARTMENTS"].index(st.session_state.department)
         )
         st.session_state.department = department
+        
+        display_department_info(department)  # Add this line
 
         input_method = st.radio("Invoermethode", config["INPUT_METHODS"], key='input_method_radio')
 

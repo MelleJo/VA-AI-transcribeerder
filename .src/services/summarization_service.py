@@ -14,6 +14,7 @@ def get_combined_prompt(department):
         "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
         "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
         "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
+        "Deelnemersgesprekken collectief pensioen": "deelnemersgesprekken_collectief_pensioen_prompt.txt",
         "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
     }
     prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
@@ -23,16 +24,17 @@ def get_combined_prompt(department):
     return f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
 
 def summarize_text(text, department):
+    if department == "Deelnemersgesprekken collectief pensioen":
+        return summarize_deelnemersgesprekken(text)
+    
     combined_prompt = get_combined_prompt(department)
     chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     
-    # Assume most texts will be within limits
     try:
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         chain = prompt_template | chat_model
         return chain.invoke({"text": text}).content
     except Exception as e:
-        # If an error occurs (possibly due to token limit), try chunking
         if "maximum context length" in str(e):
             chunk_size = 100000  # Adjust as needed
             chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
@@ -48,6 +50,14 @@ def summarize_text(text, department):
             return final_chain.invoke({"text": ""}).content
         else:
             raise e
+
+def summarize_deelnemersgesprekken(text):
+    prompt = load_prompt("deelnemersgesprekken_collectief_pensioen_prompt.txt")
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    
+    prompt_template = ChatPromptTemplate.from_template(prompt)
+    chain = prompt_template | chat_model
+    return chain.invoke({"text": text}).content
 
 def run_summarization(text, department):
     try:

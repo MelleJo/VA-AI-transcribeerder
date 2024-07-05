@@ -8,14 +8,33 @@ Elke keer begin je natuurlijk wel vanaf 0 en je neemt alleen de input die de geb
 De samenvatting volgt een vaste structuur waar je niet vanaf mag wijken. Die is als volgt:
 
 **Algemeen:**
+Geef een uitgebreide beschrijving van de algemene situatie van de deelnemer, inclusief informatie over hun werk, loopbaan, en eventuele organisatorische context.
+
 **Presentatie pensioen:**
+Beschrijf in detail de besproken pensioenonderwerpen, inclusief vragen, zorgen, en gegeven uitleg.
+
 **Privé zaken:**
+Geef een gedetailleerd overzicht van de persoonlijke situatie van de deelnemer, inclusief gezin, wonen, financiën, en toekomstplannen.
+
 **In het verleden opgebouwde pensioenaanspraken:** 
+Maak een uitgebreide lijst van alle opgebouwde pensioenaanspraken, met specifieke bedragen en details per aanspraak.
+
 **Waardeoverdracht:** 
+Beschrijf grondig of en hoe waardeoverdracht is besproken, inclusief eventuele acties of overwegingen.
+
 **ANW-hiaat:** 
+Leg uitgebreid uit wat er over het ANW-hiaat is besproken en welke keuzes zijn gemaakt.
+
 **Arbeidsongeschiktheidsdekking:** 
+Geef een gedetailleerde toelichting op de besproken arbeidsongeschiktheidsdekking en eventuele wijzigingen.
+
 **Persoonlijke pensioen portal:**
+Beschrijf uitvoerig hoe de persoonlijke pensioenportal is doorgenomen en welke specifieke functies zijn besproken.
+
 **Beleggen:**
+Geef een grondige toelichting op het beleggingsgedeelte, inclusief profielen, keuzes, en overwegingen.
+
+Zorg ervoor dat je verslag volledig en gedetailleerd is, met een duidelijke structuur en vloeiende overgangen tussen de verschillende onderdelen. Gebruik professionele taal en vermijd onnodige herhalingen. Het doel is een uitgebreid, informatief verslag dat alle aspecten van het deelnemersgesprek grondig behandelt.
 
 Voorbeelden: 
 
@@ -62,7 +81,7 @@ Prognose pensioen inkomen (pensioen + AOW) van Medewerker X € 2.992,- + de AOW
 Let op: op www.mijnpensioenoverzicht.nl laat men een te hoog prognose ouderdomspensioen zien aangezien Scildon nog als actieve pensioenpolis erop staat en daar dus in de berekeningen op de webwsite rekening mee is gehouden. Voor wat betreft het partnerpensioen is de polis van Scildon niet meer meegenomen in de opgave van de hoogte van de uitkeringen. Actie Adviseur contact met Scildon leggen dat ze niet de juiste cijfers op www.mijnpensioenoverzicht.nl laten zien. In mijn mini planning heb ik wel met de juiste getallen rekening gehouden.
 
 Waardeoverdracht: 
-Medewerker X wil graag dat de collectieve waardeoverdracht ingang gezet wordt. Al zijn collega’s willen dat ook graag. Actie Adviseur beoordelen wat de status is en doorgeven aan Medewerker X
+Medewerker X wil graag dat de collectieve waardeoverdracht ingang gezet wordt. Al zijn collega's willen dat ook graag. Actie Adviseur beoordelen wat de status is en doorgeven aan Medewerker X
 
 ANW-hiaat: 
 Dat heeft Medewerker X verzekerd en wil hij graag zo houden. 
@@ -96,7 +115,7 @@ E-mail: ......@hotmail.com
 Presentatie pensioen: 
 Aan de hand van de deelnemerspresentatie hebben we een gesprek gehad over pensioen in algemene zin, de pensioenregeling bij Werkgever  in het bijzonder en de trends en ontwikkelingen in de toekomst. We hebben afgesproken de presentatie en het gespreksverslag te mailen naar bovengenoemd mailadres (Actie Adviseur )
 Privézaken: 
-Medewerker X is 34 jaar en werkt al ruim 12,5 jaar bij Werkgever . Inmiddels is hij een van de financiële mannen binnen het bedrijf. Medewerker X woont alleen en heeft voldoende middelen om te sparen. Eens in de zoveel tijd maakt hij dan ook een verre reis, waardoor hij al meerdere plekken van de wereld heeft gezien. Zijn ‘next stop’ is Melbourne, aangezien zijn zusje daar studeert.  
+Medewerker X is 34 jaar en werkt al ruim 12,5 jaar bij Werkgever . Inmiddels is hij een van de financiële mannen binnen het bedrijf. Medewerker X woont alleen en heeft voldoende middelen om te sparen. Eens in de zoveel tijd maakt hij dan ook een verre reis, waardoor hij al meerdere plekken van de wereld heeft gezien. Zijn 'next stop' is Melbourne, aangezien zijn zusje daar studeert.  
 In het verleden opgebouwde pensioenaanspraken: 
 Aan de hand van www.mijnpensioenoverzicht.nl hebben we gekeken naar de in het verleden opgebouwde pensioenaanspraken. Hieruit kwam naar voren dat er naast het huidige pensioenpotje bij Nationale Nederlanden, en de oude regeling van Werkgever  bij Nationale Nederlanden, geen andere pensioenpotjes zijn opgebouwd. 
 Waardeoverdracht: 
@@ -106,7 +125,7 @@ Medewerker X heeft geen partner, waardoor een aanvullende nabestaandendekking ni
 Persoonlijke pensioen portal: 
 Deze hebben we op hoofdlijnen doorgenomen en was verder duidelijk. 
 Beleggen: 
-Via het mijn.nn account kan er een keuze gemaakt worden in de beleggingen en de bijspaar mogelijkheden. Je kunt ‘spelen’ met deze mogelijkheden waardoor de verschillende opties doorgerekend worden, zonder dat het definitief wordt doorgevoerd. Standaard wordt er middels het ‘neutrale’ beleggingsprofiel belegd, Medewerker X heeft ervoor gekozen om dit zo te laten staan. Uiteraard is het mogelijk om op een later tijdstip alsnog de keuze aan te passen. 
+Via het mijn.nn account kan er een keuze gemaakt worden in de beleggingen en de bijspaar mogelijkheden. Je kunt 'spelen' met deze mogelijkheden waardoor de verschillende opties doorgerekend worden, zonder dat het definitief wordt doorgevoerd. Standaard wordt er middels het 'neutrale' beleggingsprofiel belegd, Medewerker X heeft ervoor gekozen om dit zo te laten staan. Uiteraard is het mogelijk om op een later tijdstip alsnog de keuze aan te passen. 
 
 Met vriendelijke groet,
 Veldhuis Advies B.V.
