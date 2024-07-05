@@ -7,7 +7,7 @@ def get_openai_client():
     if 'openai_client' not in st.session_state:
         st.session_state.openai_client = ChatOpenAI(
             model_name="gpt-4o",
-            temperature=0.5,
+            temperature=0,
             api_key=st.secrets["OPENAI_API_KEY"]
         )
     return st.session_state.openai_client
