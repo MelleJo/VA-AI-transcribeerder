@@ -127,6 +127,7 @@ def update_summary(new_summary):
 def display_department_info(department):
     if department == "Deelnemersgesprekken collectief pensioen":
         st.info("Let op: Voor deze afdeling wordt een uitgebreider, rapportstijl verslag gemaakt.")
+        
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")

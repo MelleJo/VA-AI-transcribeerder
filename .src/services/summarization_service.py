@@ -5,7 +5,7 @@ from utils.text_processing import load_prompt, get_local_time
 
 def get_combined_prompt(department):
     department_prompts = {
-        "Bedrijven": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Bedrijven": "onderhoudsadviesgesprek_tabel_prompt.txt",
         "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
         "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
         "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
