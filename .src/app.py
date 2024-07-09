@@ -98,7 +98,7 @@ def display_product_descriptions(product_descriptions):
                 st.session_state.summary = product_info
             
             st.success("Productinformatie is toegevoegd aan de samenvatting.")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("Selecteer eerst producten om toe te voegen.")
 
@@ -242,7 +242,7 @@ def main():
                 if version_index != st.session_state.current_version_index:
                     st.session_state.current_version_index = version_index
                     st.session_state.summary = st.session_state.summary_versions[version_index]
-                    st.experimental_rerun()
+                    st.rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
             
