@@ -5,6 +5,9 @@ from openai_service import get_openai_client
 from streamlit_mic_recorder import mic_recorder
 from services.summarization_service import summarize_text
 from utils.text_processing import update_gesprekslog
+from openai import OpenAI
+
+audio_client = OpenAI()
 
 def split_audio(file_path, max_duration_ms=30000):
     audio = AudioSegment.from_file(file_path)
@@ -32,7 +35,7 @@ def transcribe_audio(file_path):
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
                 try:
-                    client = get_openai_client()
+                    client = audio_client()
                     transcription_response = client.audio.transcriptions.create(file=audio_file, model="whisper-1")
                     if hasattr(transcription_response, 'text'):
                         transcript_text += transcription_response.text + " "
@@ -55,7 +58,7 @@ def process_audio_input(input_method):
                     st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
-                st.experimental_rerun()
+                st.rerun()
         elif input_method == "Neem audio op":
             audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
             if audio_data and 'bytes' in audio_data and not st.session_state.get('transcription_done', False):
@@ -66,7 +69,7 @@ def process_audio_input(input_method):
                     st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
-                st.experimental_rerun()
+                st.rerun()
         
         if st.session_state.get('transcription_done', False) and not st.session_state.get('summarization_done', False):
             with st.spinner("Genereren van samenvatting..."):
@@ -74,4 +77,4 @@ def process_audio_input(input_method):
             update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
             st.session_state['summarization_done'] = True
             st.session_state['processing_complete'] = True
-            st.experimental_rerun()
+            st.rerun()

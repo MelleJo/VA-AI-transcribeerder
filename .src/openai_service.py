@@ -1,4 +1,5 @@
 from langchain_openai import ChatOpenAI
+from openai import OpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 import streamlit as st
@@ -11,6 +12,7 @@ def get_openai_client():
             api_key=st.secrets["OPENAI_API_KEY"]
         )
     return st.session_state.openai_client
+
 
 def perform_gpt4_operation(summary, operation):
     llm = get_openai_client()
