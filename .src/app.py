@@ -200,6 +200,8 @@ def main():
             process_audio_input(input_method)
 
         display_transcript(st.session_state.transcript)
+        with st.expander("Transcript"):
+            st.write(st.session_state.transcript)
 
         if st.session_state.summary:
             st.markdown("### 📑 Samenvatting")
