@@ -60,7 +60,7 @@ def transcribe_audio(file_path):
         progress_bar.progress((i + 1) / total_segments)
     progress_text.success("Transcriptie voltooid.")
     logger.debug(f"Transcription completed. Total length: {len(transcript_text)}")
-    st.info(f"Transcript generated. Length: {len(transcript_text)}")
+    st.info(f"Transcript gegenereerd. Lengte: {len(transcript_text)}")
     return transcript_text.strip()
 
 
@@ -84,7 +84,7 @@ def process_audio_input(input_method):
                     logger.debug(f"Transcript generated. Length: {len(transcript)}")
                     st.session_state['transcript'] = transcript
                     logger.debug(f"Transcript saved to session state. Length: {len(st.session_state['transcript'])}")
-                    st.info(f"Transcript generated. Length: {len(transcript)}")
+                    st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 logger.debug("Transcription marked as done")
@@ -102,7 +102,7 @@ def process_audio_input(input_method):
                     logger.debug(f"Transcript generated. Length: {len(transcript)}")
                     st.session_state['transcript'] = transcript
                     logger.debug(f"Transcript saved to session state. Length: {len(st.session_state['transcript'])}")
-                    st.info(f"Transcript generated. Length: {len(transcript)}")
+                    st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 logger.debug("Transcription marked as done")
@@ -115,18 +115,18 @@ def process_audio_input(input_method):
                 logger.debug(f"Retrieved transcript from session state. Length: {len(transcript)}")
                 department = st.session_state.get('department', '')
                 logger.debug(f"Department: {department}")
-                st.info(f"Generating summary for transcript. Length: {len(transcript)}")
+                st.info(f"Omzetten van audio naar transcript. Lengte: {len(transcript)}")
                 if transcript:
                     summary = summarize_text(transcript, department)
-                    logger.debug(f"Summary generated. Length: {len(summary)}")
+                    logger.debug(f"Samenvatting gegenereerd. Lengte: {len(summary)}")
                     st.session_state['summary'] = summary
                     logger.debug(f"Summary saved to session state. Length: {len(st.session_state['summary'])}")
                     update_gesprekslog(transcript, summary)
                     logger.debug("Gesprekslog updated")
-                    st.info(f"Summary generated. Length: {len(summary)}")
+                    st.info(f"Samenvatting gegenereerd. Lengte: {len(summary)}")
                 else:
                     logger.error("No transcript found to summarize")
-                    st.error("No transcript found to summarize.")
+                    st.error("Geen transcript gevonden.")
             st.session_state['summarization_done'] = True
             logger.debug("Summarization marked as done")
             st.session_state['processing_complete'] = True
