@@ -7,7 +7,7 @@ from utils.text_processing import update_gesprekslog
 from openai import OpenAI
 
 # Initialize the OpenAI API key
-client = OpenAI
+client = OpenAI()
 OpenAI.api_key = st.secrets["OPENAI_API_KEY"]
 
 def split_audio(file_path, max_duration_ms=30000):
