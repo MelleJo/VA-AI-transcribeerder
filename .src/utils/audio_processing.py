@@ -4,9 +4,10 @@ import tempfile
 from streamlit_mic_recorder import mic_recorder
 from services.summarization_service import summarize_text
 from utils.text_processing import update_gesprekslog
-import openai
+from openai import OpenAI
 
 # Initialize the OpenAI API key
+client = OpenAI
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 def split_audio(file_path, max_duration_ms=30000):
@@ -35,7 +36,7 @@ def transcribe_audio(file_path):
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
                 try:
-                    transcription_response = openai.Audio.transcriptions.create(
+                    transcription_response = client.Audio.transcriptions.create(
                         file=audio_file,
                         model="whisper-1",
                         response_format="text"
