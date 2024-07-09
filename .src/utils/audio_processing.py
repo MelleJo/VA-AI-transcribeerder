@@ -8,7 +8,7 @@ from openai import OpenAI
 
 # Initialize the OpenAI API key
 client = OpenAI
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+OpenAI.api_key = st.secrets["OPENAI_API_KEY"]
 
 def split_audio(file_path, max_duration_ms=30000):
     audio = AudioSegment.from_file(file_path)
