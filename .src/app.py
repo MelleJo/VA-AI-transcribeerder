@@ -59,7 +59,10 @@ def initialize_session_state():
         'transcript': "",
         'gesprekslog': [],
         'product_info': "",
-        'selected_products': []
+        'selected_products': [],
+        'transcription_done': False,
+        'summarization_done': False,
+        'processing_complete': False
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -98,7 +101,7 @@ def display_product_descriptions(product_descriptions):
                 st.session_state.summary = product_info
             
             st.success("Productinformatie is toegevoegd aan de samenvatting.")
-            st.rerun()
+            st.experimental_rerun()
         else:
             st.warning("Selecteer eerst producten om toe te voegen.")
 
@@ -150,7 +153,7 @@ def main():
         )
         st.session_state.department = department
         
-        display_department_info(department)  # Add this line
+        display_department_info(department)
 
         input_method = st.radio("Invoermethode", config["INPUT_METHODS"], key='input_method_radio')
 
@@ -244,7 +247,7 @@ def main():
                 if version_index != st.session_state.current_version_index:
                     st.session_state.current_version_index = version_index
                     st.session_state.summary = st.session_state.summary_versions[version_index]
-                    st.rerun()
+                    st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
             
