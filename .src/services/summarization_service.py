@@ -24,6 +24,9 @@ def get_combined_prompt(department):
     return f"{department_prompt}\n\n{basic_prompt.format(current_time=current_time)}\n\n{{text}}"
 
 def summarize_text(text, department):
+    print(f"Summarizing text for department: {department}")
+    print(f"Text length: {len(text)}")
+    
     if department == "Deelnemersgesprekken collectief pensioen":
         return summarize_deelnemersgesprekken(text)
     
@@ -33,8 +36,11 @@ def summarize_text(text, department):
     try:
         prompt_template = ChatPromptTemplate.from_template(combined_prompt)
         chain = prompt_template | chat_model
-        return chain.invoke({"text": text}).content
+        summary = chain.invoke({"text": text}).content
+        print(f"Summary generated. Length: {len(summary)}")
+        return summary
     except Exception as e:
+        print(f"Error in summarization: {str(e)}")
         if "maximum context length" in str(e):
             chunk_size = 100000  # Adjust as needed
             chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]

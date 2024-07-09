@@ -77,8 +77,11 @@ def process_audio_input(input_method):
         
         if st.session_state.get('transcription_done', False) and not st.session_state.get('summarization_done', False):
             with st.spinner("Genereren van samenvatting..."):
-                st.session_state['summary'] = summarize_text(st.session_state['transcript'], st.session_state['department'])
-            update_gesprekslog(st.session_state['transcript'], st.session_state['summary'])
+                transcript = st.session_state['transcript']
+                department = st.session_state['department']
+                summary = summarize_text(transcript, department)
+                st.session_state['summary'] = summary
+            update_gesprekslog(transcript, summary)
             st.session_state['summarization_done'] = True
             st.session_state['processing_complete'] = True
             st.rerun()
