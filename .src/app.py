@@ -17,6 +17,9 @@ from io import BytesIO
 import bleach
 import base64
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Configuration
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
@@ -133,10 +136,12 @@ def display_department_info(department):
         
 
 def main():
+    logger.debug("Starting main function")
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     
     config = load_config()
     initialize_session_state()
+    logger.debug(f"Initial session state: {st.session_state}")
     
     st.title("Gesprekssamenvatter versie 0.2.5")
     st.markdown("---")
@@ -152,10 +157,12 @@ def main():
             index=config["DEPARTMENTS"].index(st.session_state.department)
         )
         st.session_state.department = department
+        logger.debug(f"Selected department: {department}")
         
         display_department_info(department)
 
         input_method = st.radio("Invoermethode", config["INPUT_METHODS"], key='input_method_radio')
+        logger.debug(f"Selected input method: {input_method}")
 
         if department in config["DEPARTMENTS"]:
             with st.expander("💡 Vragen om te overwegen"):
@@ -166,19 +173,24 @@ def main():
     with col2:
         st.markdown("### 📝 Invoer & Samenvatting")
         if input_method in ["Upload audio", "Neem audio op"]:
+            logger.debug(f"Processing audio input: {input_method}")
             process_audio_input(input_method)
         elif input_method == "Upload tekst":
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
+                logger.debug(f"File uploaded: {uploaded_file.name}")
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
+                logger.debug(f"Transcript processed from file. Length: {len(st.session_state.transcript)}")
                 with st.spinner("Samenvatting maken..."):
                     result = run_summarization(st.session_state.transcript, department)
                 if result["error"] is None:
                     update_summary(result["summary"])
                     update_gesprekslog(st.session_state.transcript, result["summary"])
                     st.success("Samenvatting voltooid!")
+                    logger.debug("Summary completed successfully")
                 else:
                     st.error(f"Er is een fout opgetreden: {result['error']}")
+                    logger.error(f"Error in summarization: {result['error']}")
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
                                                        value=st.session_state.input_text, 
@@ -186,6 +198,7 @@ def main():
                                                        key='input_text_area')
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
+                    logger.debug(f"Text input received. Length: {len(st.session_state.input_text)}")
                     st.session_state.transcript = st.session_state.input_text
                     with st.spinner("Samenvatting maken..."):
                         result = run_summarization(st.session_state.transcript, st.session_state.department)
@@ -193,16 +206,21 @@ def main():
                         update_summary(result["summary"])
                         update_gesprekslog(st.session_state.transcript, result["summary"])
                         st.success("Samenvatting voltooid!")
+                        logger.debug("Summary completed successfully")
                     else:
                         st.error(f"Er is een fout opgetreden: {result['error']}")
+                        logger.error(f"Error in summarization: {result['error']}")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
+                    logger.warning("Summarization attempted with empty input")
 
         display_transcript(st.session_state.transcript)
+        logger.debug(f"Displayed transcript. Length: {len(st.session_state.transcript)}")
         with st.expander("Transcript"):
             st.write(st.session_state.transcript)
 
         if st.session_state.summary:
+            logger.debug("Displaying summary")
             st.markdown("### 📑 Samenvatting")
             
             summary_html = f"""
@@ -243,6 +261,7 @@ def main():
                 if version_index != st.session_state.current_version_index:
                     st.session_state.current_version_index = version_index
                     st.session_state.summary = st.session_state.summary_versions[version_index]
+                    logger.debug(f"Changed summary version to {version_index + 1}")
                     st.experimental_rerun()
 
             st.markdown("### 🛠️ Vervolgacties")
@@ -262,18 +281,24 @@ def main():
             
             with col1:
                 if st.button("🔍 Maak korter", key="make_shorter"):
+                    logger.debug("Make shorter button clicked")
                     new_summary = perform_gpt4_operation(st.session_state.summary, "maak de samenvatting korter en bondiger")
                     update_summary(new_summary)
+                    logger.debug("Summary shortened")
             
             with col2:
                 if st.button("📊 Zet om in rapport", key="convert_to_report"):
+                    logger.debug("Convert to report button clicked")
                     new_summary = perform_gpt4_operation(st.session_state.summary, "zet deze samenvatting om in een formeel rapport voor de klant")
                     update_summary(new_summary)
+                    logger.debug("Summary converted to report")
             
             with col3:
                 if st.button("📌 Extraheer actiepunten", key="extract_action_points"):
+                    logger.debug("Extract action points button clicked")
                     new_summary = perform_gpt4_operation(st.session_state.summary, "extraheer duidelijke actiepunten uit deze samenvatting")
                     update_summary(new_summary)
+                    logger.debug("Action points extracted from summary")
             
             st.markdown("---")
             
@@ -281,9 +306,11 @@ def main():
             custom_operation = st.text_input("Voer uw aangepaste bewerking in:", key="custom_operation_input", 
                                              placeholder="Bijvoorbeeld: Voeg een conclusie toe")
             if st.button("Uitvoeren", key="execute_custom"):
+                logger.debug(f"Custom operation requested: {custom_operation}")
                 with st.spinner("Bezig met bewerking..."):
                     new_summary = perform_gpt4_operation(st.session_state.summary, custom_operation)
                     update_summary(new_summary)
+                logger.debug("Custom operation completed")
             
             # Display product information
             if st.session_state.product_info:
@@ -302,6 +329,9 @@ def main():
     st.write(f"Transcription done: {st.session_state.get('transcription_done', False)}")
     st.write(f"Summarization done: {st.session_state.get('summarization_done', False)}")
     st.write(f"Processing complete: {st.session_state.get('processing_complete', False)}")
+
+    logger.debug("Exiting main function")
+    logger.debug(f"Final session state: {st.session_state}")
 
 if __name__ == "__main__":
     product_descriptions = load_product_descriptions()
