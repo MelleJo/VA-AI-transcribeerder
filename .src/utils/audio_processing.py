@@ -36,7 +36,7 @@ def transcribe_audio(file_path):
             segment.export(temp_file.name, format="wav")
             with open(temp_file.name, "rb") as audio_file:
                 try:
-                    transcription_response = client.Audio.transcriptions.create(
+                    transcription_response = client.audio.transcriptions.create(
                         file=audio_file,
                         model="whisper-1",
                         response_format="text"
