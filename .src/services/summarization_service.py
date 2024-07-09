@@ -6,14 +6,14 @@ from utils.text_processing import load_prompt, get_local_time
 def get_combined_prompt(department):
     department_prompts = {
         "Bedrijven": "onderhoudsadviesgesprek_tabel_prompt.txt",
-        "Financieel Advies": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-        "Schadeafdeling": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-        "Algemeen": "algemeen/notulen/algemeen_notulen.txt",
-        "Arbo": "arbo/algemeen_arbo.txt",
-        "Ondersteuning Bedrijfsarts": "arbo/ondersteuning_bedrijfsarts/samenvatting_gesprek_bedrijfsarts.txt",
-        "Onderhoudsadviesgesprek in tabelvorm": "veldhuis-advies-groep/bedrijven/MKB/onderhoudsadviesgesprek_tabel_prompt.txt",
-        "Notulen van een vergadering": "algemeen/notulen/algemeen_notulen.txt",
-        "Verslag van een telefoongesprek": "algemeen/telefoon/algemeen_telefoon.txt",
+        "Financieel Advies": "onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Schadeafdeling": "onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Algemeen": "algemeen_notulen.txt",
+        "Arbo": "algemeen_arbo.txt",
+        "Ondersteuning Bedrijfsarts": "samenvatting_gesprek_bedrijfsarts.txt",
+        "Onderhoudsadviesgesprek in tabelvorm": "onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Notulen van een vergadering": "algemeen_notulen.txt",
+        "Verslag van een telefoongesprek": "algemeen_telefoon.txt",
         "Deelnemersgesprekken collectief pensioen": "deelnemersgesprekken_collectief_pensioen_prompt.txt",
         "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
     }
