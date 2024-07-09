@@ -165,7 +165,9 @@ def main():
 
     with col2:
         st.markdown("### 📝 Invoer & Samenvatting")
-        if input_method == "Upload tekst":
+        if input_method in ["Upload audio", "Neem audio op"]:
+            process_audio_input(input_method)
+        elif input_method == "Upload tekst":
             uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
             if uploaded_file:
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
@@ -177,7 +179,6 @@ def main():
                     st.success("Samenvatting voltooid!")
                 else:
                     st.error(f"Er is een fout opgetreden: {result['error']}")
-
         elif input_method == "Voer tekst in of plak tekst":
             st.session_state.input_text = st.text_area("Voer tekst in:", 
                                                        value=st.session_state.input_text, 
@@ -186,10 +187,8 @@ def main():
             if st.button("Samenvatten", key='summarize_button'):
                 if st.session_state.input_text:
                     st.session_state.transcript = st.session_state.input_text
-                    
                     with st.spinner("Samenvatting maken..."):
                         result = run_summarization(st.session_state.transcript, st.session_state.department)
-                    
                     if result["error"] is None:
                         update_summary(result["summary"])
                         update_gesprekslog(st.session_state.transcript, result["summary"])
@@ -198,9 +197,6 @@ def main():
                         st.error(f"Er is een fout opgetreden: {result['error']}")
                 else:
                     st.warning("Voer alstublieft tekst in om samen te vatten.")
-
-        elif input_method in ["Upload audio", "Neem audio op"]:
-            process_audio_input(input_method)
 
         display_transcript(st.session_state.transcript)
         with st.expander("Transcript"):
@@ -298,6 +294,14 @@ def main():
 
     st.markdown("---")
     render_conversation_history()
+
+    # Display current state for debugging
+    st.write("Current session state:")
+    st.write(f"Transcript length: {len(st.session_state.get('transcript', ''))}")
+    st.write(f"Summary length: {len(st.session_state.get('summary', ''))}")
+    st.write(f"Transcription done: {st.session_state.get('transcription_done', False)}")
+    st.write(f"Summarization done: {st.session_state.get('summarization_done', False)}")
+    st.write(f"Processing complete: {st.session_state.get('processing_complete', False)}")
 
 if __name__ == "__main__":
     product_descriptions = load_product_descriptions()

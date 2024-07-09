@@ -41,14 +41,16 @@ def transcribe_audio(file_path):
                         model="whisper-1",
                         response_format="text"
                     )
-                    if 'text' in transcription_response:
-                        transcript_text += transcription_response['text'] + " "
+                    transcript_text += transcription_response + " "
                 except Exception as e:
                     st.error(f"Fout bij het transcriberen: {str(e)}")
                     continue
         progress_bar.progress((i + 1) / total_segments)
     progress_text.success("Transcriptie voltooid.")
+    st.info(f"Transcript generated. Length: {len(transcript_text)}")
     return transcript_text.strip()
+
+
 
 def process_audio_input(input_method):
     if not st.session_state.get('processing_complete', False):
@@ -59,7 +61,9 @@ def process_audio_input(input_method):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                         tmp_audio.write(uploaded_file.getvalue())
                         tmp_audio.flush()
-                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                    transcript = transcribe_audio(tmp_audio.name)
+                    st.session_state['transcript'] = transcript
+                    st.info(f"Transcript generated. Length: {len(transcript)}")
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 st.rerun()
@@ -70,18 +74,33 @@ def process_audio_input(input_method):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                         tmp_audio.write(audio_data['bytes'])
                         tmp_audio.flush()
-                    st.session_state['transcript'] = transcribe_audio(tmp_audio.name)
+                    transcript = transcribe_audio(tmp_audio.name)
+                    st.session_state['transcript'] = transcript
+                    st.info(f"Transcript generated. Length: {len(transcript)}")
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 st.rerun()
         
         if st.session_state.get('transcription_done', False) and not st.session_state.get('summarization_done', False):
             with st.spinner("Genereren van samenvatting..."):
-                transcript = st.session_state['transcript']
-                department = st.session_state['department']
-                summary = summarize_text(transcript, department)
-                st.session_state['summary'] = summary
-            update_gesprekslog(transcript, summary)
+                transcript = st.session_state.get('transcript', '')
+                department = st.session_state.get('department', '')
+                st.info(f"Generating summary for transcript. Length: {len(transcript)}")
+                if transcript:
+                    summary = summarize_text(transcript, department)
+                    st.session_state['summary'] = summary
+                    update_gesprekslog(transcript, summary)
+                    st.info(f"Summary generated. Length: {len(summary)}")
+                else:
+                    st.error("No transcript found to summarize.")
             st.session_state['summarization_done'] = True
             st.session_state['processing_complete'] = True
             st.rerun()
+
+    # Display current state for debugging
+    st.write("Current session state:")
+    st.write(f"Transcript length: {len(st.session_state.get('transcript', ''))}")
+    st.write(f"Summary length: {len(st.session_state.get('summary', ''))}")
+    st.write(f"Transcription done: {st.session_state.get('transcription_done', False)}")
+    st.write(f"Summarization done: {st.session_state.get('summarization_done', False)}")
+    st.write(f"Processing complete: {st.session_state.get('processing_complete', False)}")
