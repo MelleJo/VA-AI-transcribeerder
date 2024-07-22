@@ -1,11 +1,38 @@
-Schrijf een samenvatting voor een financieel adviestraject waarin de volgende structuur wordt gehandhaafd:
+Je taak is om een samenvatting te schrijven voor een financieel planningstraject in het Nederlands. Deze samenvatting moet gestructureerd en volledig zijn, en alle belangrijke aspecten van het financiële advies bevatten.
 
-1. Inleiding/aanleiding: Beschrijf kort de achtergrond en het doel van het financieel adviestraject.
-2. Huidige inkomenssituatie: Geef een overzicht van de huidige inkomenssituatie van de cliënt.
-3. Inkomenssituatie op de pensioendatum: Beschrijf de verwachte inkomenssituatie van de cliënt op het moment dat deze met pensioen gaat.
-4. Inkomenssituatie bij arbeidsongeschiktheid: Bespreek wat de inkomenssituatie van de cliënt zou zijn in het geval van arbeidsongeschiktheid.
-5. Inkomenssituatie bij overlijden: Beschrijf de inkomenssituatie van nabestaanden in het geval van overlijden van de cliënt.
-6. Adviezen: Noem de adviezen die zijn gegeven om de financiële situatie op basis van bovenstaande punten te optimaliseren.
-7. Actiepunten: Per adviessuggestie, geef concrete actiepunten die moeten worden ondernomen.
+Gebruik de informatie om een samenvatting te schrijven die de volgende structuur volgt:
 
-Gebruik deze structuur om de samenvatting volledig en overzichtelijk in te richten.
+1. Inleiding/aanleiding
+2. Huidige inkomenssituatie
+3. Inkomenssituatie op de pensioendatum
+4. Inkomenssituatie bij arbeidsongeschiktheid
+5. Inkomenssituatie bij overlijden
+6. Adviezen
+7. Actiepunten
+
+Voor elk onderdeel van de samenvatting, volg deze richtlijnen:
+
+1. Inleiding/aanleiding: Schrijf een korte introductie (2-3 zinnen) waarin je de achtergrond en het doel van het financieel adviestraject beschrijft. Gebruik hiervoor de informatie uit de client_info.
+
+2. Huidige inkomenssituatie: Geef een beknopt overzicht van de huidige inkomenssituatie van de cliënt. Noem belangrijke punten zoals salaris, eventuele uitkeringen of andere inkomstenbronnen.
+
+3. Inkomenssituatie op de pensioendatum: Beschrijf de verwachte inkomenssituatie van de cliënt bij pensionering. Noem de geschatte pensioenleeftijd, het verwachte pensioeninkomen en eventuele aanvullende voorzieningen.
+
+4. Inkomenssituatie bij arbeidsongeschiktheid: Bespreek wat er met het inkomen van de cliënt zou gebeuren in geval van arbeidsongeschiktheid. Vermeld eventuele verzekeringen of voorzieningen die van toepassing zijn.
+
+5. Inkomenssituatie bij overlijden: Beschrijf de financiële situatie voor nabestaanden als de cliënt zou overlijden. Noem relevante verzekeringen, pensioenregelingen of andere voorzieningen.
+
+6. Adviezen: Som de belangrijkste adviezen op die zijn gegeven om de financiële situatie van de cliënt te verbeteren of te optimaliseren. Zorg ervoor dat deze adviezen logisch voortvloeien uit de eerder beschreven situaties.
+
+7. Actiepunten: Geef voor elk advies concrete actiepunten die ondernomen moeten worden. Wees specifiek en duidelijk in wat er gedaan moet worden.
+
+Zorg ervoor dat je samenvatting:
+- Volledig in het Nederlands is geschreven
+- Zakelijk en professioneel van toon is
+- Duidelijk en beknopt is, zonder onnodige details
+- Logisch gestructureerd is, met duidelijke overgangen tussen de verschillende onderdelen
+- Geen persoonlijke meningen of speculaties bevat, maar gebaseerd is op de verstrekte informatie
+
+Gebruik koppen voor elk onderdeel van de samenvatting om de structuur duidelijk te maken. Begin je samenvatting met de titel "Samenvatting Financieel Planningstraject" en eindig met een korte afsluitende paragraaf.
+
+Schrijf je volledige samenvatting binnen <samenvatting> tags.
