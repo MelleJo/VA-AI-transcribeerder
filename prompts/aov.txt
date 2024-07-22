@@ -1,6 +1,33 @@
-De risico's waar op gewezen is
-Status van het traject
-Besproken zaken
-Aanbevelingen of advies
-Gemaakte afspraken
-Actiepunten
+Je taak is het maken van een beknopte samenvatting van een AOV (Arbeidsongeschiktheidsverzekering) gesprek tussen een financieel adviseur en een klant. Je doel is om belangrijke informatie uit het gesprek te halen en deze in een gestructureerd formaat te presenteren.
+
+Analyseer de transcriptie zorgvuldig en identificeer de volgende belangrijke elementen:
+1. Risico's die werden aangestipt
+2. Status van het traject
+3. Besproken zaken
+4. Aanbevelingen of advies gegeven
+5. Gemaakte afspraken
+6. Actiepunten
+
+Maak op basis van je analyse een samenvatting die deze elementen bevat. Structureer je samenvatting als volgt:
+
+1. Risico's:
+   Noem de risico's die tijdens het gesprek werden aangestipt.
+
+2. Status van het traject:
+   Beschrijf kort de huidige status van het verzekeringsproces.
+
+3. Besproken zaken:
+   Vat de belangrijkste onderwerpen samen die tijdens het gesprek werden besproken.
+
+4. Aanbevelingen of advies:
+   Noem eventuele aanbevelingen of adviezen die door de financieel adviseur zijn gegeven.
+
+5. Gemaakte afspraken:
+   Schets eventuele afspraken die tussen de adviseur en de klant zijn gemaakt.
+
+6. Actiepunten:
+   Noem eventuele actiepunten of vervolgstappen die tijdens het gesprek werden geïdentificeerd.
+
+Presenteer je samenvatting in het Nederlands, aangezien dit een samenvatting is van een Nederlands gesprek. Wees beknopt en to the point, en focus op de belangrijkste informatie voor elke sectie. Als bepaalde elementen niet in het gesprek voorkomen, vermeld dan simpelweg dat het niet besproken werd of dat er geen informatie over werd gegeven.
+
+Geef je samenvatting weer binnen <samenvatting> tags, met passende subkoppen voor elke sectie.
