@@ -19,7 +19,7 @@ def get_combined_prompt(department):
         "Notulen van een vergadering": "algemeen_notulen.txt",
         "Verslag van een telefoongesprek": "algemeen_telefoon.txt",
         "Deelnemersgesprekken collectief pensioen": "deelnemersgesprekken_collectief_pensioen_prompt.txt",
-        "Particulieren": "particulieren.txt"
+        "Particulieren": "particulieren.txt",
         "test-prompt (alleen voor Melle!)": "util/test_prompt.txt"
     }
     prompt_file = department_prompts.get(department, f"{department.lower().replace(' ', '_')}_prompt.txt")
