@@ -337,7 +337,7 @@ def main():
                     {st.session_state.summary}
                 </div>
                 <div style="position: absolute; bottom: 10px; right: 10px;">
-                    <button onclick="copyToClipboard()" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Kopieer</button>
+                    <button onclick="copyToClipboard()" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Kopieer (werkt niet altijd)</button>
                     <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{base64.b64encode(create_safe_docx(st.session_state.summary)).decode()}" download="samenvatting.docx" style="background-color: #4CAF50; border: none; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 14px; margin: 2px 2px; cursor: pointer; border-radius: 3px;">Download</a>
                 </div>
             </div>
