@@ -28,13 +28,14 @@ Geef je samenvatting in het volgende format, waarbij je de markdown-syntax preci
 - [Stap 3]
 
 #### Aanvullende opmerkingen
-[Eventuele belangrijke extra informatie die niet in bovenstaande categorieën past]
+[Eventuele belangrijke extra informatie die niet in bovenstaande categorieën past. Als er geen aanvullende opmerkingen zijn, laat deze sectie dan weg.]
 
 Belangrijke richtlijnen:
 - Gebruik de exacte markdown-opmaak zoals hierboven weergegeven.
-- Zorg ervoor dat er geen spaties staan tussen de sterretjes en de tekst bij vette opmaak.
+- Zorg ervoor dat er geen spaties staan tussen de hekjes (#) en de tekst bij koppen.
 - Gebruik streepjes (-) voor opsommingen, niet sterretjes (*).
-- Wees uiterst precies met datums, tijden en bedragen.
+- Laat een lege regel tussen elke hoofdsectie voor betere leesbaarheid.
+- Wees uiterst precies met datums, tijden en bedragen. Zorg ervoor dat de datum van het gesprek logisch is (niet in de toekomst).
 - Vermeld expliciet "Niet vermeld" voor ontbrekende informatie.
 - Baseer je samenvatting uitsluitend op informatie uit het transcript, maak geen aannames.
 - Zorg voor een logische samenhang in de informatie.
