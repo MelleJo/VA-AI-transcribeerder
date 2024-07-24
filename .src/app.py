@@ -27,7 +27,7 @@ QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'q
 
 DEPARTMENTS = [
     "Bedrijven", "Financieel Advies", "Schadeafdeling", "Algemeen", "Arbo", "Algemene samenvatting",
-    "Ondersteuning Bedrijfsarts", "Particulieren" "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering",
+    "Ondersteuning Bedrijfsarts", "Particulieren", "Onderhoudsadviesgesprek in tabelvorm", "Notulen van een vergadering",
     "Verslag van een telefoongesprek", "Deelnemersgesprekken collectief pensioen", "test-prompt (alleen voor Melle!)"
 ]
 
