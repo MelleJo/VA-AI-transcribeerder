@@ -11,7 +11,7 @@ def get_combined_prompt(department):
     department_prompts = {
         "Bedrijven": "onderhoudsadviesgesprek_tabel_prompt.txt",
         "Financieel Advies": "onderhoudsadviesgesprek_tabel_prompt.txt",
-        "Schadeafdeling": "onderhoudsadviesgesprek_tabel_prompt.txt",
+        "Schadeafdeling": "schade_afdeling.txt",
         "Algemeen": "algemeen_notulen.txt",
         "Arbo": "algemeen_arbo.txt",
         "Ondersteuning Bedrijfsarts": "samenvatting_gesprek_bedrijfsarts.txt",
