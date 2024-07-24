@@ -33,6 +33,113 @@ DEPARTMENTS = [
 
 INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"]
 
+def setup_page_style():
+    st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s ease 0s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-7px);
+    }
+    .summary-box {
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .summary-box:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #34495e;
+    }
+    .transcript-box {
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    .copy-button {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #3498db;
+    }
+    .stSelectbox {
+        color: #2c3e50;
+    }
+    .stSelectbox > div > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+    }
+    .stRadio > div {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .summary-box table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 1em;
+    }
+    .summary-box th, .summary-box td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .summary-box th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    .summary-box tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .summary-box tr:hover {
+        background-color: #f5f5f5;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 def load_config():
     return {
         "PROMPTS_DIR": PROMPTS_DIR,
