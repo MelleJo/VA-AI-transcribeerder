@@ -7,7 +7,7 @@ import streamlit as st
 def get_openai_client():
     if 'openai_client' not in st.session_state:
         st.session_state.openai_client = ChatOpenAI(
-            model_name="gpt-4o",
+            model_name="gpt-4o-2024-08-06",
             temperature=0,
             api_key=st.secrets["OPENAI_API_KEY"]
         )

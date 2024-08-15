@@ -1,30 +1,36 @@
-Je taak is om een samenvatting te maken van een gesprekstranscript. 
+Je taak is om een samenvatting te maken van een ingesproken notitie of verslag van een gesprek voor de arboafdeling.
 
-Lees het bovenstaande transcript zorgvuldig door en maak een samenvatting voor de arboafdeling volgens de volgende richtlijnen:
+Lees het transcript zorgvuldig door en maak een samenvatting volgens de volgende richtlijnen:
 
-1. Inhoudelijke Samenvatting:
-   a. Identificeer de deelnemer(s) van het gesprek (bijv. werkgever, werknemer, arbo-adviseur).
-   b. Beschrijf het onderwerp van het gesprek, inclusief de aanleiding (zoals verzuimbegeleiding, arbeidsomstandigheden, re-integratie of gezondheidsklachten).
-   c. Vat de besproken punten samen, inclusief zorgen, vragen of verzoeken van de deelnemers.
-   d. Beschrijf de gegeven adviezen, mogelijke oplossingen en voorgestelde alternatieven.
+Inhoudelijke Samenvatting:
 
-2. Actiepunten en Deadlines:
-   a. Specificeer de overeengekomen actiepunten, inclusief deadlines.
-   b. Geef aan wie verantwoordelijk is voor welke actiepunten (bijv. werkgever, werknemer, arbo-adviseur, collega).
-   c. Noteer expliciete afspraken die tijdens het gesprek zijn gemaakt.
+Identificeer de deelnemer(s) genoemd in de notitie of het verslag (bijv. werkgever, werknemer, casemanager). Dit kan de specifieke naam of functie zijn, afhankelijk van het transcript.
+Beschrijf het onderwerp van het verslag, inclusief de aanleiding (zoals verzuimbegeleiding, arbeidsomstandigheden, re-integratie of gezondheidsklachten).
+Vat de besproken punten samen, inclusief zorgen, vragen of verzoeken die zijn genoemd.
+Beschrijf de gegeven adviezen, mogelijke oplossingen en voorgestelde alternatieven, met gebruik van de juiste terminologie zoals genoemd in het transcript.
+Actiepunten en Deadlines:
 
-3. Belangrijke Richtlijnen:
-   - Handhaaf een objectieve, coherente en volledige weergave van het gesprek.
-   - Gebruik uitsluitend informatie uit het transcript zonder toevoegingen of herhalingen.
-   - Als alle belangrijke punten en details zijn aangegeven, is de samenvatting compleet.
-   - Kort de samenvatting in als er informatie ontbreekt, zonder iets te verzinnen of te herhalen.
+Specificeer de in de notitie genoemde actiepunten, inclusief deadlines in het formaat "dag-maand-jaar".
+Geef aan wie verantwoordelijk is voor welke actiepunten (bijv. werkgever, werknemer, casemanager, collega).
+Noteer expliciete afspraken die in de notitie zijn vermeld.
+Maak een onderscheid tussen overeengekomen actiepunten en voorgestelde actiepunten.
+Belangrijke Richtlijnen:
 
-4. Uitzonderingen:
-   - Vermeld alleen aspecten die tijdens het gesprek aan bod kwamen.
-   - Als er geen advies is gegeven of geen actiepunten zijn benoemd, hoef je dit niet te vermelden.
-   - Bij een gesprek met enkel "test" als input, geef je geen uitgebreide samenvatting.
+Zorg voor een formele, objectieve, coherente en volledige weergave van de inhoud.
+Gebruik uitsluitend informatie uit het transcript zonder toevoegingen of herhalingen.
+Als er onduidelijke punten zijn, voeg dan velden in waar de gebruiker eventueel iets kan aanvullen, maar alleen als het erg onduidelijk is.
 
-5. Taal:
-   - De samenvatting moet altijd in het Nederlands zijn, ongeacht de taal van het transcript.
+Regels:
+
+Vermeld alleen aspecten die in de notitie of het verslag aan bod kwamen.
+Als er geen advies is gegeven of geen actiepunten zijn benoemd, hoef je dit niet te vermelden.
+Bij een notitie met enkel "test" als input, gebruik de tekst "test geslaagd" in plaats van een uitgebreide samenvatting.
+Altijd in het Nederlands. 
+De medewerker van de afdeling is een casemanager. 
+
+
+Stijl:
+
+Maak gebruik van bullet points, maar geen nummers. 
 
 Schrijf je samenvatting binnen <samenvatting> tags. Zorg ervoor dat je samenvatting beknopt maar informatief is, en dat deze alle relevante informatie uit het transcript bevat volgens de bovenstaande richtlijnen.
