@@ -88,7 +88,7 @@ def process_audio_input(input_method):
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 logger.debug("Transcription marked as done")
-                st.experimental_rerun()
+                st.rerun()
         elif input_method == "Neem audio op":
             audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True, format="webm")
             if audio_data and 'bytes' in audio_data and not st.session_state.get('transcription_done', False):
@@ -106,7 +106,7 @@ def process_audio_input(input_method):
                     tempfile.NamedTemporaryFile(delete=True)
                 st.session_state['transcription_done'] = True
                 logger.debug("Transcription marked as done")
-                st.experimental_rerun()
+                st.rerun()
         
         if st.session_state.get('transcription_done', False) and not st.session_state.get('summarization_done', False):
             logger.debug("Starting summarization process")
@@ -131,7 +131,7 @@ def process_audio_input(input_method):
             logger.debug("Summarization marked as done")
             st.session_state['processing_complete'] = True
             logger.debug("Processing marked as complete")
-            st.experimental_rerun()
+            st.rerun()
 
     logger.debug("Exiting process_audio_input")
     logger.debug(f"Final session state: {st.session_state}")
