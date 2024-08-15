@@ -211,7 +211,7 @@ def display_product_descriptions(product_descriptions):
                 st.session_state.summary = product_info
             
             st.success("Productinformatie is toegevoegd aan de samenvatting.")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("Selecteer eerst producten om toe te voegen.")
 
