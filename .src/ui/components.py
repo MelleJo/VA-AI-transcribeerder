@@ -20,21 +20,27 @@ def display_summary(summary):
         sections = summary.split('\n\n')
         
         # Display header information
-        header_lines = sections[0].split('\n')
-        st.markdown(f"<h3>{header_lines[0]}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p><strong>Datum en tijd:</strong> {header_lines[1]}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p><strong>Gebruiker:</strong> {header_lines[2]}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p><strong>Gesproken met:</strong> {header_lines[3].split(': ')[1]}</p>", unsafe_allow_html=True)
+        if sections:
+            header_lines = sections[0].split('\n')
+            st.markdown(f"<h3>{header_lines[0] if header_lines else 'Summary'}</h3>", unsafe_allow_html=True)
+            
+            if len(header_lines) > 1:
+                st.markdown(f"<p><strong>Datum en tijd:</strong> {header_lines[1]}</p>", unsafe_allow_html=True)
+            if len(header_lines) > 2:
+                st.markdown(f"<p><strong>Gebruiker:</strong> {header_lines[2]}</p>", unsafe_allow_html=True)
+            if len(header_lines) > 3:
+                st.markdown(f"<p><strong>Gesproken met:</strong> {header_lines[3].split(': ')[1] if ': ' in header_lines[3] else 'Not specified'}</p>", unsafe_allow_html=True)
         
         # Display main content
         for section in sections[1:-1]:  # Exclude the last section (action points)
             st.markdown(section)
         
         # Display action points
-        action_points = sections[-1].split('\n')
-        st.markdown("<h4>Actiepunten/deadlines/afspraken:</h4>", unsafe_allow_html=True)
-        for point in action_points[1:]:  # Skip the header
-            st.markdown(f"- {point}")
+        if len(sections) > 1:
+            action_points = sections[-1].split('\n')
+            st.markdown("<h4>Actiepunten/deadlines/afspraken:</h4>", unsafe_allow_html=True)
+            for point in action_points[1:]:  # Skip the header
+                st.markdown(f"- {point}")
         
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -53,6 +59,8 @@ def display_summary(summary):
             if st.button("Kopieer naar klembord"):
                 st.write("Samenvatting gekopieerd naar klembord!")
                 pyperclip.copy(summary)
+    else:
+        st.warning("No summary available.")
 
 def create_word_document(content):
     doc = Document()

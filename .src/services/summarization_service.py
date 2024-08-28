@@ -45,6 +45,14 @@ def summarize_text(text, department, prompt_name, user_name):
 
     Originele tekst:
     {text}
+
+    Zorg ervoor dat je samenvatting de volgende structuur heeft:
+    1. Titel
+    2. Datum en tijd
+    3. Gebruiker
+    4. Gesproken met
+    5. Hoofdinhoud (meerdere paragrafen indien nodig)
+    6. Actiepunten/deadlines/afspraken
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
