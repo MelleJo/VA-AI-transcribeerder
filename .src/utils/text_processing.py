@@ -5,6 +5,7 @@ import streamlit as st
 import pyperclip
 
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
+QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
 def get_local_time():
     timezone = pytz.timezone("Europe/Amsterdam")
@@ -17,6 +18,14 @@ def load_prompt(file_name):
         raise FileNotFoundError(f"Bestand niet gevonden: {path}")
     with open(path, "r", encoding="utf-8") as file:
         return file.read()
+
+def load_questions(file_name):
+    path = os.path.join(QUESTIONS_DIR, file_name)
+    if not os.path.exists(path):
+        st.error(f"Bestand niet gevonden: {path}")
+        raise FileNotFoundError(f"Bestand niet gevonden: {path}")
+    with open(path, "r", encoding="utf-8") as file:
+        return file.readlines()
 
 def update_gesprekslog(transcript, summary):
     current_time = get_local_time()
