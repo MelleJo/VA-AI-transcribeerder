@@ -164,7 +164,7 @@ def initialize_session_state():
             st.session_state[key] = value
 
 def render_wizard():
-    st.title("Gesprekssamenvatter Wizard")
+    st.title("Gesprekssamenvatter")
 
     steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
     selected_step = option_menu(
