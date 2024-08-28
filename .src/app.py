@@ -206,8 +206,14 @@ def render_business_side_selection():
     st.header("Welkom bij de Gesprekssamenvatter")
     
     # User name input
-    user_name = st.text_input("Uw naam (optioneel):", key="user_name")
-    st.session_state.user_name = user_name if user_name else "[gebruiker_naam]"
+    if 'user_name' not in st.session_state:
+        st.session_state.user_name = ""
+    
+    user_name = st.text_input("Uw naam (optioneel):", value=st.session_state.user_name, key="user_name_input")
+    
+    # Update session state only if the value has changed
+    if user_name != st.session_state.user_name:
+        st.session_state.user_name = user_name
     
     st.header("Selecteer de bedrijfskant")
     for side in BUSINESS_SIDES:
@@ -253,7 +259,7 @@ def render_summary():
         st.session_state.input_text = st.text_area("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
             with st.spinner("Samenvatting maken..."):
-                result = run_summarization(st.session_state.input_text, st.session_state.prompt)
+                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
                 if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.input_text, result["summary"])

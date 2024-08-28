@@ -48,10 +48,9 @@ def summarize_text(text, prompt_name, user_name):
         logger.error(f"Error in summarization: {str(e)}")
         raise e
 
-def run_summarization(text, prompt_name):
+def run_summarization(text, prompt_name, user_name):
     try:
-        user_name = st.session_state.get('user_name', '[gebruiker_naam]')
-        summary = summarize_text(text, prompt_name, user_name)
+        summary = summarize_text(text, prompt_name, user_name or '[gebruiker_naam]')
         return {"summary": summary, "error": None}
     except Exception as e:
         return {"summary": None, "error": str(e)}
