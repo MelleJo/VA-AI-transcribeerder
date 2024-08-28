@@ -7,7 +7,6 @@ import json
 from openai_service import perform_gpt4_operation
 from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
-from services.summarization_service import run_summarization
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, load_questions
@@ -255,7 +254,7 @@ def render_summary():
         st.session_state.input_text = st.text_area("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
             with st.spinner("Samenvatting maken..."):
-                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
+                result = process_audio_input(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
                 if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.input_text, result["summary"])
@@ -269,7 +268,7 @@ def render_summary():
         if uploaded_file:
             st.session_state.transcript = process_uploaded_file(uploaded_file)
             with st.spinner("Samenvatting maken..."):
-                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+                result = process_audio_input(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
                 if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.transcript, result["summary"])

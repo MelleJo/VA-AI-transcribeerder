@@ -4,7 +4,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
 import logging
 import os
-from app import PROMPTS_DIR, PROMPTS
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +13,13 @@ def get_prompt(department, prompt_name):
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
     # Construct the path based on the provided directory structure
-    prompt_file = os.path.join(PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
+    prompt_file = os.path.join(st.session_state.PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
     
     # Check if the file exists in the constructed path
     if not os.path.exists(prompt_file):
         raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
     
     return load_prompt(prompt_file)
-
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
@@ -43,7 +41,7 @@ def summarize_text(text, department, prompt_name, user_name):
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
     
     try:
         prompt_template = ChatPromptTemplate.from_template(full_prompt)
@@ -55,11 +53,3 @@ def summarize_text(text, department, prompt_name, user_name):
     except Exception as e:
         logger.error(f"Error in summarization: {str(e)}")
         raise e
-
-def run_summarization(text, prompt_name, user_name):
-    try:
-        department = st.session_state.department
-        summary = summarize_text(text, department, prompt_name, user_name)
-        return {"summary": summary, "error": None}
-    except Exception as e:
-        return {"summary": None, "error": str(e)}
