@@ -146,7 +146,6 @@ def initialize_session_state():
         'summary_versions': [],
         'current_version_index': -1,
         'department': "",
-        'subdepartment': "",
         'prompt': "",
         'input_method': "",
         'input_text': "",
@@ -167,11 +166,11 @@ def initialize_session_state():
 def render_wizard():
     st.title("Gesprekssamenvatter Wizard")
 
-    steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
+    steps = ["Bedrijfsonderdeel", "Prompt", "Invoermethode", "Samenvatting"]
     selected_step = option_menu(
         menu_title=None,
         options=steps,
-        icons=["building", "people-fill", "chat-left-text", "input-cursor-text", "file-text"],
+        icons=["building", "chat-left-text", "input-cursor-text", "file-text"],
         menu_icon="cast",
         default_index=st.session_state.current_step,
         orientation="horizontal",
@@ -182,12 +181,10 @@ def render_wizard():
     if st.session_state.current_step == 0:
         render_department_selection()
     elif st.session_state.current_step == 1:
-        render_subdepartment_selection()
-    elif st.session_state.current_step == 2:
         render_prompt_selection()
-    elif st.session_state.current_step == 3:
+    elif st.session_state.current_step == 2:
         render_input_method_selection()
-    elif st.session_state.current_step == 4:
+    elif st.session_state.current_step == 3:
         render_summary()
 
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -219,6 +216,7 @@ def render_department_selection():
             st.session_state.current_step += 1
             st.rerun()
 
+
 def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
@@ -243,15 +241,14 @@ def render_subdepartment_selection():
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
-    if st.session_state.subdepartment:
-        prompts = DEPARTMENTS[st.session_state.department]
-        for prompt in prompts:
+    if st.session_state.department:
+        for prompt in DEPARTMENTS[st.session_state.department]:
             if card(title=prompt, text="", key=prompt):
                 st.session_state.prompt = prompt
                 st.session_state.current_step += 1
                 st.rerun()
     else:
-        st.warning("Selecteer eerst een afdeling.")
+        st.warning("Selecteer eerst een bedrijfsonderdeel.")
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
