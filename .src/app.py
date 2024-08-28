@@ -240,6 +240,7 @@ def render_input_method_selection():
             st.session_state.current_step += 1
             st.rerun()
 
+
 def render_summary():
     st.header("Samenvatting")
     if st.session_state.input_method == "Voer tekst in of plak tekst":
@@ -254,7 +255,11 @@ def render_summary():
                 else:
                     st.error(f"Er is een fout opgetreden: {result['error']}")
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
-        process_audio_input(st.session_state.input_method)
+        try:
+            process_audio_input(st.session_state.input_method)
+        except Exception as e:
+            st.error(f"Er is een fout opgetreden bij het verwerken van de audio: {str(e)}")
+            logger.error(f"Error in audio processing: {str(e)}")
     elif st.session_state.input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
         if uploaded_file:
@@ -270,6 +275,8 @@ def render_summary():
 
     if st.session_state.summary:
         display_summary(st.session_state.summary)
+
+
 
 def main():
     setup_page_style()

@@ -9,8 +9,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-client = OpenAI()
-OpenAI.api_key = st.secrets["OPENAI_API_KEY"]
+# Initialize the OpenAI client
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except Exception as e:
+    logger.error(f"Error initializing OpenAI client: {str(e)}")
+    st.error("There was an error initializing the OpenAI client. Please check your API key.")
 
 def process_audio_input(input_method):
     if input_method == "Upload audio":
@@ -20,10 +24,15 @@ def process_audio_input(input_method):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                     tmp_audio.write(uploaded_file.getvalue())
                     tmp_audio.flush()
-                transcript = transcribe_audio(tmp_audio.name)
-                st.session_state.transcript = transcript
-                st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
-                tempfile.NamedTemporaryFile(delete=True)
+                try:
+                    transcript = transcribe_audio(tmp_audio.name)
+                    st.session_state.transcript = transcript
+                    st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
+                except Exception as e:
+                    st.error(f"Error transcribing audio: {str(e)}")
+                    logger.error(f"Error transcribing audio: {str(e)}")
+                finally:
+                    tempfile.NamedTemporaryFile(delete=True)
     elif input_method == "Neem audio op":
         audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
         if audio_data and 'bytes' in audio_data:
@@ -31,10 +40,15 @@ def process_audio_input(input_method):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
                     tmp_audio.write(audio_data['bytes'])
                     tmp_audio.flush()
-                transcript = transcribe_audio(tmp_audio.name)
-                st.session_state.transcript = transcript
-                st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
-                tempfile.NamedTemporaryFile(delete=True)
+                try:
+                    transcript = transcribe_audio(tmp_audio.name)
+                    st.session_state.transcript = transcript
+                    st.info(f"Transcript gegenereerd. Lengte: {len(transcript)}")
+                except Exception as e:
+                    st.error(f"Error transcribing audio: {str(e)}")
+                    logger.error(f"Error transcribing audio: {str(e)}")
+                finally:
+                    tempfile.NamedTemporaryFile(delete=True)
 
     if st.session_state.transcript:
         with st.spinner("Genereren van samenvatting..."):
@@ -47,13 +61,20 @@ def process_audio_input(input_method):
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
 
 def transcribe_audio(file_path):
-    with open(file_path, "rb") as audio_file:
-        transcript = client.audio.transcriptions.create(
-            file=audio_file,
-            model="whisper-1",
-            response_format="text"
-        )
-    return transcript
+    if not client:
+        raise Exception("OpenAI client is not initialized. Please check your API key.")
+    
+    try:
+        with open(file_path, "rb") as audio_file:
+            transcript = client.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-1",
+                response_format="text"
+            )
+        return transcript
+    except Exception as e:
+        logger.error(f"Error in transcribe_audio: {str(e)}")
+        raise Exception(f"Error transcribing audio: {str(e)}")
 
 def split_audio(file_path, max_duration_ms=30000):
     audio = AudioSegment.from_file(file_path)
