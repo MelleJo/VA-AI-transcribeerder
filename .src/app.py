@@ -5,7 +5,7 @@ import os
 import sys
 import json
 from openai_service import perform_gpt4_operation
-from utils.audio_processing import process_audio_input
+from utils.audio_processing import process_audio_input, SUPPORTED_FORMATS
 from utils.file_processing import process_uploaded_file
 from services.summarization_service import run_summarization
 from ui.components import display_transcript, display_summary
@@ -255,6 +255,7 @@ def render_summary():
                 else:
                     st.error(f"Er is een fout opgetreden: {result['error']}")
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
+        st.info(f"Ondersteunde audio formaten: {', '.join(SUPPORTED_FORMATS)}")
         try:
             process_audio_input(st.session_state.input_method)
         except Exception as e:
