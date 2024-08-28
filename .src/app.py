@@ -145,6 +145,7 @@ def initialize_session_state():
         'summary': "",
         'summary_versions': [],
         'current_version_index': -1,
+        'business_side': "",
         'department': "",
         'prompt': "",
         'input_method': "",
@@ -166,11 +167,11 @@ def initialize_session_state():
 def render_wizard():
     st.title("Gesprekssamenvatter Wizard")
 
-    steps = ["Bedrijfsonderdeel", "Prompt", "Invoermethode", "Samenvatting"]
+    steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
     selected_step = option_menu(
         menu_title=None,
         options=steps,
-        icons=["building", "chat-left-text", "input-cursor-text", "file-text"],
+        icons=["building", "people", "chat-left-text", "input-cursor-text", "file-text"],
         menu_icon="cast",
         default_index=st.session_state.current_step,
         orientation="horizontal",
@@ -179,12 +180,14 @@ def render_wizard():
     st.session_state.current_step = steps.index(selected_step)
 
     if st.session_state.current_step == 0:
-        render_department_selection()
+        render_business_side_selection()
     elif st.session_state.current_step == 1:
-        render_prompt_selection()
+        render_department_selection()
     elif st.session_state.current_step == 2:
-        render_input_method_selection()
+        render_prompt_selection()
     elif st.session_state.current_step == 3:
+        render_input_method_selection()
+    elif st.session_state.current_step == 4:
         render_summary()
 
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -199,7 +202,7 @@ def render_wizard():
                 st.session_state.current_step += 1
                 st.rerun()
 
-def render_department_selection():
+def render_business_side_selection():
     st.header("Selecteer het bedrijfsonderdeel")
     
     if 'user_name' not in st.session_state:
@@ -210,30 +213,18 @@ def render_department_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    for dept in DEPARTMENTS.keys():
-        if card(title=dept, text="", key=dept):
-            st.session_state.department = dept
+    for business_side in BUSINESS_SIDES:
+        if card(title=business_side, text="", key=business_side):
+            st.session_state.business_side = business_side
             st.session_state.current_step += 1
             st.rerun()
-
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
-        for dept in DEPARTMENTS[st.session_state.business_side]:
+        for dept in DEPARTMENTS.keys():
             if card(title=dept, text="", key=dept):
                 st.session_state.department = dept
-                st.session_state.current_step += 1
-                st.rerun()
-    else:
-        st.warning("Selecteer eerst een bedrijfskant.")
-
-def render_subdepartment_selection():
-    st.header("Selecteer de afdeling")
-    if st.session_state.department:
-        for subdept in DEPARTMENTS[st.session_state.department]:
-            if card(title=subdept, text="", key=subdept):
-                st.session_state.subdepartment = subdept
                 st.session_state.current_step += 1
                 st.rerun()
     else:
@@ -248,7 +239,7 @@ def render_prompt_selection():
                 st.session_state.current_step += 1
                 st.rerun()
     else:
-        st.warning("Selecteer eerst een bedrijfsonderdeel.")
+        st.warning("Selecteer eerst een afdeling.")
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
@@ -257,7 +248,6 @@ def render_input_method_selection():
             st.session_state.input_method = method
             st.session_state.current_step += 1
             st.rerun()
-
 
 def render_summary():
     st.header("Samenvatting")
@@ -289,8 +279,6 @@ def render_summary():
 
     if st.session_state.summary:
         display_summary(st.session_state.summary)
-
-
 
 def main():
     setup_page_style()
