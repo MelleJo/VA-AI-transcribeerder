@@ -3,7 +3,7 @@ from pydub import AudioSegment
 import tempfile
 import os
 from streamlit_mic_recorder import mic_recorder
-from services.summarization_service import summarize_text
+from services.summarization_service import run_summarization
 from utils.text_processing import update_gesprekslog
 from openai import OpenAI
 import logging
@@ -71,13 +71,13 @@ def process_audio_input(input_method):
 
     if st.session_state.transcript:
         with st.spinner("Genereren van samenvatting..."):
-            result = summarize_text(st.session_state.transcript, st.session_state.prompt)
-            if result:
-                st.session_state.summary = result
-                update_gesprekslog(st.session_state.transcript, result)
+            result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+            if result["error"] is None:
+                st.session_state.summary = result["summary"]
+                update_gesprekslog(st.session_state.transcript, result["summary"])
                 st.success("Samenvatting voltooid!")
             else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+                st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {result['error']}")
 
 def convert_to_mp3(file_path):
     audio = AudioSegment.from_file(file_path)
