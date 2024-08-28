@@ -6,6 +6,7 @@ import sys
 import json
 from openai_service import perform_gpt4_operation
 from utils.audio_processing import process_audio_input
+from services.summarization_service import run_summarization
 from utils.file_processing import process_uploaded_file
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
@@ -255,13 +256,14 @@ def render_summary():
         st.session_state.input_text = st.text_area("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
             with st.spinner("Samenvatting maken..."):
-                result = process_audio_input(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
-                if result and result["error"] is None:
+                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
+                if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.input_text, result["summary"])
                     st.success("Samenvatting voltooid!")
                 else:
-                    st.error(f"Er is een fout opgetreden: {result['error'] if result else 'Onbekende fout'}")
+                    st.error(f"Er is een fout opgetreden: {result['error']}")
+                    st.error("Controleer of het juiste prompt bestand aanwezig is in de 'prompts' map.")
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
         result = process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
         if result and result["error"] is None:

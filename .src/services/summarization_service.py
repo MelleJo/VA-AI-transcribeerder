@@ -8,24 +8,32 @@ import os
 logger = logging.getLogger(__name__)
 
 def get_prompt(department, prompt_name):
-    # Normalize the department and prompt name
-    normalized_department = department.lower().replace(' ', '_')
-    normalized_prompt_name = prompt_name.lower().replace(' ', '_')
+    # List of possible file name formats
+    possible_filenames = [
+        f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt",
+        f"{prompt_name.lower().replace(' ', '_')}.txt",
+        f"{department.lower()}/{prompt_name.lower().replace(' ', '_')}.txt",
+    ]
     
-    # Construct the path based on the provided directory structure
-    prompt_file = os.path.join(st.session_state.PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
+    for filename in possible_filenames:
+        try:
+            return load_prompt(filename)
+        except FileNotFoundError:
+            continue
     
-    # Check if the file exists in the constructed path
-    if not os.path.exists(prompt_file):
-        raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
-    
-    return load_prompt(prompt_file)
+    # If no file is found, raise an error
+    raise FileNotFoundError(f"No prompt file found for department '{department}' and prompt '{prompt_name}'")
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
     logger.debug(f"Input text length: {len(text)}")
     
-    prompt = get_prompt(department, prompt_name)
+    try:
+        prompt = get_prompt(department, prompt_name)
+    except FileNotFoundError as e:
+        logger.error(f"Prompt file not found: {str(e)}")
+        return f"Error: {str(e)}"
+    
     current_time = get_local_time()
     
     full_prompt = f"""
@@ -41,7 +49,7 @@ def summarize_text(text, department, prompt_name, user_name):
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
     
     try:
         prompt_template = ChatPromptTemplate.from_template(full_prompt)
@@ -52,4 +60,14 @@ def summarize_text(text, department, prompt_name, user_name):
         return summary
     except Exception as e:
         logger.error(f"Error in summarization: {str(e)}")
-        raise e
+        return f"Error in summarization: {str(e)}"
+
+def run_summarization(text, prompt_name, user_name):
+    try:
+        department = st.session_state.department
+        summary = summarize_text(text, department, prompt_name, user_name)
+        if summary.startswith("Error:"):
+            return {"summary": None, "error": summary}
+        return {"summary": summary, "error": None}
+    except Exception as e:
+        return {"summary": None, "error": str(e)}
