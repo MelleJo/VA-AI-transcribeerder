@@ -3,12 +3,25 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
 import logging
+import os
+from app import PROMPTS_DIR, PROMPTS
 
 logger = logging.getLogger(__name__)
 
 def get_prompt(department, prompt_name):
-    prompt_file = f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt"
+    # Normalize the department and prompt name
+    normalized_department = department.lower().replace(' ', '_')
+    normalized_prompt_name = prompt_name.lower().replace(' ', '_')
+    
+    # Construct the path based on the provided directory structure
+    prompt_file = os.path.join(PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
+    
+    # Check if the file exists in the constructed path
+    if not os.path.exists(prompt_file):
+        raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
+    
     return load_prompt(prompt_file)
+
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
