@@ -119,8 +119,14 @@ def get_prompt(department, prompt_name):
     normalized_department = department.lower().replace(' ', '_')
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
+    # Use the PROMPTS_DIR from the session state
+    prompts_dir = st.session_state.get('PROMPTS_DIR', '')
+    
     # Construct the path based on the provided directory structure
-    prompt_file = os.path.join(st.session_state.PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
+    prompt_file = os.path.join(prompts_dir, normalized_department, f"{normalized_prompt_name}.txt")
+    
+    # Add debug logging
+    logger.debug(f"Attempting to load prompt file: {prompt_file}")
     
     # Check if the file exists in the constructed path
     if not os.path.exists(prompt_file):
