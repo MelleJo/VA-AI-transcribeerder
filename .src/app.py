@@ -5,7 +5,7 @@ import os
 import sys
 import json
 from openai_service import perform_gpt4_operation
-from utils.audio_processing import process_audio_input, SUPPORTED_FORMATS
+from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
 from services.summarization_service import run_summarization
 from ui.components import display_transcript, display_summary
@@ -30,9 +30,12 @@ QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'q
 BUSINESS_SIDES = ["Veldhuis Advies Groep", "Veldhuis Advies", "Arbo"]
 
 DEPARTMENTS = {
-    "Veldhuis Advies Groep": ["Algemeen", "Schade", "Bedrijven", "Particulieren", "Support"],
-    "Veldhuis Advies": ["Algemeen", "Financiële Planning", "Pensioenen", "Hypotheek"],
-    "Arbo": ["Algemeen", "Arbo"]
+    "Schade": ["Schademelding", "Telefoongesprek", "Schade beoordeling", "Expertise gesprek", "Ingesproken notitie"],
+    "Bedrijven": ["Adviesgesprek", "Adviesgesprek tabelvorm", "Risico analyse", "Klantvraag", "Telefoongesprek", "Ingesproken notitie", "Klantrapport"],
+    "Particulieren": ["Mutatie", "Telefoongesprek", "Adviesgesprek", "Ingesproken notitie"],
+    "Arbo": ["Telefoongesprek", "Ingesproken notitie", "Gesprek bedrijfsarts"],
+    "Veldhuis Advies": ["Pensioen", "Collectief pensioen", "Hypotheek", "Hypotheek rapport", "Financieelplanningstraject", "Deelnemersgesprekken collectief pensioen", "AOV", "Telefoongesprek", "Ingesproken notitie"],
+    "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
 }
 
 PROMPTS = {
@@ -142,8 +145,8 @@ def initialize_session_state():
         'summary': "",
         'summary_versions': [],
         'current_version_index': -1,
-        'business_side': "",
         'department': "",
+        'subdepartment': "",
         'prompt': "",
         'input_method': "",
         'input_text': "",
@@ -154,7 +157,8 @@ def initialize_session_state():
         'transcription_done': False,
         'summarization_done': False,
         'processing_complete': False,
-        'current_step': 0
+        'current_step': 0,
+        'user_name': ""
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -163,8 +167,7 @@ def initialize_session_state():
 def render_wizard():
     st.title("Gesprekssamenvatter Wizard")
 
-    # Navigation
-    steps = ["Bedrijfskant", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
+    steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
     selected_step = option_menu(
         menu_title=None,
         options=steps,
@@ -174,14 +177,12 @@ def render_wizard():
         orientation="horizontal",
     )
 
-    # Update current step based on selection
     st.session_state.current_step = steps.index(selected_step)
 
-    # Render the appropriate step
     if st.session_state.current_step == 0:
-        render_business_side_selection()
-    elif st.session_state.current_step == 1:
         render_department_selection()
+    elif st.session_state.current_step == 1:
+        render_subdepartment_selection()
     elif st.session_state.current_step == 2:
         render_prompt_selection()
     elif st.session_state.current_step == 3:
@@ -189,7 +190,6 @@ def render_wizard():
     elif st.session_state.current_step == 4:
         render_summary()
 
-    # Navigation buttons
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         if st.session_state.current_step > 0:
@@ -202,23 +202,20 @@ def render_wizard():
                 st.session_state.current_step += 1
                 st.rerun()
 
-def render_business_side_selection():
-    st.header("Welkom bij de Gesprekssamenvatter")
+def render_department_selection():
+    st.header("Selecteer het bedrijfsonderdeel")
     
-    # User name input
     if 'user_name' not in st.session_state:
         st.session_state.user_name = ""
     
     user_name = st.text_input("Uw naam (optioneel):", value=st.session_state.user_name, key="user_name_input")
     
-    # Update session state only if the value has changed
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
-    
-    st.header("Selecteer de bedrijfskant")
-    for side in BUSINESS_SIDES:
-        if card(title=side, text="", key=side):
-            st.session_state.business_side = side
+
+    for dept in DEPARTMENTS.keys():
+        if card(title=dept, text="", key=dept):
+            st.session_state.department = dept
             st.session_state.current_step += 1
             st.rerun()
 
@@ -233,10 +230,22 @@ def render_department_selection():
     else:
         st.warning("Selecteer eerst een bedrijfskant.")
 
+def render_subdepartment_selection():
+    st.header("Selecteer de afdeling")
+    if st.session_state.department:
+        for subdept in DEPARTMENTS[st.session_state.department]:
+            if card(title=subdept, text="", key=subdept):
+                st.session_state.subdepartment = subdept
+                st.session_state.current_step += 1
+                st.rerun()
+    else:
+        st.warning("Selecteer eerst een bedrijfsonderdeel.")
+
 def render_prompt_selection():
     st.header("Selecteer de prompt")
-    if st.session_state.department:
-        for prompt in PROMPTS[st.session_state.department]:
+    if st.session_state.subdepartment:
+        prompts = DEPARTMENTS[st.session_state.department]
+        for prompt in prompts:
             if card(title=prompt, text="", key=prompt):
                 st.session_state.prompt = prompt
                 st.session_state.current_step += 1
@@ -267,18 +276,13 @@ def render_summary():
                 else:
                     st.error(f"Er is een fout opgetreden: {result['error']}")
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
-        st.info(f"Ondersteunde audio formaten: {', '.join(SUPPORTED_FORMATS)}")
-        try:
-            process_audio_input(st.session_state.input_method)
-        except Exception as e:
-            st.error(f"Er is een fout opgetreden bij het verwerken van de audio: {str(e)}")
-            logger.error(f"Error in audio processing: {str(e)}")
+        process_audio_input(st.session_state.input_method)
     elif st.session_state.input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
         if uploaded_file:
             st.session_state.transcript = process_uploaded_file(uploaded_file)
             with st.spinner("Samenvatting maken..."):
-                result = run_summarization(st.session_state.transcript, st.session_state.prompt)
+                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
                 if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.transcript, result["summary"])

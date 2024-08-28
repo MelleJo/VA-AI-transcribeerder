@@ -6,15 +6,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def get_prompt(prompt_name):
-    prompt_file = f"{prompt_name.lower().replace(' ', '_')}.txt"
+def get_prompt(department, prompt_name):
+    prompt_file = f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt"
     return load_prompt(prompt_file)
 
-def summarize_text(text, prompt_name, user_name):
+def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
     logger.debug(f"Input text length: {len(text)}")
     
-    prompt = get_prompt(prompt_name)
+    prompt = get_prompt(department, prompt_name)
     current_time = get_local_time()
     
     full_prompt = f"""
@@ -24,11 +24,6 @@ def summarize_text(text, prompt_name, user_name):
     Gesproken met: [invullen achteraf]
 
     {prompt}
-
-    Actiepunten/deadlines/afspraken:
-    - [Actiepunt 1] - [Verantwoordelijke/Deadline]
-    - [Actiepunt 2] - [Verantwoordelijke/Deadline]
-    - ...
 
     Originele tekst:
     {text}
@@ -50,7 +45,8 @@ def summarize_text(text, prompt_name, user_name):
 
 def run_summarization(text, prompt_name, user_name):
     try:
-        summary = summarize_text(text, prompt_name, user_name or '[gebruiker_naam]')
+        department = st.session_state.department
+        summary = summarize_text(text, department, prompt_name, user_name)
         return {"summary": summary, "error": None}
     except Exception as e:
         return {"summary": None, "error": str(e)}
