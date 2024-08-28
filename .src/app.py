@@ -5,13 +5,12 @@ import os
 import sys
 import json
 from openai_service import perform_gpt4_operation
-from utils.audio_processing import transcribe_audio, process_audio_input
+from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
 from services.summarization_service import run_summarization
 from ui.components import display_transcript, display_summary
 from ui.pages import render_feedback_form, render_conversation_history
 from utils.text_processing import update_gesprekslog, load_questions
-from st_copy_to_clipboard import st_copy_to_clipboard
 from docx import Document
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
