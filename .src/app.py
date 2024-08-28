@@ -157,7 +157,8 @@ def initialize_session_state():
         'summarization_done': False,
         'processing_complete': False,
         'current_step': 0,
-        'user_name': ""
+        'user_name': "",
+        'PROMPTS_DIR': PROMPTS_DIR  # Add this line
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -255,26 +256,31 @@ def render_summary():
         if st.button("Samenvatten"):
             with st.spinner("Samenvatting maken..."):
                 result = process_audio_input(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
-                if result["error"] is None:
+                if result and result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.input_text, result["summary"])
                     st.success("Samenvatting voltooid!")
                 else:
-                    st.error(f"Er is een fout opgetreden: {result['error']}")
+                    st.error(f"Er is een fout opgetreden: {result['error'] if result else 'Onbekende fout'}")
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
-        process_audio_input(st.session_state.input_method)
+        result = process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
+        if result and result["error"] is None:
+            st.session_state.summary = result["summary"]
+            st.success("Samenvatting voltooid!")
+        elif result:
+            st.error(f"Er is een fout opgetreden: {result['error']}")
     elif st.session_state.input_method == "Upload tekst":
         uploaded_file = st.file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
         if uploaded_file:
             st.session_state.transcript = process_uploaded_file(uploaded_file)
             with st.spinner("Samenvatting maken..."):
                 result = process_audio_input(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
-                if result["error"] is None:
+                if result and result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.transcript, result["summary"])
                     st.success("Samenvatting voltooid!")
                 else:
-                    st.error(f"Er is een fout opgetreden: {result['error']}")
+                    st.error(f"Er is een fout opgetreden: {result['error'] if result else 'Onbekende fout'}")
 
     if st.session_state.summary:
         display_summary(st.session_state.summary)
