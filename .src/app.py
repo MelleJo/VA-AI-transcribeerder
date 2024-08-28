@@ -195,12 +195,12 @@ def render_wizard():
         if st.session_state.current_step > 0:
             if st.button("Vorige"):
                 st.session_state.current_step -= 1
-                st.experimental_rerun()
+                st.rerun()
     with col3:
         if st.session_state.current_step < len(steps) - 1:
             if st.button("Volgende"):
                 st.session_state.current_step += 1
-                st.experimental_rerun()
+                st.rerun()
 
 def render_business_side_selection():
     st.header("Selecteer de bedrijfskant")
@@ -208,7 +208,7 @@ def render_business_side_selection():
         if card(title=side, text="", key=side):
             st.session_state.business_side = side
             st.session_state.current_step += 1
-            st.experimental_rerun()
+            st.rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
@@ -217,7 +217,7 @@ def render_department_selection():
             if card(title=dept, text="", key=dept):
                 st.session_state.department = dept
                 st.session_state.current_step += 1
-                st.experimental_rerun()
+                st.rerun()
     else:
         st.warning("Selecteer eerst een bedrijfskant.")
 
@@ -228,7 +228,7 @@ def render_prompt_selection():
             if card(title=prompt, text="", key=prompt):
                 st.session_state.prompt = prompt
                 st.session_state.current_step += 1
-                st.experimental_rerun()
+                st.rerun()
     else:
         st.warning("Selecteer eerst een afdeling.")
 
@@ -238,7 +238,7 @@ def render_input_method_selection():
         if card(title=method, text="", key=method):
             st.session_state.input_method = method
             st.session_state.current_step += 1
-            st.experimental_rerun()
+            st.rerun()
 
 def render_summary():
     st.header("Samenvatting")
