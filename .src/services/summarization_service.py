@@ -8,21 +8,20 @@ import os
 logger = logging.getLogger(__name__)
 
 def get_prompt(department, prompt_name):
-    # List of possible file name formats
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
     possible_filenames = [
-        f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt",
-        f"{prompt_name.lower().replace(' ', '_')}.txt",
-        f"{department.lower()}/{prompt_name.lower().replace(' ', '_')}.txt",
+        os.path.join(base_dir, department.lower(), f"{prompt_name.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, f"{prompt_name.lower().replace(' ', '_')}.txt"),
     ]
     
     for filename in possible_filenames:
-        try:
-            return load_prompt(filename)
-        except FileNotFoundError:
-            continue
+        if os.path.exists(filename):
+            with open(filename, 'r', encoding='utf-8') as file:
+                return file.read()
     
     # If no file is found, raise an error
-    raise FileNotFoundError(f"No prompt file found for department '{department}' and prompt '{prompt_name}'")
+    raise FileNotFoundError(f"No prompt file found for department '{department}' and prompt '{prompt_name}'. Looked in: {', '.join(possible_filenames)}")
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
