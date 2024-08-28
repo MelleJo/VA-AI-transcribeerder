@@ -15,8 +15,27 @@ def display_transcript(transcript):
 def display_summary(summary):
     if summary:
         st.markdown('<div class="summary-box">', unsafe_allow_html=True)
-        st.markdown('<h3>Samenvatting</h3>', unsafe_allow_html=True)
-        st.markdown(summary, unsafe_allow_html=True)
+        
+        # Split the summary into sections
+        sections = summary.split('\n\n')
+        
+        # Display header information
+        header_lines = sections[0].split('\n')
+        st.markdown(f"<h3>{header_lines[0]}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<p><strong>Datum en tijd:</strong> {header_lines[1]}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p><strong>Gebruiker:</strong> {header_lines[2]}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p><strong>Gesproken met:</strong> {header_lines[3].split(': ')[1]}</p>", unsafe_allow_html=True)
+        
+        # Display main content
+        for section in sections[1:-1]:  # Exclude the last section (action points)
+            st.markdown(section)
+        
+        # Display action points
+        action_points = sections[-1].split('\n')
+        st.markdown("<h4>Actiepunten/deadlines/afspraken:</h4>", unsafe_allow_html=True)
+        for point in action_points[1:]:  # Skip the header
+            st.markdown(f"- {point}")
+        
         st.markdown('</div>', unsafe_allow_html=True)
 
         # Add download and copy buttons

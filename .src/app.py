@@ -203,6 +203,12 @@ def render_wizard():
                 st.rerun()
 
 def render_business_side_selection():
+    st.header("Welkom bij de Gesprekssamenvatter")
+    
+    # User name input
+    user_name = st.text_input("Uw naam (optioneel):", key="user_name")
+    st.session_state.user_name = user_name if user_name else "[gebruiker_naam]"
+    
     st.header("Selecteer de bedrijfskant")
     for side in BUSINESS_SIDES:
         if card(title=side, text="", key=side):
