@@ -21,7 +21,7 @@ except Exception as e:
 
 SUPPORTED_FORMATS = ['flac', 'm4a', 'mp3', 'mp4', 'mpeg', 'mpga', 'oga', 'ogg', 'wav', 'webm']
 
-def process_audio_input(input_method):
+def process_audio_input(input_method, prompt_name=None, user_name=None):
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=SUPPORTED_FORMATS)
         if uploaded_file is not None:
@@ -70,16 +70,20 @@ def process_audio_input(input_method):
                         os.unlink(tmp_audio.name)
                     if 'mp3_path' in locals():
                         os.unlink(mp3_path)
+    elif isinstance(input_method, str):  # This case handles direct text input
+        st.session_state.transcript = input_method
 
     if st.session_state.transcript:
         with st.spinner("Genereren van samenvatting..."):
-            result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+            result = run_summarization(st.session_state.transcript, prompt_name, user_name)
             if result["error"] is None:
                 st.session_state.summary = result["summary"]
                 update_gesprekslog(st.session_state.transcript, result["summary"])
                 st.success("Samenvatting voltooid!")
             else:
                 st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {result['error']}")
+    
+    return result if 'result' in locals() else None
 
 def convert_to_mp3(file_path):
     audio = AudioSegment.from_file(file_path)
