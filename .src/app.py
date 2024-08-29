@@ -15,6 +15,7 @@ import bleach
 import base64
 import time
 import logging
+from config import BASE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'q
 
 # Set the page configuration
 st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+st.write(BASE_DIR)
 
 # Business logic dictionaries
 BUSINESS_SIDES = {
