@@ -114,7 +114,7 @@ def render_summary():
         if uploaded_file:
             process_file_input(uploaded_file)
 
-    if st.session_state.summary:
+    if st.session_state.get('summary'):
         display_summary(st.session_state.summary)
 
 def process_text_input():
@@ -143,13 +143,11 @@ def handle_summarization_result(result, input_text):
         st.session_state.summary = result["summary"]
         update_gesprekslog(input_text, result["summary"])
         st.success("Samenvatting voltooid!")
-        if st.button("Toon samenvatting"):
-            st.markdown("### Gegenereerde samenvatting:")
-            st.write(st.session_state.summary)
     else:
         st.error(f"Er is een fout opgetreden: {result['error']}")
-        if st.button("Probeer opnieuw"):
-            st.rerun()
+    
+    if st.button("Probeer opnieuw"):
+        st.rerun()
 
 def render_feedback_form():
     with st.expander("Geef feedback"):

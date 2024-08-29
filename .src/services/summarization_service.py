@@ -80,9 +80,8 @@ def summarize_text(text, department, prompt_name, user_name):
 def run_summarization(text, prompt_name, user_name):
     try:
         department = st.session_state.department
-        summary = summarize_text(text, department, prompt_name, user_name)
-        if summary.startswith("Error:"):
-            return {"summary": None, "error": summary}
+        summary_generator = summarize_text(text, department, prompt_name, user_name)
+        summary = "".join(summary_generator)  # Consume the generator
         return {"summary": summary, "error": None}
     except Exception as e:
         return {"summary": None, "error": str(e)}
