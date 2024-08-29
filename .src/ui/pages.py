@@ -4,7 +4,7 @@ from streamlit_antd.cascader import st_antd_cascader
 from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
 from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
-from streamlit_antd.select import st_antd_select
+#from streamlit_antd.select import st_antd_select
 from streamlit_antd.button import st_antd_button
 
 from ui.components.fancy_select import fancy_select
@@ -52,9 +52,6 @@ def render_business_side_selection():
                     "margin-bottom": "10px",
                     "height": "60px",
                     "font-size": "18px",
-                    "display": "flex",
-                    "align-items": "center",
-                    "justify-content": "center"
                 },
                 key=f"business_side_button_{side}"
             ):
