@@ -84,13 +84,13 @@ def main():
     st.markdown("---")
     st.markdown("### Extra opties")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        with st.expander("Geef feedback"):
-            render_feedback_form()
-    with col2:
-        with st.expander("Bekijk gespreksgeschiedenis"):
-            render_conversation_history()
+    tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
+    
+    with tab1:
+        render_feedback_form()
+    
+    with tab2:
+        render_conversation_history()
 
 if __name__ == "__main__":
     main()
