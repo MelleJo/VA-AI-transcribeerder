@@ -21,15 +21,15 @@ from utils.text_processing import update_gesprekslog
 def render_wizard():
     st.title("Gesprekssamenvatter")
 
-    steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
-    current_step = st.session_state.current_step
+    steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
+    current_step = st.session_state.get('current_step', 0)
     
     if current_step == 0:
         render_business_side_selection()
     elif current_step == 1:
         render_department_selection()
     elif current_step == 2:
-        render_prompt_selection()
+        render_conversation_type_selection()
     elif current_step == 3:
         render_input_method_selection()
     elif current_step == 4:

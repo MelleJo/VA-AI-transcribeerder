@@ -1,0 +1,56 @@
+Maak een gedetailleerde samenvatting van het onderhoudsadviesgesprek in tabelvorm. Zorg ervoor dat de samenvatting de volgende secties bevat:
+
+**Datum**:
+[Datum van het gesprek]
+
+**Introductie**:
+Geef een korte introductie van de context van het gesprek en de reden waarom het gesprek plaatsvond.
+
+**Situatie**:
+Beschrijf de huidige situatie van de klant en eventuele veranderingen die relevant zijn voor de verzekeringen.
+Indien besproken: 
+- Wat is de huidige status van de klant?
+- Wat is de huidige status van de verzekering?
+- Wat is de huidige status van de bedrijfsstructuur?
+- Wat is de huidige status van de overige punten?
+
+**Algemeen**:
+Hier benoem je, indien genoemd, alles over communicatie, prolongatie, opzeggingen, facturen, overige handelingen die niet per se binnen of bij een bepaald risico passen. \
+Personeelswijziging, ziektefrequentie, et cetera. Al deze dingen benoem je alleen als ze echt zijn besproken. 
+Onderwerpen die je hier opneemt, zoals prolongatie, provisie, administratie en andere dingen, die noem je alleen in dit onderdeel en niet in bijvoorbeeld de tabel.
+
+
+**Risico's**:
+Beschrijf de besproken risico's die relevant zijn voor de verzekeringen van de klant. De risico's zijn altijd risico's die bij verzekeringen passen aangezien dit een gesprek is tussen de verzekeringsadviseur en een klant. Voorbeelden van risico's zijn: Brandrisico, Diefstal en Inbraak, Aansprakelijkheid, Bedrijfsschade, Transport en Logistiek, Elektronische en Cyberrisico's, Werknemersgerelateerde Risico's, Juridische Risico's, Milieurisico's, Natuurrampen, Productierisico's, Internationale Risico's, Reputatierisico, Financiële Risico's, Kredietrisico's, Voertuigschade. Deze risico's neem je alleen op in de samenvatting als deze ook besproken zijn, als een risico niet aan bod is gekomen dan noem je deze niet. Je hallucineert niet. Je verzint geen informatie of risico's die niet besproken zijn. Stel er is alleen bedrijfsschade besproken, dan noem je ook alleen dat. Je doet zelf geen aannames of adviezen, je legt enkel een verslag vast van het transcript.
+Normaliter houd je alles zo kort mogelijk, maar bij de besproken punten in de tabellen over de risico's mag je zo uitgebreid mogelijk zijn (mits relevant en besproken), maar je houd het wel in korte tekst. Dus geen lange zinnen. Maar wel zoveel mogelijk details.
+Je zorgt ervoor dat er alleen risico's in de tabel voorkomen die relevant zijn voor verzekeringen of financiele producten, dus niet bijvoorbeeld een detail over communicatie of prolongatie, of polissen. Dat komt bij de samenvatting in punten. 
+Een reisverzekering kan zowel zakelijk als privé zijn. Als het niet is gespecificieerd of het zakelijk of privé is, dan mag je uitgaan van privé. 
+In het geval dat er verschillende bv's zijn besproken, dan is het belangrijk dat de risico's en verzekeringen worden beschreven per bv. In de tabel, dan maak je per bv een tabel. Als dat niet het geval is, dan hoeft dat natuurlijk niet.
+Als het over auto's gaat dan maak je hier duidelijk onderscheid tussen zakelijke auto's en niet. Het risico mag je personenauto noemen, of bijvoorbeeld bestelauto (afhankelijk uiteraard van wat voor auto's er zijn besproken).
+Alle onderwerpen die van belang kunnen zijn voor verzekeringen, die neem je mee (mits relevant!). Stel, er wordt iets over een verbouwing of dergelijks besproken. Dan neem je dit natuurlijk ook altijd op, omdat het van belang kan zijn voor de verzekeringen.
+In het stukje "bespreking details" in de tabel, daar ben je zo uitgebreid mogelijk per risico. Daar moet alle info en alles wat besproken is over dat riscio in één oogopzicht te zien zijn. 
+
+**Zakelijke Risico's**:
+Per bv maak je een aparte tabel (indien er meerdere bv's zijn genoemd)
+
+| Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
+|-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
+| [Risico 1]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+| [Risico 2]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+
+**Privé Risico's**:
+
+| Risico                        | Besproken | Bespreking Details                  | Actie                             | Actie voor    |
+|-------------------------------|-----------|--------------------------------------|-----------------------------------|---------------|
+| [Risico 1]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+| [Risico 2]                    | [Ja/Nee]  | [Details]                            | [Actie]                           | [Persoon]     |
+
+**Samenvatting in punten**:
+Geef de belangrijkste informatie, afspraken, details, cijfers, en andere informatie die je niet wilt missen in bullet points weer.
+Hier komen ook de details, alleen als deze ook zijn besproken, over bedrijfsvoering algemeen, omzet, communicatie, prolongatie, groei van het bedrijf, plannen van het bedrijf, aanstellingen, marktbewegingen, concurrentie.
+
+**Actiepunten**:
+Geef een lijst van actiepunten die je hebt gemaakt. Specificeer hierbij welke actiepunten voor de klant zijn en welke voor de adviseur, of bijvoorbeeld voor een collega oid. Noem alleen echte acties, geen abstracte punten.
+Indien er deadlines zijn genoemd dan neem je die ook mee.
+De actiepunten kunnen enkel zijn voor de adviseur of de klant. Bijvoorbeeld als het gaat om een opdracht voor een taxateur, dan is het nog steeds bijvoorbeeld de adviseur die de taxateur inschakeld. 
+

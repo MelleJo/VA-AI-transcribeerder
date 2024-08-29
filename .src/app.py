@@ -24,20 +24,39 @@ QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'q
 
 BUSINESS_SIDES = {
     "VA": {
-        "Pensioen": ["Pensioen advies", "Collectief pensioen", "Deelnemersgesprekken"],
-        "Hypotheek": ["Hypotheek advies", "Hypotheek rapport"],
-        "Financiële Planning": ["Financieel planningstraject"],
-        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+        "Veldhuis Advies": [
+            "AOV", "Collectief pensioen", "Deelnemersgesprekken collectief pensioen",
+            "Financieelplanningstraject", "Hypotheek rapport", "Hypotheek",
+            "Ingesproken handleiding", "Ingesproken notitie", "Notulen brainstorm",
+            "Notulen vergadering", "Onderhoudsadviesgesprek werkgever", "Pensioen",
+            "Samenvatting_gesprek_bedrijfsarts", "Telefoongesprek"
+        ],
+        "Algemeen": ["Ingesproken handleiding", "Notulen brainstorm", "Notulen vergadering"]
     },
     "VAG": {
-        "Schade": ["Schademelding", "Schade beoordeling", "Expertise gesprek"],
-        "Bedrijven": ["Adviesgesprek", "Risico analyse", "Klantrapport"],
-        "Particulieren": ["Mutatie", "Adviesgesprek"],
-        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+        "Schade": [
+            "Expertise gesprek", "Ingesproken handleiding", "Ingesproken notitie",
+            "Notulen brainstorm", "Notulen vergadering", "Schade beoordeling",
+            "Schademelding", "Telefoongesprek"
+        ],
+        "Particulieren": [
+            "Adviesgesprek", "Ingesproken handleiding", "Ingesproken notitie",
+            "Mutatie", "Notulen brainstorm", "Notulen vergadering", "Telefoongesprek"
+        ],
+        "Bedrijven": [
+            "Adviesgesprek tabelvorm", "Adviesgesprek", "Ingesproken handleiding",
+            "Ingesproken notitie", "Klantrapport", "Klantvraag", "Notulen brainstorm",
+            "Notulen vergadering", "Onderhoudsadviesgesprek tabel prompt", "Risico analyse",
+            "Telefoongesprek"
+        ],
+        "Algemeen": ["Ingesproken handleiding", "Notulen brainstorm", "Notulen vergadering"]
     },
     "Arbo": {
-        "Verzuimbegeleiding": ["Gesprek bedrijfsarts", "Verzuimrapportage"],
-        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+        "Arbo": [
+            "Gesprek bedrijfsarts", "Ingesproken handleiding", "Ingesproken notitie",
+            "Notulen brainstorm", "Notulen vergadering", "Telefoongesprek"
+        ],
+        "Algemeen": ["Ingesproken handleiding", "Notulen brainstorm", "Notulen vergadering"]
     }
 }
 
