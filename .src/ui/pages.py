@@ -67,22 +67,13 @@ def render_wizard():
                     st.warning("Maak eerst een selectie voordat u verdergaat.")
 
 def render_department_selection():
-    colored_header("Selecteer de afdeling", description="Kies de relevante afdeling")
+    st.header("Selecteer de afdeling")
+    
     for dept in st.session_state.BUSINESS_SIDES[st.session_state.business_side].keys():
-        if stylable_container(key=f"container_{dept}", css_styles="""
-            {
-                background-color: #f0f2f6;
-                border-radius: 10px;
-                padding: 10px;
-                margin-bottom: 10px;
-            }
-            :hover {
-                background-color: #e0e2e6;
-            }
-        """):
-            if st.button(dept, key=f"department_{dept}"):
-                st.session_state.department = dept
-                st.rerun()
+        if st.button(dept, key=f"department_{dept}"):
+            st.session_state.department = dept
+            st.session_state.current_step = 2
+            st.rerun()
 
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
