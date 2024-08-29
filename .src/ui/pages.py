@@ -5,7 +5,7 @@ from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
 from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
 #from streamlit_antd.select import st_antd_select
-from streamlit_antd.button import st_antd_button
+#from streamlit_antd.button import st_antd_button
 
 from ui.components.fancy_select import fancy_select
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
