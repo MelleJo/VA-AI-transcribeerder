@@ -137,17 +137,17 @@ from config import load_config
 config = load_config()
 
 def get_prompt(department, prompt_name):
-    # Construct the path based on the prompt name directly
+    # Normalize the prompt name and log it
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
-    
-    # Use the PROMPTS_DIR and build the full path to the prompt file
+    st.write(f"Normalized prompt name: {normalized_prompt_name}")
+
+    # Construct the path and log it
     prompt_file = os.path.join(config['PROMPTS_DIR'], f"{normalized_prompt_name}.txt")
-    
-    # Debugging line to check what path is being constructed
     st.write(f"Looking for prompt file at: {prompt_file}")
     
-    # Ensure the constructed path points to a valid file
+    # Ensure the path exists and load the file
     if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
+        st.error(f"Bestand niet gevonden: {prompt_file}")
         raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
     
     # Load and return the prompt content

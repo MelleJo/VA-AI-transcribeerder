@@ -36,7 +36,7 @@ def load_prompt(file_name):
     # Construct the path based on the file name directly
     path = os.path.join(config['PROMPTS_DIR'], file_name)
     
-    # Debugging line to check what path is being used
+    # Log the full path
     st.write(f"Loading prompt file from: {path}")
     
     # Check if the path exists and is a file
