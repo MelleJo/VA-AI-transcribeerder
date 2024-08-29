@@ -75,23 +75,17 @@ def render_department_selection():
         "Algemeen": "fas fa-globe"
     }
 
-    items = [
-        Item(
-            id=dept,
-            title=f'<i class="{icons.get(dept, "fas fa-circle")} fa-2x"></i><br>{dept}',
-            description="Klik om te selecteren",
-            unsafe_html=True  # Enable HTML rendering
-        ) for dept in st.session_state.DEPARTMENTS.keys()
-    ]
-    
+    departments = st.session_state.DEPARTMENTS.keys()
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        event = st_antd_cards(items, key="department_cards")
-    
-    if event:
-        st.session_state.department = event["payload"]["id"]
-        st.session_state.current_step = 2  # Move to next step
-        st.rerun()
+        for dept in departments:
+            st.markdown(f'<div style="text-align: center;"><i class="{icons.get(dept, "fas fa-circle")} fa-2x"></i><br><strong>{dept}</strong></div>', unsafe_allow_html=True)
+            if st.button(f"Kies {dept}"):
+                st.session_state.department = dept
+                st.session_state.current_step = 2  # Move to next step
+                st.rerun()
+            st.markdown("---")  # Horizontal separator between cards
 
 
 def render_prompt_selection():
