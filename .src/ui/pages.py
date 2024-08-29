@@ -61,13 +61,16 @@ def render_business_side_selection():
             id=side,
             title=side,
             description="Klik om te selecteren",
-            cover="/path/to/default/image.png"  # Replace with an actual path or remove if not needed
+            icon="fas fa-building",  # Font Awesome building icon
+            actions=[Action("select", "Selecteer")]
         ) for side in st.session_state.BUSINESS_SIDES
     ]
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        event = st_antd_cards(items, key="business_side_cards")
     
-    event = st_antd_cards(items, key="business_side_cards")
-    
-    if event:
+    if event and event["action"] == "select":
         st.session_state.business_side = event["payload"]["id"]
         st.session_state.current_step += 1
         st.rerun()
@@ -75,12 +78,22 @@ def render_business_side_selection():
 def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
-        selected = st_antd_cascader(
-            [{"value": dept, "label": dept} for dept in st.session_state.DEPARTMENTS.keys()],
-            key="department_cascader"
-        )
-        if selected:
-            st.session_state.department = selected[0]
+        items = [
+            Item(
+                id=dept,
+                title=dept,
+                description="Klik om te selecteren",
+                icon="fas fa-briefcase",  # Font Awesome briefcase icon
+                actions=[Action("select", "Selecteer")]
+            ) for dept in st.session_state.DEPARTMENTS.keys()
+        ]
+
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            event = st_antd_cards(items, key="department_cards")
+        
+        if event and event["action"] == "select":
+            st.session_state.department = event["payload"]["id"]
             st.session_state.current_step += 1
             st.rerun()
     else:
@@ -89,12 +102,22 @@ def render_department_selection():
 def render_prompt_selection():
     st.header("Selecteer de prompt")
     if st.session_state.department:
-        selected = st_antd_cascader(
-            [{"value": prompt, "label": prompt} for prompt in st.session_state.DEPARTMENTS[st.session_state.department]],
-            key="prompt_cascader"
-        )
-        if selected:
-            st.session_state.prompt = selected[0]
+        items = [
+            Item(
+                id=prompt,
+                title=prompt,
+                description="Klik om te selecteren",
+                icon="fas fa-file-alt",  # Font Awesome file icon
+                actions=[Action("select", "Selecteer")]
+            ) for prompt in st.session_state.DEPARTMENTS[st.session_state.department]
+        ]
+
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            event = st_antd_cards(items, key="prompt_cards")
+        
+        if event and event["action"] == "select":
+            st.session_state.prompt = event["payload"]["id"]
             st.session_state.current_step += 1
             st.rerun()
     else:
