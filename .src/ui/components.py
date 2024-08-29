@@ -128,89 +128,64 @@ def display_warning(text):
 def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
     body {
         font-family: 'Roboto', sans-serif;
-        background-color: #f0f2f6;
-        color: #1e1e1e;
+        background-color: #f0f4f8;
+        color: #1a202c;
     }
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
+    .main {
+        padding: 2rem;
     }
-    h1 {
-        color: #2c3e50;
-        font-weight: 700;
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-    h2 {
-        color: #34495e;
-        font-weight: 400;
-        font-size: 1.8rem;
-        margin-bottom: 0.5rem;
+    h1, h2, h3 {
+        color: #2d3748;
     }
     .stButton>button {
-        background-color: #3498db;
+        background-color: #4299e1;
         color: white;
         border: none;
         padding: 0.5rem 1rem;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 5px;
+        border-radius: 0.25rem;
+        font-weight: 600;
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #2980b9;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #3182ce;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
     }
-    .card-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-    .card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 1.5rem;
-        width: 200px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    .ant-card {
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         cursor: pointer;
     }
-    .card:hover {
+    .ant-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
-    .card-icon {
-        font-size: 3rem;
+    .ant-card-head-title {
+        font-weight: 700;
+        color: #2d3748;
+    }
+    .ant-card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .ant-card i {
+        font-size: 2.5rem;
         margin-bottom: 1rem;
-        color: #3498db;
+        color: #4299e1;
     }
-    .card-title {
-        font-size: 1.2rem;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    .card-description {
-        font-size: 0.9rem;
-        color: #7f8c8d;
-    }
-    .stTextInput>div>div>input {
-        background-color: white;
-        border: 1px solid #bdc3c7;
-        border-radius: 5px;
-        padding: 0.5rem;
-        font-size: 1rem;
-    }
-    .stTextInput>label {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #34495e;
+    .ant-card-meta-description {
+        color: #718096;
     }
     </style>
     """, unsafe_allow_html=True)

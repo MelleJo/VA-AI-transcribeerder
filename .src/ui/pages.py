@@ -56,30 +56,27 @@ def render_business_side_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    st.markdown('<div class="card-container">', unsafe_allow_html=True)
-    for side in st.session_state.BUSINESS_SIDES:
-        card_html = f"""
-        <div class="card" onclick="handle_click('{side}')">
-            <div class="card-icon">🏢</div>
-            <div class="card-title">{side}</div>
-            <div class="card-description">Klik om te selecteren</div>
-        </div>
-        """
-        st.markdown(card_html, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-    <script>
-    function handle_click(side) {
-        window.parent.postMessage({
-            type: 'streamlit:set_state',
-            state: { business_side: side, current_step: 1 }
-        }, '*');
+    icons = {
+        "Veldhuis Advies Groep": "fa-building",
+        "Veldhuis Advies": "fa-briefcase",
+        "Arbo": "fa-hospital"
     }
-    </script>
-    """, unsafe_allow_html=True)
 
-    if st.session_state.get('business_side'):
+    items = [
+        Item(
+            id=side,
+            title=f'<i class="fas {icons.get(side, "fa-circle")} fa-2x"></i><br>{side}',
+            description="Klik om te selecteren"
+        ) for side in st.session_state.BUSINESS_SIDES
+    ]
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        event = st_antd_cards(items, key="business_side_cards")
+    
+    if event:
+        st.session_state.business_side = event["payload"]["id"]
+        st.session_state.current_step += 1
         st.rerun()
 
 
@@ -88,23 +85,25 @@ def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
         icons = {
-            "Schade": "🛠️",
-            "Bedrijven": "🏭",
-            "Particulieren": "👥",
-            "Arbo": "🏥",
-            "Veldhuis Advies": "💼",
-            "Algemeen": "📊"
+            "Schade": "fa-tools",
+            "Bedrijven": "fa-industry",
+            "Particulieren": "fa-users",
+            "Arbo": "fa-medkit",
+            "Veldhuis Advies": "fa-chart-line",
+            "Algemeen": "fa-globe"
         }
 
         items = [
             Item(
                 id=dept,
-                title=f'<div class="icon-container">{icons.get(dept, "🔹")}</div>{dept}',
+                title=f'<i class="fas {icons.get(dept, "fa-circle")} fa-2x"></i><br>{dept}',
                 description="Klik om te selecteren"
             ) for dept in st.session_state.DEPARTMENTS.keys()
         ]
         
-        event = st_antd_cards(items, key="department_cards")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            event = st_antd_cards(items, key="department_cards")
         
         if event:
             st.session_state.department = event["payload"]["id"]
