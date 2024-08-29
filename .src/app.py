@@ -2,14 +2,9 @@ import streamlit as st
 import os
 import sys
 import json
-from .src.openai_service import perform_gpt4_operation
-from .src.utils.audio_processing import process_audio_input
-from .src.services.summarization_service import run_summarization
-from .src.utils.file_processing import process_uploaded_file
 from .src.ui.pages import render_wizard, render_feedback_form, render_conversation_history
 from .src.ui.components import setup_page_style, initialize_session_state
-from .src.utils.text_processing import update_gesprekslog, load_questions
-from docx import Document
+
 from io import BytesIO
 import bleach
 import base64
