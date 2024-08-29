@@ -82,6 +82,9 @@ def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
     <style>
+    .stApp {
+        background: linear-gradient(to right, rgb(24, 78, 142), rgb(98, 176, 47));
+    }
     .stButton>button {
         background-color: #4CAF50;
         color: white;
@@ -99,3 +102,4 @@ def setup_page_style():
     }
     </style>
     """, unsafe_allow_html=True)
+
