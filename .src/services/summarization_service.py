@@ -36,8 +36,7 @@ def summarize_text(text, department, prompt_name, user_name):
         prompt = get_prompt(department, prompt_name)
     except FileNotFoundError as e:
         logger.error(f"Prompt file not found: {str(e)}")
-        yield f"Error: {str(e)}"
-        return
+        return f"Error: {str(e)}"
 
     current_time = get_local_time()
     
@@ -59,6 +58,8 @@ def summarize_text(text, department, prompt_name, user_name):
     4. Gesproken met
     5. Hoofdinhoud (meerdere paragrafen indien nodig)
     6. Actiepunten/deadlines/afspraken
+
+    Eindig je samenvatting met de tekst 'EINDE_SAMENVATTING'.
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
@@ -77,11 +78,14 @@ def summarize_text(text, department, prompt_name, user_name):
         summary = ""
         for chunk in chain.stream({"text": text}):
             summary += chunk.content
-            yield summary  # This allows for incremental updates
+            if "EINDE_SAMENVATTING" in summary:
+                summary = summary.replace("EINDE_SAMENVATTING", "").strip()
+                break
         logger.debug(f"Summary generated. Length: {len(summary)}")
+        return summary
     except Exception as e:
         logger.error(f"Error in summarization: {str(e)}")
-        yield f"Error in summarization: {str(e)}"
+        return f"Error in summarization: {str(e)}"
 
 def run_summarization(text, prompt_name, user_name):
     try:

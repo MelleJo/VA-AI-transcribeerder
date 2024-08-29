@@ -104,7 +104,9 @@ def render_summary():
     if st.session_state.input_method == "Voer tekst in of plak tekst":
         st.session_state.input_text = display_text_input("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
-            process_text_input()
+            with st.spinner("Samenvatting maken..."):
+                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
+                handle_summarization_result(result, st.session_state.input_text)
 
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
         handle_audio_input()
@@ -112,10 +114,40 @@ def render_summary():
     elif st.session_state.input_method == "Upload tekst":
         uploaded_file = display_file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
         if uploaded_file:
-            process_file_input(uploaded_file)
+            with st.spinner("Samenvatting maken..."):
+                st.session_state.transcript = process_uploaded_file(uploaded_file)
+                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+                handle_summarization_result(result, st.session_state.transcript)
 
     if st.session_state.get('summary'):
-        display_summary(st.session_state.summary)
+        st.markdown("### Gegenereerde samenvatting:")
+        st.markdown(st.session_state.summary)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Download als Word"):
+                doc = create_word_document(st.session_state.summary)
+                st.download_button(
+                    label="Download Word bestand",
+                    data=doc,
+                    file_name="samenvatting.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+        with col2:
+            if st.button("Kopieer naar klembord"):
+                st.write("Samenvatting gekopieerd naar klembord!")
+                st.clipboard(st.session_state.summary)
+
+def handle_summarization_result(result, input_text):
+    if result["error"] is None:
+        st.session_state.summary = result["summary"]
+        update_gesprekslog(input_text, result["summary"])
+        st.success("Samenvatting voltooid!")
+    else:
+        st.error(f"Er is een fout opgetreden: {result['error']}")
+    
+    if st.button("Probeer opnieuw"):
+        st.experimental_rerun()
 
 def process_text_input():
     with st.spinner("Samenvatting maken..."):
