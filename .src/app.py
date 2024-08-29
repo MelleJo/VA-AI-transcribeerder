@@ -72,7 +72,6 @@ DEPARTMENTS = {
 INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"]
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     setup_page_style()
     initialize_session_state()
 
@@ -81,17 +80,20 @@ def main():
 
     render_wizard()
     
-    # Add some space before the feedback form and conversation history
     st.markdown("---")
     st.markdown("### Extra opties")
     
     tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
     
     with tab1:
+        st.markdown('<div class="content-container">', unsafe_allow_html=True)
         render_feedback_form()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     with tab2:
+        st.markdown('<div class="content-container">', unsafe_allow_html=True)
         render_conversation_history()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
