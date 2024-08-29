@@ -80,27 +80,28 @@ def render_department_selection():
             st.session_state.current_step = 2
             st.rerun()
 
+
+
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
-    
-    # Retrieve the available conversation types (which could be subcategories or actual prompts)
-    conversation_types = st.session_state.BUSINESS_SIDES[st.session_state.business_side][st.session_state.department]
-    selected_type = st.selectbox("Gesprekstype", conversation_types)
-    
-    # Construct the path to the possible prompt file directly
-    subcategory_path = os.path.join(st.session_state.PROMPTS_DIR, st.session_state.department.lower(), selected_type.lower().replace(' ', '_'))
-    prompt_file_path = f"{subcategory_path}.txt"
-    
-    if os.path.exists(prompt_file_path) and os.path.isfile(prompt_file_path):
-        # If a valid prompt file is found, use it directly
-        if st.button("Bevestig prompt"):
-            st.session_state.conversation_type = selected_type
-            st.session_state.prompt_path = prompt_file_path
-            st.session_state.current_step = 3
-            st.rerun()
-    else:
-        # If no valid prompt file is found, raise an error
-        st.error("De geselecteerde subcategorie bevat geen prompt bestanden.")
+
+    # List all prompts in the prompts directory recursively
+    prompt_files = []
+    for root, dirs, files in os.walk(st.session_state.PROMPTS_DIR):
+        for file in files:
+            if file.endswith('.txt'):
+                relative_path = os.path.relpath(os.path.join(root, file), st.session_state.PROMPTS_DIR)
+                prompt_files.append(relative_path.replace('\\', '/'))  # Normalize path for all OS
+
+    # Let the user select a prompt file
+    selected_prompt = st.selectbox("Selecteer een prompt", prompt_files)
+
+    if st.button("Bevestig prompt"):
+        st.session_state.conversation_type = os.path.splitext(os.path.basename(selected_prompt))[0]
+        st.session_state.prompt_path = os.path.join(st.session_state.PROMPTS_DIR, selected_prompt)
+        st.session_state.current_step = 3
+        st.rerun()
+
 
 
 
