@@ -1,64 +1,49 @@
 import streamlit as st
-import html
+from streamlit_antd.table import st_antd_table
+from streamlit_antd.result import Action, st_antd_result
+from streamlit_antd.cards import Item, st_antd_cards
 from docx import Document
 from io import BytesIO
 import pyperclip
+import pandas as pd
 
 def display_transcript(transcript):
     if transcript:
-        with st.expander("Toon Transcript", expanded=False):
-            st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
-            st.markdown('<h4>Transcript</h4>', unsafe_allow_html=True)
-            st.markdown(f'<div class="content">{html.escape(transcript)}</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        st_antd_table(pd.DataFrame({"Transcript": [transcript]}), color_background="#f9f6f1")
 
 def display_summary(summary):
     if summary:
-        st.markdown('<div class="summary-box">', unsafe_allow_html=True)
-        
-        # Split the summary into sections
         sections = summary.split('\n\n')
         
         # Display header information
         if sections:
             header_lines = sections[0].split('\n')
-            st.markdown(f"<h3>{header_lines[0] if header_lines else 'Summary'}</h3>", unsafe_allow_html=True)
+            title = header_lines[0] if header_lines else 'Summary'
+            sub_title = "\n".join(header_lines[1:]) if len(header_lines) > 1 else ""
             
-            if len(header_lines) > 1:
-                st.markdown(f"<p><strong>Datum en tijd:</strong> {header_lines[1]}</p>", unsafe_allow_html=True)
-            if len(header_lines) > 2:
-                st.markdown(f"<p><strong>Gebruiker:</strong> {header_lines[2]}</p>", unsafe_allow_html=True)
-            if len(header_lines) > 3:
-                st.markdown(f"<p><strong>Gesproken met:</strong> {header_lines[3].split(': ')[1] if ': ' in header_lines[3] else 'Not specified'}</p>", unsafe_allow_html=True)
+            actions = [
+                Action("download", "Download als Word"),
+                Action("copy", "Kopieer naar klembord")
+            ]
+            
+            clicked_event = st_antd_result(title, sub_title, actions)
+            
+            if clicked_event:
+                if clicked_event["action"] == "download":
+                    doc = create_word_document(summary)
+                    st.download_button(
+                        label="Download Word bestand",
+                        data=doc,
+                        file_name="samenvatting.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    )
+                elif clicked_event["action"] == "copy":
+                    pyperclip.copy(summary)
+                    st.success("Samenvatting gekopieerd naar klembord!")
         
         # Display main content
-        for section in sections[1:-1]:  # Exclude the last section (action points)
+        for section in sections[1:]:
             st.markdown(section)
-        
-        # Display action points
-        if len(sections) > 1:
-            action_points = sections[-1].split('\n')
-            st.markdown("<h4>Actiepunten/deadlines/afspraken:</h4>", unsafe_allow_html=True)
-            for point in action_points[1:]:  # Skip the header
-                st.markdown(f"- {point}")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        # Add download and copy buttons
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Download als Word"):
-                doc = create_word_document(summary)
-                st.download_button(
-                    label="Download Word bestand",
-                    data=doc,
-                    file_name="samenvatting.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
-        with col2:
-            if st.button("Kopieer naar klembord"):
-                st.write("Samenvatting gekopieerd naar klembord!")
-                pyperclip.copy(summary)
     else:
         st.warning("No summary available.")
 
@@ -70,20 +55,25 @@ def create_word_document(content):
     doc_io.seek(0)
     return doc_io.read()
 
+def display_text_input(label, value="", height=100):
+    return st.text_area(label, value=value, height=height)
+
+def display_file_uploader(label, type=None):
+    return st.file_uploader(label, type=type)
+
 def display_department_selector(departments):
-    return st.selectbox("Kies je afdeling", departments, key='department_select')
+    items = [Item(id=dept, title=dept) for dept in departments]
+    event = st_antd_cards(items, key="department_selector")
+    if event:
+        return event["payload"]["id"]
+    return None
 
 def display_input_method_selector(input_methods):
-    return st.radio("Wat wil je laten samenvatten?", input_methods, key='input_method_radio')
-
-def display_text_input():
-    return st.text_area("Voeg tekst hier in:", 
-                        value=st.session_state.get('input_text', ''), 
-                        height=300,
-                        key='input_text_area')
-
-def display_file_uploader(file_types):
-    return st.file_uploader("Choose a file", type=file_types)
+    items = [Item(id=method, title=method) for method in input_methods]
+    event = st_antd_cards(items, key="input_method_selector")
+    if event:
+        return event["payload"]["id"]
+    return None
 
 def display_summarize_button():
     return st.button("Samenvatten", key='summarize_button')
@@ -105,3 +95,63 @@ def display_error(text):
 
 def display_warning(text):
     st.warning(text)
+
+def setup_page_style():
+    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+    st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s ease 0s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-7px);
+    }
+    .summary-box {
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .summary-box:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #34495e;
+    }
+    </style>
+    """, unsafe_allow_html=True)
