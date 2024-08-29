@@ -20,8 +20,15 @@ def get_local_time():
 
 # text_processing.py
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def load_prompt(file_name):
-    path = os.path.join(config['PROMPTS_DIR'], st.session_state.subcategory, file_name)
+    # Construct the path based on the file name directly
+    path = os.path.join(config['PROMPTS_DIR'], file_name)
     
     # Check if the path exists and is a file
     if not os.path.exists(path) or not os.path.isfile(path):
@@ -31,6 +38,7 @@ def load_prompt(file_name):
     # Load and return the prompt content
     with open(path, "r", encoding="utf-8") as file:
         return file.read()
+
 
 
 def load_questions(file_name):

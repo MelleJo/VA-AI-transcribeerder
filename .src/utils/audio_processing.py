@@ -124,13 +124,18 @@ def split_audio(file_path, max_duration_ms=30000):
 
 # audio_processing.py
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def get_prompt(department, prompt_name):
-    # Construct the path based on the department and prompt name
-    normalized_department = department.lower().replace(' ', '_')
+    # Construct the path based on the prompt name directly, since there are no subfolders
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
-    # Use the PROMPTS_DIR from the config and build the full path
-    prompt_file = os.path.join(config['PROMPTS_DIR'], normalized_department, f"{normalized_prompt_name}.txt")
+    # Use the PROMPTS_DIR and build the full path to the prompt file
+    prompt_file = os.path.join(config['PROMPTS_DIR'], f"{normalized_prompt_name}.txt")
     
     # Ensure the constructed path points to a valid file
     if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
@@ -138,6 +143,7 @@ def get_prompt(department, prompt_name):
     
     # Load and return the prompt content
     return load_prompt(prompt_file)
+
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
