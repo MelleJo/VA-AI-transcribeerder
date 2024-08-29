@@ -38,45 +38,33 @@ def initialize_session_state():
 
 def display_transcript(transcript):
     if transcript:
-        st_antd_table(pd.DataFrame({"Transcript": [transcript]}), color_background="#f9f6f1")
+        st.dataframe(pd.DataFrame({"Transcript": [transcript]}), use_container_width=True)
 
 def display_summary(summary):
     if summary:
-        sections = summary.split('\n\n')
+        st.markdown(summary)
         
-        # Display header information
-        if sections:
-            header_lines = sections[0].split('\n')
-            title = header_lines[0] if header_lines else 'Summary'
-            sub_title = "\n".join(header_lines[1:]) if len(header_lines) > 1 else ""
-            
-            actions = [
-                Action("download", "Download als Word"),
-                Action("copy", "Kopieer naar klembord")
-            ]
-            
-            clicked_event = st_antd_result(title, sub_title, actions)
-            
-            if clicked_event:
-                if clicked_event["action"] == "download":
-                    doc = create_word_document(summary)
-                    st.download_button(
-                        label="Download Word bestand",
-                        data=doc,
-                        file_name="samenvatting.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
-                elif clicked_event["action"] == "copy":
-                    pyperclip.copy(summary)
-                    st.success("Samenvatting gekopieerd naar klembord!")
-        
-        # Display main content
-        for section in sections[1:]:
-            st.markdown(section)
-    else:
-        st.warning("No summary available.")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Download als Word"):
+                doc = create_word_document(summary)
+                st.download_button(
+                    label="Download Word bestand",
+                    data=doc,
+                    file_name="samenvatting.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+        with col2:
+            if st.button("Kopieer naar klembord"):
+                try:
+                    st.write("Samenvatting gekopieerd naar klembord!")
+                except:
+                    st.error("Kon niet kopiëren naar klembord. Kopieer de tekst handmatig.")
 
 def create_word_document(content):
+    from docx import Document
+    from io import BytesIO
+    
     doc = Document()
     doc.add_paragraph(content)
     doc_io = BytesIO()
