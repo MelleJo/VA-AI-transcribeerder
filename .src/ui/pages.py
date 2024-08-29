@@ -61,6 +61,15 @@ def render_wizard():
                 else:
                     st.warning("Maak eerst een selectie voordat u verdergaat.")
 
+def render_business_side_selection():
+    st.header("Selecteer het bedrijfsonderdeel")
+    
+    for side in st.session_state.BUSINESS_SIDES.keys():
+        if st.button(side, key=f"business_side_{side}"):
+            st.session_state.business_side = side
+            st.session_state.current_step = 1
+            st.rerun()
+
 def render_department_selection():
     st.header("Selecteer de afdeling")
     
@@ -79,13 +88,13 @@ def render_conversation_type_selection():
             st.session_state.current_step = 3
             st.rerun()
 
-def render_business_side_selection():
-    st.header("Selecteer het bedrijfsonderdeel")
+def render_input_method_selection():
+    st.header("Selecteer de invoermethode")
     
-    for side in st.session_state.BUSINESS_SIDES.keys():
-        if st.button(side, key=f"business_side_{side}"):
-            st.session_state.business_side = side
-            st.session_state.current_step = 1
+    for method in st.session_state.INPUT_METHODS:
+        if st.button(method, key=f"input_method_{method}"):
+            st.session_state.input_method = method
+            st.session_state.current_step = 4
             st.rerun()
 
 def render_prompt_selection():
@@ -102,15 +111,6 @@ def render_prompt_selection():
                 st.session_state.prompt = prompt
                 st.session_state.current_step = 3  # Move to next step
                 st.rerun()
-
-def render_input_method_selection():
-    st.header("Selecteer de invoermethode")
-    
-    for method in st.session_state.INPUT_METHODS:
-        if st.button(method, key=f"input_method_{method}"):
-            st.session_state.input_method = method
-            st.session_state.current_step = 4
-            st.rerun()
 
 def render_summary():
     colored_header("Samenvatting", description="Bekijk en bewerk de gegenereerde samenvatting")
@@ -189,17 +189,6 @@ def process_file_input(uploaded_file):
     with st.spinner("Samenvatting maken..."):
         result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
         handle_summarization_result(result, st.session_state.transcript)
-
-def handle_summarization_result(result, input_text):
-    if result["error"] is None:
-        st.session_state.summary = result["summary"]
-        update_gesprekslog(input_text, result["summary"])
-        st.success("Samenvatting voltooid!")
-    else:
-        st.error(f"Er is een fout opgetreden: {result['error']}")
-    
-    if st.button("Probeer opnieuw"):
-        st.rerun()
 
 def render_feedback_form():
     st.subheader("Geef feedback")
