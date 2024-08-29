@@ -83,33 +83,25 @@ def render_department_selection():
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
     
-    # Retrieve available conversation types (subcategories or actual prompts)
+    # Retrieve the available conversation types (which could be subcategories or actual prompts)
     conversation_types = st.session_state.BUSINESS_SIDES[st.session_state.business_side][st.session_state.department]
     selected_type = st.selectbox("Gesprekstype", conversation_types)
     
-    # Store the selected subcategory in session state for further prompt selection
-    st.session_state.subcategory = selected_type.lower().replace(' ', '_')
+    # Construct the path to the possible prompt file directly
+    subcategory_path = os.path.join(st.session_state.PROMPTS_DIR, st.session_state.department.lower(), selected_type.lower().replace(' ', '_'))
+    prompt_file_path = f"{subcategory_path}.txt"
     
-    # Build the path for the subcategory to find the actual prompts
-    subcategory_path = os.path.join(st.session_state.PROMPTS_DIR, st.session_state.subcategory)
-    
-    # List the available prompts within the selected subcategory
-    if os.path.isdir(subcategory_path):
-        prompt_files = [
-            f for f in os.listdir(subcategory_path) if f.endswith('.txt')
-        ]
-        if prompt_files:
-            selected_prompt = st.selectbox("Selecteer een prompt", [os.path.splitext(f)[0] for f in prompt_files])
-            if st.button("Bevestig prompt"):
-                # Correctly set the path for the prompt file
-                st.session_state.conversation_type = selected_prompt
-                st.session_state.prompt_path = os.path.join(subcategory_path, f"{selected_prompt}.txt")
-                st.session_state.current_step = 3
-                st.rerun()
-        else:
-            st.warning("Geen prompts beschikbaar in deze subcategorie.")
+    if os.path.exists(prompt_file_path) and os.path.isfile(prompt_file_path):
+        # If a valid prompt file is found, use it directly
+        if st.button("Bevestig prompt"):
+            st.session_state.conversation_type = selected_type
+            st.session_state.prompt_path = prompt_file_path
+            st.session_state.current_step = 3
+            st.rerun()
     else:
+        # If no valid prompt file is found, raise an error
         st.error("De geselecteerde subcategorie bevat geen prompt bestanden.")
+
 
 
 
