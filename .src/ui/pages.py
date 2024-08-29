@@ -57,7 +57,7 @@ def render_business_side_selection():
     if event:
         st.session_state.business_side = event["payload"]["id"]
         st.session_state.current_step = 1  # Move to next step
-        st.experimental_rerun()
+        st.rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
@@ -90,7 +90,7 @@ def render_department_selection():
     if event:
         st.session_state.department = event["payload"]["id"]
         st.session_state.current_step = 2  # Move to next step
-        st.experimental_rerun()
+        st.rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
@@ -116,7 +116,7 @@ def render_prompt_selection():
     if event and event["action"] == "select":
         st.session_state.prompt = event["payload"]["id"]
         st.session_state.current_step = 3  # Move to next step
-        st.experimental_rerun()
+        st.rerun()
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
@@ -133,7 +133,7 @@ def render_input_method_selection():
     if selected:
         st.session_state.input_method = selected[0]
         st.session_state.current_step = 4  # Move to summary step
-        st.experimental_rerun()
+        st.rerun()
 
 def render_summary():
     st.header("Samenvatting")
