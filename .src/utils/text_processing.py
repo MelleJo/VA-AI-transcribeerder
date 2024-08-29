@@ -27,8 +27,11 @@ from config import load_config
 config = load_config()
 
 def load_prompt(file_name):
-    # Construct the path based on the file name directly
+    # Ensure that the file_name is correctly passed and used
     path = os.path.join(config['PROMPTS_DIR'], file_name)
+    
+    # Debugging line to check what path is being used
+    print(f"Loading prompt file from: {path}")
     
     # Check if the path exists and is a file
     if not os.path.exists(path) or not os.path.isfile(path):
