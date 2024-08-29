@@ -204,6 +204,14 @@ def render_wizard():
     elif st.session_state.current_step == 2:
         render_summary()
 
+def render_conversation_history():
+    st.subheader("Laatste vijf gesprekken")
+    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])[:5]):
+        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
+            st.markdown("**Transcript:**")
+            display_transcript(gesprek["transcript"])
+            st.markdown("**Samenvatting:**")
+            st.markdown(gesprek["summary"])
 
 def main():
     render_wizard()
