@@ -129,12 +129,64 @@ def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
     <style>
-    /* ... (existing styles) ... */
-    
-    /* Custom styles for Ant Design cards */
+    .main {
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s ease 0s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-7px);
+    }
+    .summary-box {
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .summary-box:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .summary-box h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #34495e;
+    }
     .ant-card {
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transition: all 0.3s;
+        border-radius: 8px;
+        margin-bottom: 16px;
     }
     .ant-card:hover {
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -144,13 +196,21 @@ def setup_page_style():
         font-weight: bold;
         color: #1890ff;
     }
-    .ant-btn-primary {
-        background-color: #1890ff;
-        border-color: #1890ff;
+    .ant-card-body {
+        padding: 20px;
     }
-    .ant-btn-primary:hover {
-        background-color: #40a9ff;
-        border-color: #40a9ff;
+    .ant-card-meta-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+    .ant-card-meta-description {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.45);
+    }
+    .icon-container {
+        font-size: 36px;
+        text-align: center;
+        margin-bottom: 16px;
     }
     </style>
     """, unsafe_allow_html=True)

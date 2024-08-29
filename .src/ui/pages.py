@@ -56,43 +56,53 @@ def render_business_side_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
+    icons = {
+        "Veldhuis Advies Groep": "🏢",
+        "Veldhuis Advies": "💼",
+        "Arbo": "🏥"
+    }
+
     items = [
         Item(
             id=side,
-            title=side,
-            description="Klik om te selecteren",
-            icon="fas fa-building",  # Font Awesome building icon
-            actions=[Action("select", "Selecteer")]
+            title=f'<div class="icon-container">{icons.get(side, "🔹")}</div>{side}',
+            description="Klik om te selecteren"
         ) for side in st.session_state.BUSINESS_SIDES
     ]
-
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        event = st_antd_cards(items, key="business_side_cards")
     
-    if event and event["action"] == "select":
+    event = st_antd_cards(items, key="business_side_cards")
+    
+    if event:
         st.session_state.business_side = event["payload"]["id"]
         st.session_state.current_step += 1
         st.rerun()
 
+import streamlit as st
+from streamlit_antd.cards import st_antd_cards, Item
+
 def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
+        icons = {
+            "Schade": "🛠️",
+            "Bedrijven": "🏭",
+            "Particulieren": "👥",
+            "Arbo": "🏥",
+            "Veldhuis Advies": "💼",
+            "Algemeen": "📊"
+        }
+
         items = [
             Item(
                 id=dept,
-                title=dept,
-                description="Klik om te selecteren",
-                icon="fas fa-briefcase",  # Font Awesome briefcase icon
-                actions=[Action("select", "Selecteer")]
+                title=f'<div class="icon-container">{icons.get(dept, "🔹")}</div>{dept}',
+                description="Klik om te selecteren"
             ) for dept in st.session_state.DEPARTMENTS.keys()
         ]
-
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            event = st_antd_cards(items, key="department_cards")
         
-        if event and event["action"] == "select":
+        event = st_antd_cards(items, key="department_cards")
+        
+        if event:
             st.session_state.department = event["payload"]["id"]
             st.session_state.current_step += 1
             st.rerun()
