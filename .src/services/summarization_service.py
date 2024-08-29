@@ -7,9 +7,7 @@ import os
 import functools
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-
 logger = logging.getLogger(__name__)
-
 
 @functools.lru_cache(maxsize=None)
 def get_prompt(department, prompt_name):
@@ -20,8 +18,11 @@ def get_prompt(department, prompt_name):
         os.path.join(base_dir, f"{prompt_name.lower().replace(' ', '_')}.txt"),
     ]
     
+    logger.debug(f"Searching for prompt file in: {', '.join(possible_filenames)}")
+    
     for filename in possible_filenames:
         if os.path.exists(filename):
+            logger.debug(f"Found prompt file: {filename}")
             with open(filename, 'r', encoding='utf-8') as file:
                 return file.read()
     
@@ -29,7 +30,7 @@ def get_prompt(department, prompt_name):
     raise FileNotFoundError(f"No prompt file found for department '{department}' and prompt '{prompt_name}'. Looked in: {', '.join(possible_filenames)}")
 
 def summarize_text(text, department, prompt_name, user_name):
-    logger.debug(f"Starting summarize_text for prompt: {prompt_name}")
+    logger.debug(f"Starting summarize_text for department: {department}, prompt: {prompt_name}")
     logger.debug(f"Input text length: {len(text)}")
     
     try:
@@ -89,9 +90,11 @@ def summarize_text(text, department, prompt_name, user_name):
 
 def run_summarization(text, prompt_name, user_name):
     try:
-        department = st.session_state.department
-        summary_generator = summarize_text(text, department, prompt_name, user_name)
-        summary = "".join(list(summary_generator))  # Consume the generator
+        department = st.session_state.get('department', 'Veldhuis Advies')  # Default to 'Veldhuis Advies' if not set
+        logger.debug(f"Running summarization for department: {department}, prompt: {prompt_name}")
+        summary = summarize_text(text, department, prompt_name, user_name)
+        if summary.startswith("Error:"):
+            return {"summary": None, "error": summary}
         return {"summary": summary, "error": None}
     except Exception as e:
         logger.error(f"Error in run_summarization: {str(e)}")
