@@ -44,16 +44,10 @@ def render_business_side_selection():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         for side in st.session_state.BUSINESS_SIDES:
-            if st_antd_button(
+            if st.button(
                 side,
-                type="primary",
-                style={
-                    "width": "100%",
-                    "margin-bottom": "10px",
-                    "height": "60px",
-                    "font-size": "18px",
-                },
-                key=f"business_side_button_{side}"
+                key=f"business_side_button_{side}",
+                use_container_width=True,
             ):
                 st.session_state.business_side = side
                 st.session_state.current_step = 1  # Move to next step
@@ -66,27 +60,13 @@ def render_department_selection():
         st.warning("Selecteer eerst een bedrijfsonderdeel.")
         return
     
-    icons = {
-        "Schade": "fas fa-tools",
-        "Bedrijven": "fas fa-industry",
-        "Particulieren": "fas fa-users",
-        "Arbo": "fas fa-medkit",
-        "Veldhuis Advies": "fas fa-chart-line",
-        "Algemeen": "fas fa-globe"
-    }
-
-    departments = st.session_state.DEPARTMENTS.keys()
-
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        for dept in departments:
-            st.markdown(f'<div style="text-align: center;"><i class="{icons.get(dept, "fas fa-circle")} fa-2x"></i><br><strong>{dept}</strong></div>', unsafe_allow_html=True)
-            if st.button(f"Kies {dept}"):
+        for dept in st.session_state.DEPARTMENTS.keys():
+            if st.button(dept, key=f"department_button_{dept}", use_container_width=True):
                 st.session_state.department = dept
                 st.session_state.current_step = 2  # Move to next step
                 st.rerun()
-            st.markdown("---")  # Horizontal separator between cards
-
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
@@ -95,28 +75,13 @@ def render_prompt_selection():
         st.warning("Selecteer eerst een afdeling.")
         return
     
-    items = [
-        Item(
-            id=prompt,
-            title=prompt,
-            description="Klik om te selecteren"
-        ) for prompt in st.session_state.DEPARTMENTS[st.session_state.department]
-    ]
-
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        event = st_antd_cards(items, key="prompt_cards")
-    
-    if event:
-        st.session_state.prompt = event["payload"]["id"]
-        st.session_state.current_step = 3  # Move to next step
-        st.rerun()
-
-
-
-
-
-
+        for prompt in st.session_state.DEPARTMENTS[st.session_state.department]:
+            if st.button(prompt, key=f"prompt_button_{prompt}", use_container_width=True):
+                st.session_state.prompt = prompt
+                st.session_state.current_step = 3  # Move to next step
+                st.rerun()
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
@@ -125,12 +90,13 @@ def render_input_method_selection():
         st.warning("Selecteer eerst een prompt.")
         return
     
-    selected = fancy_select(st.session_state.INPUT_METHODS, "input_method")
-    
-    if selected:
-        st.session_state.input_method = selected
-        st.session_state.current_step = 4  # Move to summary step
-        st.rerun()
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        for method in st.session_state.INPUT_METHODS:
+            if st.button(method, key=f"input_method_button_{method}", use_container_width=True):
+                st.session_state.input_method = method
+                st.session_state.current_step = 4  # Move to summary step
+                st.rerun()
 
 def render_summary():
     st.header("Samenvatting")
