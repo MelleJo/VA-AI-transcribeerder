@@ -99,9 +99,7 @@ def render_prompt_selection():
         Item(
             id=prompt,
             title=prompt,
-            description="Klik om te selecteren",
-            icon="fas fa-file-alt",
-            actions=[CardAction("select", "Selecteer")]
+            description="Klik om te selecteren"
         ) for prompt in st.session_state.DEPARTMENTS[st.session_state.department]
     ]
 
@@ -109,10 +107,12 @@ def render_prompt_selection():
     with col2:
         event = st_antd_cards(items, key="prompt_cards")
     
-    if event and event["action"] == "select":
+    if event:
         st.session_state.prompt = event["payload"]["id"]
         st.session_state.current_step = 3  # Move to next step
         st.rerun()
+
+
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
