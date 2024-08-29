@@ -38,18 +38,6 @@ DEPARTMENTS = {
     "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
 }
 
-PROMPTS = {
-    "Algemeen": ["Notulen van een vergadering", "Verslag van een telefoongesprek"],
-    "Schade": ["Schademelding", "Schade-expertise"],
-    "Bedrijven": ["Onderhoudsadviesgesprek", "Risico-inventarisatie"],
-    "Particulieren": ["Adviesgesprek", "Polischeck"],
-    "Support": ["Klantenservice", "Technische ondersteuning"],
-    "Financiële Planning": ["Financieel plan", "Vermogensanalyse"],
-    "Pensioenen": ["Pensioenadvies", "Collectief pensioen"],
-    "Hypotheek": ["Hypotheekadvies", "Hypotheekberekening"],
-    "Arbo": ["Verzuimbegeleiding", "Werkplekonderzoek"]
-}
-
 INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", "Neem audio op"]
 
 def setup_page_style():
@@ -57,85 +45,76 @@ def setup_page_style():
     st.markdown("""
     <style>
     .main {
-        background-color: #f0f8ff;
-        color: #333;
+        background-color: #f8f9fa;
+        color: #212529;
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     .stButton>button {
-        background-color: #4CAF50;
+        background-color: #007bff;
         color: white;
         border: none;
-        padding: 12px 28px;
+        padding: 0.5rem 1rem;
         text-align: center;
         text-decoration: none;
         display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
+        font-size: 1rem;
+        margin: 0.5rem 0;
         cursor: pointer;
-        border-radius: 30px;
-        transition: all 0.3s ease 0s;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #45a049;
-        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
-        transform: translateY(-7px);
+        background-color: #0056b3;
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
     }
     .summary-box {
-        border: none;
-        border-radius: 15px;
-        padding: 25px;
-        margin: 20px 0;
         background-color: #ffffff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
     .summary-box:hover {
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
     }
     .summary-box h3 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
+        color: #007bff;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
     .content {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-size: 16px;
-        line-height: 1.8;
-        color: #34495e;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #343a40;
     }
     .transcript-box {
-        border: none;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #f9f9f9;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
     .copy-button {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 1rem;
     }
     .stProgress > div > div > div > div {
-        background-color: #3498db;
+        background-color: #007bff;
     }
     .stSelectbox {
-        color: #2c3e50;
+        color: #495057;
     }
     .stSelectbox > div > div {
         background-color: #ffffff;
-        border-radius: 5px;
+        border-radius: 0.25rem;
     }
     .stRadio > div {
         background-color: #ffffff;
-        border-radius: 5px;
-        padding: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -159,7 +138,7 @@ def initialize_session_state():
         'processing_complete': False,
         'current_step': 0,
         'user_name': "",
-        'PROMPTS_DIR': PROMPTS_DIR  # Add this line
+        'PROMPTS_DIR': PROMPTS_DIR
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -176,6 +155,17 @@ def render_wizard():
         menu_icon="cast",
         default_index=st.session_state.current_step,
         orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f8f9fa"},
+            "icon": {"color": "#007bff", "font-size": "20px"},
+            "nav-link": {
+                "font-size": "16px",
+                "text-align": "center",
+                "margin": "0px",
+                "--hover-color": "#eee",
+            },
+            "nav-link-selected": {"background-color": "#007bff", "color": "white"},
+        }
     )
 
     st.session_state.current_step = steps.index(selected_step)
@@ -194,61 +184,69 @@ def render_wizard():
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         if st.session_state.current_step > 0:
-            if st.button("Vorige"):
+            if st.button("Vorige", key="prev_button"):
                 st.session_state.current_step -= 1
-                st.rerun()
+                st.experimental_rerun()
     with col3:
         if st.session_state.current_step < len(steps) - 1:
-            if st.button("Volgende"):
+            if st.button("Volgende", key="next_button"):
                 st.session_state.current_step += 1
-                st.rerun()
+                st.experimental_rerun()
 
 def render_business_side_selection():
     st.header("Selecteer het bedrijfsonderdeel")
-    
+
     if 'user_name' not in st.session_state:
         st.session_state.user_name = ""
-    
+
     user_name = st.text_input("Uw naam (optioneel):", value=st.session_state.user_name, key="user_name_input")
-    
+
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    for business_side in BUSINESS_SIDES:
-        if card(title=business_side, text="", key=business_side):
-            st.session_state.business_side = business_side
-            st.session_state.current_step += 1
-            st.rerun()
+    cols = st.columns(3)
+    for i, business_side in enumerate(BUSINESS_SIDES):
+        with cols[i % 3]:
+            if card(title=business_side, text="", key=business_side):
+                st.session_state.business_side = business_side
+                st.session_state.current_step += 1
+                st.experimental_rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
     if st.session_state.business_side:
-        for dept in DEPARTMENTS.keys():
-            if card(title=dept, text="", key=dept):
-                st.session_state.department = dept
-                st.session_state.current_step += 1
-                st.rerun()
+        cols = st.columns(3)
+        for i, dept in enumerate(DEPARTMENTS.keys()):
+            with cols[i % 3]:
+                if card(title=dept, text="", key=dept):
+                    st.session_state.department = dept
+                    st.session_state.current_step += 1
+                    st.experimental_rerun()
     else:
         st.warning("Selecteer eerst een bedrijfsonderdeel.")
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
     if st.session_state.department:
-        for prompt in DEPARTMENTS[st.session_state.department]:
-            if card(title=prompt, text="", key=prompt):
-                st.session_state.prompt = prompt
-                st.session_state.current_step += 1
-                st.rerun()
+        cols = st.columns(3)
+        for i, prompt in enumerate(DEPARTMENTS[st.session_state.department]):
+            with cols[i % 3]:
+                if card(title=prompt, text="", key=prompt):
+                    st.session_state.prompt = prompt
+                    st.session_state.current_step += 1
+                    st.experimental_rerun()
     else:
         st.warning("Selecteer eerst een afdeling.")
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
-    for method in INPUT_METHODS:
-        if card(title=method, text="", key=method):
-            st.session_state.input_method = method
-            st.session_state.current_step += 1
-            st.rerun()
+    cols = st.columns(2)
+    for i, method in enumerate(INPUT_METHODS):
+        with cols[i % 2]:
+            if card(title=method, text="", key=method):
+                st.session_state.input_method = method
+                st.session_state.current_step += 1
+                st.experimental_rerun()
 
 def render_summary():
     st.header("Samenvatting")
@@ -276,13 +274,13 @@ def render_summary():
         if uploaded_file:
             st.session_state.transcript = process_uploaded_file(uploaded_file)
             with st.spinner("Samenvatting maken..."):
-                result = process_audio_input(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
-                if result and result["error"] is None:
+                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+                if result["error"] is None:
                     st.session_state.summary = result["summary"]
                     update_gesprekslog(st.session_state.transcript, result["summary"])
                     st.success("Samenvatting voltooid!")
                 else:
-                    st.error(f"Er is een fout opgetreden: {result['error'] if result else 'Onbekende fout'}")
+                    st.error(f"Er is een fout opgetreden: {result['error']}")
 
     if st.session_state.summary:
         display_summary(st.session_state.summary)
