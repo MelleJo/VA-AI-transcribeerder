@@ -93,63 +93,21 @@ def display_file_uploader(label, type=None):
 def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f0f4f8;
-        color: #1a202c;
-    }
-    .main {
-        padding: 2rem;
-    }
-    h1, h2, h3 {
-        color: #2d3748;
-    }
     .stButton>button {
-        background-color: #4299e1;
+        background-color: #4CAF50;
         color: white;
+        padding: 10px 20px;
         border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
     }
     .stButton>button:hover {
-        background-color: #2c5282;
-        transform: translateY(-3px);
+        background-color: #45a049;
     }
-    .ant-card {
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    .ant-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-    .ant-card-head-title {
-        font-weight: 700;
-        color: #2d3748;
-    }
-    .ant-card-body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 1.5rem;
-    }
-    .ant-card i {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: #4299e1;
-    }
-    .ant-card-meta-description {
-        color: #718096;
+    .stTextArea>div>div>textarea {
+        font-size: 16px;
     }
     </style>
     """, unsafe_allow_html=True)
