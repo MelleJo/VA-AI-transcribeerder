@@ -42,6 +42,8 @@ def setup_page_style():
     </style>
     """, unsafe_allow_html=True)
 
+import os
+
 def initialize_session_state():
     defaults = {
         'summary': "",
@@ -61,12 +63,14 @@ def initialize_session_state():
         'processing_complete': False,
         'current_step': 0,
         'user_name': "",
-        # Ensure the PROMPTS_DIR is correctly set based on your project structure
-        'PROMPTS_DIR': os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'prompts')),
+        # Set the PROMPTS_DIR relative to the current file's location
+        'PROMPTS_DIR': os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts')),
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+
 
 
 def render_prompt_selection():
@@ -74,6 +78,7 @@ def render_prompt_selection():
 
     # Verify the prompts directory path is correctly set and exists
     prompts_dir = st.session_state.PROMPTS_DIR
+    st.write(f"Using prompts directory: {prompts_dir}")  # Log the directory path
     if not os.path.isdir(prompts_dir):
         st.error(f"Prompts directory not found: {prompts_dir}")
         return
@@ -83,7 +88,6 @@ def render_prompt_selection():
     for root, dirs, files in os.walk(prompts_dir):
         for file in files:
             if file.endswith('.txt'):
-                # Create a relative path to show in the select box
                 relative_path = os.path.relpath(os.path.join(root, file), prompts_dir)
                 prompt_files.append(relative_path.replace('\\', '/'))  # Normalize path for all OS
 
@@ -99,6 +103,7 @@ def render_prompt_selection():
         st.session_state.prompt_path = os.path.join(prompts_dir, selected_prompt)
         st.session_state.current_step = 1  # Move to the next step
         st.rerun()
+
 
 
 def render_input_method_selection():
