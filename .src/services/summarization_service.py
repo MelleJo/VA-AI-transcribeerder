@@ -21,13 +21,13 @@ def get_all_prompts():
 
 def get_prompt(conversation_type):
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
-    business_side = st.session_state.get('business_side')
-    department = st.session_state.get('department')
+    
+    # Remove any file extension from conversation_type
+    conversation_type = os.path.splitext(conversation_type)[0]
     
     possible_paths = [
-        os.path.join(base_dir, business_side.lower(), department.lower(), f"{conversation_type.lower().replace(' ', '_')}.txt"),
-        os.path.join(base_dir, department.lower(), f"{conversation_type.lower().replace(' ', '_')}.txt"),
         os.path.join(base_dir, f"{conversation_type.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, conversation_type, f"{conversation_type.lower().replace(' ', '_')}.txt"),
     ]
     
     for path in possible_paths:
@@ -39,12 +39,12 @@ def get_prompt(conversation_type):
     logger.error(f"No prompt file found for conversation type: {conversation_type}")
     raise FileNotFoundError(f"No prompt file found for conversation type: {conversation_type}")
 
-def summarize_text(text, department, prompt_name, user_name):
-    logger.debug(f"Starting summarize_text for department: {department}, prompt: {prompt_name}")
+def summarize_text(text, conversation_type, user_name):
+    logger.debug(f"Starting summarize_text for conversation type: {conversation_type}")
     logger.debug(f"Input text length: {len(text)}")
     
     try:
-        prompt = get_prompt(department, prompt_name)
+        prompt = get_prompt(conversation_type)
     except FileNotFoundError as e:
         logger.error(f"Prompt file not found: {str(e)}")
         return f"Error: {str(e)}"
@@ -52,7 +52,7 @@ def summarize_text(text, department, prompt_name, user_name):
     current_time = get_local_time()
     
     full_prompt = f"""
-    {prompt_name}
+    {conversation_type}
     {current_time}
     {user_name}
     Betreft: [invullen achteraf]
@@ -76,7 +76,7 @@ def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Full prompt length: {len(full_prompt)}")
     chat_model = ChatOpenAI(
         api_key=st.secrets["OPENAI_API_KEY"],
-        model="gpt-4o-2024-08-06",
+        model="gpt-4-1106-preview",
         temperature=0,
         streaming=True,
         callbacks=[StreamingStdOutCallbackHandler()]
@@ -97,7 +97,6 @@ def summarize_text(text, department, prompt_name, user_name):
     except Exception as e:
         logger.error(f"Error in summarization: {str(e)}")
         return f"Error in summarization: {str(e)}"
-
 
 def run_summarization(text, conversation_type, user_name):
     try:
