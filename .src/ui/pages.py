@@ -3,12 +3,15 @@ from streamlit_antd.tabs import st_antd_tabs
 from streamlit_antd.cascader import st_antd_cascader
 from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
+from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
 from services.summarization_service import run_summarization
 from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
 from utils.text_processing import update_gesprekslog
+from streamlit_antd.cards import Action, Item, st_antd_cards
+
 
 def render_wizard():
     st.title("Gesprekssamenvatter")
@@ -53,13 +56,21 @@ def render_business_side_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    selected = st_antd_cascader(
-        [{"value": side, "label": side} for side in st.session_state.BUSINESS_SIDES],
-        key="business_side_cascader"
-    )
+    items = [
+        Item(
+            id=side,
+            title=side,
+            description="Klik om te selecteren",
+            actions=[Action("select", "Selecteer")]
+        ) for side in st.session_state.BUSINESS_SIDES
+    ]
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        event = st_antd_cards(items, key="business_side_cards")
     
-    if selected:
-        st.session_state.business_side = selected[0]
+    if event and event["action"] == "select":
+        st.session_state.business_side = event["payload"]["id"]
         st.session_state.current_step += 1
         st.experimental_rerun()
 
