@@ -59,7 +59,7 @@ def render_department_selection():
         if st.button(dept, key=f"department_{dept}"):
             st.session_state.department = dept
             st.session_state.current_step = 2
-            st.experimental_rerun()
+            st.rerun()
 
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
@@ -68,7 +68,7 @@ def render_conversation_type_selection():
         if st.button(conv_type, key=f"conv_type_{conv_type}"):
             st.session_state.conversation_type = conv_type
             st.session_state.current_step = 3
-            st.experimental_rerun()
+            st.rerun()
 
 def render_business_side_selection():
     st.header("Selecteer het bedrijfsonderdeel")
@@ -77,7 +77,7 @@ def render_business_side_selection():
         if st.button(side, key=f"business_side_{side}"):
             st.session_state.business_side = side
             st.session_state.current_step = 1
-            st.experimental_rerun()
+            st.rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
@@ -101,7 +101,7 @@ def render_input_method_selection():
         if st.button(method, key=f"input_method_{method}"):
             st.session_state.input_method = method
             st.session_state.current_step = 4
-            st.experimental_rerun()
+            st.rerun()
 
 def render_summary():
     st.header("Samenvatting")
@@ -158,7 +158,7 @@ def handle_summarization_result(result, input_text):
         st.error(f"Er is een fout opgetreden: {result['error']}")
     
     if st.button("Probeer opnieuw"):
-        st.experimental_rerun()
+        st.rerun()
 
 def process_text_input():
     with st.spinner("Samenvatting maken..."):
