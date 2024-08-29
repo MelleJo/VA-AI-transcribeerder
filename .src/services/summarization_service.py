@@ -36,8 +36,9 @@ def summarize_text(text, department, prompt_name, user_name):
         prompt = get_prompt(department, prompt_name)
     except FileNotFoundError as e:
         logger.error(f"Prompt file not found: {str(e)}")
-        return f"Error: {str(e)}"
-    
+        yield f"Error: {str(e)}"
+        return
+
     current_time = get_local_time()
     
     full_prompt = f"""
@@ -61,7 +62,13 @@ def summarize_text(text, department, prompt_name, user_name):
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o-2024-08-06", temperature=0, streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+    chat_model = ChatOpenAI(
+        api_key=st.secrets["OPENAI_API_KEY"],
+        model="gpt-4o-2024-08-06",
+        temperature=0,
+        streaming=True,
+        callbacks=[StreamingStdOutCallbackHandler()]
+    )
     
     try:
         prompt_template = ChatPromptTemplate.from_template(full_prompt)
@@ -72,16 +79,16 @@ def summarize_text(text, department, prompt_name, user_name):
             summary += chunk.content
             yield summary  # This allows for incremental updates
         logger.debug(f"Summary generated. Length: {len(summary)}")
-        return summary
     except Exception as e:
         logger.error(f"Error in summarization: {str(e)}")
-        return f"Error in summarization: {str(e)}"
+        yield f"Error in summarization: {str(e)}"
 
 def run_summarization(text, prompt_name, user_name):
     try:
         department = st.session_state.department
         summary_generator = summarize_text(text, department, prompt_name, user_name)
-        summary = "".join(summary_generator)  # Consume the generator
+        summary = "".join(list(summary_generator))  # Consume the generator
         return {"summary": summary, "error": None}
     except Exception as e:
+        logger.error(f"Error in run_summarization: {str(e)}")
         return {"summary": None, "error": str(e)}

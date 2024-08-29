@@ -175,9 +175,9 @@ def render_feedback_form():
 
 def render_conversation_history():
     st.subheader("Laatste vijf gesprekken")
-    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])):
+    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])[:5]):
         with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
             st.markdown("**Transcript:**")
             display_transcript(gesprek["transcript"])
             st.markdown("**Samenvatting:**")
-            display_summary(gesprek["summary"])
+            st.markdown(gesprek["summary"])
