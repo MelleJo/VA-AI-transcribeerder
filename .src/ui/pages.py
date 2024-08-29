@@ -41,12 +41,12 @@ def render_wizard():
         if st.session_state.current_step > 0:
             if st.button("Vorige"):
                 st.session_state.current_step -= 1
-                st.experimental_rerun()
+                st.rerun()
     with col3:
         if st.session_state.current_step < len(steps) - 1:
             if st.button("Volgende"):
                 st.session_state.current_step += 1
-                st.experimental_rerun()
+                st.rerun()
 
 def render_business_side_selection():
     st.header("Selecteer het bedrijfsonderdeel")
@@ -61,18 +61,16 @@ def render_business_side_selection():
             id=side,
             title=side,
             description="Klik om te selecteren",
-            actions=[Action("select", "Selecteer")]
+            cover="/path/to/default/image.png"  # Replace with an actual path or remove if not needed
         ) for side in st.session_state.BUSINESS_SIDES
     ]
-
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        event = st_antd_cards(items, key="business_side_cards")
     
-    if event and event["action"] == "select":
+    event = st_antd_cards(items, key="business_side_cards")
+    
+    if event:
         st.session_state.business_side = event["payload"]["id"]
         st.session_state.current_step += 1
-        st.experimental_rerun()
+        st.rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
@@ -84,7 +82,7 @@ def render_department_selection():
         if selected:
             st.session_state.department = selected[0]
             st.session_state.current_step += 1
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.warning("Selecteer eerst een bedrijfsonderdeel.")
 
@@ -98,7 +96,7 @@ def render_prompt_selection():
         if selected:
             st.session_state.prompt = selected[0]
             st.session_state.current_step += 1
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.warning("Selecteer eerst een afdeling.")
 
@@ -111,7 +109,7 @@ def render_input_method_selection():
     if selected:
         st.session_state.input_method = selected[0]
         st.session_state.current_step += 1
-        st.experimental_rerun()
+        st.rerun()
 
 def render_summary():
     st.header("Samenvatting")
