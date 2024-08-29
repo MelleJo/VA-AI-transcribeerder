@@ -114,23 +114,23 @@ def split_audio(file_path, max_duration_ms=30000):
         chunks.append(audio[i:i+max_duration_ms])
     return chunks
 
+# audio_processing.py
+
 def get_prompt(department, prompt_name):
-    # Normalize the department and prompt name
+    # Construct the path based on the department and prompt name
     normalized_department = department.lower().replace(' ', '_')
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
-    # Use the PROMPTS_DIR from the session state
-    prompts_dir = st.session_state.get('PROMPTS_DIR', '')
+    # Use the PROMPTS_DIR from the session state and build the full path
+    prompt_file = os.path.join(st.session_state.PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
     
-    # Construct the path based on the provided directory structure
-    prompt_file = os.path.join(prompts_dir, normalized_department, f"{normalized_prompt_name}.txt")
-    
-    # Add debug logging
-    logger.debug(f"Attempting to load prompt file: {prompt_file}")
-    
-    # Check if the file exists in the constructed path
-    if not os.path.exists(prompt_file):
+    # Ensure the constructed path points to a valid file
+    if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
         raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
+    
+    # Load and return the prompt content
+    return load_prompt(prompt_file)
+
     
     return load_prompt(prompt_file)
 
