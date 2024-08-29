@@ -32,22 +32,22 @@ def get_prompt(conversation_type):
     # Fallback to the original method if prompt_path is not in session state or file not found
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
     
-    # Remove any file extension from conversation_type
-    conversation_type = os.path.splitext(conversation_type)[0]
-    
+    # Generate possible paths to find the correct prompt file
     possible_paths = [
         os.path.join(base_dir, f"{conversation_type.lower().replace(' ', '_')}.txt"),
-        os.path.join(base_dir, conversation_type, f"{conversation_type.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, conversation_type.lower(), f"{conversation_type.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, conversation_type.lower(), "default.txt"),  # default fallback option
     ]
     
     for path in possible_paths:
         logger.debug(f"Attempting to load prompt from: {path}")
-        if os.path.exists(path):
+        if os.path.isfile(path):
             with open(path, 'r', encoding='utf-8') as file:
                 return file.read()
     
     logger.error(f"No prompt file found for conversation type: {conversation_type}")
     raise FileNotFoundError(f"No prompt file found for conversation type: {conversation_type}")
+
 
 def summarize_text(text, conversation_type, user_name):
     logger.debug(f"Starting summarize_text for conversation type: {conversation_type}")
