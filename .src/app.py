@@ -6,8 +6,8 @@ from openai_service import perform_gpt4_operation
 from utils.audio_processing import process_audio_input
 from services.summarization_service import run_summarization
 from utils.file_processing import process_uploaded_file
-from ui.pages import render_wizard, render_feedback_form, render_conversation_history
-from ui.components import setup_page_style, initialize_session_state
+from ui.pages import render_wizard, render_feedback_form, render_conversation_history, setup_page_style
+from ui.components import initialize_session_state
 from utils.text_processing import update_gesprekslog, load_questions
 from docx import Document
 from io import BytesIO
