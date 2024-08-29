@@ -78,27 +78,4 @@ def display_text_input(label, value="", height=100):
 def display_file_uploader(label, type=None):
     return st.file_uploader(label, type=type)
 
-def setup_page_style():
-    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
-    st.markdown("""
-    <style>
-    .stApp {
-        background-color: #ffffff;
-    }
-    .stButton>button {
-        width: 100%;
-        height: 3em;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    .stProgress > div > div > div > div {
-        background-color: #4CAF50;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
