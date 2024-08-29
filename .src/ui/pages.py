@@ -7,7 +7,7 @@ from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
 #from streamlit_antd.select import st_antd_select
 #from streamlit_antd.button import st_antd_button
 
-from ui.components.fancy_select import fancy_select
+from components.fancy_select import fancy_select
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
 from services.summarization_service import run_summarization
