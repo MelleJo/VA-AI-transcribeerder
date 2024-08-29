@@ -24,8 +24,6 @@ from streamlit_extras.stylable_container import stylable_container
 
 
 def render_wizard():
-    st.set_page_config(page_title="Gesprekssamenvatter", layout="wide")
-
     # Add custom CSS for modern styling
     st.markdown("""
     <style>
