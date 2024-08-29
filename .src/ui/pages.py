@@ -1,4 +1,6 @@
 import streamlit as st
+from st_copy_to_clipboard import st_copy_to_clipboard
+
 from streamlit_antd.tabs import st_antd_tabs
 from streamlit_antd.cascader import st_antd_cascader
 from streamlit_antd.result import Action, st_antd_result
@@ -33,40 +35,49 @@ def render_wizard():
     elif current_step == 4:
         render_summary()
 
-def render_business_side_selection():
-    st.header("Selecteer het bedrijfsonderdeel")
-    
-    user_name = st.text_input("Uw naam (optioneel):", value=st.session_state.user_name, key="user_name_input")
-    
-    if user_name != st.session_state.user_name:
-        st.session_state.user_name = user_name
+def render_wizard():
+    st.title("Gesprekssamenvatter")
 
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        for side in st.session_state.BUSINESS_SIDES:
-            if st.button(
-                side,
-                key=f"business_side_button_{side}",
-                use_container_width=True,
-            ):
-                st.session_state.business_side = side
-                st.session_state.current_step = 1  # Move to next step
-                st.rerun()
+    steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
+    current_step = st.session_state.get('current_step', 0)
+    
+    if current_step == 0:
+        render_business_side_selection()
+    elif current_step == 1:
+        render_department_selection()
+    elif current_step == 2:
+        render_conversation_type_selection()
+    elif current_step == 3:
+        render_input_method_selection()
+    elif current_step == 4:
+        render_summary()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
     
-    if not st.session_state.business_side:
-        st.warning("Selecteer eerst een bedrijfsonderdeel.")
-        return
+    for dept in st.session_state.BUSINESS_SIDES[st.session_state.business_side].keys():
+        if st.button(dept, key=f"department_{dept}"):
+            st.session_state.department = dept
+            st.session_state.current_step = 2
+            st.experimental_rerun()
+
+def render_conversation_type_selection():
+    st.header("Selecteer het gesprekstype")
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        for dept in st.session_state.DEPARTMENTS.keys():
-            if st.button(dept, key=f"department_button_{dept}", use_container_width=True):
-                st.session_state.department = dept
-                st.session_state.current_step = 2  # Move to next step
-                st.rerun()
+    for conv_type in st.session_state.BUSINESS_SIDES[st.session_state.business_side][st.session_state.department]:
+        if st.button(conv_type, key=f"conv_type_{conv_type}"):
+            st.session_state.conversation_type = conv_type
+            st.session_state.current_step = 3
+            st.experimental_rerun()
+
+def render_business_side_selection():
+    st.header("Selecteer het bedrijfsonderdeel")
+    
+    for side in st.session_state.BUSINESS_SIDES.keys():
+        if st.button(side, key=f"business_side_{side}"):
+            st.session_state.business_side = side
+            st.session_state.current_step = 1
+            st.experimental_rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
@@ -86,17 +97,11 @@ def render_prompt_selection():
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
     
-    if not st.session_state.prompt:
-        st.warning("Selecteer eerst een prompt.")
-        return
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        for method in st.session_state.INPUT_METHODS:
-            if st.button(method, key=f"input_method_button_{method}", use_container_width=True):
-                st.session_state.input_method = method
-                st.session_state.current_step = 4  # Move to summary step
-                st.rerun()
+    for method in st.session_state.INPUT_METHODS:
+        if st.button(method, key=f"input_method_{method}"):
+            st.session_state.input_method = method
+            st.session_state.current_step = 4
+            st.experimental_rerun()
 
 def render_summary():
     st.header("Samenvatting")
@@ -105,7 +110,7 @@ def render_summary():
         st.session_state.input_text = display_text_input("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
             with st.spinner("Samenvatting maken..."):
-                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
+                result = run_summarization(st.session_state.input_text, st.session_state.conversation_type, st.session_state.user_name)
                 handle_summarization_result(result, st.session_state.input_text)
 
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
@@ -116,7 +121,7 @@ def render_summary():
         if uploaded_file:
             with st.spinner("Samenvatting maken..."):
                 st.session_state.transcript = process_uploaded_file(uploaded_file)
-                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+                result = run_summarization(st.session_state.transcript, st.session_state.conversation_type, st.session_state.user_name)
                 handle_summarization_result(result, st.session_state.transcript)
 
     if st.session_state.get('summary'):
@@ -134,14 +139,20 @@ def render_summary():
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
         with col2:
-            if st.button("Kopieer naar klembord"):
-                st.write("Samenvatting gekopieerd naar klembord!")
-                st.clipboard(st.session_state.summary)
+            st_copy_to_clipboard(st.session_state.summary, "Kopieer naar klembord")
 
 def handle_summarization_result(result, input_text):
     if result["error"] is None:
-        st.session_state.summary = result["summary"]
-        update_gesprekslog(input_text, result["summary"])
+        # Make headers bold
+        bold_headers = ["**1. Titel**", "**2. Datum en tijd**", "**3. Gebruiker**", "**4. Gesproken met**", "**5. Hoofdinhoud**", "**6. Actiepunten/deadlines/afspraken**"]
+        summary_lines = result["summary"].split('\n')
+        for i, line in enumerate(summary_lines):
+            for header in bold_headers:
+                if line.startswith(header[2:-2]):
+                    summary_lines[i] = header
+                    break
+        st.session_state.summary = '\n'.join(summary_lines)
+        update_gesprekslog(input_text, st.session_state.summary)
         st.success("Samenvatting voltooid!")
     else:
         st.error(f"Er is een fout opgetreden: {result['error']}")

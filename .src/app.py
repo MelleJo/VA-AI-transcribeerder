@@ -22,7 +22,24 @@ logger = logging.getLogger(__name__)
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
 QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
-BUSINESS_SIDES = ["Veldhuis Advies Groep", "Veldhuis Advies", "Arbo"]
+BUSINESS_SIDES = {
+    "VA": {
+        "Pensioen": ["Pensioen advies", "Collectief pensioen", "Deelnemersgesprekken"],
+        "Hypotheek": ["Hypotheek advies", "Hypotheek rapport"],
+        "Financiële Planning": ["Financieel planningstraject"],
+        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+    },
+    "VAG": {
+        "Schade": ["Schademelding", "Schade beoordeling", "Expertise gesprek"],
+        "Bedrijven": ["Adviesgesprek", "Risico analyse", "Klantrapport"],
+        "Particulieren": ["Mutatie", "Adviesgesprek"],
+        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+    },
+    "Arbo": {
+        "Verzuimbegeleiding": ["Gesprek bedrijfsarts", "Verzuimrapportage"],
+        "Algemeen": ["Notulen vergadering", "Notulen brainstorm", "Ingesproken handleiding"]
+    }
+}
 
 DEPARTMENTS = {
     "Schade": ["Schademelding", "Telefoongesprek", "Schade beoordeling", "Expertise gesprek", "Ingesproken notitie"],
@@ -39,10 +56,7 @@ def main():
     setup_page_style()
     initialize_session_state()
 
-    st.session_state.PROMPTS_DIR = PROMPTS_DIR
-    st.session_state.QUESTIONS_DIR = QUESTIONS_DIR
     st.session_state.BUSINESS_SIDES = BUSINESS_SIDES
-    st.session_state.DEPARTMENTS = DEPARTMENTS
     st.session_state.INPUT_METHODS = INPUT_METHODS
 
     render_wizard()
