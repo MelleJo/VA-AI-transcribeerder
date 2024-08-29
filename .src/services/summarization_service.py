@@ -45,7 +45,7 @@ def summarize_text(text, department, prompt_name, user_name):
     {prompt_name}
     {current_time}
     {user_name}
-    Gesproken met: [invullen achteraf]
+    Betreft: [invullen achteraf]
 
     {prompt}
 
