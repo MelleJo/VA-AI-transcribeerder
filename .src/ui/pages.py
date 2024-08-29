@@ -32,22 +32,17 @@ def render_wizard():
     # Progress bar
     st.progress((current_step) / (len(steps) - 1))
 
-    # Tabs for steps
-    tabs = st.tabs(steps)
-
-    with tabs[current_step]:
-        st.markdown('<div class="content-container">', unsafe_allow_html=True)
-        if current_step == 0:
-            render_business_side_selection()
-        elif current_step == 1:
-            render_department_selection()
-        elif current_step == 2:
-            render_conversation_type_selection()
-        elif current_step == 3:
-            render_input_method_selection()
-        elif current_step == 4:
-            render_summary()
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Render current step
+    if current_step == 0:
+        render_business_side_selection()
+    elif current_step == 1:
+        render_department_selection()
+    elif current_step == 2:
+        render_conversation_type_selection()
+    elif current_step == 3:
+        render_input_method_selection()
+    elif current_step == 4:
+        render_summary()
 
     # Bottom navigation
     col1, col2, col3 = st.columns([1, 3, 1])
