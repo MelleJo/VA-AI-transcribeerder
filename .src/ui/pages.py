@@ -24,34 +24,7 @@ from streamlit_extras.stylable_container import stylable_container
 
 
 def render_wizard():
-    # Add custom CSS for modern styling
-    st.markdown("""
-    <style>
-    .stButton>button {
-        width: 100%;
-        border-radius: 20px;
-        height: 3em;
-        transition: all 0.3s ease-in-out;
-    }
-    .stButton>button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .nav-btn {
-        position: fixed;
-        bottom: 20px;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-weight: bold;
-    }
-    .nav-btn.back {
-        left: 20px;
-    }
-    .nav-btn.next {
-        right: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    st.title("Gesprekssamenvatter")
 
     steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
     current_step = st.session_state.get('current_step', 0)
@@ -63,6 +36,7 @@ def render_wizard():
     tabs = st.tabs(steps)
 
     with tabs[current_step]:
+        st.markdown('<div class="content-container">', unsafe_allow_html=True)
         if current_step == 0:
             render_business_side_selection()
         elif current_step == 1:
@@ -73,6 +47,7 @@ def render_wizard():
             render_input_method_selection()
         elif current_step == 4:
             render_summary()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Bottom navigation
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -90,17 +65,6 @@ def render_wizard():
                     st.rerun()
                 else:
                     st.warning("Maak eerst een selectie voordat u verdergaat.")
-
-def validate_step(step):
-    if step == 0 and 'business_side' not in st.session_state:
-        return False
-    elif step == 1 and 'department' not in st.session_state:
-        return False
-    elif step == 2 and 'conversation_type' not in st.session_state:
-        return False
-    elif step == 3 and 'input_method' not in st.session_state:
-        return False
-    return True
 
 def render_department_selection():
     colored_header("Selecteer de afdeling", description="Kies de relevante afdeling")
@@ -130,22 +94,13 @@ def render_conversation_type_selection():
             st.rerun()
 
 def render_business_side_selection():
-    colored_header("Selecteer het bedrijfsonderdeel", description="Kies het juiste onderdeel van het bedrijf")
+    st.header("Selecteer het bedrijfsonderdeel")
+    
     for side in st.session_state.BUSINESS_SIDES.keys():
-        if stylable_container(key=f"container_{side}", css_styles="""
-            {
-                background-color: #f0f2f6;
-                border-radius: 10px;
-                padding: 10px;
-                margin-bottom: 10px;
-            }
-            :hover {
-                background-color: #e0e2e6;
-            }
-        """):
-            if st.button(side, key=f"business_side_{side}"):
-                st.session_state.business_side = side
-                st.rerun()
+        if st.button(side, key=f"business_side_{side}"):
+            st.session_state.business_side = side
+            st.session_state.current_step = 1
+            st.rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
