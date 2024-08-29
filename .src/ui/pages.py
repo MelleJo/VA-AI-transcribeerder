@@ -1,16 +1,11 @@
 import streamlit as st
-from st_copy_to_clipboard import st_copy_to_clipboard
 import os
-
+from st_copy_to_clipboard import st_copy_to_clipboard
 from streamlit_antd.tabs import st_antd_tabs
 from streamlit_antd.cascader import st_antd_cascader
 from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
 from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
-#from streamlit_antd.select import st_antd_select
-#from streamlit_antd.button import st_antd_button
-
-#from components.fancy_select import fancy_select
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
 from services.summarization_service import run_summarization
@@ -24,66 +19,60 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.stylable_container import stylable_container
 
 
-def render_wizard():
-    st.title("Gesprekssamenvatter")
-
-    steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
-    current_step = st.session_state.get('current_step', 0)
-
-    # Progress bar
-    st.progress((current_step) / (len(steps) - 1))
-
-    # Render current step
-    if current_step == 0:
-        render_business_side_selection()
-    elif current_step == 1:
-        render_department_selection()
-    elif current_step == 2:
-        render_conversation_type_selection()
-    elif current_step == 3:
-        render_input_method_selection()
-    elif current_step == 4:
-        render_summary()
-
-    # Bottom navigation
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col1:
-        if current_step > 0:
-            if st.button("◀ Terug", key="back", help="Ga terug naar de vorige stap"):
-                st.session_state.current_step -= 1
-                st.rerun()
-
-    with col3:
-        if current_step < len(steps) - 1:
-            if st.button("Volgende ▶", key="next", help="Ga naar de volgende stap"):
-                if validate_step(current_step):
-                    st.session_state.current_step += 1
-                    st.rerun()
-                else:
-                    st.warning("Maak eerst een selectie voordat u verdergaat.")
-
-def render_business_side_selection():
-    st.header("Selecteer het bedrijfsonderdeel")
-    
-    for side in st.session_state.BUSINESS_SIDES.keys():
-        if st.button(side, key=f"business_side_{side}"):
-            st.session_state.business_side = side
-            st.session_state.current_step = 1
-            st.rerun()
-
-def render_department_selection():
-    st.header("Selecteer de afdeling")
-    
-    for dept in st.session_state.BUSINESS_SIDES[st.session_state.business_side].keys():
-        if st.button(dept, key=f"department_{dept}"):
-            st.session_state.department = dept
-            st.session_state.current_step = 2
-            st.rerun()
+def setup_page_style():
+    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: #ffffff;
+    }
+    .stButton>button {
+        width: 100%;
+        height: 3em;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #4CAF50;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 
+def initialize_session_state():
+    defaults = {
+        'summary': "",
+        'summary_versions': [],
+        'current_version_index': -1,
+        'business_side': "",
+        'department': "",
+        'prompt': "",
+        'input_method': "",
+        'input_text': "",
+        'transcript': "",
+        'gesprekslog': [],
+        'product_info': "",
+        'selected_products': [],
+        'transcription_done': False,
+        'summarization_done': False,
+        'processing_complete': False,
+        'current_step': 0,
+        'user_name': "",
+        'PROMPTS_DIR': os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts')),
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
 
-def render_conversation_type_selection():
-    st.header("Selecteer het gesprekstype")
+
+def render_prompt_selection():
+    st.header("Selecteer een prompt")
 
     # List all prompts in the prompts directory recursively
     prompt_files = []
@@ -99,11 +88,8 @@ def render_conversation_type_selection():
     if st.button("Bevestig prompt"):
         st.session_state.conversation_type = os.path.splitext(os.path.basename(selected_prompt))[0]
         st.session_state.prompt_path = os.path.join(st.session_state.PROMPTS_DIR, selected_prompt)
-        st.session_state.current_step = 3
+        st.session_state.current_step = 1  # Move to the next step
         st.rerun()
-
-
-
 
 
 def render_input_method_selection():
@@ -112,23 +98,9 @@ def render_input_method_selection():
     for method in st.session_state.INPUT_METHODS:
         if st.button(method, key=f"input_method_{method}"):
             st.session_state.input_method = method
-            st.session_state.current_step = 4
+            st.session_state.current_step = 2
             st.rerun()
 
-def render_prompt_selection():
-    st.header("Selecteer de prompt")
-    
-    if not st.session_state.department:
-        st.warning("Selecteer eerst een afdeling.")
-        return
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        for prompt in st.session_state.DEPARTMENTS[st.session_state.department]:
-            if st.button(prompt, key=f"prompt_button_{prompt}", use_container_width=True):
-                st.session_state.prompt = prompt
-                st.session_state.current_step = 3  # Move to next step
-                st.rerun()
 
 def render_summary():
     colored_header("Samenvatting", description="Bekijk en bewerk de gegenereerde samenvatting")
@@ -171,6 +143,7 @@ def render_summary():
         # Render feedback form only after the summary is generated
         render_feedback_form()
 
+
 def handle_summarization_result(result, input_text):
     if result["error"] is None:
         st.session_state.summary = result["summary"]
@@ -182,10 +155,6 @@ def handle_summarization_result(result, input_text):
     if st.button("Probeer opnieuw"):
         st.rerun()
 
-def process_text_input():
-    with st.spinner("Samenvatting maken..."):
-        result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
-        handle_summarization_result(result, st.session_state.input_text)
 
 def handle_audio_input():
     try:
@@ -197,11 +166,6 @@ def handle_audio_input():
         if st.button("Probeer opnieuw"):
             st.rerun()
 
-def process_file_input(uploaded_file):
-    st.session_state.transcript = process_uploaded_file(uploaded_file)
-    with st.spinner("Samenvatting maken..."):
-        result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
-        handle_summarization_result(result, st.session_state.transcript)
 
 def render_feedback_form():
     st.subheader("Geef feedback")
@@ -228,22 +192,22 @@ def render_feedback_form():
                 else:
                     st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
-def render_conversation_history():
-    st.subheader("Laatste vijf gesprekken")
-    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])[:5]):
-        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
-            st.markdown("**Transcript:**")
-            display_transcript(gesprek["transcript"])
-            st.markdown("**Samenvatting:**")
-            st.markdown(gesprek["summary"])
 
-def validate_step(step):
-    if step == 0 and 'business_side' not in st.session_state:
-        return False
-    elif step == 1 and 'department' not in st.session_state:
-        return False
-    elif step == 2 and 'conversation_type' not in st.session_state:
-        return False
-    elif step == 3 and 'input_method' not in st.session_state:
-        return False
-    return True
+def render_wizard():
+    setup_page_style()
+    initialize_session_state()
+
+    if st.session_state.current_step == 0:
+        render_prompt_selection()
+    elif st.session_state.current_step == 1:
+        render_input_method_selection()
+    elif st.session_state.current_step == 2:
+        render_summary()
+
+
+def main():
+    render_wizard()
+
+
+if __name__ == "__main__":
+    main()
