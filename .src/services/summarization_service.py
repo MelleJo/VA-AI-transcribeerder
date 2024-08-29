@@ -4,9 +4,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
 import logging
 import os
+import functools
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
 
 logger = logging.getLogger(__name__)
 
+
+@functools.lru_cache(maxsize=None)
 def get_prompt(department, prompt_name):
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
     possible_filenames = [
@@ -56,13 +61,16 @@ def summarize_text(text, department, prompt_name, user_name):
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0)
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0, streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
     
     try:
         prompt_template = ChatPromptTemplate.from_template(full_prompt)
         chain = prompt_template | chat_model
         logger.debug("Invoking chat model")
-        summary = chain.invoke({"text": text}).content
+        summary = ""
+        for chunk in chain.stream({"text": text}):
+            summary += chunk.content
+            yield summary  # This allows for incremental updates
         logger.debug(f"Summary generated. Length: {len(summary)}")
         return summary
     except Exception as e:
