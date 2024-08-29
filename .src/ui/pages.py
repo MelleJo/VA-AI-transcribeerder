@@ -161,7 +161,7 @@ def handle_audio_input():
 def render_feedback_form():
     st.subheader("Geef feedback")
     
-    with st.form(key="feedback_form"):
+    with st.form(key="feedback_form_unique"):  # Use a unique key here
         user_first_name = st.text_input("Uw voornaam (verplicht bij feedback):")
         feedback = st.radio("Was dit antwoord nuttig?", ["Positief", "Negatief"])
         additional_feedback = st.text_area("Laat aanvullende feedback achter:")
@@ -202,17 +202,6 @@ def render_wizard():
         render_input_method_selection()
     elif st.session_state.current_step == 2:
         render_summary()
-
-    st.markdown("---")
-    st.markdown("### Extra opties")
-    
-    tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
-    
-    with tab1:
-        render_feedback_form()
-    
-    with tab2:
-        render_conversation_history()
 
 def main():
     render_wizard()
