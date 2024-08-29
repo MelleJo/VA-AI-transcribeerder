@@ -25,3 +25,4 @@ bleach
 logging
 tiktoken
 streamlit-card
+streamlit-antd
