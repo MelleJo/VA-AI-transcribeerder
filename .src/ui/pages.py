@@ -11,7 +11,7 @@ from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
 from services.summarization_service import run_summarization
-from utils.audio_processing import process_audio_input
+from utils.audio_processing import process_audio_input as utils_process_audio_input
 from utils.file_processing import process_uploaded_file
 from utils.text_processing import update_gesprekslog
 
@@ -107,7 +107,7 @@ def render_summary():
             process_text_input()
 
     elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
-        process_audio_input()
+        handle_audio_input()
 
     elif st.session_state.input_method == "Upload tekst":
         uploaded_file = display_file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
@@ -122,10 +122,15 @@ def process_text_input():
         result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
         handle_summarization_result(result, st.session_state.input_text)
 
-def process_audio_input():
-    result = process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
-    if result:
-        handle_summarization_result(result, result.get("transcript", ""))
+def handle_audio_input():
+    try:
+        result = utils_process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
+        if result:
+            handle_summarization_result(result, result.get("transcript", ""))
+    except Exception as e:
+        st.error(f"Er is een fout opgetreden bij het verwerken van de audio: {str(e)}")
+        if st.button("Probeer opnieuw"):
+            st.rerun()
 
 def process_file_input(uploaded_file):
     st.session_state.transcript = process_uploaded_file(uploaded_file)
