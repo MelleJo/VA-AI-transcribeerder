@@ -90,41 +90,6 @@ def display_text_input(label, value="", height=100):
 def display_file_uploader(label, type=None):
     return st.file_uploader(label, type=type)
 
-def display_department_selector(departments):
-    items = [Item(id=dept, title=dept) for dept in departments]
-    event = st_antd_cards(items, key="department_selector")
-    if event:
-        return event["payload"]["id"]
-    return None
-
-def display_input_method_selector(input_methods):
-    items = [Item(id=method, title=method) for method in input_methods]
-    event = st_antd_cards(items, key="input_method_selector")
-    if event:
-        return event["payload"]["id"]
-    return None
-
-def display_summarize_button():
-    return st.button("Samenvatten", key='summarize_button')
-
-def display_copy_clipboard_button():
-    return st.button("Kopieer naar klembord", key='copy_clipboard_button')
-
-def display_progress_bar():
-    return st.progress(0)
-
-def display_spinner(text):
-    return st.spinner(text)
-
-def display_success(text):
-    st.success(text)
-
-def display_error(text):
-    st.error(text)
-
-def display_warning(text):
-    st.warning(text)
-
 def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
@@ -147,15 +112,14 @@ def setup_page_style():
         background-color: #4299e1;
         color: white;
         border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
         font-weight: 600;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease, transform 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #3182ce;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        background-color: #2c5282;
+        transform: translateY(-3px);
     }
     .ant-card {
         border-radius: 0.5rem;

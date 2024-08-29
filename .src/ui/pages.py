@@ -10,43 +10,23 @@ from services.summarization_service import run_summarization
 from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
 from utils.text_processing import update_gesprekslog
-from streamlit_antd.cards import Action, Item, st_antd_cards
-
 
 def render_wizard():
     st.title("Gesprekssamenvatter")
 
     steps = ["Bedrijfsonderdeel", "Afdeling", "Prompt", "Invoermethode", "Samenvatting"]
-    event = st_antd_tabs([{"Label": step} for step in steps], key="wizard_tabs")
+    current_step = st.session_state.current_step
     
-    if event:
-        st.session_state.current_step = steps.index(event['payload']['Label'])
-
-    breadcrumb_items = [{"Label": step} for step in steps[:st.session_state.current_step + 1]]
-    st_antd_breadcrumb(breadcrumb_items, key="breadcrumb")
-
-    if st.session_state.current_step == 0:
+    if current_step == 0:
         render_business_side_selection()
-    elif st.session_state.current_step == 1:
+    elif current_step == 1:
         render_department_selection()
-    elif st.session_state.current_step == 2:
+    elif current_step == 2:
         render_prompt_selection()
-    elif st.session_state.current_step == 3:
+    elif current_step == 3:
         render_input_method_selection()
-    elif st.session_state.current_step == 4:
+    elif current_step == 4:
         render_summary()
-
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col1:
-        if st.session_state.current_step > 0:
-            if st.button("Vorige"):
-                st.session_state.current_step -= 1
-                st.rerun()
-    with col3:
-        if st.session_state.current_step < len(steps) - 1:
-            if st.button("Volgende"):
-                st.session_state.current_step += 1
-                st.rerun()
 
 def render_business_side_selection():
     st.header("Selecteer het bedrijfsonderdeel")
@@ -76,79 +56,88 @@ def render_business_side_selection():
     
     if event:
         st.session_state.business_side = event["payload"]["id"]
-        st.session_state.current_step += 1
-        st.rerun()
-
-
+        st.session_state.current_step = 1  # Move to next step
+        st.experimental_rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
-    if st.session_state.business_side:
-        icons = {
-            "Schade": "fa-tools",
-            "Bedrijven": "fa-industry",
-            "Particulieren": "fa-users",
-            "Arbo": "fa-medkit",
-            "Veldhuis Advies": "fa-chart-line",
-            "Algemeen": "fa-globe"
-        }
-
-        items = [
-            Item(
-                id=dept,
-                title=f'<i class="fas {icons.get(dept, "fa-circle")} fa-2x"></i><br>{dept}',
-                description="Klik om te selecteren"
-            ) for dept in st.session_state.DEPARTMENTS.keys()
-        ]
-        
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            event = st_antd_cards(items, key="department_cards")
-        
-        if event:
-            st.session_state.department = event["payload"]["id"]
-            st.session_state.current_step += 1
-            st.rerun()
-    else:
+    
+    if not st.session_state.business_side:
         st.warning("Selecteer eerst een bedrijfsonderdeel.")
+        return
+    
+    icons = {
+        "Schade": "fa-tools",
+        "Bedrijven": "fa-industry",
+        "Particulieren": "fa-users",
+        "Arbo": "fa-medkit",
+        "Veldhuis Advies": "fa-chart-line",
+        "Algemeen": "fa-globe"
+    }
+
+    items = [
+        Item(
+            id=dept,
+            title=f'<i class="fas {icons.get(dept, "fa-circle")} fa-2x"></i><br>{dept}',
+            description="Klik om te selecteren"
+        ) for dept in st.session_state.DEPARTMENTS.keys()
+    ]
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        event = st_antd_cards(items, key="department_cards")
+    
+    if event:
+        st.session_state.department = event["payload"]["id"]
+        st.session_state.current_step = 2  # Move to next step
+        st.experimental_rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
-    if st.session_state.department:
-        items = [
-            Item(
-                id=prompt,
-                title=prompt,
-                description="Klik om te selecteren",
-                icon="fas fa-file-alt",  # Font Awesome file icon
-                actions=[Action("select", "Selecteer")]
-            ) for prompt in st.session_state.DEPARTMENTS[st.session_state.department]
-        ]
-
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            event = st_antd_cards(items, key="prompt_cards")
-        
-        if event and event["action"] == "select":
-            st.session_state.prompt = event["payload"]["id"]
-            st.session_state.current_step += 1
-            st.rerun()
-    else:
+    
+    if not st.session_state.department:
         st.warning("Selecteer eerst een afdeling.")
+        return
+    
+    items = [
+        Item(
+            id=prompt,
+            title=prompt,
+            description="Klik om te selecteren",
+            icon="fas fa-file-alt",
+            actions=[CardAction("select", "Selecteer")]
+        ) for prompt in st.session_state.DEPARTMENTS[st.session_state.department]
+    ]
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        event = st_antd_cards(items, key="prompt_cards")
+    
+    if event and event["action"] == "select":
+        st.session_state.prompt = event["payload"]["id"]
+        st.session_state.current_step = 3  # Move to next step
+        st.experimental_rerun()
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
+    
+    if not st.session_state.prompt:
+        st.warning("Selecteer eerst een prompt.")
+        return
+    
     selected = st_antd_cascader(
         [{"value": method, "label": method} for method in st.session_state.INPUT_METHODS],
         key="input_method_cascader"
     )
+    
     if selected:
         st.session_state.input_method = selected[0]
-        st.session_state.current_step += 1
-        st.rerun()
+        st.session_state.current_step = 4  # Move to summary step
+        st.experimental_rerun()
 
 def render_summary():
     st.header("Samenvatting")
+    
     if st.session_state.input_method == "Voer tekst in of plak tekst":
         st.session_state.input_text = display_text_input("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
