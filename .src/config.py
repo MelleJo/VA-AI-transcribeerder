@@ -1,7 +1,7 @@
 import os
 
-# Set the base directory relative to where config.py is located
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Set the base directory to the .src directory
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Define the prompts directory relative to the base directory
 PROMPTS_DIR = os.path.join(BASE_DIR, 'prompts')
