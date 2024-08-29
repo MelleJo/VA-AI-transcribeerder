@@ -87,6 +87,9 @@ def render_conversation_type_selection():
     
     if st.button("Bevestig gesprekstype"):
         st.session_state.conversation_type = selected_type
+        # Set the correct prompt path
+        prompt_path = f".src/prompts/{st.session_state.department.lower()}/{selected_type.lower().replace(' ', '_')}.txt"
+        st.session_state.prompt_path = prompt_path
         st.session_state.current_step = 3
         st.rerun()
 

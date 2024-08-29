@@ -20,6 +20,16 @@ def get_all_prompts():
     return prompts
 
 def get_prompt(conversation_type):
+    if 'prompt_path' in st.session_state:
+        prompt_path = st.session_state.prompt_path
+        logger.debug(f"Attempting to load prompt from session state path: {prompt_path}")
+        try:
+            with open(prompt_path, 'r', encoding='utf-8') as file:
+                return file.read()
+        except FileNotFoundError:
+            logger.error(f"Prompt file not found at path: {prompt_path}")
+    
+    # Fallback to the original method if prompt_path is not in session state or file not found
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
     
     # Remove any file extension from conversation_type
