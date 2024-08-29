@@ -21,7 +21,7 @@ except Exception as e:
 
 SUPPORTED_FORMATS = ['flac', 'm4a', 'mp3', 'mp4', 'mpeg', 'mpga', 'oga', 'ogg', 'wav', 'webm']
 
-def process_audio_input(input_method, prompt_name=None, user_name=None):
+def process_audio_input(input_method, prompt_name, user_name):
     if input_method == "Upload audio":
         uploaded_file = st.file_uploader("Upload an audio file", type=SUPPORTED_FORMATS)
         if uploaded_file is not None:
