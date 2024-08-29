@@ -10,6 +10,14 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from utils.text_processing import load_prompt, get_local_time
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
+
+
 logger = logging.getLogger(__name__)
 
 # Initialize the OpenAI client
@@ -121,17 +129,14 @@ def get_prompt(department, prompt_name):
     normalized_department = department.lower().replace(' ', '_')
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
-    # Use the PROMPTS_DIR from the session state and build the full path
-    prompt_file = os.path.join(st.session_state.PROMPTS_DIR, normalized_department, f"{normalized_prompt_name}.txt")
+    # Use the PROMPTS_DIR from the config and build the full path
+    prompt_file = os.path.join(config['PROMPTS_DIR'], normalized_department, f"{normalized_prompt_name}.txt")
     
     # Ensure the constructed path points to a valid file
     if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
         raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
     
     # Load and return the prompt content
-    return load_prompt(prompt_file)
-
-    
     return load_prompt(prompt_file)
 
 def summarize_text(text, department, prompt_name, user_name):

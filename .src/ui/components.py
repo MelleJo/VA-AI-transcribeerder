@@ -7,6 +7,11 @@ from io import BytesIO
 import pyperclip
 import pandas as pd
 
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def initialize_session_state():
     defaults = {
         'summary': "",
@@ -26,11 +31,11 @@ def initialize_session_state():
         'processing_complete': False,
         'current_step': 0,
         'user_name': "",
-        'PROMPTS_DIR': "",
-        'QUESTIONS_DIR': "",
+        'PROMPTS_DIR': config['PROMPTS_DIR'],
+        'QUESTIONS_DIR': config['QUESTIONS_DIR'],
         'BUSINESS_SIDES': [],
-        'DEPARTMENTS': {},
-        'INPUT_METHODS': []
+        'DEPARTMENTS': config['DEPARTMENTS'],
+        'INPUT_METHODS': config['INPUT_METHODS'],
     }
     for key, value in defaults.items():
         if key not in st.session_state:

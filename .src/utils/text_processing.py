@@ -7,6 +7,13 @@ import pyperclip
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
 QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
+
 def get_local_time():
     timezone = pytz.timezone("Europe/Amsterdam")
     return datetime.now(timezone).strftime('%d-%m-%Y %H:%M:%S')
@@ -14,8 +21,7 @@ def get_local_time():
 # text_processing.py
 
 def load_prompt(file_name):
-    # Construct the path based on the subcategory and prompt name stored in session state
-    path = os.path.join(st.session_state.PROMPTS_DIR, st.session_state.subcategory, file_name)
+    path = os.path.join(config['PROMPTS_DIR'], st.session_state.subcategory, file_name)
     
     # Check if the path exists and is a file
     if not os.path.exists(path) or not os.path.isfile(path):
