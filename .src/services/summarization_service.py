@@ -19,18 +19,29 @@ def get_all_prompts():
                 prompts.append(relative_path)
     return prompts
 
-def get_prompt(conversation_type):
-    if 'prompt_path' in st.session_state:
-        prompt_path = st.session_state.prompt_path
-        logger.debug(f"Attempting to load prompt from session state path: {prompt_path}")
-        try:
-            with open(prompt_path, 'r', encoding='utf-8') as file:
-                return file.read()
-        except FileNotFoundError:
-            logger.error(f"Prompt file not found at path: {prompt_path}")
-            raise FileNotFoundError(f"Prompt file not found at path: {prompt_path}")
-    else:
-        raise FileNotFoundError("No prompt path available in session state.")
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
+def get_prompt(department, prompt_name):
+    # Construct the path based on the prompt name directly
+    normalized_prompt_name = prompt_name.lower().replace(' ', '_')
+    
+    # Use the PROMPTS_DIR and build the full path to the prompt file
+    prompt_file = os.path.join(config['PROMPTS_DIR'], f"{normalized_prompt_name}.txt")
+    
+    # Debugging line to check what path is being constructed
+    st.write(f"Looking for prompt file at: {prompt_file}")
+    
+    # Ensure the constructed path points to a valid file
+    if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
+        raise FileNotFoundError(f"Bestand niet gevonden: {prompt_file}")
+    
+    # Load and return the prompt content
+    return load_prompt(prompt_file)
+
 
 
 

@@ -130,15 +130,21 @@ from config import load_config
 # Load configurations from config.py
 config = load_config()
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def get_prompt(department, prompt_name):
-    # Ensure that the prompt_name is correctly received and normalized
+    # Construct the path based on the prompt name directly
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     
     # Use the PROMPTS_DIR and build the full path to the prompt file
     prompt_file = os.path.join(config['PROMPTS_DIR'], f"{normalized_prompt_name}.txt")
     
     # Debugging line to check what path is being constructed
-    print(f"Looking for prompt file at: {prompt_file}")
+    st.write(f"Looking for prompt file at: {prompt_file}")
     
     # Ensure the constructed path points to a valid file
     if not os.path.exists(prompt_file) or not os.path.isfile(prompt_file):
@@ -146,6 +152,7 @@ def get_prompt(department, prompt_name):
     
     # Load and return the prompt content
     return load_prompt(prompt_file)
+
 
 
 def summarize_text(text, department, prompt_name, user_name):

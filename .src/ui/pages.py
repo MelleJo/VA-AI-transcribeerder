@@ -76,33 +76,25 @@ def initialize_session_state():
 def render_prompt_selection():
     st.header("Selecteer een prompt")
 
-    # Verify the prompts directory path is correctly set and exists
-    prompts_dir = st.session_state.PROMPTS_DIR
-    st.write(f"Using prompts directory: {prompts_dir}")  # Log the directory path
-    if not os.path.isdir(prompts_dir):
-        st.error(f"Prompts directory not found: {prompts_dir}")
-        return
-
-    # List all prompts in the prompts directory recursively
+    # List all prompts in the prompts directory
     prompt_files = []
-    for root, dirs, files in os.walk(prompts_dir):
+    for root, dirs, files in os.walk(st.session_state.PROMPTS_DIR):
         for file in files:
             if file.endswith('.txt'):
-                relative_path = os.path.relpath(os.path.join(root, file), prompts_dir)
-                prompt_files.append(relative_path.replace('\\', '/'))  # Normalize path for all OS
+                prompt_files.append(file)
 
     if not prompt_files:
         st.error("Geen prompt bestanden gevonden in de opgegeven map.")
         return
 
-    # Let the user select a prompt file
     selected_prompt = st.selectbox("Selecteer een prompt", prompt_files)
 
     if st.button("Bevestig prompt"):
-        st.session_state.conversation_type = os.path.splitext(os.path.basename(selected_prompt))[0]
-        st.session_state.prompt_path = os.path.join(prompts_dir, selected_prompt)
+        st.session_state.prompt_name = os.path.splitext(selected_prompt)[0]  # Store the prompt name without extension
+        st.session_state.prompt_path = os.path.join(st.session_state.PROMPTS_DIR, selected_prompt)
         st.session_state.current_step = 1  # Move to the next step
         st.rerun()
+
 
 
 

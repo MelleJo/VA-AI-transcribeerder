@@ -26,12 +26,18 @@ from config import load_config
 # Load configurations from config.py
 config = load_config()
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def load_prompt(file_name):
-    # Ensure that the file_name is correctly passed and used
+    # Construct the path based on the file name directly
     path = os.path.join(config['PROMPTS_DIR'], file_name)
     
     # Debugging line to check what path is being used
-    print(f"Loading prompt file from: {path}")
+    st.write(f"Loading prompt file from: {path}")
     
     # Check if the path exists and is a file
     if not os.path.exists(path) or not os.path.isfile(path):
@@ -41,6 +47,7 @@ def load_prompt(file_name):
     # Load and return the prompt content
     with open(path, "r", encoding="utf-8") as file:
         return file.read()
+
 
 
 
