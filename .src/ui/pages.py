@@ -4,12 +4,17 @@ from streamlit_antd.cascader import st_antd_cascader
 from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
 from streamlit_antd.cards import Action as CardAction, Item, st_antd_cards
+from streamlit_antd.select import st_antd_select
+from streamlit_antd.button import st_antd_button
+
+from ui.components.fancy_select import fancy_select
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
 from services.summarization_service import run_summarization
 from utils.audio_processing import process_audio_input
 from utils.file_processing import process_uploaded_file
 from utils.text_processing import update_gesprekslog
+
 
 def render_wizard():
     st.title("Gesprekssamenvatter")
@@ -36,28 +41,26 @@ def render_business_side_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    icons = {
-        "Veldhuis Advies Groep": "fa-building",
-        "Veldhuis Advies": "fa-briefcase",
-        "Arbo": "fa-hospital"
-    }
-
-    items = [
-        Item(
-            id=side,
-            title=f'<i class="fas {icons.get(side, "fa-circle")} fa-2x"></i><br>{side}',
-            description="Klik om te selecteren"
-        ) for side in st.session_state.BUSINESS_SIDES
-    ]
-    
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        event = st_antd_cards(items, key="business_side_cards")
-    
-    if event:
-        st.session_state.business_side = event["payload"]["id"]
-        st.session_state.current_step = 1  # Move to next step
-        st.rerun()
+        for side in st.session_state.BUSINESS_SIDES:
+            if st_antd_button(
+                side,
+                type="primary",
+                style={
+                    "width": "100%",
+                    "margin-bottom": "10px",
+                    "height": "60px",
+                    "font-size": "18px",
+                    "display": "flex",
+                    "align-items": "center",
+                    "justify-content": "center"
+                },
+                key=f"business_side_button_{side}"
+            ):
+                st.session_state.business_side = side
+                st.session_state.current_step = 1  # Move to next step
+                st.rerun()
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
@@ -114,6 +117,10 @@ def render_prompt_selection():
 
 
 
+
+
+
+
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
     
@@ -121,13 +128,10 @@ def render_input_method_selection():
         st.warning("Selecteer eerst een prompt.")
         return
     
-    selected = st_antd_cascader(
-        [{"value": method, "label": method} for method in st.session_state.INPUT_METHODS],
-        key="input_method_cascader"
-    )
+    selected = fancy_select(st.session_state.INPUT_METHODS, "input_method")
     
     if selected:
-        st.session_state.input_method = selected[0]
+        st.session_state.input_method = selected
         st.session_state.current_step = 4  # Move to summary step
         st.rerun()
 
