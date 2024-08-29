@@ -151,6 +151,9 @@ def render_summary():
                 )
         with col2:
             st_copy_to_clipboard(st.session_state.summary, "Kopieer naar klembord")
+        
+        # Render feedback form only after the summary is generated
+        render_feedback_form()
 
 def handle_summarization_result(result, input_text):
     if result["error"] is None:
