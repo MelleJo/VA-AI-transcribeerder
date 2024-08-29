@@ -18,7 +18,6 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.stylable_container import stylable_container
 
-
 def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
@@ -43,7 +42,6 @@ def setup_page_style():
     }
     </style>
     """, unsafe_allow_html=True)
-
 
 def initialize_session_state():
     defaults = {
@@ -70,7 +68,6 @@ def initialize_session_state():
         if key not in st.session_state:
             st.session_state[key] = value
 
-
 def render_prompt_selection():
     st.header("Selecteer een prompt")
 
@@ -91,7 +88,6 @@ def render_prompt_selection():
         st.session_state.current_step = 1  # Move to the next step
         st.rerun()
 
-
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
     
@@ -100,7 +96,6 @@ def render_input_method_selection():
             st.session_state.input_method = method
             st.session_state.current_step = 2
             st.rerun()
-
 
 def render_summary():
     colored_header("Samenvatting", description="Bekijk en bewerk de gegenereerde samenvatting")
@@ -143,7 +138,6 @@ def render_summary():
         # Render feedback form only after the summary is generated
         render_feedback_form()
 
-
 def handle_summarization_result(result, input_text):
     if result["error"] is None:
         st.session_state.summary = result["summary"]
@@ -155,7 +149,6 @@ def handle_summarization_result(result, input_text):
     if st.button("Probeer opnieuw"):
         st.rerun()
 
-
 def handle_audio_input():
     try:
         result = utils_process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
@@ -165,7 +158,6 @@ def handle_audio_input():
         st.error(f"Er is een fout opgetreden bij het verwerken van de audio: {str(e)}")
         if st.button("Probeer opnieuw"):
             st.rerun()
-
 
 def render_feedback_form():
     st.subheader("Geef feedback")
@@ -192,6 +184,14 @@ def render_feedback_form():
                 else:
                     st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
+def render_conversation_history():
+    st.subheader("Laatste vijf gesprekken")
+    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])[:5]):
+        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
+            st.markdown("**Transcript:**")
+            display_transcript(gesprek["transcript"])
+            st.markdown("**Samenvatting:**")
+            st.markdown(gesprek["summary"])
 
 def render_wizard():
     setup_page_style()
@@ -204,18 +204,19 @@ def render_wizard():
     elif st.session_state.current_step == 2:
         render_summary()
 
-def render_conversation_history():
-    st.subheader("Laatste vijf gesprekken")
-    for i, gesprek in enumerate(st.session_state.get('gesprekslog', [])[:5]):
-        with st.expander(f"Gesprek {i+1} op {gesprek['time']}"):
-            st.markdown("**Transcript:**")
-            display_transcript(gesprek["transcript"])
-            st.markdown("**Samenvatting:**")
-            st.markdown(gesprek["summary"])
+    st.markdown("---")
+    st.markdown("### Extra opties")
+    
+    tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
+    
+    with tab1:
+        render_feedback_form()
+    
+    with tab2:
+        render_conversation_history()
 
 def main():
     render_wizard()
-
 
 if __name__ == "__main__":
     main()
