@@ -128,89 +128,89 @@ def display_warning(text):
 def setup_page_style():
     st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-    .main {
-        background-color: #f0f8ff;
-        color: #333;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f2f6;
+        color: #1e1e1e;
+    }
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    h2 {
+        color: #34495e;
+        font-weight: 400;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
     }
     .stButton>button {
-        background-color: #4CAF50;
+        background-color: #3498db;
         color: white;
         border: none;
-        padding: 12px 28px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 30px;
-        transition: all 0.3s ease 0s;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
-        transform: translateY(-7px);
-    }
-    .summary-box {
-        border: none;
-        border-radius: 15px;
-        padding: 25px;
-        margin: 20px 0;
-        background-color: #ffffff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 5px;
         transition: all 0.3s ease;
     }
-    .summary-box:hover {
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        transform: translateY(-5px);
-    }
-    .summary-box h3 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
-    }
-    .content {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-size: 16px;
-        line-height: 1.8;
-        color: #34495e;
-    }
-    .ant-card {
+    .stButton>button:hover {
+        background-color: #2980b9;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s;
-        border-radius: 8px;
-        margin-bottom: 16px;
     }
-    .ant-card:hover {
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        transform: translateY(-5px);
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
     }
-    .ant-card-head-title {
-        font-weight: bold;
-        color: #1890ff;
-    }
-    .ant-card-body {
-        padding: 20px;
-    }
-    .ant-card-meta-title {
-        font-size: 18px;
-        margin-bottom: 8px;
-    }
-    .ant-card-meta-description {
-        font-size: 14px;
-        color: rgba(0, 0, 0, 0.45);
-    }
-    .icon-container {
-        font-size: 36px;
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        width: 200px;
         text-align: center;
-        margin-bottom: 16px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #3498db;
+    }
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    .card-description {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+    .stTextInput>div>div>input {
+        background-color: white;
+        border: 1px solid #bdc3c7;
+        border-radius: 5px;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+    .stTextInput>label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #34495e;
     }
     </style>
     """, unsafe_allow_html=True)

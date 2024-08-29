@@ -56,29 +56,33 @@ def render_business_side_selection():
     if user_name != st.session_state.user_name:
         st.session_state.user_name = user_name
 
-    icons = {
-        "Veldhuis Advies Groep": "🏢",
-        "Veldhuis Advies": "💼",
-        "Arbo": "🏥"
-    }
+    st.markdown('<div class="card-container">', unsafe_allow_html=True)
+    for side in st.session_state.BUSINESS_SIDES:
+        card_html = f"""
+        <div class="card" onclick="handle_click('{side}')">
+            <div class="card-icon">🏢</div>
+            <div class="card-title">{side}</div>
+            <div class="card-description">Klik om te selecteren</div>
+        </div>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    items = [
-        Item(
-            id=side,
-            title=f'<div class="icon-container">{icons.get(side, "🔹")}</div>{side}',
-            description="Klik om te selecteren"
-        ) for side in st.session_state.BUSINESS_SIDES
-    ]
-    
-    event = st_antd_cards(items, key="business_side_cards")
-    
-    if event:
-        st.session_state.business_side = event["payload"]["id"]
-        st.session_state.current_step += 1
+    st.markdown("""
+    <script>
+    function handle_click(side) {
+        window.parent.postMessage({
+            type: 'streamlit:set_state',
+            state: { business_side: side, current_step: 1 }
+        }, '*');
+    }
+    </script>
+    """, unsafe_allow_html=True)
+
+    if st.session_state.get('business_side'):
         st.rerun()
 
-import streamlit as st
-from streamlit_antd.cards import st_antd_cards, Item
+
 
 def render_department_selection():
     st.header("Selecteer de afdeling")
