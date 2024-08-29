@@ -86,14 +86,10 @@ def main():
     tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
     
     with tab1:
-        st.markdown('<div class="content-container">', unsafe_allow_html=True)
         render_feedback_form()
-        st.markdown('</div>', unsafe_allow_html=True)
     
     with tab2:
-        st.markdown('<div class="content-container">', unsafe_allow_html=True)
         render_conversation_history()
-        st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
