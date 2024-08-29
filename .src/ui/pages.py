@@ -82,11 +82,13 @@ def render_department_selection():
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
     
-    for conv_type in st.session_state.BUSINESS_SIDES[st.session_state.business_side][st.session_state.department]:
-        if st.button(conv_type, key=f"conv_type_{conv_type}"):
-            st.session_state.conversation_type = conv_type
-            st.session_state.current_step = 3
-            st.rerun()
+    conversation_types = st.session_state.BUSINESS_SIDES[st.session_state.business_side][st.session_state.department]
+    selected_type = st.selectbox("Gesprekstype", conversation_types)
+    
+    if st.button("Bevestig gesprekstype"):
+        st.session_state.conversation_type = selected_type
+        st.session_state.current_step = 3
+        st.rerun()
 
 def render_input_method_selection():
     st.header("Selecteer de invoermethode")
@@ -152,16 +154,8 @@ def render_summary():
 
 def handle_summarization_result(result, input_text):
     if result["error"] is None:
-        # Make headers bold
-        bold_headers = ["**1. Titel**", "**2. Datum en tijd**", "**3. Gebruiker**", "**4. Gesproken met**", "**5. Hoofdinhoud**", "**6. Actiepunten/deadlines/afspraken**"]
-        summary_lines = result["summary"].split('\n')
-        for i, line in enumerate(summary_lines):
-            for header in bold_headers:
-                if line.startswith(header[2:-2]):
-                    summary_lines[i] = header
-                    break
-        st.session_state.summary = '\n'.join(summary_lines)
-        update_gesprekslog(input_text, st.session_state.summary)
+        st.session_state.summary = result["summary"]
+        update_gesprekslog(input_text, result["summary"])
         st.success("Samenvatting voltooid!")
     else:
         st.error(f"Er is een fout opgetreden: {result['error']}")
@@ -223,3 +217,14 @@ def render_conversation_history():
             display_transcript(gesprek["transcript"])
             st.markdown("**Samenvatting:**")
             st.markdown(gesprek["summary"])
+
+def validate_step(step):
+    if step == 0 and 'business_side' not in st.session_state:
+        return False
+    elif step == 1 and 'department' not in st.session_state:
+        return False
+    elif step == 2 and 'conversation_type' not in st.session_state:
+        return False
+    elif step == 3 and 'input_method' not in st.session_state:
+        return False
+    return True

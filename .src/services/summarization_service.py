@@ -9,25 +9,35 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 logger = logging.getLogger(__name__)
 
-@functools.lru_cache(maxsize=None)
-def get_prompt(department, prompt_name):
+def get_all_prompts():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
-    possible_filenames = [
-        os.path.join(base_dir, department.lower(), f"{prompt_name.lower().replace(' ', '_')}.txt"),
-        os.path.join(base_dir, f"{department.lower()}_{prompt_name.lower().replace(' ', '_')}.txt"),
-        os.path.join(base_dir, f"{prompt_name.lower().replace(' ', '_')}.txt"),
+    prompts = []
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            if file.endswith('.txt'):
+                relative_path = os.path.relpath(os.path.join(root, file), base_dir)
+                prompts.append(relative_path)
+    return prompts
+
+def get_prompt(conversation_type):
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'prompts'))
+    business_side = st.session_state.get('business_side')
+    department = st.session_state.get('department')
+    
+    possible_paths = [
+        os.path.join(base_dir, business_side.lower(), department.lower(), f"{conversation_type.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, department.lower(), f"{conversation_type.lower().replace(' ', '_')}.txt"),
+        os.path.join(base_dir, f"{conversation_type.lower().replace(' ', '_')}.txt"),
     ]
     
-    logger.debug(f"Searching for prompt file in: {', '.join(possible_filenames)}")
-    
-    for filename in possible_filenames:
-        if os.path.exists(filename):
-            logger.debug(f"Found prompt file: {filename}")
-            with open(filename, 'r', encoding='utf-8') as file:
+    for path in possible_paths:
+        logger.debug(f"Attempting to load prompt from: {path}")
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as file:
                 return file.read()
     
-    # If no file is found, raise an error
-    raise FileNotFoundError(f"No prompt file found for department '{department}' and prompt '{prompt_name}'. Looked in: {', '.join(possible_filenames)}")
+    logger.error(f"No prompt file found for conversation type: {conversation_type}")
+    raise FileNotFoundError(f"No prompt file found for conversation type: {conversation_type}")
 
 def summarize_text(text, department, prompt_name, user_name):
     logger.debug(f"Starting summarize_text for department: {department}, prompt: {prompt_name}")
@@ -88,11 +98,11 @@ def summarize_text(text, department, prompt_name, user_name):
         logger.error(f"Error in summarization: {str(e)}")
         return f"Error in summarization: {str(e)}"
 
-def run_summarization(text, prompt_name, user_name):
+
+def run_summarization(text, conversation_type, user_name):
     try:
-        department = st.session_state.get('department', 'Veldhuis Advies')  # Default to 'Veldhuis Advies' if not set
-        logger.debug(f"Running summarization for department: {department}, prompt: {prompt_name}")
-        summary = summarize_text(text, department, prompt_name, user_name)
+        logger.debug(f"Running summarization for conversation type: {conversation_type}")
+        summary = summarize_text(text, conversation_type, user_name)
         if summary.startswith("Error:"):
             return {"summary": None, "error": summary}
         return {"summary": summary, "error": None}

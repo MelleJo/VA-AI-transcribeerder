@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
 QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
+# In app.py
+
 BUSINESS_SIDES = {
     "VA": {
         "Veldhuis Advies": [
