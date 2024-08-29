@@ -19,7 +19,6 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.stylable_container import stylable_container
 
 def setup_page_style():
-    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
     st.markdown("""
     <style>
     .stApp {

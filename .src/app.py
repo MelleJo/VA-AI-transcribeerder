@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 PROMPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
 QUESTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'questions'))
 
-# In app.py
+# Set the page configuration
+st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
 
+# Business logic dictionaries
 BUSINESS_SIDES = {
     "VA": {
         "Veldhuis Advies": [
@@ -81,17 +83,18 @@ def main():
     st.session_state.INPUT_METHODS = INPUT_METHODS
 
     render_wizard()
-    
+
     st.markdown("---")
     st.markdown("### Extra opties")
-    
+
     tab1, tab2 = st.tabs(["Geef feedback", "Bekijk gespreksgeschiedenis"])
-    
+
     with tab1:
         render_feedback_form()
-    
+
     with tab2:
         render_conversation_history()
+
 
 if __name__ == "__main__":
     main()
