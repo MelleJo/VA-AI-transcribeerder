@@ -61,7 +61,7 @@ def summarize_text(text, department, prompt_name, user_name):
     """
     
     logger.debug(f"Full prompt length: {len(full_prompt)}")
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o", temperature=0, streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4o-2024-08-06", temperature=0, streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
     
     try:
         prompt_template = ChatPromptTemplate.from_template(full_prompt)
