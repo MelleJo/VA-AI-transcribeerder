@@ -17,49 +17,110 @@ from utils.audio_processing import process_audio_input as utils_process_audio_in
 from utils.file_processing import process_uploaded_file
 from utils.text_processing import update_gesprekslog
 
+from streamlit_extras.switch_page_button import switch_page
+from streamlit_extras.colored_header import colored_header
+from streamlit_extras.add_vertical_space import add_vertical_space
+from streamlit_extras.stylable_container import stylable_container
+
 
 def render_wizard():
-    st.title("Gesprekssamenvatter")
+    st.set_page_config(page_title="Gesprekssamenvatter", layout="wide")
+
+    # Add custom CSS for modern styling
+    st.markdown("""
+    <style>
+    .stButton>button {
+        width: 100%;
+        border-radius: 20px;
+        height: 3em;
+        transition: all 0.3s ease-in-out;
+    }
+    .stButton>button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .nav-btn {
+        position: fixed;
+        bottom: 20px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    .nav-btn.back {
+        left: 20px;
+    }
+    .nav-btn.next {
+        right: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
     current_step = st.session_state.get('current_step', 0)
-    
-    if current_step == 0:
-        render_business_side_selection()
-    elif current_step == 1:
-        render_department_selection()
-    elif current_step == 2:
-        render_conversation_type_selection()
-    elif current_step == 3:
-        render_input_method_selection()
-    elif current_step == 4:
-        render_summary()
 
-def render_wizard():
-    st.title("Gesprekssamenvatter")
+    # Progress bar
+    st.progress((current_step) / (len(steps) - 1))
 
-    steps = ["Bedrijfsonderdeel", "Afdeling", "Gesprekstype", "Invoermethode", "Samenvatting"]
-    current_step = st.session_state.get('current_step', 0)
-    
-    if current_step == 0:
-        render_business_side_selection()
-    elif current_step == 1:
-        render_department_selection()
-    elif current_step == 2:
-        render_conversation_type_selection()
-    elif current_step == 3:
-        render_input_method_selection()
-    elif current_step == 4:
-        render_summary()
+    # Tabs for steps
+    tabs = st.tabs(steps)
+
+    with tabs[current_step]:
+        if current_step == 0:
+            render_business_side_selection()
+        elif current_step == 1:
+            render_department_selection()
+        elif current_step == 2:
+            render_conversation_type_selection()
+        elif current_step == 3:
+            render_input_method_selection()
+        elif current_step == 4:
+            render_summary()
+
+    # Bottom navigation
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col1:
+        if current_step > 0:
+            if st.button("◀ Terug", key="back", help="Ga terug naar de vorige stap"):
+                st.session_state.current_step -= 1
+                st.rerun()
+
+    with col3:
+        if current_step < len(steps) - 1:
+            if st.button("Volgende ▶", key="next", help="Ga naar de volgende stap"):
+                if validate_step(current_step):
+                    st.session_state.current_step += 1
+                    st.rerun()
+                else:
+                    st.warning("Maak eerst een selectie voordat u verdergaat.")
+
+def validate_step(step):
+    if step == 0 and 'business_side' not in st.session_state:
+        return False
+    elif step == 1 and 'department' not in st.session_state:
+        return False
+    elif step == 2 and 'conversation_type' not in st.session_state:
+        return False
+    elif step == 3 and 'input_method' not in st.session_state:
+        return False
+    return True
 
 def render_department_selection():
-    st.header("Selecteer de afdeling")
-    
+    colored_header("Selecteer de afdeling", description="Kies de relevante afdeling")
     for dept in st.session_state.BUSINESS_SIDES[st.session_state.business_side].keys():
-        if st.button(dept, key=f"department_{dept}"):
-            st.session_state.department = dept
-            st.session_state.current_step = 2
-            st.rerun()
+        if stylable_container(key=f"container_{dept}", css_styles="""
+            {
+                background-color: #f0f2f6;
+                border-radius: 10px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            :hover {
+                background-color: #e0e2e6;
+            }
+        """):
+            if st.button(dept, key=f"department_{dept}"):
+                st.session_state.department = dept
+                st.rerun()
 
 def render_conversation_type_selection():
     st.header("Selecteer het gesprekstype")
@@ -71,13 +132,22 @@ def render_conversation_type_selection():
             st.rerun()
 
 def render_business_side_selection():
-    st.header("Selecteer het bedrijfsonderdeel")
-    
+    colored_header("Selecteer het bedrijfsonderdeel", description="Kies het juiste onderdeel van het bedrijf")
     for side in st.session_state.BUSINESS_SIDES.keys():
-        if st.button(side, key=f"business_side_{side}"):
-            st.session_state.business_side = side
-            st.session_state.current_step = 1
-            st.rerun()
+        if stylable_container(key=f"container_{side}", css_styles="""
+            {
+                background-color: #f0f2f6;
+                border-radius: 10px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            :hover {
+                background-color: #e0e2e6;
+            }
+        """):
+            if st.button(side, key=f"business_side_{side}"):
+                st.session_state.business_side = side
+                st.rerun()
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
@@ -104,7 +174,7 @@ def render_input_method_selection():
             st.rerun()
 
 def render_summary():
-    st.header("Samenvatting")
+    colored_header("Samenvatting", description="Bekijk en bewerk de gegenereerde samenvatting")
     
     if st.session_state.input_method == "Voer tekst in of plak tekst":
         st.session_state.input_text = display_text_input("Voer tekst in:", value=st.session_state.input_text, height=200)

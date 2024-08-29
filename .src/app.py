@@ -79,8 +79,18 @@ def main():
     st.session_state.INPUT_METHODS = INPUT_METHODS
 
     render_wizard()
-    render_feedback_form()
-    render_conversation_history()
+    
+    # Add some space before the feedback form and conversation history
+    st.markdown("---")
+    st.markdown("### Extra opties")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.expander("Geef feedback"):
+            render_feedback_form()
+    with col2:
+        with st.expander("Bekijk gespreksgeschiedenis"):
+            render_conversation_history()
 
 if __name__ == "__main__":
     main()
