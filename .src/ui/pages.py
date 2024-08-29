@@ -67,19 +67,20 @@ def render_department_selection():
         return
     
     icons = {
-        "Schade": "fa-tools",
-        "Bedrijven": "fa-industry",
-        "Particulieren": "fa-users",
-        "Arbo": "fa-medkit",
-        "Veldhuis Advies": "fa-chart-line",
-        "Algemeen": "fa-globe"
+        "Schade": "fas fa-tools",
+        "Bedrijven": "fas fa-industry",
+        "Particulieren": "fas fa-users",
+        "Arbo": "fas fa-medkit",
+        "Veldhuis Advies": "fas fa-chart-line",
+        "Algemeen": "fas fa-globe"
     }
 
     items = [
         Item(
             id=dept,
-            title=f'<i class="fas {icons.get(dept, "fa-circle")} fa-2x"></i><br>{dept}',
-            description="Klik om te selecteren"
+            title=f'<i class="{icons.get(dept, "fas fa-circle")} fa-2x"></i><br>{dept}',
+            description="Klik om te selecteren",
+            unsafe_html=True  # Enable HTML rendering
         ) for dept in st.session_state.DEPARTMENTS.keys()
     ]
     
@@ -91,6 +92,7 @@ def render_department_selection():
         st.session_state.department = event["payload"]["id"]
         st.session_state.current_step = 2  # Move to next step
         st.rerun()
+
 
 def render_prompt_selection():
     st.header("Selecteer de prompt")
