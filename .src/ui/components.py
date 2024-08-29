@@ -7,6 +7,35 @@ from io import BytesIO
 import pyperclip
 import pandas as pd
 
+def initialize_session_state():
+    defaults = {
+        'summary': "",
+        'summary_versions': [],
+        'current_version_index': -1,
+        'business_side': "",
+        'department': "",
+        'prompt': "",
+        'input_method': "",
+        'input_text': "",
+        'transcript': "",
+        'gesprekslog': [],
+        'product_info': "",
+        'selected_products': [],
+        'transcription_done': False,
+        'summarization_done': False,
+        'processing_complete': False,
+        'current_step': 0,
+        'user_name': "",
+        'PROMPTS_DIR': "",
+        'QUESTIONS_DIR': "",
+        'BUSINESS_SIDES': [],
+        'DEPARTMENTS': {},
+        'INPUT_METHODS': []
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
 def display_transcript(transcript):
     if transcript:
         st_antd_table(pd.DataFrame({"Transcript": [transcript]}), color_background="#f9f6f1")

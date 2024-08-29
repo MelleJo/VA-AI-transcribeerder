@@ -5,8 +5,10 @@ from streamlit_antd.result import Action, st_antd_result
 from streamlit_antd.breadcrumb import st_antd_breadcrumb
 from ui.components import display_transcript, display_summary, display_text_input, display_file_uploader
 from services.email_service import send_feedback_email
+from services.summarization_service import run_summarization
 from utils.audio_processing import process_audio_input
-from streamlit_mic_recorder import mic_recorder
+from utils.file_processing import process_uploaded_file
+from utils.text_processing import update_gesprekslog
 
 def render_wizard():
     st.title("Gesprekssamenvatter")
@@ -105,45 +107,60 @@ def render_summary():
     if st.session_state.input_method == "Voer tekst in of plak tekst":
         st.session_state.input_text = display_text_input("Voer tekst in:", value=st.session_state.input_text, height=200)
         if st.button("Samenvatten"):
-            st.session_state.process_input = True
-            st.experimental_rerun()
-    elif st.session_state.input_method == "Upload audio":
-        uploaded_file = st.file_uploader("Upload een audiobestand", type=['mp3', 'wav', 'ogg'])
-        if uploaded_file is not None:
-            st.audio(uploaded_file, format='audio/ogg')
-            if st.button("Verwerk audio"):
-                st.session_state.process_input = True
-                st.experimental_rerun()
-    elif st.session_state.input_method == "Neem audio op":
-        audio = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname", key="audio_recorder")
-        if audio:
-            st.audio(audio['bytes'])
-            if st.button("Verwerk opgenomen audio"):
-                st.session_state.audio_data = audio['bytes']
-                st.session_state.process_input = True
-                st.experimental_rerun()
-    elif st.session_state.input_method == "Upload tekst":
-        st.session_state.uploaded_file = display_file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
-        if st.session_state.uploaded_file:
-            if st.button("Verwerk bestand"):
-                st.session_state.process_input = True
-                st.experimental_rerun()
-
-    if 'result' in st.session_state:
-        result = st.session_state.result
-        if result["error"] is None:
+            with st.spinner("Samenvatting maken..."):
+                result = run_summarization(st.session_state.input_text, st.session_state.prompt, st.session_state.user_name)
+                if result["error"] is None:
+                    st.session_state.summary = result["summary"]
+                    update_gesprekslog(st.session_state.input_text, result["summary"])
+                    st_antd_result(
+                        "Samenvatting voltooid!",
+                        "De samenvatting is succesvol gegenereerd.",
+                        [Action("show", "Toon samenvatting", primary=True)]
+                    )
+                else:
+                    st_antd_result(
+                        "Er is een fout opgetreden",
+                        result["error"],
+                        [Action("retry", "Probeer opnieuw")]
+                    )
+    elif st.session_state.input_method in ["Upload audio", "Neem audio op"]:
+        result = process_audio_input(st.session_state.input_method, st.session_state.prompt, st.session_state.user_name)
+        if result and result["error"] is None:
+            st.session_state.summary = result["summary"]
             st_antd_result(
                 "Samenvatting voltooid!",
                 "De samenvatting is succesvol gegenereerd.",
                 [Action("show", "Toon samenvatting", primary=True)]
             )
-            display_summary(st.session_state.summary)
-        else:
+        elif result:
             st_antd_result(
                 "Er is een fout opgetreden",
                 result["error"],
                 [Action("retry", "Probeer opnieuw")]
             )
+    elif st.session_state.input_method == "Upload tekst":
+        uploaded_file = display_file_uploader("Kies een bestand", type=['txt', 'docx', 'pdf'])
+        if uploaded_file:
+            st.session_state.transcript = process_uploaded_file(uploaded_file)
+            with st.spinner("Samenvatting maken..."):
+                result = run_summarization(st.session_state.transcript, st.session_state.prompt, st.session_state.user_name)
+                if result["error"] is None:
+                    st.session_state.summary = result["summary"]
+                    update_gesprekslog(st.session_state.transcript, result["summary"])
+                    st_antd_result(
+                        "Samenvatting voltooid!",
+                        "De samenvatting is succesvol gegenereerd.",
+                        [Action("show", "Toon samenvatting", primary=True)]
+                    )
+                else:
+                    st_antd_result(
+                        "Er is een fout opgetreden",
+                        result["error"],
+                        [Action("retry", "Probeer opnieuw")]
+                    )
+
+    if st.session_state.summary:
+        display_summary(st.session_state.summary)
 
 def render_feedback_form():
     with st.expander("Geef feedback"):
