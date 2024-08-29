@@ -78,8 +78,7 @@ def display_text_input(label, value="", height=100):
 def display_file_uploader(label, type=None):
     return st.file_uploader(label, type=type)
 
-#def setup_page_style():
-    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
+def setup_page_style():
     st.markdown("""
     <style>
     .stApp {
@@ -102,4 +101,3 @@ def display_file_uploader(label, type=None):
     }
     </style>
     """, unsafe_allow_html=True)
-
