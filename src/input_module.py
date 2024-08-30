@@ -6,7 +6,7 @@ from src.utils import transcribe_audio, process_text_file
 import time
 
 def render_input_step():
-    st.header("Stap 1: Invoer")
+    st.header("Stap 2: Invoer")
     
     input_method = st.radio("Kies invoermethode:", 
                             ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"])
@@ -47,15 +47,10 @@ def render_input_step():
         if text_file:
             st.session_state.input_text = process_text_file(text_file)
             st.success("Tekstbestand succesvol verwerkt!")
-    
-    if st.session_state.input_text:
-        st.markdown("### Transcript")
-        st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300)
 
-    if st.button("Ga naar Samenvatting Genereren"):
-        if st.session_state.input_text:
-            st.session_state.step = 2
-            st.session_state.selected_prompt = "Maak een beknopte samenvatting van de volgende tekst:"  # Default prompt
+    if st.session_state.input_text:
+        if st.button("Ga naar Transcript Bewerken"):
+            st.session_state.step = 3
             st.rerun()
-        else:
-            st.warning("Voer eerst tekst in voordat u doorgaat.")
+    else:
+        st.warning("Voer eerst tekst in voordat u doorgaat.")

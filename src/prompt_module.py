@@ -4,25 +4,19 @@ import streamlit as st
 from src import ui_components, utils
 
 def render_prompt_selection():
-    st.header("Step 2: Prompt Selection")
+    st.header("Stap 1: Prompt Selectie")
     
-    prompt_names = utils.get_prompt_names()
-    if not prompt_names:
-        st.warning("No prompts found. Please check the prompts directory.")
-        return
+    prompts = utils.load_prompts()
+    selected_prompt = st.selectbox("Kies een prompt:", list(prompts.keys()))
+    
+    if selected_prompt:
+        st.session_state.selected_prompt = prompts[selected_prompt]
+        st.markdown("### Geselecteerde Prompt")
+        st.markdown(st.session_state.selected_prompt)
 
-    selected_prompt_name = st.selectbox("Select a prompt:", prompt_names, key="prompt_selector")
-    
-    if selected_prompt_name:
-        prompt_content = utils.get_prompt_content(selected_prompt_name)
-        st.markdown("### Selected Prompt")
-        st.text_area("Prompt Content", value=prompt_content, height=150, disabled=True)
-        
-        if st.button("Use This Prompt"):
-            st.session_state.selected_prompt = prompt_content
-            st.success(f"Selected prompt: {selected_prompt_name}")
+    if st.button("Bevestig Prompt"):
+        if st.session_state.selected_prompt:
+            st.session_state.step = 2
             st.rerun()
-
-    if st.session_state.get('selected_prompt'):
-        st.markdown("### Currently Selected Prompt")
-        st.text_area("", value=st.session_state.selected_prompt, height=150, disabled=True)
+        else:
+            st.warning("Selecteer eerst een prompt voordat u doorgaat.")

@@ -12,21 +12,25 @@ def main():
     # Initialize session state
     if 'step' not in st.session_state:
         st.session_state.step = 1
+    if 'selected_prompt' not in st.session_state:
+        st.session_state.selected_prompt = None
     if 'input_text' not in st.session_state:
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
 
     # Navigation
-    steps = ["Invoer", "Samenvatting Genereren", "Uitvoer"]
+    steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting"]
     st.progress((st.session_state.step - 1) / (len(steps) - 1))
 
     if st.session_state.step == 1:
-        input_module.render_input_step()
+        prompt_module.render_prompt_selection()
     elif st.session_state.step == 2:
-        summary_module.render_summary_generation()
+        input_module.render_input_step()
     elif st.session_state.step == 3:
-        output_module.render_output()
+        transcript_module.render_transcript_edit()
+    elif st.session_state.step == 4:
+        summary_module.render_summary_generation()
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -38,7 +42,8 @@ def main():
 
     with col3:
         if st.session_state.step < len(steps):
-            if st.button("Volgende"):
+            next_label = "Volgende" if st.session_state.step < 4 else "Genereer Samenvatting"
+            if st.button(next_label):
                 st.session_state.step += 1
                 st.rerun()
 
