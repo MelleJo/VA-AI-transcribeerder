@@ -30,7 +30,10 @@ def generate_summary(input_text, prompt):
             stop=None,
             temperature=TEMPERATURE,
         )
-        return response.choices[0].message.content.strip()
+        summary = response.choices[0].message.content.strip()
+        if summary == prompt or not summary:
+            raise ValueError("Generated summary is empty or identical to prompt")
+        return summary
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None
@@ -45,12 +48,13 @@ def render_summary_generation():
     if not st.session_state.summary:
         with st.spinner("Samenvatting wordt gegenereerd..."):
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
-            if summary:
+            if summary and summary != st.session_state.selected_prompt:
                 st.session_state.summary = summary
                 add_to_history(st.session_state.selected_prompt, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd!")
             else:
                 st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
+                st.session_state.summary = None
 
     if st.session_state.summary:
         st.markdown("### Gegenereerde Samenvatting")
