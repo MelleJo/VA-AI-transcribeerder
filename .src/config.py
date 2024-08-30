@@ -17,6 +17,7 @@ INPUT_METHODS = ["Voer tekst in of plak tekst", "Upload tekst", "Upload audio", 
 
 def load_config():
     return {
+        "BASE_DIR": BASE_DIR,
         "PROMPTS_DIR": PROMPTS_DIR,
         "QUESTIONS_DIR": QUESTIONS_DIR,
         "DEPARTMENTS": DEPARTMENTS,
