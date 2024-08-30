@@ -12,5 +12,5 @@ def update_gesprekslog(transcript, summary):
     })
 
 def load_prompt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, 'r', encoding=st.session_state.config.get('FILE_ENCODING', 'utf-8')) as file:
         return file.read()

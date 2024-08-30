@@ -1,47 +1,28 @@
 import streamlit as st
 
 def setup_page_style():
+    # Add custom CSS for better styling
     st.markdown("""
-    <style>
-    .stApp {
-        background-color: #ffffff;
-    }
-    .stButton>button {
-        width: 100%;
-        height: 3em;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    .stProgress > div > div > div > div {
-        background-color: #4CAF50;
-    }
-    </style>
+        <style>
+        .stApp {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .stButton > button {
+            width: 100%;
+        }
+        </style>
     """, unsafe_allow_html=True)
 
 def initialize_session_state(config):
-    defaults = {
-        'summary': "",
-        'summary_versions': [],
-        'current_version_index': -1,
-        'prompt_name': "",
-        'prompt_path': "",
-        'input_method': "",
-        'input_text': "",
-        'transcript': "",
-        'gesprekslog': [],
-        'current_step': 0,
-        'user_name': "",
-        'config': config
-    }
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+    if 'current_step' not in st.session_state:
+        st.session_state.current_step = 0
+    if 'input_text' not in st.session_state:
+        st.session_state.input_text = ""
+    if 'user_name' not in st.session_state:
+        st.session_state.user_name = ""
+    if 'config' not in st.session_state:
+        st.session_state.config = config
 
 def display_text_input(label, value="", height=100):
     return st.text_area(label, value=value, height=height)
@@ -49,6 +30,23 @@ def display_text_input(label, value="", height=100):
 def display_file_uploader(label, type=None):
     return st.file_uploader(label, type=type)
 
-def display_audio_recorder():
-    # Implement audio recording functionality
-    pass
+def display_audio_input(input_method):
+    if input_method == "Upload audio":
+        return st.file_uploader("Upload een audiobestand", type=st.session_state.config['ALLOWED_AUDIO_EXTENSIONS'])
+    elif input_method == "Neem audio op":
+        return st.audio_recorder(
+            "Klik om audio op te nemen",
+            "Opname starten",
+            "Opname stoppen"
+        )
+
+def display_summary_buttons():
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Download als Word"):
+            # Implement Word document creation and download here
+            st.info("Word document download nog niet geïmplementeerd.")
+    with col2:
+        if st.button("Kopieer naar klembord"):
+            # Implement clipboard copy functionality here
+            st.info("Kopiëren naar klembord nog niet geïmplementeerd.")

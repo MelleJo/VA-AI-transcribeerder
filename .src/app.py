@@ -1,20 +1,29 @@
 import streamlit as st
 from config import load_config
-from ui.pages import render_prompt_selection, render_input_method_selection, render_summary
+from ui.pages import render_page
 from ui.components import setup_page_style, initialize_session_state
 
 def main():
-    config = load_config()
-    st.set_page_config(page_title="Gesprekssamenvatter", page_icon="🎙️", layout="wide")
-    setup_page_style()
-    initialize_session_state(config)
+    try:
+        # Load configuration
+        config = load_config()
 
-    if st.session_state.current_step == 0:
-        render_prompt_selection()
-    elif st.session_state.current_step == 1:
-        render_input_method_selection()
-    elif st.session_state.current_step == 2:
-        render_summary()
+        # Set up Streamlit page
+        st.set_page_config(
+            page_title=config["APP_TITLE"],
+            page_icon=config["APP_ICON"],
+            layout=config["APP_LAYOUT"]
+        )
+
+        # Set up page style and initialize session state
+        setup_page_style()
+        initialize_session_state(config)
+
+        # Render the appropriate page based on the current step
+        render_page(st.session_state.current_step)
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        st.stop()
 
 if __name__ == "__main__":
     main()

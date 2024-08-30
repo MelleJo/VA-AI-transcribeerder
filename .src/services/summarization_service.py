@@ -27,7 +27,11 @@ def summarize_text(text, prompt, prompt_name, user_name):
     {text}
     """
     
-    chat_model = ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"], model="gpt-4", temperature=0)
+    chat_model = ChatOpenAI(
+        api_key=st.secrets["OPENAI_API_KEY"],
+        model=st.session_state.config.get('OPENAI_MODEL', 'gpt-4'),
+        temperature=st.session_state.config.get('OPENAI_TEMPERATURE', 0)
+    )
     
     prompt_template = ChatPromptTemplate.from_template(full_prompt)
     chain = prompt_template | chat_model
