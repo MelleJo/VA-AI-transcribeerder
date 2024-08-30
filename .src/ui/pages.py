@@ -92,9 +92,10 @@ def render_prompt_selection():
     if st.button("Bevestig prompt"):
         st.session_state.prompt_name = os.path.splitext(selected_prompt)[0]  # Store the prompt name without extension
         st.session_state.prompt_path = os.path.join(st.session_state.PROMPTS_DIR, selected_prompt)
-        st.write(f"Selected prompt: {st.session_state.prompt_name}")  # Log the selected prompt name
+        st.write(f"Selected prompt: {st.session_state.prompt_name}")  # Log the selected prompt name to ensure it's not empty
         st.session_state.current_step = 1  # Move to the next step
         st.rerun()
+
 
 
 

@@ -136,7 +136,18 @@ from config import load_config
 # Load configurations from config.py
 config = load_config()
 
+import os
+from config import load_config
+
+# Load configurations from config.py
+config = load_config()
+
 def get_prompt(department, prompt_name):
+    # Check if the prompt_name is not empty or None
+    if not prompt_name:
+        st.error("Prompt name is not set. Please select a prompt.")
+        raise ValueError("Prompt name is not set.")
+    
     # Normalize the prompt name and log it
     normalized_prompt_name = prompt_name.lower().replace(' ', '_')
     st.write(f"Normalized prompt name: {normalized_prompt_name}")
@@ -152,6 +163,7 @@ def get_prompt(department, prompt_name):
     
     # Load and return the prompt content
     return load_prompt(prompt_file)
+
 
 
 
