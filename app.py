@@ -1,7 +1,7 @@
 # app.py
 
 import streamlit as st
-from src import config, input_module, summary_module, output_module, ui_components, utils
+from src import config, prompt_module, input_module, transcript_module, summary_module, output_module, ui_components
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")

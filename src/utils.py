@@ -14,11 +14,11 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 def load_prompts():
     prompts = {}
-    for prompt_file in os.listdir(PROMPTS_DIR):
-        if prompt_file.endswith('.txt'):
-            prompt_name = os.path.splitext(prompt_file)[0]
-            with open(os.path.join(PROMPTS_DIR, prompt_file), 'r') as f:
-                prompts[prompt_name] = f.read()
+    for filename in os.listdir(PROMPTS_DIR):
+        if filename.endswith('.txt'):
+            prompt_name = os.path.splitext(filename)[0]
+            with open(os.path.join(PROMPTS_DIR, filename), 'r') as f:
+                prompts[prompt_name] = f.read().strip()
     return prompts
 
 def get_prompt_names():
