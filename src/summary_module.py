@@ -35,17 +35,17 @@ def render_summary_generation():
         st.warning("Please select a prompt in Step 2 before generating a summary.")
         return
 
-    if st.button("Generate Summary"):
+    if st.button("Generate Summary", key="generate_summary_button"):
         with st.spinner("Generating summary..."):
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
             if summary:
                 st.session_state.summary = summary
                 st.success("Summary generated successfully!")
                 st.markdown("### Generated Summary")
-                st.text_area("", value=summary, height=300, disabled=True)
+                st.text_area("Generated Summary", value=summary, height=300, disabled=True, key="generated_summary_area")
             else:
                 st.error("Failed to generate summary. Please try again.")
 
     if st.session_state.summary:
-        st.markdown("### Generated Summary")
-        st.text_area("", value=st.session_state.summary, height=300, disabled=True)
+        st.markdown("### Final Summary")
+        st.text_area("Final Summary", value=st.session_state.summary, height=300, disabled=True, key="final_summary_area")
