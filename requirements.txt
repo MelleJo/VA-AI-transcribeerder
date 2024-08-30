@@ -1,7 +1,9 @@
+# requirements.txt
+
 streamlit
-langchain
-langchain_openai
-whisper
-streamlit_webrtc
+openai
+python-dotenv
 PyPDF2
 python-docx
+st-copy-to-clipboard
+pydub
