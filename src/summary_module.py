@@ -2,9 +2,9 @@
 
 import streamlit as st
 from openai import OpenAI
-from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
+from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, OPENAI_API_KEY
 
-client = OpenAI(api_key=config.OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def generate_summary(input_text, prompt):
     try:
