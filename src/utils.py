@@ -33,33 +33,41 @@ def split_audio(file):
         chunks.append(audio[i:i+AUDIO_SEGMENT_LENGTH])
     return chunks
 
-def transcribe_audio(audio_file):
+
+def transcribe_audio(audio_file, progress_callback=None):
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
             temp_audio.write(audio_file.read())
             temp_audio_path = temp_audio.name
 
-        audio_segments = split_audio(temp_audio_path)
+        audio = AudioSegment.from_wav(temp_audio_path)
+        total_duration = len(audio)
+        chunk_duration = AUDIO_SEGMENT_LENGTH
+        chunks = [audio[i:i+chunk_duration] for i in range(0, total_duration, chunk_duration)]
+
         full_transcript = ""
 
-        for i, segment in enumerate(audio_segments):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_segment:
-                segment.export(temp_segment.name, format="wav")
-                with open(temp_segment.name, "rb") as audio_segment:
+        for i, chunk in enumerate(chunks):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_chunk:
+                chunk.export(temp_chunk.name, format="wav")
+                with open(temp_chunk.name, "rb") as audio_chunk:
                     transcript = client.audio.transcriptions.create(
                         model=AUDIO_MODEL,
-                        file=audio_segment,
+                        file=audio_chunk,
                         response_format="text"
                     )
                 full_transcript += transcript + " "
-            os.unlink(temp_segment.name)
-            st.progress((i + 1) / len(audio_segments))
+            os.unlink(temp_chunk.name)
+            
+            if progress_callback:
+                progress_callback(i + 1, len(chunks))
 
         os.unlink(temp_audio_path)
         return full_transcript.strip()
     except Exception as e:
-        st.error(f"An error occurred during audio transcription: {str(e)}")
+        st.error(f"Er is een fout opgetreden tijdens de audiotranscriptie: {str(e)}")
         return None
+
 
 def process_text_file(file):
     try:

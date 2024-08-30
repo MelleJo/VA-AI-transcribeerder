@@ -16,6 +16,8 @@ def main():
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
+    if 'selected_prompt' not in st.session_state:
+        st.session_state.selected_prompt = None
 
     # Navigation
     steps = ["Invoer", "Samenvatting Genereren", "Uitvoer"]
