@@ -6,3 +6,5 @@ PyPDF2
 python-docx
 st-copy-to-clipboard
 pydub
+pandas
+reportlab

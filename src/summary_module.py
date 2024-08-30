@@ -8,6 +8,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+from src.history_module import add_to_history
+import base64
+import io
+from docx import Document
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -41,6 +47,7 @@ def render_summary_generation():
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
             if summary:
                 st.session_state.summary = summary
+                add_to_history(st.session_state.selected_prompt, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd!")
             else:
                 st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
@@ -51,6 +58,17 @@ def render_summary_generation():
 
         if st_copy_to_clipboard(st.session_state.summary):
             st.success("Samenvatting gekopieerd naar klembord!")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            b64_docx = export_to_docx(st.session_state.summary)
+            href_docx = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting.docx">Download als Word-document</a>'
+            st.markdown(href_docx, unsafe_allow_html=True)
+
+        with col2:
+            b64_pdf = export_to_pdf(st.session_state.summary)
+            href_pdf = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
+            st.markdown(href_pdf, unsafe_allow_html=True)
 
         if st.button("Genereer Nieuwe Samenvatting"):
             st.session_state.summary = None
@@ -88,53 +106,53 @@ def render_summary_generation():
 
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
-    sender_email = st.secrets["email"]["username"]
-    receiver_email = st.secrets["email"]["receiving_email"]
-    password = st.secrets["email"]["password"]
-    smtp_server = st.secrets["email"]["smtp_server"]
-    smtp_port = st.secrets["email"]["smtp_port"]
-
-    message = MIMEMultipart("alternative")
-    message["Subject"] = f"Gesprekssamenvatter Feedback - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    message["From"] = sender_email
-    message["To"] = receiver_email
-
-    text = f"""
-    Naam: {user_name}
-    Feedback: {feedback}
-    Aanvullende feedback: {additional_feedback}
-
-    Transcript:
-    {transcript}
-
-    Samenvatting:
-    {summary}
-    """
-
-    html = f"""
-    <html>
-    <body>
-        <h2>Gesprekssamenvatter Feedback</h2>
-        <p><strong>Naam:</strong> {user_name}</p>
-        <p><strong>Feedback:</strong> {feedback}</p>
-        <p><strong>Aanvullende feedback:</strong> {additional_feedback}</p>
-        
-        <h3>Transcript:</h3>
-        <pre>{transcript}</pre>
-        
-        <h3>Samenvatting:</h3>
-        <pre>{summary}</pre>
-    </body>
-    </html>
-    """
-
-    part1 = MIMEText(text, "plain")
-    part2 = MIMEText(html, "html")
-
-    message.attach(part1)
-    message.attach(part2)
-
     try:
+        sender_email = st.secrets["email"]["username"]
+        receiver_email = st.secrets["email"]["receiving_email"]
+        password = st.secrets["email"]["password"]
+        smtp_server = st.secrets["email"]["smtp_server"]
+        smtp_port = st.secrets["email"]["smtp_port"]
+
+        message = MIMEMultipart("alternative")
+        message["Subject"] = f"Gesprekssamenvatter Feedback - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        message["From"] = sender_email
+        message["To"] = receiver_email
+
+        text = f"""
+        Naam: {user_name}
+        Feedback: {feedback}
+        Aanvullende feedback: {additional_feedback}
+
+        Transcript:
+        {transcript}
+
+        Samenvatting:
+        {summary}
+        """
+
+        html = f"""
+        <html>
+        <body>
+            <h2>Gesprekssamenvatter Feedback</h2>
+            <p><strong>Naam:</strong> {user_name}</p>
+            <p><strong>Feedback:</strong> {feedback}</p>
+            <p><strong>Aanvullende feedback:</strong> {additional_feedback}</p>
+            
+            <h3>Transcript:</h3>
+            <pre>{transcript}</pre>
+            
+            <h3>Samenvatting:</h3>
+            <pre>{summary}</pre>
+        </body>
+        </html>
+        """
+
+        part1 = MIMEText(text, "plain")
+        part2 = MIMEText(html, "html")
+
+        message.attach(part1)
+        message.attach(part2)
+
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
             server.login(sender_email, password)
@@ -143,3 +161,31 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
+    
+def export_to_docx(summary):
+    doc = Document()
+    doc.add_heading('Samenvatting', 0)
+    doc.add_paragraph(summary)
+    
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    b64 = base64.b64encode(buffer.getvalue()).decode()
+    return b64
+
+def export_to_pdf(summary):
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    c.drawString(50, height - 50, "Samenvatting")
+    text = c.beginText(50, height - 100)
+    for line in summary.split('\n'):
+        text.textLine(line)
+    c.drawText(text)
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    
+    b64 = base64.b64encode(buffer.getvalue()).decode()
+    return b64

@@ -18,9 +18,11 @@ def main():
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
+    if 'history' not in st.session_state:
+        st.session_state.history = []
 
     # Navigation
-    steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting"]
+    steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
     st.progress((st.session_state.step - 1) / (len(steps) - 1))
 
     if st.session_state.step == 1:
@@ -31,20 +33,26 @@ def main():
         transcript_module.render_transcript_edit()
     elif st.session_state.step == 4:
         summary_module.render_summary_generation()
+    elif st.session_state.step == 5:
+        history_module.render_history()
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        if st.session_state.step > 1:
+        if st.session_state.step > 1 and st.session_state.step < 5:
             if st.button("Vorige"):
                 st.session_state.step -= 1
                 st.rerun()
 
     with col3:
-        if st.session_state.step < len(steps):
-            next_label = "Volgende" if st.session_state.step < 4 else "Genereer Samenvatting"
+        if st.session_state.step < 4:
+            next_label = "Volgende" if st.session_state.step < 3 else "Genereer Samenvatting"
             if st.button(next_label):
                 st.session_state.step += 1
+                st.rerun()
+        elif st.session_state.step == 4:
+            if st.button("Bekijk Geschiedenis"):
+                st.session_state.step = 5
                 st.rerun()
 
 if __name__ == "__main__":
