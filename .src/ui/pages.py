@@ -25,7 +25,7 @@ def render_page(current_step):
         st.rerun()
 
 def render_prompt_selection():
-    st.header("Selecteer een prompt")
+    st.header("APP WERKT EVEN NIET, bericht op Scienta wanneer weer die weer online is.")
     
     prompt_files = [f for f in os.listdir(st.session_state.config['PROMPTS_DIR']) if f.endswith('.txt')]
     
