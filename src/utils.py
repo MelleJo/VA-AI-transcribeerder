@@ -1,7 +1,7 @@
 # src/utils.py
 
 import os
-from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH
+from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH, OPENAI_API_KEY
 import streamlit as st
 from PyPDF2 import PdfReader
 from docx import Document
@@ -9,7 +9,7 @@ from openai import OpenAI
 from pydub import AudioSegment
 import tempfile
 
-client = OpenAI(api_key=config.OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def load_prompts_and_departments():
     prompts = {}
