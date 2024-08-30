@@ -5,3 +5,4 @@ whisper
 streamlit_webrtc
 PyPDF2
 docx
+exceptions
