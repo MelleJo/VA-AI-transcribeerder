@@ -8,6 +8,7 @@ from docx import Document
 from openai import OpenAI
 from pydub import AudioSegment
 import tempfile
+import io
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -36,11 +37,23 @@ def split_audio(file):
 
 def transcribe_audio(audio_file, progress_callback=None):
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
-            temp_audio.write(audio_file.read())
-            temp_audio_path = temp_audio.name
-
-        audio = AudioSegment.from_wav(temp_audio_path)
+        # Read the uploaded file into memory
+        audio_bytes = audio_file.read()
+        
+        # Determine the file format from the file name
+        file_extension = os.path.splitext(audio_file.name)[1].lower()
+        
+        # Convert the audio to WAV format
+        with io.BytesIO(audio_bytes) as audio_buffer:
+            if file_extension == '.mp3':
+                audio = AudioSegment.from_mp3(audio_buffer)
+            elif file_extension == '.ogg':
+                audio = AudioSegment.from_ogg(audio_buffer)
+            elif file_extension == '.wav':
+                audio = AudioSegment.from_wav(audio_buffer)
+            else:
+                raise ValueError(f"Unsupported audio format: {file_extension}")
+        
         total_duration = len(audio)
         chunk_duration = AUDIO_SEGMENT_LENGTH
         chunks = [audio[i:i+chunk_duration] for i in range(0, total_duration, chunk_duration)]
@@ -62,7 +75,6 @@ def transcribe_audio(audio_file, progress_callback=None):
             if progress_callback:
                 progress_callback(i + 1, len(chunks))
 
-        os.unlink(temp_audio_path)
         return full_transcript.strip()
     except Exception as e:
         st.error(f"Er is een fout opgetreden tijdens de audiotranscriptie: {str(e)}")

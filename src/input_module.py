@@ -30,7 +30,10 @@ def render_input_step():
                 st.session_state.input_text = transcribe_audio(audio_file, update_progress)
                 progress_bar.empty()
                 status_text.empty()
-                st.success("Audio succesvol getranscribeerd!")
+                if st.session_state.input_text:
+                    st.success("Audio succesvol getranscribeerd!")
+                else:
+                    st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
     
     elif input_method == "Audio opnemen":
         st.warning("Audio opname functie is nog niet geïmplementeerd.")
