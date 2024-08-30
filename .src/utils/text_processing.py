@@ -33,15 +33,10 @@ from config import load_config
 config = load_config()
 
 def load_prompt(file_name):
-    # Construct the path based on the file name directly
     path = os.path.join(config['PROMPTS_DIR'], file_name)
-    
-    # Log the full path
-    st.write(f"Loading prompt file from: {path}")
     
     # Check if the path exists and is a file
     if not os.path.exists(path) or not os.path.isfile(path):
-        st.error(f"Bestand niet gevonden: {path}")
         raise FileNotFoundError(f"Bestand niet gevonden: {path}")
     
     # Load and return the prompt content
