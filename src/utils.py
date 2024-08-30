@@ -51,6 +51,8 @@ def transcribe_audio(audio_file, progress_callback=None):
                 audio = AudioSegment.from_ogg(audio_buffer)
             elif file_extension == '.wav':
                 audio = AudioSegment.from_wav(audio_buffer)
+            elif file_extension == '.m4a':
+                audio = AudioSegment.from_file(audio_buffer, format="m4a")
             else:
                 raise ValueError(f"Unsupported audio format: {file_extension}")
         
