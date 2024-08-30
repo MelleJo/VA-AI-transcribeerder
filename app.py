@@ -9,7 +9,7 @@ def main():
 
     st.title("Gesprekssamenvatter API")
 
-    # Initialize session state
+     # Initialize session state
     if 'step' not in st.session_state:
         st.session_state.step = 1
     if 'input_text' not in st.session_state:
@@ -18,8 +18,6 @@ def main():
         st.session_state.selected_prompt = None
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
-    if 'prompts_and_departments' not in st.session_state:
-        st.session_state.prompts_and_departments = utils.load_prompts_and_departments()
 
     # Navigation
     steps = ["Input", "Prompt Selection", "Summary Generation", "Output"]

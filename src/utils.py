@@ -11,24 +11,20 @@ import tempfile
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def load_prompts_and_departments():
+def load_prompts():
     prompts = {}
-    for department in os.listdir(PROMPTS_DIR):
-        department_path = os.path.join(PROMPTS_DIR, department)
-        if os.path.isdir(department_path):
-            prompts[department] = {}
-            for prompt_file in os.listdir(department_path):
-                if prompt_file.endswith('.txt'):
-                    prompt_name = os.path.splitext(prompt_file)[0]
-                    with open(os.path.join(department_path, prompt_file), 'r') as f:
-                        prompts[department][prompt_name] = f.read()
+    for prompt_file in os.listdir(PROMPTS_DIR):
+        if prompt_file.endswith('.txt'):
+            prompt_name = os.path.splitext(prompt_file)[0]
+            with open(os.path.join(PROMPTS_DIR, prompt_file), 'r') as f:
+                prompts[prompt_name] = f.read()
     return prompts
 
-def get_departments():
-    return list(load_prompts_and_departments().keys())
+def get_prompt_names():
+    return list(load_prompts().keys())
 
-def get_prompts(department):
-    return load_prompts_and_departments().get(department, {})
+def get_prompt_content(prompt_name):
+    return load_prompts().get(prompt_name, "")
 
 def split_audio(file):
     audio = AudioSegment.from_file(file)

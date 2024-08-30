@@ -6,20 +6,23 @@ from src import ui_components, utils
 def render_prompt_selection():
     st.header("Step 2: Prompt Selection")
     
-    departments = utils.get_departments()
-    selected_department = st.selectbox("Select a department:", departments)
-    
-    prompts = utils.get_prompts(selected_department)
-    
-    st.markdown("### Available Prompts")
-    cols = st.columns(3)
-    for i, (prompt_name, prompt_content) in enumerate(prompts.items()):
-        with cols[i % 3]:
-            if ui_components.create_card(prompt_name, prompt_content[:100] + "...", f"prompt_{i}"):
-                st.session_state.selected_prompt = prompt_content
-                st.success(f"Selected prompt: {prompt_name}")
-                st.rerun()
+    prompt_names = utils.get_prompt_names()
+    if not prompt_names:
+        st.warning("No prompts found. Please check the prompts directory.")
+        return
 
-    if st.session_state.selected_prompt:
+    selected_prompt_name = st.selectbox("Select a prompt:", prompt_names, key="prompt_selector")
+    
+    if selected_prompt_name:
+        prompt_content = utils.get_prompt_content(selected_prompt_name)
         st.markdown("### Selected Prompt")
+        st.text_area("Prompt Content", value=prompt_content, height=150, disabled=True)
+        
+        if st.button("Use This Prompt"):
+            st.session_state.selected_prompt = prompt_content
+            st.success(f"Selected prompt: {selected_prompt_name}")
+            st.rerun()
+
+    if st.session_state.get('selected_prompt'):
+        st.markdown("### Currently Selected Prompt")
         st.text_area("", value=st.session_state.selected_prompt, height=150, disabled=True)
