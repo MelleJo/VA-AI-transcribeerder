@@ -30,5 +30,12 @@ def render_input_step():
             st.success("Tekstbestand succesvol verwerkt!")
     
     if st.session_state.input_text:
-        st.markdown("### Invoer Voorbeeld")
-        st.text_area("", value=st.session_state.input_text[:500] + "...", height=150, disabled=True)
+        st.markdown("### Transcript")
+        st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300)
+
+    if st.button("Ga naar Samenvatting Genereren"):
+        if st.session_state.input_text:
+            st.session_state.step = 2
+            st.rerun()
+        else:
+            st.warning("Voer eerst tekst in voordat u doorgaat.")

@@ -9,9 +9,11 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
-    sender_email = st.secrets["SENDER_EMAIL"]
-    receiver_email = st.secrets["RECEIVER_EMAIL"]
-    password = st.secrets["EMAIL_PASSWORD"]
+    sender_email = st.secrets["email"]["username"]
+    receiver_email = st.secrets["email"]["receiving_email"]
+    password = st.secrets["email"]["password"]
+    smtp_server = st.secrets["email"]["smtp_server"]
+    smtp_port = st.secrets["email"]["smtp_port"]
 
     message = MIMEMultipart("alternative")
     message["Subject"] = f"Gesprekssamenvatter Feedback - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -54,7 +56,8 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
     message.attach(part2)
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
         return True
@@ -62,31 +65,26 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
 
-
 def render_output():
-    st.header("Stap 4: Uitvoer")
+    st.header("Stap 3: Samenvatting")
 
     if not st.session_state.summary:
         st.warning("Er is nog geen samenvatting gegenereerd. Voltooi eerst de vorige stappen.")
         return
 
-    st.markdown("### Definitieve Samenvatting")
+    st.markdown("### Gegenereerde Samenvatting")
     st.markdown(st.session_state.summary)
 
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st_copy_to_clipboard(st.session_state.summary):
-            st.success("Samenvatting gekopieerd naar klembord!")
+    if st_copy_to_clipboard(st.session_state.summary):
+        st.success("Samenvatting gekopieerd naar klembord!")
 
-    with col2:
-        if st.download_button(
-            label="Download Samenvatting",
-            data=st.session_state.summary,
-            file_name="gegenereerde_samenvatting.md",
-            mime="text/markdown"
-        ):
-            st.success("Samenvatting succesvol gedownload!")
+    if st.download_button(
+        label="Download Samenvatting",
+        data=st.session_state.summary,
+        file_name="gegenereerde_samenvatting.md",
+        mime="text/markdown"
+    ):
+        st.success("Samenvatting succesvol gedownload!")
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):
