@@ -4,5 +4,3 @@ langchain_openai
 whisper
 streamlit_webrtc
 PyPDF2
-docx
-exceptions
