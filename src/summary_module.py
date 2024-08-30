@@ -4,7 +4,7 @@ import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, OPENAI_API_KEY
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def generate_summary(input_text, prompt):
     try:
@@ -21,31 +21,31 @@ def generate_summary(input_text, prompt):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        st.error(f"An error occurred while generating the summary: {str(e)}")
+        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None
 
 def render_summary_generation():
-    st.header("Step 3: Summary Generation")
+    st.header("Stap 3: Samenvatting Genereren")
 
     if not st.session_state.input_text:
-        st.warning("Please provide input text in Step 1 before generating a summary.")
+        st.warning("Voer eerst tekst in bij Stap 1 voordat u een samenvatting genereert.")
         return
 
     if not st.session_state.selected_prompt:
-        st.warning("Please select a prompt in Step 2 before generating a summary.")
+        st.warning("Selecteer eerst een prompt bij Stap 2 voordat u een samenvatting genereert.")
         return
 
-    if st.button("Generate Summary", key="generate_summary_button"):
-        with st.spinner("Generating summary..."):
+    if st.button("Genereer Samenvatting", key="generate_summary_button"):
+        with st.spinner("Samenvatting wordt gegenereerd..."):
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
             if summary:
                 st.session_state.summary = summary
-                st.success("Summary generated successfully!")
-                st.markdown("### Generated Summary")
-                st.text_area("Generated Summary", value=summary, height=300, disabled=True, key="generated_summary_area")
+                st.success("Samenvatting succesvol gegenereerd!")
+                st.markdown("### Gegenereerde Samenvatting")
+                st.markdown(summary)
             else:
-                st.error("Failed to generate summary. Please try again.")
+                st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
-        st.markdown("### Final Summary")
-        st.text_area("Final Summary", value=st.session_state.summary, height=300, disabled=True, key="final_summary_area")
+        st.markdown("### Definitieve Samenvatting")
+        st.markdown(st.session_state.summary)

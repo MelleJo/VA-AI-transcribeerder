@@ -9,7 +9,7 @@ def main():
 
     st.title("Gesprekssamenvatter API")
 
-     # Initialize session state
+    # Initialize session state
     if 'step' not in st.session_state:
         st.session_state.step = 1
     if 'input_text' not in st.session_state:
@@ -20,7 +20,7 @@ def main():
         st.session_state.summary = ""
 
     # Navigation
-    steps = ["Input", "Prompt Selection", "Summary Generation", "Output"]
+    steps = ["Invoer", "Prompt Selectie", "Samenvatting Genereren", "Uitvoer"]
     st.progress((st.session_state.step - 1) / (len(steps) - 1))
 
     if st.session_state.step == 1:
@@ -36,13 +36,13 @@ def main():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.session_state.step > 1:
-            if st.button("Previous"):
+            if st.button("Vorige"):
                 st.session_state.step -= 1
                 st.rerun()
 
     with col3:
         if st.session_state.step < len(steps):
-            if st.button("Next"):
+            if st.button("Volgende"):
                 st.session_state.step += 1
                 st.rerun()
 
