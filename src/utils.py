@@ -1,5 +1,3 @@
-# src/utils.py
-
 import os
 from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH, OPENAI_API_KEY
 import streamlit as st
@@ -42,16 +40,12 @@ def split_audio(file):
         chunks.append(audio[i:i+AUDIO_SEGMENT_LENGTH])
     return chunks
 
-
 def transcribe_audio(audio_file, progress_callback=None):
     try:
-        # Read the uploaded file into memory
         audio_bytes = audio_file.read()
-        
-        # Determine the file format from the file name
+
         file_extension = os.path.splitext(audio_file.name)[1].lower()
-        
-        # Convert the audio to WAV format
+
         with io.BytesIO(audio_bytes) as audio_buffer:
             if file_extension == '.mp3':
                 audio = AudioSegment.from_mp3(audio_buffer)
@@ -63,7 +57,7 @@ def transcribe_audio(audio_file, progress_callback=None):
                 audio = AudioSegment.from_file(audio_buffer, format="m4a")
             else:
                 raise ValueError(f"Unsupported audio format: {file_extension}")
-        
+
         total_duration = len(audio)
         chunk_duration = AUDIO_SEGMENT_LENGTH
         chunks = [audio[i:i+chunk_duration] for i in range(0, total_duration, chunk_duration)]
@@ -81,14 +75,13 @@ def transcribe_audio(audio_file, progress_callback=None):
                     )
                 full_transcript += transcript + " "
             os.unlink(temp_chunk.name)
-            
+
             if progress_callback:
                 progress_callback(i + 1, len(chunks))
 
         return full_transcript.strip()
     except Exception as e:
-        raise Exception(f"Er is een fout opgetreden tijdens de audiotranscriptie: {str(e)}")
-
+        raise Exception(f"An error occurred during audio transcription: {str(e)}")
 
 def process_text_file(file):
     try:
