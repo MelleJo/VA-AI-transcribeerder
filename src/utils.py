@@ -79,8 +79,7 @@ def transcribe_audio(audio_file, progress_callback=None):
 
         return full_transcript.strip()
     except Exception as e:
-        st.error(f"Er is een fout opgetreden tijdens de audiotranscriptie: {str(e)}")
-        return None
+        raise Exception(f"Er is een fout opgetreden tijdens de audiotranscriptie: {str(e)}")
 
 
 def process_text_file(file):
