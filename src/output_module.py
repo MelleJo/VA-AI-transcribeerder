@@ -7,6 +7,41 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+import markdown2
+from io import BytesIO
+from docx import Document
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
+from xhtml2pdf import pisa
+
+def markdown_to_html(markdown_text):
+    return markdown2.markdown(markdown_text)
+
+def create_pdf(html_content):
+    pdf_buffer = BytesIO()
+    pisa.CreatePDF(html_content, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
+def create_docx(html_content):
+    doc = Document()
+    styles = doc.styles
+    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    style.font.size = Pt(11)
+    
+    paragraphs = html_content.split('<p>')
+    for p in paragraphs:
+        if p.strip():
+            para = doc.add_paragraph()
+            para.style = 'Body Text'
+            run = para.add_run(p.replace('</p>', '').strip())
+            if '<strong>' in p:
+                run.bold = True
+    
+    docx_buffer = BytesIO()
+    doc.save(docx_buffer)
+    docx_buffer.seek(0)
+    return docx_buffer
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
     sender_email = st.secrets["email"]["username"]
@@ -78,13 +113,26 @@ def render_output():
     if st_copy_to_clipboard(st.session_state.summary):
         st.success("Samenvatting gekopieerd naar klembord!")
 
-    if st.download_button(
-        label="Download samenvatting",
-        data=st.session_state.summary,
-        file_name="gegenereerde_samenvatting.md",
-        mime="text/markdown"
-    ):
-        st.success("Samenvatting succesvol gedownload!")
+    # Convert markdown to HTML
+    html_content = markdown_to_html(st.session_state.summary)
+
+    # PDF download button
+    pdf_buffer = create_pdf(html_content)
+    st.download_button(
+        label="Download samenvatting als PDF",
+        data=pdf_buffer,
+        file_name="gegenereerde_samenvatting.pdf",
+        mime="application/pdf"
+    )
+
+    # DOCX download button
+    docx_buffer = create_docx(html_content)
+    st.download_button(
+        label="Download samenvatting als DOCX",
+        data=docx_buffer,
+        file_name="gegenereerde_samenvatting.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):

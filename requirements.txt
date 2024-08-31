@@ -1,10 +1,11 @@
-# requirements.txt
 streamlit
+streamlit-copy-to-clipboard
 openai
 python-dotenv
-PyPDF2
+markdown2
 python-docx
-st-copy-to-clipboard
+xhtml2pdf
+PyPDF2
 pydub
 pandas
 reportlab
