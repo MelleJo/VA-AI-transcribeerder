@@ -1,0 +1,32 @@
+/* Custom styles for Streamlit app */
+
+body {
+    background-color: #F5F5F5;
+    color: #333333;
+}
+
+.stApp {
+    background-color: #F5F5F5;
+}
+
+/* Ensure good contrast for text elements */
+p, h1, h2, h3, h4, h5, h6 {
+    color: #333333;
+}
+
+/* Style for input fields and buttons to complement the background */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+}
+
+.stButton > button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.stButton > button:hover {
+    background-color: #45a049;
+}

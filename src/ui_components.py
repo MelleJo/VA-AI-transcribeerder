@@ -3,46 +3,8 @@
 import streamlit as st
 
 def apply_custom_css():
-    st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8fafc;
-    }
-
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    h1, h2, h3 {
-        color: #1e293b;
-    }
-
-    .stButton>button {
-        background-color: #3B82F6;
-        color: white;
-        border-radius: 6px;
-        border: none;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-    }
-
-    .stButton>button:hover {
-        background-color: #2563eb;
-    }
-
-    .stTextInput>div>div>input {
-        border-radius: 6px;
-    }
-
-    .stSelectbox>div>div>select {
-        border-radius: 6px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    with open('static/styles.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 def create_card(title, content, key):
     st.markdown(f"""
