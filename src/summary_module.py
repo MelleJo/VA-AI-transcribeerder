@@ -3,6 +3,7 @@
 import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
+from src.history_module import add_to_history
 from st_copy_to_clipboard import st_copy_to_clipboard
 import smtplib
 from email.mime.text import MIMEText
@@ -48,13 +49,12 @@ def render_summary_generation():
     if not st.session_state.summary:
         with st.spinner("Samenvatting wordt gegenereerd..."):
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
-            if summary and summary != st.session_state.selected_prompt:
+            if summary:
                 st.session_state.summary = summary
                 add_to_history(st.session_state.selected_prompt, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd!")
             else:
                 st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
-                st.session_state.summary = None
 
     if st.session_state.summary:
         st.markdown("### Gegenereerde Samenvatting")
