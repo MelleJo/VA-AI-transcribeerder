@@ -20,6 +20,8 @@ def main():
         st.session_state.summary = ""
     if 'history' not in st.session_state:
         st.session_state.history = []
+    if 'transcription_complete' not in st.session_state:
+        st.session_state.transcription_complete = False
 
     # Navigation
     steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
@@ -54,6 +56,14 @@ def main():
             if st.button("Bekijk Geschiedenis"):
                 st.session_state.step = 5
                 st.rerun()
+
+    # Reset button
+    if st.button("Start Nieuwe Samenvatting"):
+        for key in ['input_text', 'selected_prompt', 'summary', 'transcription_complete']:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.session_state.step = 1
+        st.rerun()
 
 if __name__ == "__main__":
     main()
