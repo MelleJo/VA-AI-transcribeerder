@@ -17,7 +17,7 @@ def add_to_history(prompt, input_text, summary):
     })
 
 def render_history():
-    st.header("Geschiedenis")
+    st.header("Geschiedenis - let op: dit is nog een zeer experimentele functie")
 
     if not st.session_state.history:
         st.info("Er zijn nog geen samenvattingen gemaakt.")
@@ -34,7 +34,7 @@ def render_history():
             st.subheader("Samenvatting")
             st.write(row['summary'])
 
-    if st.button("Download Geschiedenis als CSV"):
+    if st.button("Download geschiedenis als CSV"):
         csv = df.to_csv(index=False)
         b = BytesIO()
         b.write(csv.encode())
@@ -46,11 +46,11 @@ def render_history():
             mime="text/csv"
         )
 
-    if st.button("Wis Geschiedenis"):
+    if st.button("Wis geschiedenis"):
         st.session_state.history = []
         st.success("Geschiedenis is gewist.")
         st.rerun()
 
-    if st.button("Terug naar Prompt Selectie"):
+    if st.button("Terug naar instructie selecteren"):
         st.session_state.step = 1
         st.rerun()

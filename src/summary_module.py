@@ -52,7 +52,7 @@ def render_summary_generation():
             if summary:
                 st.session_state.summary = summary
                 add_to_history(st.session_state.selected_prompt, st.session_state.input_text, summary)
-                st.success("Samenvatting succesvol gegenereerd!")
+                st.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
                 st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 

@@ -72,14 +72,14 @@ def render_output():
         st.warning("Er is nog geen samenvatting gegenereerd. Voltooi eerst de vorige stappen.")
         return
 
-    st.markdown("### Gegenereerde Samenvatting")
+    st.markdown("### Gegenereerde samenvatting")
     st.markdown(st.session_state.summary)
 
     if st_copy_to_clipboard(st.session_state.summary):
         st.success("Samenvatting gekopieerd naar klembord!")
 
     if st.download_button(
-        label="Download Samenvatting",
+        label="Download samenvatting",
         data=st.session_state.summary,
         file_name="gegenereerde_samenvatting.md",
         mime="text/markdown"
@@ -109,7 +109,7 @@ def render_output():
                 else:
                     st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
-    if st.button("Start Nieuwe Samenvatting"):
+    if st.button("Start nieuwe samenvatting"):
         for key in ['input_text', 'selected_prompt', 'summary']:
             if key in st.session_state:
                 del st.session_state[key]
