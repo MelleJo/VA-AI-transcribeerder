@@ -19,17 +19,18 @@ def render_input_step():
     if not st.session_state.is_recording:
         input_method = st.radio(
             "Kies invoermethode:",
-            ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"]
+            ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
+            key="input_method_radio"
         )
 
         if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
-            uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES)
+            uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.write("Klik op de knop om de opname te starten.")
-            audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+            audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
             
             if audio_data is not None:
                 if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
@@ -40,21 +41,21 @@ def render_input_step():
                     process_recorded_audio(audio_data)
 
         elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
-            st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300)
+            st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300, key="text_input_area")
 
         elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
-            uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES)
+            uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES, key="text_file_uploader")
             if uploaded_file:
                 st.session_state.uploaded_text = uploaded_file
 
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
-            if st.button("Vorige"):
+            if st.button("Vorige", key="previous_button"):
                 st.session_state.step -= 1
                 st.rerun()
         
         with col2:
-            if st.button("Ga naar Transcript Bewerken"):
+            if st.button("Ga naar Transcript Bewerken", key="process_input_button"):
                 if input_method == "Audio uploaden" and hasattr(st.session_state, 'uploaded_audio'):
                     process_uploaded_audio(st.session_state.uploaded_audio)
                 elif input_method == "Tekst schrijven/plakken" and st.session_state.input_text:
@@ -71,7 +72,7 @@ def render_input_step():
                     st.rerun()
 
         with col3:
-            if st.button("Volgende"):
+            if st.button("Volgende", key="next_button"):
                 if st.session_state.transcription_complete:
                     st.session_state.step += 1
                     st.rerun()
@@ -80,7 +81,7 @@ def render_input_step():
 
     else:  # This block will only show when recording is in progress
         st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
-        audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+        audio_data = mic_recorder(key="audio_recorder_in_progress", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
         
         if audio_data is not None and isinstance(audio_data, dict) and 'bytes' in audio_data:
             st.session_state.is_recording = False
@@ -91,6 +92,8 @@ def render_input_step():
     if st.session_state.transcription_complete:
         st.markdown("### Transcript")
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
+        
+       
 
 
 
