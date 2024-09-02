@@ -1,8 +1,43 @@
 import streamlit as st
 from src import config
-from src.utils import transcribe_audio, process_audio_input, process_text_file
+from src.utils import transcribe_audio, process_text_file
 from streamlit_mic_recorder import mic_recorder
 import tempfile
+import time
+from pydub import AudioSegment
+
+def estimate_transcription_time(audio_length):
+    # Rough estimate: 1 minute of audio takes about 20 seconds to transcribe
+    return audio_length / 3
+
+def get_audio_length(file):
+    audio = AudioSegment.from_file(file)
+    return len(audio) / 1000  # Length in seconds
+
+def transcribe_with_progress(audio_file):
+    audio_length = get_audio_length(audio_file)
+    estimated_time = estimate_transcription_time(audio_length)
+    
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    start_time = time.time()
+    
+    def update_progress(current, total):
+        elapsed_time = time.time() - start_time
+        progress = current / total
+        estimated_total_time = elapsed_time / progress if progress > 0 else estimated_time
+        remaining_time = max(0, estimated_total_time - elapsed_time)
+        
+        progress_bar.progress(progress)
+        status_text.text(f"Geschatte resterende tijd: {remaining_time:.1f} seconden")
+    
+    transcript = transcribe_audio(audio_file, progress_callback=update_progress)
+    
+    progress_bar.progress(1.0)
+    status_text.text("Transcriptie voltooid!")
+    
+    return transcript
 
 def render_input_step():
     st.header("Stap 2: Invoer")
@@ -81,7 +116,7 @@ def process_uploaded_audio(uploaded_file):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
-        st.session_state.input_text = transcribe_audio(tmp_file_path)
+        st.session_state.input_text = transcribe_with_progress(tmp_file_path)
         if st.session_state.input_text:
             st.success("Audio succesvol verwerkt en getranscribeerd!")
             st.write("Transcript lengte:", len(st.session_state.input_text))
@@ -94,7 +129,7 @@ def process_recorded_audio(audio_data):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         audio_file_path = process_audio_input(audio_data)
         if audio_file_path:
-            st.session_state.input_text = transcribe_audio(audio_file_path)
+            st.session_state.input_text = transcribe_with_progress(audio_file_path)
             if st.session_state.input_text:
                 st.success("Audio succesvol opgenomen en getranscribeerd!")
                 st.write("Transcript lengte:", len(st.session_state.input_text))

@@ -1,5 +1,3 @@
-# src/summary_module.py
-
 import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
@@ -9,14 +7,20 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from src.history_module import add_to_history
 import base64
 import io
 from docx import Document
-from reportlab.pdfgen import canvas
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
+import markdown2
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+def markdown_to_html(markdown_text):
+    return markdown2.markdown(markdown_text)
 
 def generate_summary(input_text, prompt):
     try:
@@ -63,7 +67,8 @@ def render_summary_generation():
         st.markdown("### Gegenereerde Samenvatting")
         st.markdown(st.session_state.summary)
 
-        if st_copy_to_clipboard(st.session_state.summary):
+        html_summary = markdown_to_html(st.session_state.summary)
+        if st_copy_to_clipboard(html_summary):
             st.success("Samenvatting gekopieerd naar klembord!")
 
         col1, col2 = st.columns(2)
@@ -100,7 +105,7 @@ def render_summary_generation():
                         user_name=user_name
                     )
                     if success:
-                        st.success("Bedankt voor de feedback!")
+                        st.success("Bedankt voor uw feedback!")
                     else:
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
@@ -110,7 +115,6 @@ def render_summary_generation():
                     del st.session_state[key]
             st.session_state.step = 1
             st.rerun()
-
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
     try:
@@ -168,11 +172,21 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
-    
+
 def export_to_docx(summary):
     doc = Document()
-    doc.add_heading('Samenvatting', 0)
-    doc.add_paragraph(summary)
+    styles = doc.styles
+    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    style.font.size = Pt(11)
+    
+    paragraphs = markdown_to_html(summary).split('<p>')
+    for p in paragraphs:
+        if p.strip():
+            para = doc.add_paragraph()
+            para.style = 'Body Text'
+            run = para.add_run(p.replace('</p>', '').strip())
+            if '<strong>' in p:
+                run.bold = True
     
     buffer = io.BytesIO()
     doc.save(buffer)
@@ -183,15 +197,19 @@ def export_to_docx(summary):
 
 def export_to_pdf(summary):
     buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-    c.drawString(50, height - 50, "Samenvatting")
-    text = c.beginText(50, height - 100)
-    for line in summary.split('\n'):
-        text.textLine(line)
-    c.drawText(text)
-    c.showPage()
-    c.save()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    
+    story = []
+    paragraphs = markdown_to_html(summary).split('<p>')
+    for p in paragraphs:
+        if p.strip():
+            if '<strong>' in p:
+                p = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
+            story.append(Paragraph(p.replace('</p>', '').strip(), styles['BodyText']))
+            story.append(Spacer(1, 12))
+    
+    doc.build(story)
     buffer.seek(0)
     
     b64 = base64.b64encode(buffer.getvalue()).decode()
