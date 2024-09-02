@@ -9,6 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import base64
 import io
+import traceback
 from docx import Document
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
@@ -41,7 +42,16 @@ def generate_summary(input_text, prompt):
             raise ValueError("Generated summary is empty or identical to prompt")
         return summary
     except Exception as e:
-        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
+        error_details = {
+            "error_type": type(e).__name__,
+            "error_message": str(e),
+            "traceback": traceback.format_exc(),
+            "input_length": len(input_text),
+            "prompt_length": len(prompt),
+            "total_input_length": len(input_text) + len(prompt)
+        }
+        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting. Details:")
+        st.json(error_details)
         return None
 
 def render_summary_generation():
@@ -72,7 +82,7 @@ def render_summary_generation():
                 add_to_history(prompt_name, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
-                st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
+                st.error("Samenvatting genereren mislukt. Zie de foutdetails hierboven.")
 
     if st.session_state.summary:
         st.markdown("### Gegenereerde Samenvatting")
