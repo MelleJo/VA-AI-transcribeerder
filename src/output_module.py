@@ -153,7 +153,7 @@ def render_output():
                     user_name=user_name
                 )
                 if success:
-                    st.success("Bedankt voor uw feedback!")
+                    st.success("Bedankt voor de feedback!")
                 else:
                     st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
