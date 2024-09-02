@@ -41,6 +41,9 @@ def generate_summary(input_text, prompt):
 
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
+    
+    st.write(f"Debug: Input text length: {len(st.session_state.get('input_text', ''))}")
+    st.write(f"Debug: Selected prompt: {st.session_state.get('selected_prompt', 'None')}")
 
     if not st.session_state.input_text:
         st.warning("Er is geen tekst om samen te vatten. Ga terug naar de vorige stappen om tekst in te voeren.")
