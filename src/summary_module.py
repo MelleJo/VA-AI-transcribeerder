@@ -18,7 +18,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
 import re
-from src.ui_components import create_debug_info_expander
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -61,17 +60,13 @@ def render_summary_generation():
     
     input_text_length = len(st.session_state.get('input_text', ''))
 
-    # Create debug info
-    debug_info = f"""
-    Geselecteerde prompt: {prompt_name}
-    Basis prompt geladen: {'Ja' if base_prompt else 'Nee'}
-    Geselecteerde prompt geladen: {'Ja' if selected_prompt else 'Nee'}
-    Lengte invoertekst: {input_text_length} tekens
-    Max tokens voor samenvatting: {MAX_TOKENS}
-    """
-    
-    # Use the create_debug_info_expander function
-    create_debug_info_expander(debug_info)
+    # Create debug info using Streamlit's native expander
+    with st.expander("Debug Info"):
+        st.write(f"Geselecteerde prompt: {prompt_name}")
+        st.write(f"Basis prompt geladen: {'Ja' if base_prompt else 'Nee'}")
+        st.write(f"Geselecteerde prompt geladen: {'Ja' if selected_prompt else 'Nee'}")
+        st.write(f"Lengte invoertekst: {input_text_length} tekens")
+        st.write(f"Max tokens voor samenvatting: {MAX_TOKENS}")
 
     if not st.session_state.input_text:
         st.warning("Er is geen tekst om samen te vatten. Ga terug naar de vorige stappen om tekst in te voeren.")

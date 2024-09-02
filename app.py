@@ -65,17 +65,15 @@ def main():
                     st.session_state.step += 1
                     st.rerun()
 
-    # Debug Info Expander
-    debug_info = f"""
-    Step: {st.session_state.step}
-    Selected Prompt: {st.session_state.selected_prompt}
-    Input Text Length: {len(st.session_state.input_text)}
-    Summary Length: {len(st.session_state.summary)}
-    History Items: {len(st.session_state.history)}
-    Is Recording: {st.session_state.is_recording}
-    Transcription Complete: {st.session_state.transcription_complete}
-    """
-    ui_components.create_debug_info_expander(debug_info)
+    # Debug Info Expander using Streamlit's native expander
+    with st.expander("Debug Info"):
+        st.write(f"Step: {st.session_state.step}")
+        st.write(f"Selected Prompt: {st.session_state.selected_prompt}")
+        st.write(f"Input Text Length: {len(st.session_state.input_text)}")
+        st.write(f"Summary Length: {len(st.session_state.summary)}")
+        st.write(f"History Items: {len(st.session_state.history)}")
+        st.write(f"Is Recording: {st.session_state.is_recording}")
+        st.write(f"Transcription Complete: {st.session_state.transcription_complete}")
 
 if __name__ == "__main__":
     main()
