@@ -15,60 +15,68 @@ def render_input_step():
         st.session_state.input_text = ""
     if 'audio_data' not in st.session_state:
         st.session_state.audio_data = None
-    if 'input_method' not in st.session_state:
-        st.session_state.input_method = "Audio uploaden"
 
-    st.session_state.input_method = st.radio(
-        "Kies invoermethode:",
-        ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
-        key="input_method_radio"
-    )
+    if not st.session_state.is_recording:
+        input_method = st.radio(
+            "Kies invoermethode:",
+            ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"]
+        )
 
-    if st.session_state.input_method == "Audio uploaden" and not st.session_state.transcription_complete:
-        uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES)
-        if uploaded_file:
-            st.session_state.uploaded_audio = uploaded_file
+        if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
+            uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES)
+            if uploaded_file:
+                st.session_state.uploaded_audio = uploaded_file
 
-    elif st.session_state.input_method == "Audio opnemen" and not st.session_state.transcription_complete:
-        st.write("Klik op de knop om de opname te starten.")
+        elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
+            st.write("Klik op de knop om de opname te starten.")
+            audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+            
+            if audio_data is not None:
+                if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
+                    st.session_state.is_recording = True
+                    st.rerun()
+                elif isinstance(audio_data, dict) and 'bytes' in audio_data:
+                    st.session_state.audio_data = audio_data
+                    process_recorded_audio(audio_data)
+
+        elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
+            st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300)
+
+        elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
+            uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES)
+            if uploaded_file:
+                st.session_state.uploaded_text = uploaded_file
+
+        if st.button("Ga naar Transcript Bewerken"):
+            if input_method == "Audio uploaden" and hasattr(st.session_state, 'uploaded_audio'):
+                process_uploaded_audio(st.session_state.uploaded_audio)
+            elif input_method == "Tekst schrijven/plakken" and st.session_state.input_text:
+                st.session_state.transcription_complete = True
+                st.success("Tekst succesvol verwerkt!")
+            elif input_method == "Tekstbestand uploaden" and hasattr(st.session_state, 'uploaded_text'):
+                process_uploaded_text(st.session_state.uploaded_text)
+            else:
+                st.warning("Voer eerst gegevens in voordat u doorgaat.")
+                return
+
+            if st.session_state.transcription_complete:
+                st.session_state.step = 3
+                st.rerun()
+
+    else:  # This block will only show when recording is in progress
+        st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
         audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
         
-        if audio_data is not None:
-            if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
-                st.session_state.is_recording = True
-            elif isinstance(audio_data, dict) and 'bytes' in audio_data:
-                st.session_state.is_recording = False
-                st.session_state.audio_data = audio_data
-
-    elif st.session_state.input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
-        st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300)
-
-    elif st.session_state.input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
-        uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES)
-        if uploaded_file:
-            st.session_state.uploaded_text = uploaded_file
-
-    if st.button("Ga naar Transcript Bewerken", disabled=st.session_state.is_recording):
-        if st.session_state.input_method == "Audio uploaden" and hasattr(st.session_state, 'uploaded_audio'):
-            process_uploaded_audio(st.session_state.uploaded_audio)
-        elif st.session_state.input_method == "Audio opnemen" and st.session_state.audio_data:
-            process_recorded_audio(st.session_state.audio_data)
-        elif st.session_state.input_method == "Tekst schrijven/plakken" and st.session_state.input_text:
-            st.session_state.transcription_complete = True
-            st.success("Tekst succesvol verwerkt!")
-        elif st.session_state.input_method == "Tekstbestand uploaden" and hasattr(st.session_state, 'uploaded_text'):
-            process_uploaded_text(st.session_state.uploaded_text)
-        else:
-            st.warning("Voer eerst gegevens in voordat u doorgaat.")
-            return
-
-        if st.session_state.transcription_complete:
-            st.session_state.step = 3
+        if audio_data is not None and isinstance(audio_data, dict) and 'bytes' in audio_data:
+            st.session_state.is_recording = False
+            st.session_state.audio_data = audio_data
+            process_recorded_audio(audio_data)
             st.rerun()
 
     if st.session_state.transcription_complete:
         st.markdown("### Transcript")
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
+
 
 def process_uploaded_audio(uploaded_file):
     st.info("Audiobestand geüpload. Transcriptie wordt gestart...")
