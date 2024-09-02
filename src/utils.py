@@ -7,6 +7,10 @@ from openai import OpenAI
 from pydub import AudioSegment
 import tempfile
 import io
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -33,55 +37,73 @@ def get_prompt_names():
 def get_prompt_content(prompt_name):
     return load_prompts().get(prompt_name, "")
 
-def split_audio(file):
-    audio = AudioSegment.from_file(file)
+def split_audio(file_path, max_duration_ms=AUDIO_SEGMENT_LENGTH):
+    audio = AudioSegment.from_file(file_path)
     chunks = []
-    for i in range(0, len(audio), AUDIO_SEGMENT_LENGTH):
-        chunks.append(audio[i:i+AUDIO_SEGMENT_LENGTH])
+    for i in range(0, len(audio), max_duration_ms):
+        chunks.append(audio[i:i+max_duration_ms])
     return chunks
 
-def transcribe_audio(audio_file, progress_callback=None):
-    try:
-        audio_bytes = audio_file.read()
+def transcribe_audio(file_path):
+    if st.session_state.get('transcription_complete', False):
+        return st.session_state.get('transcript', '')
 
-        file_extension = os.path.splitext(audio_file.name)[1].lower()
+    logger.debug(f"Starting transcribe_audio for file: {file_path}")
+    transcript_text = ""
+    with st.spinner('Audio segmentatie wordt gestart...'):
+        try:
+            audio_segments = split_audio(file_path)
+            logger.debug(f"Audio split into {len(audio_segments)} segments")
+        except Exception as e:
+            logger.error(f"Error splitting audio: {str(e)}")
+            st.error(f"Fout bij het segmenteren van het audio: {str(e)}")
+            return "Segmentatie mislukt."
 
-        with io.BytesIO(audio_bytes) as audio_buffer:
-            if file_extension == '.mp3':
-                audio = AudioSegment.from_mp3(audio_buffer)
-            elif file_extension == '.ogg':
-                audio = AudioSegment.from_ogg(audio_buffer)
-            elif file_extension == '.wav':
-                audio = AudioSegment.from_wav(audio_buffer)
-            elif file_extension == '.m4a':
-                audio = AudioSegment.from_file(audio_buffer, format="m4a")
-            else:
-                raise ValueError(f"Unsupported audio format: {file_extension}")
-
-        total_duration = len(audio)
-        chunk_duration = AUDIO_SEGMENT_LENGTH
-        chunks = [audio[i:i+chunk_duration] for i in range(0, total_duration, chunk_duration)]
-
-        full_transcript = ""
-
-        for i, chunk in enumerate(chunks):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_chunk:
-                chunk.export(temp_chunk.name, format="wav")
-                with open(temp_chunk.name, "rb") as audio_chunk:
-                    transcript = client.audio.transcriptions.create(
+    total_segments = len(audio_segments)
+    progress_bar = st.progress(0)
+    progress_text = st.empty()
+    progress_text.text("Start transcriptie...")
+    for i, segment in enumerate(audio_segments):
+        logger.debug(f"Processing segment {i+1} of {total_segments}")
+        progress_text.text(f'Bezig met verwerken van segment {i+1} van {total_segments} - {((i+1)/total_segments*100):.2f}% voltooid')
+        with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+            segment.export(temp_file.name, format="wav")
+            logger.debug(f"Segment exported to temporary file: {temp_file.name}")
+            with open(temp_file.name, "rb") as audio_file:
+                try:
+                    transcription_response = client.audio.transcriptions.create(
+                        file=audio_file,
                         model=AUDIO_MODEL,
-                        file=audio_chunk,
                         response_format="text"
                     )
-                full_transcript += transcript + " "
-            os.unlink(temp_chunk.name)
+                    logger.debug(f"Transcription response received for segment {i+1}")
 
-            if progress_callback:
-                progress_callback(i + 1, len(chunks))
+                    if isinstance(transcription_response, str):
+                        response_content = transcription_response
+                    else:
+                        response_content = ""
 
-        return full_transcript.strip()
-    except Exception as e:
-        raise Exception(f"An error occurred during audio transcription: {str(e)}")
+                    logger.debug(f"Transcription response content: {response_content}")
+                    transcript_text += response_content + " "
+                except Exception as e:
+                    logger.error(f"Error transcribing segment {i+1}: {str(e)}")
+                    st.error(f"Fout bij het transcriberen van segment {i+1}: {str(e)}")
+        progress_bar.progress((i + 1) / total_segments)
+    progress_text.success("Transcriptie voltooid.")
+    logger.debug(f"Transcription completed. Total length: {len(transcript_text)}")
+    st.info(f"Transcript gegenereerd. Lengte: {len(transcript_text)}")
+    
+    st.session_state['transcription_complete'] = True
+    st.session_state['transcript'] = transcript_text.strip()
+    
+    return transcript_text.strip()
+
+def process_audio_input(audio_data):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_audio:
+        tmp_audio.write(audio_data['bytes'])
+        tmp_audio.flush()
+        tmp_audio_path = tmp_audio.name
+    return tmp_audio_path
 
 def process_text_file(file):
     try:
@@ -99,3 +121,5 @@ def process_text_file(file):
     except Exception as e:
         st.error(f"An error occurred while processing the file: {str(e)}")
         return None
+
+print("utils.py loaded successfully")

@@ -4,6 +4,8 @@ import streamlit as st
 from src import config
 from src.utils import transcribe_audio, process_text_file
 import time
+from streamlit_mic_recorder import mic_recorder
+
 
 def render_input_step():
     st.header("Stap 2: Invoer")
@@ -40,8 +42,18 @@ def render_input_step():
                     st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
     
     elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
-        st.warning("Audio opname functie is nog niet geïmplementeerd.")
-        # Implement audio recording logic here
+        st.write("Klik op de knop om de opname te starten.")
+        audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+        if audio_data and 'bytes' in audio_data:
+            with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
+                audio_file_path = process_audio_input(audio_data)
+                if audio_file_path:
+                    st.session_state.input_text = transcribe_audio(audio_file_path)
+                    if st.session_state.input_text:
+                        st.success("Audio succesvol opgenomen en getranscribeerd!")
+                        st.session_state.transcription_complete = True
+                    else:
+                        st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
     
     elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
         st.session_state.input_text = st.text_area("Voer hier uw tekst in of plak deze:", height=300)
