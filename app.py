@@ -58,7 +58,7 @@ def main():
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u verdergaat.")
                 elif st.session_state.step == 2 and not st.session_state.transcription_complete:
-                    st.warning("Verwerk eerst de invoer voordat u doorgaat.")
+                    st.warning("Verwerk eerst de input door op 'Stop opname' te klikken en het transcript te laten genereren.")
                 else:
                     st.session_state.step += 1
                     st.rerun()
