@@ -20,6 +20,8 @@ def render_input_step():
                 st.session_state.input_text = transcribe_audio(uploaded_file)
                 if st.session_state.input_text:
                     st.success("Audio succesvol verwerkt en getranscribeerd!")
+                    st.write("Transcript lengte:", len(st.session_state.input_text))
+                    st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                     st.session_state.transcription_complete = True
                 else:
                     st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
@@ -34,6 +36,8 @@ def render_input_step():
                     st.session_state.input_text = transcribe_audio(audio_file_path)
                     if st.session_state.input_text:
                         st.success("Audio succesvol opgenomen en getranscribeerd!")
+                        st.write("Transcript lengte:", len(st.session_state.input_text))
+                        st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                         st.session_state.transcription_complete = True
                     else:
                         st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
@@ -44,6 +48,8 @@ def render_input_step():
             if st.session_state.input_text:
                 st.session_state.transcription_complete = True
                 st.success("Tekst succesvol verwerkt!")
+                st.write("Transcript lengte:", len(st.session_state.input_text))
+                st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
             else:
                 st.warning("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.")
 
@@ -56,6 +62,8 @@ def render_input_step():
                 if st.session_state.input_text:
                     st.session_state.transcription_complete = True
                     st.success("Bestand succesvol geüpload en verwerkt!")
+                    st.write("Transcript lengte:", len(st.session_state.input_text))
+                    st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                 else:
                     st.error("Verwerking is mislukt. Probeer een ander bestand.")
 

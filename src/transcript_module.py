@@ -5,6 +5,12 @@ import streamlit as st
 def render_transcript_edit():
     st.header("Stap 3: Transcript bewerken")
     
+    st.write("Transcription complete:", st.session_state.get('transcription_complete', False))
+    st.write("Input text available:", 'input_text' in st.session_state)
+    if 'input_text' in st.session_state:
+        st.write("Transcript lengte:", len(st.session_state.input_text))
+        st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+    
     if not st.session_state.input_text:
         st.warning("Er is geen transcript om te bewerken. Ga terug naar de vorige stap om tekst in te voeren.")
         return
