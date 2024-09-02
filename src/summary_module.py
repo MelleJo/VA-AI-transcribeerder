@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
 from src.history_module import add_to_history
+from src.utils import load_prompts, get_prompt_content
 from st_copy_to_clipboard import st_copy_to_clipboard
 import smtplib
 from email.mime.text import MIMEText
@@ -9,7 +10,6 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import base64
 import io
-import traceback
 from docx import Document
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
@@ -17,19 +17,20 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
-from src.utils import load_prompts, get_prompt_content
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
 
-def generate_summary(input_text, prompt):
+def generate_summary(input_text, base_prompt, selected_prompt):
     try:
+        full_prompt = f"{base_prompt}\n\n{selected_prompt}"
+        
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
             messages=[
-                {"role": "system", "content": prompt},
+                {"role": "system", "content": full_prompt},
                 {"role": "user", "content": input_text}
             ],
             max_tokens=MAX_TOKENS,
@@ -38,37 +39,29 @@ def generate_summary(input_text, prompt):
             temperature=TEMPERATURE,
         )
         summary = response.choices[0].message.content.strip()
-        if summary == prompt or not summary:
-            raise ValueError("Generated summary is empty or identical to prompt")
+        if not summary:
+            raise ValueError("Generated summary is empty")
         return summary
     except Exception as e:
-        error_details = {
-            "error_type": type(e).__name__,
-            "error_message": str(e),
-            "traceback": traceback.format_exc(),
-            "input_length": len(input_text),
-            "prompt_length": len(prompt),
-            "total_input_length": len(input_text) + len(prompt)
-        }
-        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting. Details:")
-        st.json(error_details)
+        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None
 
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
     
-    # Debug information
+    prompts = load_prompts()
+    base_prompt = prompts.get('base_prompt.txt', '')
     prompt_name = st.session_state.get('selected_prompt', 'None')
+    selected_prompt = get_prompt_content(prompt_name)
+    
     input_text_length = len(st.session_state.get('input_text', ''))
-    base_prompt_loaded = 'base_prompt.txt' in load_prompts()
-    prompt_loaded = get_prompt_content(prompt_name) != ""
 
     st.write("Debug info:")
-    st.write(f"Prompt = {prompt_name}")
-    st.write(f"Prompt_loaded = {'Ja' if prompt_loaded else 'Nee'}")
-    st.write(f"Base_prompt active = {'Ja' if base_prompt_loaded else 'Nee'}")
-    st.write(f"Input text length = {input_text_length} characters")
-    st.write(f"Max tokens for summary = {MAX_TOKENS}")
+    st.write(f"Geselecteerde prompt: {prompt_name}")
+    st.write(f"Basis prompt geladen: {'Ja' if base_prompt else 'Nee'}")
+    st.write(f"Geselecteerde prompt geladen: {'Ja' if selected_prompt else 'Nee'}")
+    st.write(f"Lengte invoertekst: {input_text_length} tekens")
+    st.write(f"Max tokens voor samenvatting: {MAX_TOKENS}")
 
     if not st.session_state.input_text:
         st.warning("Er is geen tekst om samen te vatten. Ga terug naar de vorige stappen om tekst in te voeren.")
@@ -76,13 +69,13 @@ def render_summary_generation():
 
     if not st.session_state.summary:
         with st.spinner("Samenvatting wordt gegenereerd..."):
-            summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
+            summary = generate_summary(st.session_state.input_text, base_prompt, selected_prompt)
             if summary:
                 st.session_state.summary = summary
                 add_to_history(prompt_name, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
-                st.error("Samenvatting genereren mislukt. Zie de foutdetails hierboven.")
+                st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
         st.markdown("### Gegenereerde Samenvatting")

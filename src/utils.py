@@ -14,25 +14,30 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 def load_prompts():
     prompts = {}
     base_prompt_path = os.path.join(PROMPTS_DIR, 'base_prompt.txt')
-    with open(base_prompt_path, 'r') as f:
-        base_prompt = f.read()
+    try:
+        with open(base_prompt_path, 'r', encoding='utf-8') as f:
+            prompts['base_prompt.txt'] = f.read()
+    except FileNotFoundError:
+        st.warning(f"Base prompt file not found: {base_prompt_path}")
 
     for filename in os.listdir(PROMPTS_DIR):
         if filename.endswith('.txt') and filename != 'base_prompt.txt':
             prompt_name = os.path.splitext(filename)[0]
-            with open(os.path.join(PROMPTS_DIR, filename), 'r') as f:
-                task_specific_prompt = f.read()
-            full_prompt = base_prompt.replace('[TASK_SPECIFIC_INSTRUCTIONS]', task_specific_prompt)
-            full_prompt = full_prompt.replace('[PROMPT_NAME]', prompt_name)
-            prompts[prompt_name] = full_prompt
+            file_path = os.path.join(PROMPTS_DIR, filename)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    prompts[prompt_name] = f.read()
+            except FileNotFoundError:
+                st.warning(f"Prompt file not found: {file_path}")
 
     return prompts
 
 def get_prompt_names():
-    return list(load_prompts().keys())
+    return [name for name in load_prompts().keys() if name != 'base_prompt.txt']
 
 def get_prompt_content(prompt_name):
-    return load_prompts().get(prompt_name, "")
+    prompts = load_prompts()
+    return prompts.get(prompt_name, "")
 
 def split_audio(file):
     audio = AudioSegment.from_file(file)
