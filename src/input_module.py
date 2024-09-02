@@ -1,7 +1,7 @@
 import streamlit as st
 from src import config
 from src.utils import transcribe_audio, process_audio_input, process_text_file
-from streamlit_mic_recorder import mic_recorder, MicComponent
+from streamlit_mic_recorder import mic_recorder
 import tempfile
 
 def render_input_step():
@@ -9,8 +9,8 @@ def render_input_step():
     
     if 'transcription_complete' not in st.session_state:
         st.session_state.transcription_complete = False
-    if 'audio_recorder' not in st.session_state:
-        st.session_state.audio_recorder = None
+    if 'audio_data' not in st.session_state:
+        st.session_state.audio_data = None
     if 'input_text' not in st.session_state:
         st.session_state.input_text = ""
 
@@ -36,13 +36,10 @@ def render_input_step():
 
     elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
         st.write("Klik op de knop om de opname te starten.")
-        mic_component = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
-        st.session_state.audio_recorder = mic_component
-        
-        if isinstance(mic_component, MicComponent):
-            audio_data = mic_component.get_audio()
-            if audio_data:
-                process_recorded_audio(audio_data)
+        audio_data = mic_recorder(key="recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+        if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
+            st.session_state.audio_data = audio_data
+            process_recorded_audio(audio_data)
 
     elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
         st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300)
@@ -74,19 +71,15 @@ def render_input_step():
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300)
 
     if st.button("Ga naar Transcript Bewerken"):
-        if input_method == "Audio opnemen" and st.session_state.audio_recorder and not st.session_state.transcription_complete:
-            audio_data = st.session_state.audio_recorder.get_audio()
-            if audio_data:
-                process_recorded_audio(audio_data)
-            else:
-                st.warning("Geen audio opgenomen. Start de opname voordat u doorgaat.")
-                return
+        if input_method == "Audio opnemen" and st.session_state.audio_data and not st.session_state.transcription_complete:
+            process_recorded_audio(st.session_state.audio_data)
+        elif not st.session_state.input_text:
+            st.warning("Voer eerst tekst in of neem audio op voordat u doorgaat.")
+            return
 
         if st.session_state.input_text:
             st.session_state.step = 3
             st.rerun()
-        else:
-            st.warning("Voer eerst tekst in voordat u doorgaat.")
 
 def process_recorded_audio(audio_data):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
