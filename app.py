@@ -5,8 +5,6 @@ from src import config, prompt_module, input_module, transcript_module, summary_
 import logging
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
-
-
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
     ui_components.apply_custom_css()
@@ -66,6 +64,18 @@ def main():
                 else:
                     st.session_state.step += 1
                     st.rerun()
+
+    # Debug Info Expander
+    debug_info = f"""
+    Step: {st.session_state.step}
+    Selected Prompt: {st.session_state.selected_prompt}
+    Input Text Length: {len(st.session_state.input_text)}
+    Summary Length: {len(st.session_state.summary)}
+    History Items: {len(st.session_state.history)}
+    Is Recording: {st.session_state.is_recording}
+    Transcription Complete: {st.session_state.transcription_complete}
+    """
+    ui_components.create_debug_info_expander(debug_info)
 
 if __name__ == "__main__":
     main()

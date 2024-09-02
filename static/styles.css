@@ -30,3 +30,36 @@ p, h1, h2, h3, h4, h5, h6 {
 .stButton > button:hover {
     background-color: #45a049;
 }
+
+/* Debug Info Expander Styles */
+.debug-info-expander {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.expander-button {
+    width: 100%;
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 10px;
+    text-align: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.expander-button:hover {
+    background-color: #ddd;
+}
+
+.expander-content {
+    display: none;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.expander-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
