@@ -119,7 +119,7 @@ def render_output():
     # PDF download button
     pdf_buffer = create_pdf(html_content)
     st.download_button(
-        label="Download samenvatting als PDF",
+        label="Download samenvatting als PDF (experimenteel)",
         data=pdf_buffer,
         file_name="gegenereerde_samenvatting.pdf",
         mime="application/pdf"
@@ -128,7 +128,7 @@ def render_output():
     # DOCX download button
     docx_buffer = create_docx(html_content)
     st.download_button(
-        label="Download samenvatting als DOCX",
+        label="Download samenvatting als DOCX (experimenteel)",
         data=docx_buffer,
         file_name="gegenereerde_samenvatting.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
