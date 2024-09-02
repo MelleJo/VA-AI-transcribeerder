@@ -3,12 +3,7 @@ from src import config
 from src.utils import transcribe_audio, process_text_file
 from streamlit_mic_recorder import mic_recorder
 import tempfile
-import time
 from pydub import AudioSegment
-
-def estimate_transcription_time(audio_length):
-    # Rough estimate: 1 minute of audio takes about 20 seconds to transcribe
-    return audio_length / 3
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
@@ -16,28 +11,21 @@ def get_audio_length(file):
 
 def transcribe_with_progress(audio_file):
     audio_length = get_audio_length(audio_file)
-    estimated_time = estimate_transcription_time(audio_length)
     
     progress_bar = st.progress(0)
     status_text = st.empty()
     
-    start_time = time.time()
-    
-    # Start transcription
-    transcript = transcribe_audio(audio_file)
-    
-    # Simulate progress
-    for i in range(101):
-        progress = i / 100
-        elapsed_time = time.time() - start_time
-        estimated_total_time = elapsed_time / progress if progress > 0 else estimated_time
-        remaining_time = max(0, estimated_total_time - elapsed_time)
-        
+    def update_progress(current, total):
+        progress = current / total
         progress_bar.progress(progress)
+        remaining_time = (total - current) * (audio_length / total)
         status_text.text(f"Geschatte resterende tijd: {remaining_time:.1f} seconden")
-        
-        if i < 100:
-            time.sleep(estimated_time / 100)  # Simulate transcription time
+    
+    try:
+        transcript = transcribe_audio(audio_file, progress_callback=update_progress)
+    except Exception as e:
+        st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
+        return None
     
     progress_bar.progress(1.0)
     status_text.text("Transcriptie voltooid!")
