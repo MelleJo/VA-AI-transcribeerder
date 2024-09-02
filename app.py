@@ -20,6 +20,10 @@ def main():
         st.session_state.summary = ""
     if 'history' not in st.session_state:
         st.session_state.history = []
+    if 'is_recording' not in st.session_state:
+        st.session_state.is_recording = False
+    if 'transcription_complete' not in st.session_state:
+        st.session_state.transcription_complete = False
 
     # Navigation
     steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
@@ -40,16 +44,24 @@ def main():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.session_state.step > 1:
-            if st.button("Vorige"):
-                st.session_state.step -= 1
-                st.rerun()
+            if st.button("Vorige", key="previous_button"):
+                if st.session_state.is_recording:
+                    st.warning("Stop eerst de opname voordat u teruggaat.")
+                else:
+                    st.session_state.step -= 1
+                    st.rerun()
 
     with col3:
         if st.session_state.step < len(steps):
             next_label = "Volgende" if st.session_state.step < 4 else "Bekijk Geschiedenis"
-            if st.button(next_label):
-                st.session_state.step += 1
-                st.rerun()
+            if st.button(next_label, key="next_button"):
+                if st.session_state.is_recording:
+                    st.warning("Stop eerst de opname voordat u verdergaat.")
+                elif st.session_state.step == 2 and not st.session_state.transcription_complete:
+                    st.warning("Verwerk eerst de invoer voordat u doorgaat.")
+                else:
+                    st.session_state.step += 1
+                    st.rerun()
 
 if __name__ == "__main__":
     main()

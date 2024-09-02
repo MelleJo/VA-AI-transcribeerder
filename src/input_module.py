@@ -72,25 +72,8 @@ def render_input_step():
         st.markdown("### Transcript")
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
 
-    # Navigation buttons
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col1:
-        if st.button("Vorige", key="previous_button"):
-            if st.session_state.is_recording:
-                st.warning("Stop eerst de opname voordat u teruggaat.")
-            else:
-                st.session_state.step -= 1
-                st.rerun()
-    
-    with col3:
-        if st.button("Volgende", key="next_button"):
-            if st.session_state.is_recording:
-                st.warning("Stop eerst de opname voordat u verdergaat.")
-            elif st.session_state.transcription_complete:
-                st.session_state.step += 1
-                st.rerun()
-            else:
-                st.warning("Verwerk eerst de invoer voordat u doorgaat.")
+    # Return the recording state to be used in the main app for navigation control
+    return st.session_state.is_recording
     
 def process_uploaded_audio(uploaded_file):
     st.info("Audiobestand geüpload. Transcriptie wordt gestart...")
