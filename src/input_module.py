@@ -27,6 +27,8 @@ def render_input_step():
             uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
+                if st.button("Verwerk audio", key="process_audio_button"):
+                    process_uploaded_audio(uploaded_file)
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.write("Klik op de knop om de opname te starten.")
@@ -42,42 +44,19 @@ def render_input_step():
 
         elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
             st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300, key="text_input_area")
+            if st.button("Verwerk tekst", key="process_text_button"):
+                if st.session_state.input_text:
+                    st.session_state.transcription_complete = True
+                    st.success("Tekst succesvol verwerkt!")
+                else:
+                    st.warning("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.")
 
         elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
             uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES, key="text_file_uploader")
             if uploaded_file:
                 st.session_state.uploaded_text = uploaded_file
-
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col1:
-            if st.button("Vorige", key="previous_button"):
-                st.session_state.step -= 1
-                st.rerun()
-        
-        with col2:
-            if st.button("Ga naar Transcript Bewerken", key="process_input_button"):
-                if input_method == "Audio uploaden" and hasattr(st.session_state, 'uploaded_audio'):
-                    process_uploaded_audio(st.session_state.uploaded_audio)
-                elif input_method == "Tekst schrijven/plakken" and st.session_state.input_text:
-                    st.session_state.transcription_complete = True
-                    st.success("Tekst succesvol verwerkt!")
-                elif input_method == "Tekstbestand uploaden" and hasattr(st.session_state, 'uploaded_text'):
-                    process_uploaded_text(st.session_state.uploaded_text)
-                else:
-                    st.warning("Voer eerst gegevens in voordat u doorgaat.")
-                    return
-
-                if st.session_state.transcription_complete:
-                    st.session_state.step = 3
-                    st.rerun()
-
-        with col3:
-            if st.button("Volgende", key="next_button"):
-                if st.session_state.transcription_complete:
-                    st.session_state.step += 1
-                    st.rerun()
-                else:
-                    st.warning("Verwerk eerst de invoer voordat u doorgaat.")
+                if st.button("Verwerk bestand", key="process_file_button"):
+                    process_uploaded_text(uploaded_file)
 
     else:  # This block will only show when recording is in progress
         st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
@@ -92,12 +71,27 @@ def render_input_step():
     if st.session_state.transcription_complete:
         st.markdown("### Transcript")
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
-        
-       
 
-
-
-
+    # Navigation buttons
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        if st.button("Vorige", key="previous_button"):
+            if st.session_state.is_recording:
+                st.warning("Stop eerst de opname voordat u teruggaat.")
+            else:
+                st.session_state.step -= 1
+                st.rerun()
+    
+    with col3:
+        if st.button("Volgende", key="next_button"):
+            if st.session_state.is_recording:
+                st.warning("Stop eerst de opname voordat u verdergaat.")
+            elif st.session_state.transcription_complete:
+                st.session_state.step += 1
+                st.rerun()
+            else:
+                st.warning("Verwerk eerst de invoer voordat u doorgaat.")
+    
 def process_uploaded_audio(uploaded_file):
     st.info("Audiobestand geüpload. Transcriptie wordt gestart...")
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
