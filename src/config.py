@@ -1,5 +1,3 @@
-# src/config.py
-
 import streamlit as st
 import os
 
@@ -19,6 +17,9 @@ THEME_COLOR = "#3B82F6"
 # AI Configuration
 AUDIO_MODEL = "whisper-1"
 SUMMARY_MODEL = "gpt-4o-2024-08-06"
-MAX_TOKENS = 10000
-TEMPERATURE = 0.1
+MAX_TOKENS = 14000
+TEMPERATURE = 0.3
+TOP_P = 0.95
+FREQUENCY_PENALTY = 0.2
+PRESENCE_PENALTY = 0.1
 AUDIO_SEGMENT_LENGTH = 30000  # 30 seconds in milliseconds

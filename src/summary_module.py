@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
+from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 from src.history_module import add_to_history
 from src.utils import load_prompts, get_prompt_content
 from st_copy_to_clipboard import st_copy_to_clipboard
@@ -34,9 +34,12 @@ def generate_summary(input_text, base_prompt, selected_prompt):
                 {"role": "user", "content": input_text}
             ],
             max_tokens=MAX_TOKENS,
-            n=1,
-            stop=None,
             temperature=TEMPERATURE,
+            top_p=TOP_P,
+            frequency_penalty=FREQUENCY_PENALTY,
+            presence_penalty=PRESENCE_PENALTY,
+            n=1,
+            stop=None
         )
         summary = response.choices[0].message.content.strip()
         if not summary:
