@@ -23,16 +23,21 @@ def transcribe_with_progress(audio_file):
     
     start_time = time.time()
     
-    def update_progress(current, total):
+    # Start transcription
+    transcript = transcribe_audio(audio_file)
+    
+    # Simulate progress
+    for i in range(101):
+        progress = i / 100
         elapsed_time = time.time() - start_time
-        progress = current / total
         estimated_total_time = elapsed_time / progress if progress > 0 else estimated_time
         remaining_time = max(0, estimated_total_time - elapsed_time)
         
         progress_bar.progress(progress)
         status_text.text(f"Geschatte resterende tijd: {remaining_time:.1f} seconden")
-    
-    transcript = transcribe_audio(audio_file, progress_callback=update_progress)
+        
+        if i < 100:
+            time.sleep(estimated_time / 100)  # Simulate transcription time
     
     progress_bar.progress(1.0)
     status_text.text("Transcriptie voltooid!")
@@ -127,16 +132,19 @@ def process_uploaded_audio(uploaded_file):
 
 def process_recorded_audio(audio_data):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        audio_file_path = process_audio_input(audio_data)
-        if audio_file_path:
-            st.session_state.input_text = transcribe_with_progress(audio_file_path)
-            if st.session_state.input_text:
-                st.success("Audio succesvol opgenomen en getranscribeerd!")
-                st.write("Transcript lengte:", len(st.session_state.input_text))
-                st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
-                st.session_state.transcription_complete = True
-            else:
-                st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
+        audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        audio_file.write(audio_data['bytes'])
+        audio_file_path = audio_file.name
+        audio_file.close()
+        
+        st.session_state.input_text = transcribe_with_progress(audio_file_path)
+        if st.session_state.input_text:
+            st.success("Audio succesvol opgenomen en getranscribeerd!")
+            st.write("Transcript lengte:", len(st.session_state.input_text))
+            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+            st.session_state.transcription_complete = True
+        else:
+            st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
 
 def process_uploaded_text(uploaded_file):
     st.info("Bestand geüpload. Verwerking wordt gestart...")
@@ -148,4 +156,4 @@ def process_uploaded_text(uploaded_file):
             st.write("Transcript lengte:", len(st.session_state.input_text))
             st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
         else:
-            st.error("Verwerking is mislukt. Probeer een ander bestand.")
+            st.error("Verwerking is mislukt. Probeer een ander bestand.")t
