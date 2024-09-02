@@ -4,7 +4,7 @@ import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE
 from src.history_module import add_to_history
-from st_copy_to_clipboard import st_copy_to_clipboard
+from streamlit_copy_to_clipboard import st_copy_to_clipboard
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
