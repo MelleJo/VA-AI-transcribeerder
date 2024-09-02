@@ -156,4 +156,4 @@ def process_uploaded_text(uploaded_file):
             st.write("Transcript lengte:", len(st.session_state.input_text))
             st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
         else:
-            st.error("Verwerking is mislukt. Probeer een ander bestand.")t
+            st.error("Verwerking is mislukt. Probeer een ander bestand.")
