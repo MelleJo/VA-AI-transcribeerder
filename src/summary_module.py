@@ -17,6 +17,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
+import re
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -84,8 +85,9 @@ def render_summary_generation():
         st.markdown("### Gegenereerde Samenvatting")
         st.markdown(st.session_state.summary)
 
-        html_summary = markdown_to_html(st.session_state.summary)
-        if st_copy_to_clipboard(html_summary):
+        # Remove HTML tags for clipboard copy
+        clean_summary = re.sub('<[^<]+?>', '', st.session_state.summary)
+        if st_copy_to_clipboard(clean_summary):
             st.success("Samenvatting gekopieerd naar klembord!")
 
         col1, col2 = st.columns(2)
