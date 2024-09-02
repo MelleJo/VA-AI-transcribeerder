@@ -1,5 +1,5 @@
 streamlit
-streamlit-copy-to-clipboard
+st-copy-to-clipboard
 openai
 python-dotenv
 markdown2
