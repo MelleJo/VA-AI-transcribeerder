@@ -16,6 +16,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
+from src.utils import load_prompts, get_prompt_content
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -46,8 +47,18 @@ def generate_summary(input_text, prompt):
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
     
-    st.write(f"Debug: Input text length: {len(st.session_state.get('input_text', ''))}")
-    st.write(f"Debug: Selected prompt: {st.session_state.get('selected_prompt', 'None')}")
+    # Debug information
+    prompt_name = st.session_state.get('selected_prompt', 'None')
+    input_text_length = len(st.session_state.get('input_text', ''))
+    base_prompt_loaded = 'base_prompt.txt' in load_prompts()
+    prompt_loaded = get_prompt_content(prompt_name) != ""
+
+    st.write("Debug info:")
+    st.write(f"Prompt = {prompt_name}")
+    st.write(f"Prompt_loaded = {'Ja' if prompt_loaded else 'Nee'}")
+    st.write(f"Base_prompt active = {'Ja' if base_prompt_loaded else 'Nee'}")
+    st.write(f"Input text length = {input_text_length} characters")
+    st.write(f"Max tokens for summary = {MAX_TOKENS}")
 
     if not st.session_state.input_text:
         st.warning("Er is geen tekst om samen te vatten. Ga terug naar de vorige stappen om tekst in te voeren.")
@@ -58,7 +69,7 @@ def render_summary_generation():
             summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
             if summary:
                 st.session_state.summary = summary
-                add_to_history(st.session_state.selected_prompt, st.session_state.input_text, summary)
+                add_to_history(prompt_name, st.session_state.input_text, summary)
                 st.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
                 st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
