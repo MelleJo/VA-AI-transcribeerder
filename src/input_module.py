@@ -4,10 +4,16 @@ from src.utils import transcribe_audio, process_text_file
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
+import time
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
     return len(audio) / 1000  # Length in seconds
+
+def format_time(seconds):
+    minutes, seconds = divmod(int(seconds), 60)
+    return f"{minutes:02d}:{seconds:02d}"
+
 
 def transcribe_with_progress(audio_file):
     audio_length = get_audio_length(audio_file)
@@ -17,15 +23,16 @@ def transcribe_with_progress(audio_file):
     
     def update_progress(current, total):
         progress = current / total
+        elapsed_time = time.time() - start_time
+        estimated_total_time = elapsed_time / progress if progress > 0 else audio_length
+        remaining_time = max(0, estimated_total_time - elapsed_time)
+        
         progress_bar.progress(progress)
-        remaining_time = (total - current) * (audio_length / total)
-        status_text.text(f"Geschatte resterende tijd: {remaining_time:.1f} seconden")
+        percentage = progress * 100
+        status_text.text(f"Voortgang: {percentage:.1f}% | Geschatte resterende tijd: {format_time(remaining_time)} (mm:ss)")
     
-    try:
-        transcript = transcribe_audio(audio_file, progress_callback=update_progress)
-    except Exception as e:
-        st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
-        return None
+    start_time = time.time()
+    transcript = transcribe_audio(audio_file, progress_callback=update_progress)
     
     progress_bar.progress(1.0)
     status_text.text("Transcriptie voltooid!")

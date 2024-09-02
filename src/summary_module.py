@@ -176,7 +176,11 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
 def export_to_docx(summary):
     doc = Document()
     styles = doc.styles
-    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    try:
+        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    except ValueError:
+        # If the style already exists, just get it
+        style = styles['Body Text']
     style.font.size = Pt(11)
     
     paragraphs = markdown_to_html(summary).split('<p>')
