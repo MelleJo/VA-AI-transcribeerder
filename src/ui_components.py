@@ -28,7 +28,6 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     st.markdown(href, unsafe_allow_html=True)
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
-    st.code(text)
     st.button(label, key=f"copy_{hash(text)}", on_click=lambda: st.write("Gekopieerd naar klembord!"))
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
