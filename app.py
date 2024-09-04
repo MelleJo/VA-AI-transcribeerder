@@ -1,7 +1,7 @@
 # app.py
 
 import streamlit as st
-from src import config, prompt_module, input_module, transcript_module, summary_module, output_module, ui_components, history_module
+from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
 import logging
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
@@ -38,7 +38,7 @@ def main():
     elif st.session_state.step == 3:
         transcript_module.render_transcript_edit()
     elif st.session_state.step == 4:
-        summary_module.render_summary_generation()
+        summary_and_output_module.render_summary_and_output()
     elif st.session_state.step == 5:
         history_module.render_history()
 
