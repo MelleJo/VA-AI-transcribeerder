@@ -24,12 +24,12 @@ def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
-    href = f'&lt;a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary"&gt;{label}&lt;/a&gt;'
+    href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
     if st.button(label, key=f"copy_{hash(text)}"):
-        st.write(f'&lt;script&gt;navigator.clipboard.writeText("{text}");&lt;/script&gt;', unsafe_allow_html=True)
+        st.write(f'<script>navigator.clipboard.writeText("{text}");</script>', unsafe_allow_html=True)
         st.success("Gekopieerd naar klembord!")
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
@@ -60,4 +60,10 @@ def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
 
 def sanitize_html(text: str) -> str:
     """Remove HTML tags from the given text."""
-    return re.sub('&lt;[^&lt;]+?&gt;', '', text)
+    return re.sub('<[^<]+?>', '', text)
+
+def apply_custom_css():
+    """Load and apply custom CSS"""
+    with open('static/styles.css', 'r') as f:
+        custom_css = f.read()
+    st.markdown(f'<style>{custom_css}</style>', unsafe_allow_html=True)
