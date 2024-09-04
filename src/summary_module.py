@@ -96,15 +96,17 @@ def render_summary_generation():
         st.warning("Er is geen tekst om samen te vatten. Ga terug naar de vorige stappen om tekst in te voeren.")
         return
 
+    summary_placeholder = st.empty()
+
     if not st.session_state.summary:
         with st.spinner("Samenvatting wordt gegenereerd..."):
             summary = generate_summary(st.session_state.input_text, base_prompt, selected_prompt)
             if summary:
                 st.session_state.summary = summary
                 add_to_history(prompt_name, st.session_state.input_text, summary)
-                st.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
+                summary_placeholder.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
-                st.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
+                summary_placeholder.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
         st.markdown("### Gegenereerde Samenvatting")
@@ -165,14 +167,14 @@ def render_summary_generation():
             st.markdown(href_pdf, unsafe_allow_html=True)
 
         # Add a button to expand the customization section
-        if st.button("Pas samenvatting aan"):
+        if st.button("Pas samenvatting aan", key="customize_summary_button"):
             st.session_state.show_customization = True
 
         # Show the customization section if the button was clicked
         if st.session_state.get('show_customization', False):
             st.markdown("### Pas de samenvatting aan")
-            customization_request = st.text_area("Voer hier uw aanpassingsverzoek in (bijv. 'Maak het korter', 'Voeg meer details toe over X', 'Maak het formeler'):")
-            if st.button("Pas samenvatting aan"):
+            customization_request = st.text_area("Voer hier uw aanpassingsverzoek in (bijv. 'Maak het korter', 'Voeg meer details toe over X', 'Maak het formeler'):", key="customization_request")
+            if st.button("Pas samenvatting aan", key="apply_customization_button"):
                 with st.spinner("Samenvatting wordt aangepast..."):
                     customized_summary = customize_summary(st.session_state.summary, customization_request, st.session_state.input_text)
                     if customized_summary:
@@ -183,16 +185,16 @@ def render_summary_generation():
                     else:
                         st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
-        if st.button("Genereer Nieuwe Samenvatting"):
+        if st.button("Genereer Nieuwe Samenvatting", key="generate_new_summary_button"):
             st.session_state.summary = None
             st.session_state.show_customization = False
             st.rerun()
 
         st.markdown("### Feedback")
         with st.form(key="feedback_form"):
-            user_name = st.text_input("Uw naam (verplicht bij feedback):")
-            feedback = st.radio("Was deze samenvatting nuttig?", ["Positief", "Negatief"])
-            additional_feedback = st.text_area("Laat aanvullende feedback achter:")
+            user_name = st.text_input("Uw naam (verplicht bij feedback):", key="feedback_name")
+            feedback = st.radio("Was deze samenvatting nuttig?", ["Positief", "Negatief"], key="feedback_rating")
+            additional_feedback = st.text_area("Laat aanvullende feedback achter:", key="additional_feedback")
             submit_button = st.form_submit_button(label="Verzend feedback")
 
             if submit_button:
@@ -212,7 +214,7 @@ def render_summary_generation():
                     else:
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
-        if st.button("Start Nieuwe Samenvatting"):
+        if st.button("Start Nieuwe Samenvatting", key="start_new_summary_button"):
             for key in ['input_text', 'selected_prompt', 'summary', 'show_customization']:
                 if key in st.session_state:
                     del st.session_state[key]
