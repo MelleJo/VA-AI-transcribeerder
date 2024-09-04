@@ -29,7 +29,7 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
 
-def ui_copy_button(text: str, label: str = "Kopiëren"):
+def ui_copy_button(html_content: str, label: str = "Kopiëren"):
     button_html = f"""
         <style>
         .copy-button {{
@@ -49,17 +49,29 @@ def ui_copy_button(text: str, label: str = "Kopiëren"):
         .copy-button:hover {{
             background-color: #45a049;
         }}
+        #formatted-content {{
+            display: none;
+        }}
         </style>
+        <div id="formatted-content">{html_content}</div>
         <button class="copy-button" onclick="handleCopyClick()">{label}</button>
         <script>
         function handleCopyClick() {{
-            const textArea = document.createElement('textarea');
-            textArea.value = {text!r};
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert('Gekopieerd naar klembord!');
+            const formattedContent = document.getElementById('formatted-content');
+            const range = document.createRange();
+            range.selectNode(formattedContent);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {{
+                document.execCommand('copy');
+                alert('Gekopieerd naar klembord! De opmaak blijft behouden bij het plakken in een teksteditor die opmaak ondersteunt.');
+            }} catch (err) {{
+                console.error('Oops, unable to copy', err);
+            }}
+            
+            selection.removeAllRanges();
         }}
         </script>
     """

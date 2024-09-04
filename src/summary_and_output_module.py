@@ -74,7 +74,8 @@ def customize_summary(current_summary, customization_request, transcript):
         return None
 
 def render_summary_buttons(summary, button_key_prefix):
-    ui_copy_button(summary, "Kopieer naar klembord")
+    html_content = markdown2.markdown(summary)
+    ui_copy_button(html_content, "Kopieer naar klembord (met opmaak)")
     
     col1, col2 = st.columns(2)
     with col1:
