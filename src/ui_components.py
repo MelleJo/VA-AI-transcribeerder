@@ -2,6 +2,8 @@ import streamlit as st
 import base64
 from typing import Callable
 import re
+from st_copy_to_clipboard import st_copy_to_clipboard
+
 
 def ui_card(title: str, content: str, buttons: list[Callable] = None):
     with st.container():
@@ -28,7 +30,40 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     st.markdown(href, unsafe_allow_html=True)
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
-    st.button(label, key=f"copy_{hash(text)}", on_click=lambda: st.write("Gekopieerd naar klembord!"))
+    button_html = f"""
+        <style>
+        .copy-button {{
+            display: inline-block;
+            padding: 0.5em 1em;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }}
+        .copy-button:hover {{
+            background-color: #45a049;
+        }}
+        </style>
+        <button class="copy-button" onclick="handleCopyClick()">{label}</button>
+        <script>
+        function handleCopyClick() {{
+            const textArea = document.createElement('textarea');
+            textArea.value = {text!r};
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Gekopieerd naar klembord!');
+        }}
+        </script>
+    """
+    st.components.v1.html(button_html, height=50)
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
     placeholder = st.empty()
