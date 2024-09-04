@@ -3,10 +3,6 @@ from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 from src.history_module import add_to_history
 from src.utils import load_prompts, get_prompt_content
-from st_copy_to_clipboard import st_copy_to_clipboard
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import base64
 import io
@@ -17,7 +13,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
-import re
+from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -75,23 +71,18 @@ def customize_summary(current_summary, customization_request, transcript):
         return None
 
 def render_summary_buttons(summary, button_key_prefix):
-    # Remove HTML tags for clipboard copy
-    clean_summary = re.sub('<[^<]+?>', '', summary)
+    clean_summary = sanitize_html(summary)
     
-    # Using st_copy_to_clipboard for the clipboard functionality
-    if st_copy_to_clipboard(clean_summary, key=f"{button_key_prefix}_copy"):
-        st.success(f"Samenvatting gekopieerd naar klembord!")
-
+    ui_copy_button(clean_summary, "Kopieer naar klembord")
+    
     col1, col2 = st.columns(2)
     with col1:
         b64_docx = export_to_docx(summary)
-        href_docx = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting_{button_key_prefix}.docx">Download als Word-document</a>'
-        st.markdown(href_docx, unsafe_allow_html=True)
+        ui_download_button("Download als Word", b64_docx, f"samenvatting_{button_key_prefix}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
     with col2:
         b64_pdf = export_to_pdf(summary)
-        href_pdf = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting_{button_key_prefix}.pdf">Download als PDF</a>'
-        st.markdown(href_pdf, unsafe_allow_html=True)
+        ui_download_button("Download als PDF", b64_pdf, f"samenvatting_{button_key_prefix}.pdf", "application/pdf")
 
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
@@ -103,7 +94,6 @@ def render_summary_generation():
     
     input_text_length = len(st.session_state.get('input_text', ''))
 
-    # Create debug info using Streamlit's native expander
     with st.expander("Debug Info"):
         st.write(f"Geselecteerde prompt: {prompt_name}")
         st.write(f"Basis prompt geladen: {'Ja' if base_prompt else 'Nee'}")
@@ -128,47 +118,33 @@ def render_summary_generation():
                 summary_placeholder.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
-        st.markdown("### Gegenereerde Samenvatting")
-        st.markdown(st.session_state.summary)
+        ui_card(
+            "Gegenereerde Samenvatting",
+            st.session_state.summary,
+            [lambda: render_summary_buttons(st.session_state.summary, "initial")]
+        )
 
-        # Custom CSS to style the st_copy_to_clipboard button
-        st.markdown("""
-            <style>
-            .stButton button {
-                background-color: #4CAF50;
-                color: white;
-                padding: 15px 32px;
-                font-size: 16px;
-                border-radius: 8px;
-                border: none;
-                cursor: pointer;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
-        render_summary_buttons(st.session_state.summary, "initial")
-
-        # Add a button to expand the customization section
-        if st.button("Pas samenvatting aan", key="customize_summary_button"):
+        if ui_button("Pas samenvatting aan", lambda: setattr(st.session_state, 'show_customization', True), "customize_summary_button"):
             st.session_state.show_customization = True
 
-        # Show the customization section if the button was clicked
         if st.session_state.get('show_customization', False):
             st.markdown("### Pas de samenvatting aan")
             customization_request = st.text_area("Voer hier uw aanpassingsverzoek in (bijv. 'Maak het korter', 'Voeg meer details toe over X', 'Maak het formeler'):", key="customization_request")
-            if st.button("Pas samenvatting aan", key="apply_customization_button"):
+            if ui_button("Pas samenvatting aan", lambda: None, "apply_customization_button", primary=True):
                 with st.spinner("Samenvatting wordt aangepast..."):
                     customized_summary = customize_summary(st.session_state.summary, customization_request, st.session_state.input_text)
                     if customized_summary:
                         st.session_state.revised_summary = customized_summary
                         st.success("Samenvatting succesvol aangepast!")
-                        st.markdown("### Aangepaste Samenvatting")
-                        st.markdown(customized_summary)
-                        render_summary_buttons(customized_summary, "revised")
+                        ui_card(
+                            "Aangepaste Samenvatting",
+                            customized_summary,
+                            [lambda: render_summary_buttons(customized_summary, "revised")]
+                        )
                     else:
                         st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
-        if st.button("Genereer Nieuwe Samenvatting", key="generate_new_summary_button"):
+        if ui_button("Genereer Nieuwe Samenvatting", lambda: setattr(st.session_state, 'summary', None), "generate_new_summary_button"):
             st.session_state.summary = None
             st.session_state.revised_summary = None
             st.session_state.show_customization = False
@@ -199,7 +175,7 @@ def render_summary_generation():
                     else:
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
-        if st.button("Start Nieuwe Samenvatting", key="start_new_summary_button"):
+        if ui_button("Start Nieuwe Samenvatting", lambda: setattr(st.session_state, 'step', 1), "start_new_summary_button"):
             for key in ['input_text', 'selected_prompt', 'summary', 'revised_summary', 'show_customization']:
                 if key in st.session_state:
                     del st.session_state[key]

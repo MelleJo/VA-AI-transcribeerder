@@ -1,22 +1,63 @@
-# src/ui_components.py
-
 import streamlit as st
+import base64
+from typing import Callable
+import re
 
-def apply_custom_css():
-    with open('static/styles.css') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+def ui_card(title: str, content: str, buttons: list[Callable] = None):
+    with st.container():
+        st.markdown(f"""
+        <div class="ui-card">
+            <h3>{title}</h3>
+            <div class="ui-card-content">{content}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if buttons:
+            cols = st.columns(len(buttons))
+            for i, button in enumerate(buttons):
+                with cols[i]:
+                    button()
 
-def create_card(title, content, key):
-    st.markdown(f"""
-    <div style="
-        background-color: white;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    ">
-        <h3 style="margin-top: 0;">{title}</h3>
-        <p>{content}</p>
-    </div>
-    """, unsafe_allow_html=True)
-    return st.button(f"Select {title}", key=key)
+def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
+    button_class = "ui-button-primary" if primary else "ui-button-secondary"
+    return st.button(label, on_click=on_click, key=key, help=f"Klik om {label.lower()}", use_container_width=True)
+
+def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
+    b64 = base64.b64encode(data.encode()).decode()
+    href = f'&lt;a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary"&gt;{label}&lt;/a&gt;'
+    st.markdown(href, unsafe_allow_html=True)
+
+def ui_copy_button(text: str, label: str = "Kopiëren"):
+    if st.button(label, key=f"copy_{hash(text)}"):
+        st.write(f'&lt;script&gt;navigator.clipboard.writeText("{text}");&lt;/script&gt;', unsafe_allow_html=True)
+        st.success("Gekopieerd naar klembord!")
+
+def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
+    placeholder = st.empty()
+    
+    # Calculate the number of lines in the text
+    num_lines = text.count('\n') + 1
+    
+    if num_lines > max_lines:
+        truncated_text = '\n'.join(text.split('\n')[:max_lines]) + '...'
+        
+        # Create a unique key for this instance
+        expand_key = f"expand_{hash(text)}"
+        
+        if expand_key not in st.session_state:
+            st.session_state[expand_key] = False
+        
+        if not st.session_state[expand_key]:
+            placeholder.text_area(label, truncated_text, height=150, disabled=True)
+            if st.button("Toon meer", key=f"show_more_{hash(text)}"):
+                st.session_state[expand_key] = True
+        else:
+            placeholder.text_area(label, text, height=300, disabled=True)
+            if st.button("Toon minder", key=f"show_less_{hash(text)}"):
+                st.session_state[expand_key] = False
+    else:
+        placeholder.text_area(label, text, height=150, disabled=True)
+
+def sanitize_html(text: str) -> str:
+    """Remove HTML tags from the given text."""
+    return re.sub('&lt;[^&lt;]+?&gt;', '', text)

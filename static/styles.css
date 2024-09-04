@@ -1,120 +1,152 @@
-/* Custom styles for Streamlit app */
-
+/* Global Styles */
 body {
-    background-color: #F5F5F5;
-    color: #333333;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    line-height: 1.6;
 }
 
 .stApp {
-    background-color: #F5F5F5;
+    background-color: #f5f7fa;
 }
 
-/* Ensure good contrast for text elements */
-p, h1, h2, h3, h4, h5, h6 {
-    color: #333333;
-}
-
-/* Style for input fields and buttons to complement the background */
-.stTextInput > div > div > input,
-.stTextArea > div > div > textarea {
-    background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-}
-
-.stButton > button {
-    background-color: #6BBF6E;
-    color: white;
-    border: none;
-}
-
-.stButton > button:hover {
-    background-color: #5CAF5F;
-}
-
-/* Debug Info Expander Styles */
-.debug-info-expander {
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.expander-button {
-    width: 100%;
-    background-color: #f1f1f1;
-    color: #333;
-    padding: 10px;
-    text-align: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.expander-button:hover {
-    background-color: #ddd;
-}
-
-.expander-content {
-    display: none;
-    padding: 10px;
-    background-color: #fff;
-}
-
-.expander-content pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-/* New style for the copy button */
-.copybutton {
-    background-color: #6BBF6E;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
+/* Card Styles */
+.ui-card {
+    background-color: #ffffff;
     border-radius: 8px;
-    transition: background-color 0.3s;
-}
-
-.copybutton:hover {
-    background-color: #5CAF5F;
-}
-
-/* Styles for the customization section */
-.customization-section {
-    background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.customization-input {
+.ui-card h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
     margin-bottom: 15px;
 }
 
-.customization-button {
-    background-color: #6BBF6E;
-    color: white;
-    border: none;
+.ui-card-content {
+    font-size: 1rem;
+    color: #34495e;
+}
+
+/* Button Styles */
+.stButton > button, .ui-button-secondary, .ui-button-primary {
+    border-radius: 20px;
     padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
 }
 
-.customization-button:hover {
-    background-color: #5CAF5F;
+.stButton > button, .ui-button-secondary {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    border: none;
 }
 
-.customized-summary {
-    background-color: #F0F8FF;
-    border: 1px solid #B0E0E6;
+.stButton > button:hover, .ui-button-secondary:hover {
+    background-color: #bdc3c7;
+    color: #2c3e50;
+}
+
+.ui-button-primary {
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+}
+
+.ui-button-primary:hover {
+    background-color: #2980b9;
+}
+
+/* Text Area Styles */
+.stTextArea > div > div > textarea {
     border-radius: 8px;
-    padding: 15px;
-    margin-top: 15px;
+    border-color: #bdc3c7;
+}
+
+/* Expander Styles */
+.streamlit-expanderHeader {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Success Message Styles */
+.stSuccess {
+    background-color: #2ecc71;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Error Message Styles */
+.stError {
+    background-color: #e74c3c;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Warning Message Styles */
+.stWarning {
+    background-color: #f39c12;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Info Message Styles */
+.stInfo {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Header Styles */
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+/* Form Styles */
+.stForm > div > div > div > div > div {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Radio Button Styles */
+.stRadio > div {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.stRadio > div > label {
+    background-color: #ecf0f1;
+    border-radius: 20px;
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stRadio > div > label:hover {
+    background-color: #bdc3c7;
+}
+
+.stRadio > div > label > div {
+    font-weight: bold;
+}
+
+/* Spinner Styles */
+.stSpinner > div {
+    border-color: #3498db !important;
 }
