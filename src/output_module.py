@@ -13,6 +13,9 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
 from xhtml2pdf import pisa
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
@@ -48,30 +51,28 @@ def create_pdf(markdown_content):
     """
     
     pdf_buffer = BytesIO()
-    pisa.CreatePDF(html, dest=pdf_buffer)
-    pdf_buffer.seek(0)
-    return pdf_buffer
+    try:
+        pisa_status = pisa.CreatePDF(html, dest=pdf_buffer)
+        if pisa_status.err:
+            logging.error(f"PDF creation error: {pisa_status.err}")
+            return None
+        pdf_buffer.seek(0)
+        return pdf_buffer
+    except Exception as e:
+        logging.error(f"Error creating PDF: {str(e)}")
+        return None
 
 def create_docx(markdown_content):
-    doc = Document()
-    styles = doc.styles
-    normal_style = styles['Normal']
-    normal_style.font.size = Pt(11)
-    
-    lines = markdown_content.split('\n')
-    for line in lines:
-        if line.strip():
-            para = doc.add_paragraph()
-            parts = line.split('**')
-            for i, part in enumerate(parts):
-                run = para.add_run(part)
-                if i % 2 == 1:  # Odd parts are between ** and should be bold
-                    run.bold = True
-    
-    docx_buffer = BytesIO()
-    doc.save(docx_buffer)
-    docx_buffer.seek(0)
-    return docx_buffer
+    try:
+        doc = Document()
+        doc.add_paragraph(markdown_content)
+        docx_buffer = BytesIO()
+        doc.save(docx_buffer)
+        docx_buffer.seek(0)
+        return docx_buffer
+    except Exception as e:
+        logging.error(f"Error creating DOCX: {str(e)}")
+        return None
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
     sender_email = st.secrets["email"]["username"]
@@ -145,21 +146,27 @@ def render_output():
 
     # PDF download button
     pdf_buffer = create_pdf(st.session_state.summary)
-    st.download_button(
-        label="Download samenvatting als PDF (experimenteel)",
-        data=pdf_buffer,
-        file_name="gegenereerde_samenvatting.pdf",
-        mime="application/pdf"
-    )
+    if pdf_buffer:
+        st.download_button(
+            label="Download samenvatting als PDF",
+            data=pdf_buffer,
+            file_name="gegenereerde_samenvatting.pdf",
+            mime="application/pdf"
+        )
+    else:
+        st.error("Er is een fout opgetreden bij het genereren van de PDF.")
 
     # DOCX download button
     docx_buffer = create_docx(st.session_state.summary)
-    st.download_button(
-        label="Download samenvatting als DOCX (experimenteel)",
-        data=docx_buffer,
-        file_name="gegenereerde_samenvatting.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    if docx_buffer:
+        st.download_button(
+            label="Download samenvatting als DOCX",
+            data=docx_buffer,
+            file_name="gegenereerde_samenvatting.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+    else:
+        st.error("Er is een fout opgetreden bij het genereren van het DOCX-bestand.")
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):
