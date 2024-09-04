@@ -169,7 +169,7 @@ def render_output():
         return
 
     st.markdown("### Gegenereerde samenvatting")
-    st.markdown(st.session_state.summary)
+    st.markdown(f"<div style='background-color: #f0f2f6; padding: 20px; border-radius: 5px;'>{st.session_state.summary}</div>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
@@ -185,7 +185,8 @@ def render_output():
             href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
             st.markdown(href, unsafe_allow_html=True)
         else:
-            st.error("PDF genereren mislukt.")
+            st.error("PDF genereren mislukt. Probeer het later opnieuw.")
+            logging.error("PDF generation failed.")
 
     with col3:
         # DOCX download button
@@ -195,7 +196,8 @@ def render_output():
             href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting.docx">Download als DOCX</a>'
             st.markdown(href, unsafe_allow_html=True)
         else:
-            st.error("DOCX genereren mislukt.")
+            st.error("DOCX genereren mislukt. Probeer het later opnieuw.")
+            logging.error("DOCX generation failed.")
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):
