@@ -15,6 +15,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from xhtml2pdf import pisa
 import logging
 import traceback
+import base64
 
 logging.basicConfig(level=logging.INFO)
 
@@ -63,6 +64,7 @@ def create_pdf(markdown_content):
         logging.error(f"Error creating PDF: {str(e)}")
         logging.error(traceback.format_exc())
         return None
+    
 
 def create_docx(markdown_content):
     try:
@@ -179,12 +181,9 @@ def render_output():
         # PDF download button
         pdf_buffer = create_pdf(st.session_state.summary)
         if pdf_buffer:
-            st.download_button(
-                label="Download als PDF",
-                data=pdf_buffer,
-                file_name="samenvatting.pdf",
-                mime="application/pdf"
-            )
+            b64_pdf = base64.b64encode(pdf_buffer.getvalue()).decode()
+            href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
+            st.markdown(href, unsafe_allow_html=True)
         else:
             st.error("PDF genereren mislukt.")
 
@@ -192,12 +191,9 @@ def render_output():
         # DOCX download button
         docx_buffer = create_docx(st.session_state.summary)
         if docx_buffer:
-            st.download_button(
-                label="Download als DOCX",
-                data=docx_buffer,
-                file_name="samenvatting.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
+            b64_docx = base64.b64encode(docx_buffer.getvalue()).decode()
+            href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting.docx">Download als DOCX</a>'
+            st.markdown(href, unsafe_allow_html=True)
         else:
             st.error("DOCX genereren mislukt.")
 
