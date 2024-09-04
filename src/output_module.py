@@ -122,27 +122,26 @@ def render_output():
         if st_copy_to_clipboard(st.session_state.summary):
             st.success("Gekopieerd!")
 
+     # Convert markdown to HTML
+    html_content = markdown_to_html(st.session_state.summary)
+
     with col2:
-        # PDF download button
-        pdf_buffer = create_pdf(st.session_state.summary)
-        if pdf_buffer:
-            b64_pdf = base64.b64encode(pdf_buffer.getvalue()).decode()
-            href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
-            st.markdown(href, unsafe_allow_html=True)
-        else:
-            st.error("PDF genereren mislukt. Probeer het later opnieuw.")
-            logging.error("PDF generation failed.")
+        pdf_buffer = create_pdf(html_content)
+        st.download_button(
+            label="Download samenvatting als PDF (experimenteel)",
+            data=pdf_buffer,
+            file_name="gegenereerde_samenvatting.pdf",
+            mime="application/pdf"
+        )
 
     with col3:
-        # DOCX download button
-        docx_buffer = create_docx(st.session_state.summary)
-        if docx_buffer:
-            b64_docx = base64.b64encode(docx_buffer.getvalue()).decode()
-            href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting.docx">Download als DOCX</a>'
-            st.markdown(href, unsafe_allow_html=True)
-        else:
-            st.error("DOCX genereren mislukt. Probeer het later opnieuw.")
-            logging.error("DOCX generation failed.")
+        docx_buffer = create_docx(html_content)
+        st.download_button(
+            label="Download samenvatting als DOCX (experimenteel)",
+            data=docx_buffer,
+            file_name="gegenereerde_samenvatting.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):
