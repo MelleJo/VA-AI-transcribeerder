@@ -132,17 +132,17 @@ def render_summary_generation():
         </style>
         """, unsafe_allow_html=True)
         
-        # Create the custom button using standard HTML and JavaScript
+        
         copy_button = """
             <button class="copybutton" id="copy-button">Kopieer samenvatting</button>
             <script>
-                document.getElementById('copy-button').addEventListener('click', function() {
-                    navigator.clipboard.writeText("{}").then(function() {
+                document.getElementById('copy-button').addEventListener('click', function() {{
+                    navigator.clipboard.writeText("{}").then(function() {{
                         alert('Samenvatting gekopieerd naar klembord!');
-                    }, function() {
+                    }}, function() {{
                         alert('Kopiëren naar klembord mislukt!');
-                    });
-                });
+                    }});
+                }});
             </script>
         """.format(clean_summary)  # Ensure to pass the cleaned summary for copying
 
