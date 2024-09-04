@@ -14,6 +14,7 @@ from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
 from xhtml2pdf import pisa
 import logging
+import traceback
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,6 +61,7 @@ def create_pdf(markdown_content):
         return pdf_buffer
     except Exception as e:
         logging.error(f"Error creating PDF: {str(e)}")
+        logging.error(traceback.format_exc())
         return None
 
 def create_docx(markdown_content):
@@ -97,6 +99,7 @@ def create_docx(markdown_content):
         return docx_buffer
     except Exception as e:
         logging.error(f"Error creating DOCX: {str(e)}")
+        logging.error(traceback.format_exc())
         return None
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
@@ -166,32 +169,37 @@ def render_output():
     st.markdown("### Gegenereerde samenvatting")
     st.markdown(st.session_state.summary)
 
-    if st_copy_to_clipboard(st.session_state.summary):
-        st.success("Samenvatting gekopieerd naar klembord!")
+    col1, col2, col3 = st.columns(3)
 
-    # PDF download button
-    pdf_buffer = create_pdf(st.session_state.summary)
-    if pdf_buffer:
-        st.download_button(
-            label="Download samenvatting als PDF",
-            data=pdf_buffer,
-            file_name="gegenereerde_samenvatting.pdf",
-            mime="application/pdf"
-        )
-    else:
-        st.error("Er is een fout opgetreden bij het genereren van de PDF.")
+    with col1:
+        if st_copy_to_clipboard(st.session_state.summary):
+            st.success("Gekopieerd!")
 
-    # DOCX download button
-    docx_buffer = create_docx(st.session_state.summary)
-    if docx_buffer:
-        st.download_button(
-            label="Download samenvatting als DOCX",
-            data=docx_buffer,
-            file_name="gegenereerde_samenvatting.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
-    else:
-        st.error("Er is een fout opgetreden bij het genereren van het DOCX-bestand.")
+    with col2:
+        # PDF download button
+        pdf_buffer = create_pdf(st.session_state.summary)
+        if pdf_buffer:
+            st.download_button(
+                label="Download als PDF",
+                data=pdf_buffer,
+                file_name="samenvatting.pdf",
+                mime="application/pdf"
+            )
+        else:
+            st.error("PDF genereren mislukt.")
+
+    with col3:
+        # DOCX download button
+        docx_buffer = create_docx(st.session_state.summary)
+        if docx_buffer:
+            st.download_button(
+                label="Download als DOCX",
+                data=docx_buffer,
+                file_name="samenvatting.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+        else:
+            st.error("DOCX genereren mislukt.")
 
     st.markdown("### Feedback")
     with st.form(key="feedback_form"):
