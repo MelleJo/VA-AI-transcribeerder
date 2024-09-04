@@ -14,6 +14,9 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 import markdown2
 from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -84,8 +87,8 @@ def render_summary_buttons(summary, button_key_prefix):
         b64_pdf = export_to_pdf(summary)
         ui_download_button("Download als PDF", b64_pdf, f"samenvatting_{button_key_prefix}.pdf", "application/pdf")
 
-def render_summary_generation():
-    st.header("Stap 4: Samenvatting")
+def render_summary_and_output():
+    st.header("Stap 4: Samenvatting en Output")
     
     prompts = load_prompts()
     base_prompt = prompts.get('base_prompt.txt', '')
@@ -253,7 +256,6 @@ def export_to_docx(summary):
     try:
         style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
     except ValueError:
-        # If the style already exists, just get it
         style = styles['Body Text']
     style.font.size = Pt(11)
     
