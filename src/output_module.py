@@ -22,87 +22,32 @@ logging.basicConfig(level=logging.INFO)
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
 
-def create_pdf(markdown_content):
-    html_content = markdown2.markdown(markdown_content)
-    
-    css = """
-    <style>
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 11pt;
-        line-height: 1.6;
-    }
-    p {
-        margin-bottom: 10px;
-    }
-    strong {
-        font-weight: bold;
-    }
-    </style>
-    """
-    
-    html = f"""
-    <html>
-    <head>
-    {css}
-    </head>
-    <body>
-    {html_content}
-    </body>
-    </html>
-    """
-    
+def create_pdf(html_content):
     pdf_buffer = BytesIO()
-    try:
-        pisa_status = pisa.CreatePDF(html, dest=pdf_buffer)
-        if pisa_status.err:
-            logging.error(f"PDF creation error: {pisa_status.err}")
-            return None
-        pdf_buffer.seek(0)
-        return pdf_buffer
-    except Exception as e:
-        logging.error(f"Error creating PDF: {str(e)}")
-        logging.error(traceback.format_exc())
-        return None
+    pisa.CreatePDF(html_content, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+    return pdf_buffer
     
 
-def create_docx(markdown_content):
-    try:
-        doc = Document()
-        
-        # Add styles
-        styles = doc.styles
-        style = styles.add_style('Normal', WD_STYLE_TYPE.PARAGRAPH)
-        style.font.name = 'Arial'
-        style.font.size = Pt(11)
-        
-        # Split the markdown content into paragraphs
-        paragraphs = markdown_content.split('\n\n')
-        
-        for para in paragraphs:
-            if para.startswith('#'):
-                # Handle headers
-                level = para.count('#')
-                text = para.strip('#').strip()
-                doc.add_heading(text, level=min(level, 9))
-            elif para.startswith('- '):
-                # Handle unordered lists
-                doc.add_paragraph(para.strip('- '), style='List Bullet')
-            elif para.startswith('1. '):
-                # Handle ordered lists
-                doc.add_paragraph(para[3:], style='List Number')
-            else:
-                # Regular paragraph
-                doc.add_paragraph(para, style='Normal')
-        
-        docx_buffer = BytesIO()
-        doc.save(docx_buffer)
-        docx_buffer.seek(0)
-        return docx_buffer
-    except Exception as e:
-        logging.error(f"Error creating DOCX: {str(e)}")
-        logging.error(traceback.format_exc())
-        return None
+def create_docx(html_content):
+    doc = Document()
+    styles = doc.styles
+    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    style.font.size = Pt(11)
+    
+    paragraphs = html_content.split('<p>')
+    for p in paragraphs:
+        if p.strip():
+            para = doc.add_paragraph()
+            para.style = 'Body Text'
+            run = para.add_run(p.replace('</p>', '').strip())
+            if '<strong>' in p:
+                run.bold = True
+    
+    docx_buffer = BytesIO()
+    doc.save(docx_buffer)
+    docx_buffer.seek(0)
+    return docx_buffer
 
 def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
     sender_email = st.secrets["email"]["username"]
