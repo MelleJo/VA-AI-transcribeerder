@@ -65,7 +65,32 @@ def create_pdf(markdown_content):
 def create_docx(markdown_content):
     try:
         doc = Document()
-        doc.add_paragraph(markdown_content)
+        
+        # Add styles
+        styles = doc.styles
+        style = styles.add_style('Normal', WD_STYLE_TYPE.PARAGRAPH)
+        style.font.name = 'Arial'
+        style.font.size = Pt(11)
+        
+        # Split the markdown content into paragraphs
+        paragraphs = markdown_content.split('\n\n')
+        
+        for para in paragraphs:
+            if para.startswith('#'):
+                # Handle headers
+                level = para.count('#')
+                text = para.strip('#').strip()
+                doc.add_heading(text, level=min(level, 9))
+            elif para.startswith('- '):
+                # Handle unordered lists
+                doc.add_paragraph(para.strip('- '), style='List Bullet')
+            elif para.startswith('1. '):
+                # Handle ordered lists
+                doc.add_paragraph(para[3:], style='List Number')
+            else:
+                # Regular paragraph
+                doc.add_paragraph(para, style='Normal')
+        
         docx_buffer = BytesIO()
         doc.save(docx_buffer)
         docx_buffer.seek(0)
