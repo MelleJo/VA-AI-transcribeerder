@@ -113,7 +113,7 @@ def render_summary_generation():
         # Remove HTML tags for clipboard copy
         clean_summary = re.sub('<[^<]+?>', '', st.session_state.summary)
         
-        # Create a more visible copy button
+        # Create a more visible custom copy button
         st.markdown("""
         <style>
         .copybutton {
@@ -132,8 +132,22 @@ def render_summary_generation():
         </style>
         """, unsafe_allow_html=True)
         
-        if st_copy_to_clipboard(clean_summary, button_text="Kopieer samenvatting", key="copy_button"):
-            st.success("Samenvatting gekopieerd naar klembord!")
+        # Create the custom button using standard HTML and JavaScript
+        copy_button = """
+            <button class="copybutton" id="copy-button">Kopieer samenvatting</button>
+            <script>
+                document.getElementById('copy-button').addEventListener('click', function() {
+                    navigator.clipboard.writeText("{}").then(function() {
+                        alert('Samenvatting gekopieerd naar klembord!');
+                    }, function() {
+                        alert('Kopiëren naar klembord mislukt!');
+                    });
+                });
+            </script>
+        """.format(clean_summary)  # Ensure to pass the cleaned summary for copying
+
+        # Render the button in Streamlit
+        st.markdown(copy_button, unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
