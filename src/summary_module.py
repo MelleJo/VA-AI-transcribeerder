@@ -74,6 +74,25 @@ def customize_summary(current_summary, customization_request, transcript):
         st.error(f"Er is een fout opgetreden bij het aanpassen van de samenvatting: {str(e)}")
         return None
 
+def render_summary_buttons(summary, button_key_prefix):
+    # Remove HTML tags for clipboard copy
+    clean_summary = re.sub('<[^<]+?>', '', summary)
+    
+    # Using st_copy_to_clipboard for the clipboard functionality
+    if st_copy_to_clipboard(clean_summary, key=f"{button_key_prefix}_copy"):
+        st.success(f"Samenvatting gekopieerd naar klembord!")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        b64_docx = export_to_docx(summary)
+        href_docx = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting_{button_key_prefix}.docx">Download als Word-document</a>'
+        st.markdown(href_docx, unsafe_allow_html=True)
+
+    with col2:
+        b64_pdf = export_to_pdf(summary)
+        href_pdf = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting_{button_key_prefix}.pdf">Download als PDF</a>'
+        st.markdown(href_pdf, unsafe_allow_html=True)
+
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
     
@@ -112,29 +131,6 @@ def render_summary_generation():
         st.markdown("### Gegenereerde Samenvatting")
         st.markdown(st.session_state.summary)
 
-        # Remove HTML tags for clipboard copy
-        clean_summary = re.sub('<[^<]+?>', '', st.session_state.summary)
-        
-        # Create a more visible custom copy button
-        st.markdown("""
-        <style>
-        .copybutton {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;  
-            border-radius: 8px;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        
         # Custom CSS to style the st_copy_to_clipboard button
         st.markdown("""
             <style>
@@ -150,21 +146,7 @@ def render_summary_generation():
             </style>
         """, unsafe_allow_html=True)
 
-        # Using st_copy_to_clipboard for the clipboard functionality
-        if st_copy_to_clipboard(clean_summary):
-            st.success("Samenvatting gekopieerd naar klembord!")
-
-
-        col1, col2 = st.columns(2)
-        with col1:
-            b64_docx = export_to_docx(st.session_state.summary)
-            href_docx = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="samenvatting.docx">Download als Word-document</a>'
-            st.markdown(href_docx, unsafe_allow_html=True)
-
-        with col2:
-            b64_pdf = export_to_pdf(st.session_state.summary)
-            href_pdf = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
-            st.markdown(href_pdf, unsafe_allow_html=True)
+        render_summary_buttons(st.session_state.summary, "initial")
 
         # Add a button to expand the customization section
         if st.button("Pas samenvatting aan", key="customize_summary_button"):
@@ -178,15 +160,17 @@ def render_summary_generation():
                 with st.spinner("Samenvatting wordt aangepast..."):
                     customized_summary = customize_summary(st.session_state.summary, customization_request, st.session_state.input_text)
                     if customized_summary:
-                        st.session_state.summary = customized_summary
+                        st.session_state.revised_summary = customized_summary
                         st.success("Samenvatting succesvol aangepast!")
                         st.markdown("### Aangepaste Samenvatting")
                         st.markdown(customized_summary)
+                        render_summary_buttons(customized_summary, "revised")
                     else:
                         st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
         if st.button("Genereer Nieuwe Samenvatting", key="generate_new_summary_button"):
             st.session_state.summary = None
+            st.session_state.revised_summary = None
             st.session_state.show_customization = False
             st.rerun()
 
@@ -204,6 +188,7 @@ def render_summary_generation():
                     success = send_feedback_email(
                         transcript=st.session_state.input_text,
                         summary=st.session_state.summary,
+                        revised_summary=st.session_state.get('revised_summary', 'Geen aangepaste samenvatting'),
                         feedback=feedback,
                         additional_feedback=additional_feedback,
                         user_name=user_name,
@@ -215,13 +200,13 @@ def render_summary_generation():
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
         if st.button("Start Nieuwe Samenvatting", key="start_new_summary_button"):
-            for key in ['input_text', 'selected_prompt', 'summary', 'show_customization']:
+            for key in ['input_text', 'selected_prompt', 'summary', 'revised_summary', 'show_customization']:
                 if key in st.session_state:
                     del st.session_state[key]
             st.session_state.step = 1
             st.rerun()
 
-def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name, selected_prompt):
+def send_feedback_email(transcript, summary, revised_summary, feedback, additional_feedback, user_name, selected_prompt):
     try:
         sender_email = st.secrets["email"]["username"]
         receiver_email = st.secrets["email"]["receiving_email"]
@@ -243,8 +228,11 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
         Transcript:
         {transcript}
 
-        Samenvatting:
+        Oorspronkelijke Samenvatting:
         {summary}
+
+        Aangepaste Samenvatting:
+        {revised_summary}
         """
 
         html = f"""
@@ -259,8 +247,11 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
             <h3>Transcript:</h3>
             <pre>{transcript}</pre>
             
-            <h3>Samenvatting:</h3>
+            <h3>Oorspronkelijke Samenvatting:</h3>
             <pre>{summary}</pre>
+
+            <h3>Aangepaste Samenvatting:</h3>
+            <pre>{revised_summary}</pre>
         </body>
         </html>
         """
