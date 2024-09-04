@@ -133,21 +133,25 @@ def render_summary_generation():
         """, unsafe_allow_html=True)
         
         
-        copy_button = """
-            <button class="copybutton" id="copy-button">Kopieer samenvatting</button>
-            <script>
-                document.getElementById('copy-button').addEventListener('click', function() {{
-                    navigator.clipboard.writeText("{}").then(function() {{
-                        alert('Samenvatting gekopieerd naar klembord!');
-                    }}, function() {{
-                        alert('Kopiëren naar klembord mislukt!');
-                    }});
-                }});
-            </script>
-        """.format(clean_summary)  # Ensure to pass the cleaned summary for copying
+        # Custom CSS to style the st_copy_to_clipboard button
+        st.markdown("""
+            <style>
+            .stButton button {
+                background-color: #4CAF50;
+                color: white;
+                padding: 15px 32px;
+                font-size: 16px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
-        # Render the button in Streamlit
-        st.markdown(copy_button, unsafe_allow_html=True)
+        # Using st_copy_to_clipboard for the clipboard functionality
+        if st_copy_to_clipboard(clean_summary):
+            st.success("Samenvatting gekopieerd naar klembord!")
+
 
         col1, col2 = st.columns(2)
         with col1:
