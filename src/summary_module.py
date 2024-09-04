@@ -50,6 +50,30 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None
 
+def customize_summary(current_summary, customization_request, transcript):
+    try:
+        response = client.chat.completions.create(
+            model=SUMMARY_MODEL,
+            messages=[
+                {"role": "system", "content": "Je bent een AI-assistent die samenvattingen aanpast op basis van specifieke verzoeken. Behoud de essentie van de oorspronkelijke samenvatting, maar pas deze aan volgens het verzoek van de gebruiker."},
+                {"role": "user", "content": f"Oorspronkelijke samenvatting:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nAanpassingsverzoek: {customization_request}\n\nPas de samenvatting aan volgens dit verzoek."}
+            ],
+            max_tokens=MAX_TOKENS,
+            temperature=TEMPERATURE,
+            top_p=TOP_P,
+            frequency_penalty=FREQUENCY_PENALTY,
+            presence_penalty=PRESENCE_PENALTY,
+            n=1,
+            stop=None
+        )
+        customized_summary = response.choices[0].message.content.strip()
+        if not customized_summary:
+            raise ValueError("Aangepaste samenvatting is leeg")
+        return customized_summary
+    except Exception as e:
+        st.error(f"Er is een fout opgetreden bij het aanpassen van de samenvatting: {str(e)}")
+        return None
+
 def render_summary_generation():
     st.header("Stap 4: Samenvatting")
     
@@ -88,7 +112,27 @@ def render_summary_generation():
 
         # Remove HTML tags for clipboard copy
         clean_summary = re.sub('<[^<]+?>', '', st.session_state.summary)
-        if st_copy_to_clipboard(clean_summary):
+        
+        # Create a more visible copy button
+        st.markdown("""
+        <style>
+        .copybutton {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;  
+            border-radius: 8px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        if st_copy_to_clipboard(clean_summary, button_text="Kopieer samenvatting", key="copy_button"):
             st.success("Samenvatting gekopieerd naar klembord!")
 
         col1, col2 = st.columns(2)
@@ -102,8 +146,28 @@ def render_summary_generation():
             href_pdf = f'<a href="data:application/pdf;base64,{b64_pdf}" download="samenvatting.pdf">Download als PDF</a>'
             st.markdown(href_pdf, unsafe_allow_html=True)
 
+        # Add a button to expand the customization section
+        if st.button("Pas samenvatting aan"):
+            st.session_state.show_customization = True
+
+        # Show the customization section if the button was clicked
+        if st.session_state.get('show_customization', False):
+            st.markdown("### Pas de samenvatting aan")
+            customization_request = st.text_area("Voer hier uw aanpassingsverzoek in (bijv. 'Maak het korter', 'Voeg meer details toe over X', 'Maak het formeler'):")
+            if st.button("Pas samenvatting aan"):
+                with st.spinner("Samenvatting wordt aangepast..."):
+                    customized_summary = customize_summary(st.session_state.summary, customization_request, st.session_state.input_text)
+                    if customized_summary:
+                        st.session_state.summary = customized_summary
+                        st.success("Samenvatting succesvol aangepast!")
+                        st.markdown("### Aangepaste Samenvatting")
+                        st.markdown(customized_summary)
+                    else:
+                        st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
+
         if st.button("Genereer Nieuwe Samenvatting"):
             st.session_state.summary = None
+            st.session_state.show_customization = False
             st.rerun()
 
         st.markdown("### Feedback")
@@ -122,7 +186,8 @@ def render_summary_generation():
                         summary=st.session_state.summary,
                         feedback=feedback,
                         additional_feedback=additional_feedback,
-                        user_name=user_name
+                        user_name=user_name,
+                        selected_prompt=prompt_name
                     )
                     if success:
                         st.success("Bedankt voor uw feedback!")
@@ -130,13 +195,13 @@ def render_summary_generation():
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
         if st.button("Start Nieuwe Samenvatting"):
-            for key in ['input_text', 'selected_prompt', 'summary']:
+            for key in ['input_text', 'selected_prompt', 'summary', 'show_customization']:
                 if key in st.session_state:
                     del st.session_state[key]
             st.session_state.step = 1
             st.rerun()
 
-def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name):
+def send_feedback_email(transcript, summary, feedback, additional_feedback, user_name, selected_prompt):
     try:
         sender_email = st.secrets["email"]["username"]
         receiver_email = st.secrets["email"]["receiving_email"]
@@ -153,6 +218,7 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
         Naam: {user_name}
         Feedback: {feedback}
         Aanvullende feedback: {additional_feedback}
+        Geselecteerde prompt: {selected_prompt}
 
         Transcript:
         {transcript}
@@ -168,6 +234,7 @@ def send_feedback_email(transcript, summary, feedback, additional_feedback, user
             <p><strong>Naam:</strong> {user_name}</p>
             <p><strong>Feedback:</strong> {feedback}</p>
             <p><strong>Aanvullende feedback:</strong> {additional_feedback}</p>
+            <p><strong>Geselecteerde prompt:</strong> {selected_prompt}</p>
             
             <h3>Transcript:</h3>
             <pre>{transcript}</pre>

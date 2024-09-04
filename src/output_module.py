@@ -17,26 +17,56 @@ from xhtml2pdf import pisa
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
 
-def create_pdf(html_content):
+def create_pdf(markdown_content):
+    html_content = markdown2.markdown(markdown_content)
+    
+    css = """
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 11pt;
+        line-height: 1.6;
+    }
+    p {
+        margin-bottom: 10px;
+    }
+    strong {
+        font-weight: bold;
+    }
+    </style>
+    """
+    
+    html = f"""
+    <html>
+    <head>
+    {css}
+    </head>
+    <body>
+    {html_content}
+    </body>
+    </html>
+    """
+    
     pdf_buffer = BytesIO()
-    pisa.CreatePDF(html_content, dest=pdf_buffer)
+    pisa.CreatePDF(html, dest=pdf_buffer)
     pdf_buffer.seek(0)
     return pdf_buffer
 
-def create_docx(html_content):
+def create_docx(markdown_content):
     doc = Document()
     styles = doc.styles
-    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
-    style.font.size = Pt(11)
+    normal_style = styles['Normal']
+    normal_style.font.size = Pt(11)
     
-    paragraphs = html_content.split('<p>')
-    for p in paragraphs:
-        if p.strip():
+    lines = markdown_content.split('\n')
+    for line in lines:
+        if line.strip():
             para = doc.add_paragraph()
-            para.style = 'Body Text'
-            run = para.add_run(p.replace('</p>', '').strip())
-            if '<strong>' in p:
-                run.bold = True
+            parts = line.split('**')
+            for i, part in enumerate(parts):
+                run = para.add_run(part)
+                if i % 2 == 1:  # Odd parts are between ** and should be bold
+                    run.bold = True
     
     docx_buffer = BytesIO()
     doc.save(docx_buffer)
@@ -113,11 +143,8 @@ def render_output():
     if st_copy_to_clipboard(st.session_state.summary):
         st.success("Samenvatting gekopieerd naar klembord!")
 
-    # Convert markdown to HTML
-    html_content = markdown_to_html(st.session_state.summary)
-
     # PDF download button
-    pdf_buffer = create_pdf(html_content)
+    pdf_buffer = create_pdf(st.session_state.summary)
     st.download_button(
         label="Download samenvatting als PDF (experimenteel)",
         data=pdf_buffer,
@@ -126,7 +153,7 @@ def render_output():
     )
 
     # DOCX download button
-    docx_buffer = create_docx(html_content)
+    docx_buffer = create_docx(st.session_state.summary)
     st.download_button(
         label="Download samenvatting als DOCX (experimenteel)",
         data=docx_buffer,

@@ -22,13 +22,13 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton > button {
-    background-color: #4CAF50;
+    background-color: #6BBF6E;
     color: white;
     border: none;
 }
 
 .stButton > button:hover {
-    background-color: #45a049;
+    background-color: #5CAF5F;
 }
 
 /* Debug Info Expander Styles */
@@ -62,4 +62,59 @@ p, h1, h2, h3, h4, h5, h6 {
 .expander-content pre {
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* New style for the copy button */
+.copybutton {
+    background-color: #6BBF6E;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.copybutton:hover {
+    background-color: #5CAF5F;
+}
+
+/* Styles for the customization section */
+.customization-section {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.customization-input {
+    margin-bottom: 15px;
+}
+
+.customization-button {
+    background-color: #6BBF6E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.customization-button:hover {
+    background-color: #5CAF5F;
+}
+
+.customized-summary {
+    background-color: #F0F8FF;
+    border: 1px solid #B0E0E6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
 }
