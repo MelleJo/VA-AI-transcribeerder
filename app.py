@@ -3,13 +3,14 @@
 import streamlit as st
 from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
 import logging
+import os
+
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
 def load_css():
-    with open('styles.css') as f:
+    css_path = os.path.join('static', 'styles.css')
+    with open(css_path) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
