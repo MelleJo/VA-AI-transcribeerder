@@ -4,6 +4,7 @@ import streamlit as st
 from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
 import logging
 import os
+import uuid
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
