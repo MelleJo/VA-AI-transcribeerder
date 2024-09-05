@@ -5,6 +5,7 @@ from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
 import time
+import os
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
@@ -39,6 +40,38 @@ def transcribe_with_progress(audio_file):
     
     return transcript
 
+def process_multiple_audio_files(uploaded_files):
+    st.info(f"{len(uploaded_files)} audiobestanden geüpload. Transcriptie wordt gestart...")
+    full_transcript = ""
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    for i, uploaded_file in enumerate(uploaded_files):
+        with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt en getranscribeerd..."):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+                tmp_file.write(uploaded_file.getvalue())
+                tmp_file_path = tmp_file.name
+
+            transcript = transcribe_with_progress(tmp_file_path)
+            if transcript:
+                full_transcript += transcript + "\n\n"
+                progress = (i + 1) / len(uploaded_files)
+                progress_bar.progress(progress)
+                status_text.text(f"Voortgang: {progress*100:.1f}% | Bestand {i+1}/{len(uploaded_files)} verwerkt")
+            else:
+                st.error(f"Transcriptie van bestand {uploaded_file.name} is mislukt.")
+
+        os.unlink(tmp_file_path)
+
+    if full_transcript:
+        st.session_state.input_text = full_transcript
+        st.success("Alle audiobestanden zijn succesvol verwerkt en getranscribeerd!")
+        st.write("Volledige transcript lengte:", len(full_transcript))
+        st.write("Eerste 100 karakters van volledig transcript:", full_transcript[:100])
+        st.session_state.transcription_complete = True
+    else:
+        st.error("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.")
+
 def render_input_step():
     st.header("Stap 2: Invoer")
     
@@ -54,7 +87,7 @@ def render_input_step():
     if not st.session_state.is_recording:
         input_method = st.radio(
             "Kies invoermethode:",
-            ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
+            ["Audio uploaden", "Meerdere audiobestanden uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
             key="input_method_radio"
         )
 
@@ -64,6 +97,13 @@ def render_input_step():
                 st.session_state.uploaded_audio = uploaded_file
                 if st.button("Verwerk audio", key="process_audio_button"):
                     process_uploaded_audio(uploaded_file)
+
+        elif input_method == "Meerdere audiobestanden uploaden" and not st.session_state.transcription_complete:
+            uploaded_files = st.file_uploader("Upload meerdere audiobestanden", type=config.ALLOWED_AUDIO_TYPES, accept_multiple_files=True, key="multiple_audio_uploader")
+            if uploaded_files:
+                st.session_state.uploaded_audio_files = uploaded_files
+                if st.button("Verwerk audiobestanden", key="process_multiple_audio_button"):
+                    process_multiple_audio_files(uploaded_files)
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.write("Klik op de knop om de opname te starten.")

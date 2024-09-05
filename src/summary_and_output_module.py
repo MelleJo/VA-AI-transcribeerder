@@ -198,26 +198,68 @@ def render_summary_versions(summaries, button_key_prefix):
 
     current_summary = summaries[st.session_state.current_version]
 
-    ui_card(
-        f"Samenvatting (Versie {st.session_state.current_version + 1})",
-        current_summary,
-        [lambda: render_summary_buttons(current_summary, f"{button_key_prefix}_{st.session_state.current_version}")]
-    )
+    # Create a container for the entire card
+    card_container = st.container()
 
-    # Navigation bar
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.session_state.current_version > 0:
-            if st.button("⬅️ Vorige versie"):
-                st.session_state.current_version -= 1
-                st.rerun()
-    with col2:
-        st.write(f"Versie {st.session_state.current_version + 1} van {len(summaries)}")
-    with col3:
-        if st.session_state.current_version < len(summaries) - 1:
-            if st.button("Volgende versie ➡️"):
-                st.session_state.current_version += 1
-                st.rerun()
+    with card_container:
+        # Header with version navigation
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col1:
+            if st.session_state.current_version > 0:
+                if st.button("◀", key="prev_version"):
+                    st.session_state.current_version -= 1
+                    st.rerun()
+        with col2:
+            st.markdown(f"<h3 style='text-align: center; margin: 0;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
+        with col3:
+            if st.session_state.current_version < len(summaries) - 1:
+                if st.button("▶", key="next_version"):
+                    st.session_state.current_version += 1
+                    st.rerun()
+
+        # Summary content
+        st.markdown(f"<div style='background-color: #f0f2f6; padding: 20px; border-radius: 5px; margin-top: 10px;'>{current_summary}</div>", unsafe_allow_html=True)
+
+        # Action buttons
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            if ui_copy_button(current_summary, "📋 Kopieer"):
+                st.success("Gekopieerd!")
+        with col2:
+            b64_docx = export_to_docx(current_summary)
+            st.download_button(
+                label="📄 Download Word",
+                data=base64.b64decode(b64_docx),
+                file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+        with col3:
+            b64_pdf = export_to_pdf(current_summary)
+            st.download_button(
+                label="📁 Download PDF",
+                data=base64.b64decode(b64_pdf),
+                file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.pdf",
+                mime="application/pdf"
+            )
+        with col4:
+            if st.button("✏️ Aanpassen", key="customize_button"):
+                st.session_state.show_customization = True
+
+    # Customization section
+    if st.session_state.get('show_customization', False):
+        st.markdown("### Pas de samenvatting aan")
+        customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key="customization_request")
+        if st.button("Pas samenvatting aan", key="apply_customization_button"):
+            with st.spinner("Samenvatting wordt aangepast..."):
+                customized_summary = customize_summary(current_summary, customization_request, st.session_state.input_text)
+                if customized_summary:
+                    summaries.append(customized_summary)
+                    st.session_state.current_version = len(summaries) - 1
+                    st.success("Samenvatting succesvol aangepast!")
+                    st.session_state.show_customization = False
+                    st.rerun()
+                else:
+                    st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
 def render_summary_and_output():
     st.header("Stap 4: Samenvatting en Output")

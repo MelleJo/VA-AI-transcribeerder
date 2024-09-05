@@ -150,3 +150,21 @@ h1, h2, h3, h4, h5, h6 {
 .stSpinner > div {
     border-color: #3498db !important;
 }
+
+/* New styles added as per task */
+.stButton > button {
+    width: 100%;
+    border-radius: 5px;
+    height: 3em;
+    background-color: #f0f2f6;
+    border: none;
+    color: #31333F;
+}
+
+.stButton > button:hover {
+    background-color: #d1d5db;
+}
+
+div[data-testid="stHorizontalBlock"] {
+    gap: 10px;
+}
