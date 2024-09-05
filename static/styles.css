@@ -30,17 +30,33 @@ body {
 }
 
 /* Button Styles */
-.stButton > button {
+div.stButton > button {
     width: 100%;
     border-radius: 5px;
     height: 3em;
     background-color: #f0f2f6;
     border: none;
     color: #31333F;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
 }
 
-.stButton > button:hover {
+div.stButton > button:hover {
     background-color: #d1d5db;
+    color: #1e1f26;
+}
+
+.ui-button-secondary {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    border: none;
+}
+
+.ui-button-secondary:hover {
+    background-color: #bdc3c7;
+    color: #2c3e50;
 }
 
 .ui-button-primary {
@@ -51,6 +67,17 @@ body {
 
 .ui-button-primary:hover {
     background-color: #2980b9;
+}
+
+/* Download Button Styles */
+.stDownloadButton > button {
+    width: 100%;
+    background-color: #27ae60;
+    color: white;
+}
+
+.stDownloadButton > button:hover {
+    background-color: #2ecc71;
 }
 
 /* Text Area Styles */
@@ -149,7 +176,7 @@ div[data-testid="stHorizontalBlock"] {
     gap: 10px;
 }
 
-/* Custom styles for version navigation buttons */
+/* Version Navigation Button Styles */
 button[kind="secondary"] {
     width: 40px !important;
     height: 40px !important;
@@ -158,4 +185,57 @@ button[kind="secondary"] {
     font-size: 20px !important;
     line-height: 40px !important;
     text-align: center !important;
+}
+
+/* Summary Content Styles */
+.summary-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+
+/* Version Navigation Container Styles */
+.version-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+/* Version Display Styles */
+.version-display {
+    text-align: center;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Customization Button Styles */
+.customize-button {
+    margin-top: 15px;
+}
+
+/* Feedback Form Styles */
+.feedback-form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.feedback-form h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stButton > button {
+        font-size: 14px;
+    }
+
+    .ui-card {
+        padding: 15px;
+    }
 }
