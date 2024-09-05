@@ -30,24 +30,17 @@ body {
 }
 
 /* Button Styles */
-.stButton > button, .ui-button-secondary, .ui-button-primary {
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-}
-
-.stButton > button, .ui-button-secondary {
-    background-color: #ecf0f1;
-    color: #2c3e50;
+.stButton > button {
+    width: 100%;
+    border-radius: 5px;
+    height: 3em;
+    background-color: #f0f2f6;
     border: none;
+    color: #31333F;
 }
 
-.stButton > button:hover, .ui-button-secondary:hover {
-    background-color: #bdc3c7;
-    color: #2c3e50;
+.stButton > button:hover {
+    background-color: #d1d5db;
 }
 
 .ui-button-primary {
@@ -151,20 +144,18 @@ h1, h2, h3, h4, h5, h6 {
     border-color: #3498db !important;
 }
 
-/* New styles added as per task */
-.stButton > button {
-    width: 100%;
-    border-radius: 5px;
-    height: 3em;
-    background-color: #f0f2f6;
-    border: none;
-    color: #31333F;
-}
-
-.stButton > button:hover {
-    background-color: #d1d5db;
-}
-
+/* Horizontal Block Styles */
 div[data-testid="stHorizontalBlock"] {
     gap: 10px;
+}
+
+/* Custom styles for version navigation buttons */
+button[kind="secondary"] {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    line-height: 40px !important;
+    text-align: center !important;
 }

@@ -202,23 +202,11 @@ def render_summary_versions(summaries, button_key_prefix):
     card_container = st.container()
 
     with card_container:
-        # Header with version navigation
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1:
-            if st.session_state.current_version > 0:
-                if st.button("◀", key="prev_version"):
-                    st.session_state.current_version -= 1
-                    st.rerun()
-        with col2:
-            st.markdown(f"<h3 style='text-align: center; margin: 0;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
-        with col3:
-            if st.session_state.current_version < len(summaries) - 1:
-                if st.button("▶", key="next_version"):
-                    st.session_state.current_version += 1
-                    st.rerun()
+        # Header
+        st.markdown(f"<h3 style='text-align: center; margin: 0;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
 
         # Summary content
-        st.markdown(f"<div style='background-color: #f0f2f6; padding: 20px; border-radius: 5px; margin-top: 10px;'>{current_summary}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background-color: white; padding: 20px; border-radius: 5px; margin-top: 10px; border: 1px solid #e0e0e0;'>{current_summary}</div>", unsafe_allow_html=True)
 
         # Action buttons
         col1, col2, col3, col4 = st.columns(4)
@@ -242,14 +230,29 @@ def render_summary_versions(summaries, button_key_prefix):
                 mime="application/pdf"
             )
         with col4:
-            if st.button("✏️ Aanpassen", key="customize_button"):
+            if st.button("✏️ Aanpassen", key=f"customize_button_{button_key_prefix}"):
                 st.session_state.show_customization = True
+
+        # Version navigation
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col1:
+            if st.session_state.current_version > 0:
+                if st.button("◀", key=f"prev_version_{button_key_prefix}"):
+                    st.session_state.current_version -= 1
+                    st.rerun()
+        with col2:
+            st.write(f"Versie {st.session_state.current_version + 1} van {len(summaries)}")
+        with col3:
+            if st.session_state.current_version < len(summaries) - 1:
+                if st.button("▶", key=f"next_version_{button_key_prefix}"):
+                    st.session_state.current_version += 1
+                    st.rerun()
 
     # Customization section
     if st.session_state.get('show_customization', False):
         st.markdown("### Pas de samenvatting aan")
-        customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key="customization_request")
-        if st.button("Pas samenvatting aan", key="apply_customization_button"):
+        customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key=f"customization_request_{button_key_prefix}")
+        if st.button("Pas samenvatting aan", key=f"apply_customization_button_{button_key_prefix}"):
             with st.spinner("Samenvatting wordt aangepast..."):
                 customized_summary = customize_summary(current_summary, customization_request, st.session_state.input_text)
                 if customized_summary:
