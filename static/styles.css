@@ -31,7 +31,7 @@ body {
 
 /* Button Styles */
 div.stButton > button {
-    width: auto; /* Changed from 100% to auto */
+    width: 100%;
     height: auto;
     padding: 0.5rem 1rem;
     background-color: #f0f2f6;
@@ -43,21 +43,13 @@ div.stButton > button {
     text-decoration: none;
     display: inline-block;
     font-size: 14px;
-    margin: 4px 2px;
+    margin: 4px 0;
     cursor: pointer;
     transition-duration: 0.4s;
 }
 
 div.stButton > button:hover {
     background-color: #d1d5db;
-}
-
-/* New class for horizontal button container */
-.horizontal-button-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: flex-start;
 }
 
 .ui-button-secondary {
@@ -83,7 +75,7 @@ div.stButton > button:hover {
 
 /* Download Button Styles */
 .stDownloadButton > button {
-    width: auto; /* Changed from 100% to auto */
+    width: 100%;
     background-color: #27ae60;
     color: white;
 }
