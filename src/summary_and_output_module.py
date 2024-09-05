@@ -25,6 +25,9 @@ import uuid
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def strip_html(html):
+    return re.sub('<[^<]+?>', '', html)
+
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
 
@@ -202,6 +205,8 @@ def render_summary_versions(summaries, button_key_prefix):
     
     # Convert markdown to HTML for formatted copying
     html_summary = markdown2.markdown(current_summary)
+    # Create a plain text version
+    plain_summary = strip_html(html_summary)
 
     with st.container():
         # Header
@@ -211,11 +216,14 @@ def render_summary_versions(summaries, button_key_prefix):
         st.markdown(f"<div class='summary-content'>{html_summary}</div>", unsafe_allow_html=True)
 
         # Action buttons
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             if st_copy_to_clipboard(html_summary, "📋 Kopieer (met opmaak)"):
                 st.success("Gekopieerd met opmaak!")
         with col2:
+            if st_copy_to_clipboard(plain_summary, "📋 Kopieer (platte tekst)"):
+                st.success("Gekopieerd als platte tekst!")
+        with col3:
             b64_docx = export_to_docx(current_summary)
             st.download_button(
                 label="📄 Download Word",
@@ -224,7 +232,7 @@ def render_summary_versions(summaries, button_key_prefix):
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True
             )
-        with col3:
+        with col4:
             b64_pdf = export_to_pdf(current_summary)
             st.download_button(
                 label="📁 Download PDF",
