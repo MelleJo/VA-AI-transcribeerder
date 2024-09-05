@@ -208,12 +208,42 @@ def render_summary_versions(summaries, button_key_prefix):
     # Create a plain text version
     plain_summary = strip_html(html_summary)
 
+    # Apply custom CSS for better readability
+    styled_summary = f"""
+    <style>
+        .summary-content {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }}
+        .summary-content h2 {{
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 20px;
+        }}
+        .summary-content p {{
+            margin-bottom: 15px;
+        }}
+        .summary-content ul {{
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }}
+        .summary-content li {{
+            margin-bottom: 5px;
+        }}
+    </style>
+    <div class="summary-content">
+        {html_summary}
+    </div>
+    """
+
     with st.container():
         # Header
-        st.markdown(f"<h3 style='text-align: center; margin-bottom: 10px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center; margin-bottom: 20px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
 
         # Summary content
-        st.markdown(f"<div class='summary-content'>{html_summary}</div>", unsafe_allow_html=True)
+        st.markdown(styled_summary, unsafe_allow_html=True)
 
         # Action buttons
         col1, col2, col3, col4 = st.columns(4)
