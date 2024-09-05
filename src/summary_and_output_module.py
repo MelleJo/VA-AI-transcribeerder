@@ -19,6 +19,7 @@ import re
 from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button
 import smtplib
 from email.mime.text import MIMEText
+from st_copy_to_clipboard import st_copy_to_clipboard
 from email.mime.multipart import MIMEMultipart
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
