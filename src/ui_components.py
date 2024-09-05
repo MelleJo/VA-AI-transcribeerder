@@ -17,14 +17,14 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
         """, unsafe_allow_html=True)
         
         if buttons:
-            cols = st.columns(len(buttons))
-            for i, button in enumerate(buttons):
-                with cols[i]:
-                    button()
+            st.markdown('<div class="horizontal-button-container">', unsafe_allow_html=True)
+            for button in buttons:
+                button()
+            st.markdown('</div>', unsafe_allow_html=True)
 
 def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
     button_class = "ui-button-primary" if primary else "ui-button-secondary"
-    return st.button(label, on_click=on_click, key=key, help=f"Klik om {label.lower()}", use_container_width=True)
+    return st.button(label, on_click=on_click, key=key, help=f"Klik om {label.lower()}", use_container_width=False)
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
