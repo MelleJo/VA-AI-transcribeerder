@@ -31,7 +31,7 @@ body {
 
 /* Button Styles */
 div.stButton > button {
-    width: 100%;
+    width: auto; /* Changed from 100% to auto */
     height: auto;
     padding: 0.5rem 1rem;
     background-color: #f0f2f6;
@@ -50,6 +50,14 @@ div.stButton > button {
 
 div.stButton > button:hover {
     background-color: #d1d5db;
+}
+
+/* New class for horizontal button container */
+.horizontal-button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
 }
 
 .ui-button-secondary {
@@ -75,7 +83,7 @@ div.stButton > button:hover {
 
 /* Download Button Styles */
 .stDownloadButton > button {
-    width: 100%;
+    width: auto; /* Changed from 100% to auto */
     background-color: #27ae60;
     color: white;
 }
