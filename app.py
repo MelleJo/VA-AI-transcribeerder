@@ -10,51 +10,52 @@ logging.getLogger('watchdog').setLevel(logging.ERROR)
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-# Add this to your app.py or main Streamlit file
-st.markdown("""
-<script>
-function copyFormattedText(elementId) {
-    const element = document.getElementById(elementId);
-    const htmlContent = element.getAttribute('data-html-content');
-    
-    const listener = function(e) {
-        e.clipboardData.setData("text/html", htmlContent);
-        e.clipboardData.setData("text/plain", element.innerText);
-        e.preventDefault();
-    };
-    
-    document.addEventListener("copy", listener);
-    document.execCommand("copy");
-    document.removeEventListener("copy", listener);
-    
-    // Show success message
-    const successMsg = document.createElement('div');
-    successMsg.textContent = 'Gekopieerd met opmaak!';
-    successMsg.style.position = 'fixed';
-    successMsg.style.top = '10px';
-    successMsg.style.left = '50%';
-    successMsg.style.transform = 'translateX(-50%)';
-    successMsg.style.backgroundColor = '#4CAF50';
-    successMsg.style.color = 'white';
-    successMsg.style.padding = '10px';
-    successMsg.style.borderRadius = '5px';
-    successMsg.style.zIndex = '9999';
-    document.body.appendChild(successMsg);
-    
-    setTimeout(() => {
-        successMsg.remove();
-    }, 2000);
-}
-</script>
-""", unsafe_allow_html=True)
+        return f'<style>{f.read()}</style>'
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
+
+    # Apply custom CSS
+    st.markdown(load_css(), unsafe_allow_html=True)
     ui_components.apply_custom_css()
-    # Call this function at the start of your main() function
-    load_css()
+
+    # Add JavaScript for formatted text copying
+    st.markdown("""
+    <script>
+    function copyFormattedText(elementId) {
+        const element = document.getElementById(elementId);
+        const htmlContent = element.getAttribute('data-html-content');
+        
+        const listener = function(e) {
+            e.clipboardData.setData("text/html", htmlContent);
+            e.clipboardData.setData("text/plain", element.innerText);
+            e.preventDefault();
+        };
+        
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.textContent = 'Gekopieerd met opmaak!';
+        successMsg.style.position = 'fixed';
+        successMsg.style.top = '10px';
+        successMsg.style.left = '50%';
+        successMsg.style.transform = 'translateX(-50%)';
+        successMsg.style.backgroundColor = '#4CAF50';
+        successMsg.style.color = 'white';
+        successMsg.style.padding = '10px';
+        successMsg.style.borderRadius = '5px';
+        successMsg.style.zIndex = '9999';
+        document.body.appendChild(successMsg);
+        
+        setTimeout(() => {
+            successMsg.remove();
+        }, 2000);
+    }
+    </script>
+    """, unsafe_allow_html=True)
 
     st.title("Gesprekssamenvatter API")
 
