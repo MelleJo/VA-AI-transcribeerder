@@ -5,9 +5,17 @@ from src import config, prompt_module, input_module, transcript_module, summary_
 import logging
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
+def load_css():
+    with open('styles.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+
+
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
     ui_components.apply_custom_css()
+    # Call this function at the start of your main() function
+    load_css()
 
     st.title("Gesprekssamenvatter API")
 

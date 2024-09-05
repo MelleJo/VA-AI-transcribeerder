@@ -208,7 +208,7 @@ def render_summary_versions(summaries, button_key_prefix):
         # Action buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("📋 Kopieer", key=f"copy_{button_key_prefix}"):
+            if st.button("📋 Kopieer", key=f"copy_{button_key_prefix}", use_container_width=True):
                 st.write(current_summary)
                 st.success("Gekopieerd!")
         with col2:
@@ -217,7 +217,8 @@ def render_summary_versions(summaries, button_key_prefix):
                 label="📄 Download Word",
                 data=base64.b64decode(b64_docx),
                 file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
             )
         with col3:
             b64_pdf = export_to_pdf(current_summary)
@@ -225,33 +226,38 @@ def render_summary_versions(summaries, button_key_prefix):
                 label="📁 Download PDF",
                 data=base64.b64decode(b64_pdf),
                 file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
+                use_container_width=True
             )
 
         # Version navigation
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
             if st.session_state.current_version > 0:
-                if st.button("◀ Vorige", key=f"prev_version_{button_key_prefix}"):
+                if st.button("◀ Vorige", key=f"prev_version_{button_key_prefix}", use_container_width=True):
                     st.session_state.current_version -= 1
                     st.rerun()
+            else:
+                st.empty()
         with col2:
             st.markdown(f"<p class='version-display'>Versie {st.session_state.current_version + 1} van {len(summaries)}</p>", unsafe_allow_html=True)
         with col3:
             if st.session_state.current_version < len(summaries) - 1:
-                if st.button("Volgende ▶", key=f"next_version_{button_key_prefix}"):
+                if st.button("Volgende ▶", key=f"next_version_{button_key_prefix}", use_container_width=True):
                     st.session_state.current_version += 1
                     st.rerun()
+            else:
+                st.empty()
 
     # Customization button
-    if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}"):
+    if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}", use_container_width=True):
         st.session_state.show_customization = True
 
     # Customization section
     if st.session_state.get('show_customization', False):
         st.markdown("### Pas de samenvatting aan")
         customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key=f"customization_request_{button_key_prefix}")
-        if st.button("Pas samenvatting aan", key=f"apply_customization_button_{button_key_prefix}"):
+        if st.button("Pas samenvatting aan", key=f"apply_customization_button_{button_key_prefix}", use_container_width=True):
             with st.spinner("Samenvatting wordt aangepast..."):
                 customized_summary = customize_summary(current_summary, customization_request, st.session_state.input_text)
                 if customized_summary:
