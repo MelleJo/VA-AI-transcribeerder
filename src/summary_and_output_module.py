@@ -7,7 +7,7 @@ from datetime import datetime
 import base64
 import io
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
 from docx.enum.style import WD_STYLE_TYPE
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -15,12 +15,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.colors import darkblue, black
 import markdown2
-from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
-from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
+import re
+from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import re
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -77,6 +76,100 @@ def customize_summary(current_summary, customization_request, transcript):
         st.error(f"Er is een fout opgetreden bij het aanpassen van de samenvatting: {str(e)}")
         return None
 
+def export_to_docx(summary):
+    doc = Document()
+    styles = doc.styles
+
+    # Ensure 'Body Text' style exists and is configured
+    if 'Body Text' not in styles:
+        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    else:
+        style = styles['Body Text']
+    style.font.size = Pt(11)
+    style.font.name = 'Calibri'
+
+    # Create a style for headings
+    heading_style = styles.add_style('Custom Heading', WD_STYLE_TYPE.PARAGRAPH)
+    heading_style.font.size = Pt(14)
+    heading_style.font.bold = True
+    heading_style.font.color.rgb = RGBColor(0, 0, 139)  # Dark Blue
+
+    # Convert Markdown to HTML
+    html = markdown2.markdown(summary)
+
+    # Split the HTML into paragraphs
+    paragraphs = re.split(r'</?p>', html)
+
+    for p in paragraphs:
+        if p.strip():
+            # Check if it's a heading
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = doc.add_paragraph(text, style='Custom Heading')
+                para.paragraph_format.space_after = Pt(12)
+            else:
+                # Remove any remaining HTML tags
+                text = re.sub(r'<.*?>', '', p).strip()
+                para = doc.add_paragraph(text, style='Body Text')
+                
+                # Apply bold formatting
+                for run in para.runs:
+                    if '<strong>' in p:
+                        run.bold = True
+
+    # Save the document to a bytes buffer
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    return base64.b64encode(buffer.getvalue()).decode()
+
+def export_to_pdf(summary):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+
+    # Create custom styles
+    styles = getSampleStyleSheet()
+    
+    # Customize the existing Heading1 style
+    styles['Heading1'].fontSize = 14
+    styles['Heading1'].leading = 16
+    styles['Heading1'].textColor = darkblue
+    styles['Heading1'].spaceBefore = 12
+    styles['Heading1'].spaceAfter = 6
+
+    # Customize the Normal style for justified text
+    styles['Normal'].alignment = TA_JUSTIFY
+
+    # Convert Markdown to HTML
+    html = markdown2.markdown(summary)
+
+    # Split the HTML into paragraphs
+    paragraphs = re.split(r'</?p>', html)
+
+    story = []
+    for p in paragraphs:
+        if p.strip():
+            # Check if it's a heading
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = Paragraph(text, styles['Heading1'])
+            else:
+                # Process bold text
+                text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
+                # Remove any remaining HTML tags
+                text = re.sub(r'<(?!/?b).*?>', '', text).strip()
+                para = Paragraph(text, styles['Normal'])
+            story.append(para)
+            story.append(Spacer(1, 6))
+
+    doc.build(story)
+    buffer.seek(0)
+    
+    return base64.b64encode(buffer.getvalue()).decode()
+
 def render_summary_buttons(summary, button_key_prefix):
     ui_copy_button(summary, "Kopieer naar klembord (met opmaak)")
     
@@ -98,6 +191,33 @@ def render_summary_buttons(summary, button_key_prefix):
             file_name=f"samenvatting_{button_key_prefix}.pdf",
             mime="application/pdf"
         )
+
+def render_summary_versions(summaries, button_key_prefix):
+    if 'current_version' not in st.session_state:
+        st.session_state.current_version = 0
+
+    current_summary = summaries[st.session_state.current_version]
+
+    ui_card(
+        f"Samenvatting (Versie {st.session_state.current_version + 1})",
+        current_summary,
+        [lambda: render_summary_buttons(current_summary, f"{button_key_prefix}_{st.session_state.current_version}")]
+    )
+
+    # Navigation bar
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.session_state.current_version > 0:
+            if st.button("⬅️ Vorige versie"):
+                st.session_state.current_version -= 1
+                st.rerun()
+    with col2:
+        st.write(f"Versie {st.session_state.current_version + 1} van {len(summaries)}")
+    with col3:
+        if st.session_state.current_version < len(summaries) - 1:
+            if st.button("Volgende versie ➡️"):
+                st.session_state.current_version += 1
+                st.rerun()
 
 def render_summary_and_output():
     st.header("Stap 4: Samenvatting en Output")
@@ -127,17 +247,14 @@ def render_summary_and_output():
             summary = generate_summary(st.session_state.input_text, base_prompt, selected_prompt)
             if summary:
                 st.session_state.summary = summary
+                st.session_state.summaries = [summary]
                 add_to_history(prompt_name, st.session_state.input_text, summary)
                 summary_placeholder.success("Samenvatting succesvol gegenereerd! Ik hoor graag feedback (negatief én positief!) via de feedbacktool onderin het scherm.")
             else:
                 summary_placeholder.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
-        ui_card(
-            "Gegenereerde Samenvatting",
-            st.session_state.summary,
-            [lambda: render_summary_buttons(st.session_state.summary, "initial")]
-        )
+        render_summary_versions(st.session_state.summaries, "initial")
 
         if ui_button("Pas samenvatting aan", lambda: setattr(st.session_state, 'show_customization', True), "customize_summary_button"):
             st.session_state.show_customization = True
@@ -149,20 +266,17 @@ def render_summary_and_output():
                 with st.spinner("Samenvatting wordt aangepast..."):
                     customized_summary = customize_summary(st.session_state.summary, customization_request, st.session_state.input_text)
                     if customized_summary:
-                        st.session_state.revised_summary = customized_summary
+                        st.session_state.summaries.append(customized_summary)
+                        st.session_state.current_version = len(st.session_state.summaries) - 1
                         st.success("Samenvatting succesvol aangepast!")
-                        ui_card(
-                            "Aangepaste Samenvatting",
-                            customized_summary,
-                            [lambda: render_summary_buttons(customized_summary, "revised")]
-                        )
+                        st.rerun()
                     else:
                         st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
         if ui_button("Genereer Nieuwe Samenvatting", lambda: setattr(st.session_state, 'summary', None), "generate_new_summary_button"):
-            st.session_state.summary = None
-            st.session_state.revised_summary = None
-            st.session_state.show_customization = False
+            for key in ['summary', 'summaries', 'current_version', 'show_customization']:
+                if key in st.session_state:
+                    del st.session_state[key]
             st.rerun()
 
         st.markdown("### Feedback")
@@ -178,8 +292,8 @@ def render_summary_and_output():
                 else:
                     success = send_feedback_email(
                         transcript=st.session_state.input_text,
-                        summary=st.session_state.summary,
-                        revised_summary=st.session_state.get('revised_summary', 'Geen aangepaste samenvatting'),
+                        summary=st.session_state.summaries[0],
+                        revised_summary=st.session_state.summaries[-1] if len(st.session_state.summaries) > 1 else 'Geen aangepaste samenvatting',
                         feedback=feedback,
                         additional_feedback=additional_feedback,
                         user_name=user_name,
@@ -191,12 +305,11 @@ def render_summary_and_output():
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
         if ui_button("Start Nieuwe Samenvatting", lambda: setattr(st.session_state, 'step', 1), "start_new_summary_button"):
-            for key in ['input_text', 'selected_prompt', 'summary', 'revised_summary', 'show_customization']:
+            for key in ['input_text', 'selected_prompt', 'summary', 'summaries', 'current_version', 'show_customization']:
                 if key in st.session_state:
                     del st.session_state[key]
             st.session_state.step = 1
-            st.rerun()
-
+            st.rerun
 def send_feedback_email(transcript, summary, revised_summary, feedback, additional_feedback, user_name, selected_prompt):
     try:
         sender_email = st.secrets["email"]["username"]
@@ -261,102 +374,3 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
-
-import re
-from docx.shared import RGBColor
-
-def export_to_docx(summary):
-    doc = Document()
-    styles = doc.styles
-
-    # Ensure 'Body Text' style exists and is configured
-    if 'Body Text' not in styles:
-        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
-    else:
-        style = styles['Body Text']
-    style.font.size = Pt(11)
-    style.font.name = 'Calibri'
-
-    # Create a style for headings
-    heading_style = styles.add_style('Custom Heading', WD_STYLE_TYPE.PARAGRAPH)
-    heading_style.font.size = Pt(14)
-    heading_style.font.bold = True
-    heading_style.font.color.rgb = RGBColor(0, 0, 139)  # Dark Blue
-
-    # Convert Markdown to HTML
-    html = markdown2.markdown(summary)
-
-    # Split the HTML into paragraphs
-    paragraphs = re.split(r'</?p>', html)
-
-    for p in paragraphs:
-        if p.strip():
-            # Check if it's a heading
-            if p.startswith('<h'):
-                level = int(p[2])
-                text = re.sub(r'</?h\d>', '', p).strip()
-                para = doc.add_paragraph(text, style='Custom Heading')
-                para.paragraph_format.space_after = Pt(12)
-            else:
-                # Remove any remaining HTML tags
-                text = re.sub(r'<.*?>', '', p).strip()
-                para = doc.add_paragraph(text, style='Body Text')
-                
-                # Apply bold formatting
-                for run in para.runs:
-                    if '<strong>' in p:
-                        run.bold = True
-
-    # Save the document to a bytes buffer
-    buffer = io.BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    
-    return base64.b64encode(buffer.getvalue()).decode()
-
-from reportlab.lib.colors import darkblue, black
-
-def export_to_pdf(summary):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
-
-    # Create custom styles
-    styles = getSampleStyleSheet()
-    
-    # Customize the existing Heading1 style
-    styles['Heading1'].fontSize = 14
-    styles['Heading1'].leading = 16
-    styles['Heading1'].textColor = darkblue
-    styles['Heading1'].spaceBefore = 12
-    styles['Heading1'].spaceAfter = 6
-
-    # Customize the Normal style for justified text
-    styles['Normal'].alignment = TA_JUSTIFY
-
-    # Convert Markdown to HTML
-    html = markdown2.markdown(summary)
-
-    # Split the HTML into paragraphs
-    paragraphs = re.split(r'</?p>', html)
-
-    story = []
-    for p in paragraphs:
-        if p.strip():
-            # Check if it's a heading
-            if p.startswith('<h'):
-                level = int(p[2])
-                text = re.sub(r'</?h\d>', '', p).strip()
-                para = Paragraph(text, styles['Heading1'])
-            else:
-                # Process bold text
-                text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
-                # Remove any remaining HTML tags
-                text = re.sub(r'<(?!/?b).*?>', '', text).strip()
-                para = Paragraph(text, styles['Normal'])
-            story.append(para)
-            story.append(Spacer(1, 6))
-
-    doc.build(story)
-    buffer.seek(0)
-    
-    return base64.b64encode(buffer.getvalue()).decode()
