@@ -360,6 +360,7 @@ def render_summary_and_output():
                     del st.session_state[key]
             st.session_state.step = 1
             st.rerun
+
 def send_feedback_email(transcript, summary, revised_summary, feedback, additional_feedback, user_name, selected_prompt):
     try:
         sender_email = st.secrets["email"]["username"]
