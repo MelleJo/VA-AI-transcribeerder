@@ -3,6 +3,8 @@ import base64
 from typing import Callable
 import re
 from st_copy_to_clipboard import st_copy_to_clipboard
+import base64
+import markdown2
 
 
 def ui_card(title: str, content: str, buttons: list[Callable] = None):
@@ -29,11 +31,51 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
 
-def ui_copy_button(text: str, label: str = "Kopiëren"):
-    col1, col2 = st.columns([3, 7])
-    with col1:
-        if st_copy_to_clipboard(text, label):
-            st.success("Gekopieerd!")
+def ui_copy_button(markdown_text: str, label: str = "Kopiëren"):
+    # Convert Markdown to HTML
+    html_content = markdown2.markdown(markdown_text)
+    
+    # Encode the HTML content
+    encoded_html = base64.b64encode(html_content.encode()).decode()
+
+    # Create a data URL
+    data_url = f"data:text/html;base64,{encoded_html}"
+
+    # JavaScript to handle copying
+    js_code = f"""
+    <script>
+    function copyFormattedText() {{
+        const listener = function(e) {{
+            e.clipboardData.setData("text/html", atob("{encoded_html}"));
+            e.clipboardData.setData("text/plain", document.getElementById("formatted-content").innerText);
+            e.preventDefault();
+        }};
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
+        alert("Gekopieerd! De opmaak blijft behouden bij het plakken in een teksteditor die opmaak ondersteunt.");
+    }}
+    </script>
+    """
+
+    # HTML for the button and hidden content
+    button_html = f"""
+    <button onclick="copyFormattedText()" style="font-size: 16px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        {label}
+    </button>
+    <div id="formatted-content" style="display: none;">
+        {html_content}
+    </div>
+    """
+
+    # Combine JavaScript and HTML
+    full_html = js_code + button_html
+
+    # Render the HTML
+    st.components.v1.html(full_html, height=50)
+
+    # Provide a link for browsers that don't support copying
+    st.markdown(f'<a href="{data_url}" download="formatted_text.html" style="display: none;">Backup Download Link</a>', unsafe_allow_html=True)
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
     placeholder = st.empty()
