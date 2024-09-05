@@ -3,6 +3,8 @@ Belangrijk: Gebruik geen HTML-tags in je samenvatting. Gebruik alleen Markdown-o
 
 Zorg dat de samenvatting overzichtelijk en gemakkelijk te scannen is, met een duidelijke structuur en voldoende witruimte. Baseer je uitsluitend op de informatie in het transcript, zonder eigen aannames of toevoegingen.
 
+Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie van de onderneming op financieel en activiteiten gebied.
+
 1. Lees het volledige transcript door en identificeer de hoofdthema's, terugkerende onderwerpen en onderlinge relaties tussen besproken punten.
 
 2. Structureer de samenvatting met de volgende hoofdelementen, gebruik duidelijke visuele scheiding tussen secties (maar noem het niet a, b, c et cetera, enkel de kop dikgedrukt):
