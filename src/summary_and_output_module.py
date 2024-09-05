@@ -19,6 +19,7 @@ from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_bu
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import re
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -260,37 +261,50 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
 
+import re
+from docx.shared import RGBColor
+
 def export_to_docx(summary):
     doc = Document()
     styles = doc.styles
 
-    # Check if 'Body Text' style exists, if not, create it
+    # Ensure 'Body Text' style exists and is configured
     if 'Body Text' not in styles:
         style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
     else:
         style = styles['Body Text']
-
-    # Set font properties
     style.font.size = Pt(11)
     style.font.name = 'Calibri'
+
+    # Create a style for headings
+    heading_style = styles.add_style('Custom Heading', WD_STYLE_TYPE.PARAGRAPH)
+    heading_style.font.size = Pt(14)
+    heading_style.font.bold = True
+    heading_style.font.color.rgb = RGBColor(0, 0, 139)  # Dark Blue
 
     # Convert Markdown to HTML
     html = markdown2.markdown(summary)
 
     # Split the HTML into paragraphs
-    paragraphs = html.split('</p>')
+    paragraphs = re.split(r'</?p>', html)
 
     for p in paragraphs:
         if p.strip():
-            # Remove any remaining HTML tags
-            text = p.replace('<p>', '').replace('<strong>', '').replace('</strong>', '').strip()
-            para = doc.add_paragraph(text)
-            para.style = 'Body Text'
-
-            # Apply bold formatting if the original paragraph had <strong> tags
-            if '<strong>' in p:
+            # Check if it's a heading
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = doc.add_paragraph(text, style='Custom Heading')
+                para.paragraph_format.space_after = Pt(12)
+            else:
+                # Remove any remaining HTML tags
+                text = re.sub(r'<.*?>', '', p).strip()
+                para = doc.add_paragraph(text, style='Body Text')
+                
+                # Apply bold formatting
                 for run in para.runs:
-                    run.bold = True
+                    if '<strong>' in p:
+                        run.bold = True
 
     # Save the document to a bytes buffer
     buffer = io.BytesIO()
@@ -298,6 +312,8 @@ def export_to_docx(summary):
     buffer.seek(0)
     
     return base64.b64encode(buffer.getvalue()).decode()
+
+from reportlab.lib.colors import darkblue, black
 
 def export_to_pdf(summary):
     buffer = io.BytesIO()
@@ -307,20 +323,39 @@ def export_to_pdf(summary):
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
     
+    # Create a custom heading style
+    styles.add(ParagraphStyle(
+        name='Heading1',
+        fontSize=14,
+        leading=16,
+        textColor=darkblue,
+        bold=True,
+        spaceBefore=12,
+        spaceAfter=6,
+    ))
+
     # Convert Markdown to HTML
     html = markdown2.markdown(summary)
 
     # Split the HTML into paragraphs
-    paragraphs = html.split('</p>')
+    paragraphs = re.split(r'</?p>', html)
 
     story = []
     for p in paragraphs:
         if p.strip():
-            # Remove any remaining HTML tags
-            text = p.replace('<p>', '').replace('<strong>', '').replace('</strong>', '').strip()
-            para = Paragraph(text, styles['Justify'])
+            # Check if it's a heading
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = Paragraph(text, styles['Heading1'])
+            else:
+                # Process bold text
+                text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
+                # Remove any remaining HTML tags
+                text = re.sub(r'<(?!/?b).*?>', '', text).strip()
+                para = Paragraph(text, styles['Justify'])
             story.append(para)
-            story.append(Spacer(1, 12))
+            story.append(Spacer(1, 6))
 
     doc.build(story)
     buffer.seek(0)
