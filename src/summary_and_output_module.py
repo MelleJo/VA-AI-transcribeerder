@@ -13,6 +13,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.colors import darkblue, black
 import markdown2
 from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
 from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
@@ -321,18 +322,16 @@ def export_to_pdf(summary):
 
     # Create custom styles
     styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
     
-    # Create a custom heading style
-    styles.add(ParagraphStyle(
-        name='Heading1',
-        fontSize=14,
-        leading=16,
-        textColor=darkblue,
-        bold=True,
-        spaceBefore=12,
-        spaceAfter=6,
-    ))
+    # Customize the existing Heading1 style
+    styles['Heading1'].fontSize = 14
+    styles['Heading1'].leading = 16
+    styles['Heading1'].textColor = darkblue
+    styles['Heading1'].spaceBefore = 12
+    styles['Heading1'].spaceAfter = 6
+
+    # Customize the Normal style for justified text
+    styles['Normal'].alignment = TA_JUSTIFY
 
     # Convert Markdown to HTML
     html = markdown2.markdown(summary)
@@ -353,7 +352,7 @@ def export_to_pdf(summary):
                 text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
                 # Remove any remaining HTML tags
                 text = re.sub(r'<(?!/?b).*?>', '', text).strip()
-                para = Paragraph(text, styles['Justify'])
+                para = Paragraph(text, styles['Normal'])
             story.append(para)
             story.append(Spacer(1, 6))
 
