@@ -100,3 +100,18 @@ button, .stButton>button, .stDownloadButton>button {
 .stCopyToClipboard > button:hover {
     background-color: #d1d5db;
 }
+
+button {
+    background-color: #f0f2f6;
+    color: #31333F;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #d1d5db;
+}

@@ -201,19 +201,29 @@ def render_summary_versions(summaries, button_key_prefix):
     
     # Convert markdown to HTML
     html_summary = markdown2.markdown(current_summary)
+    
+    # Generate a unique ID for this summary
+    summary_id = f"summary_{uuid.uuid4().hex}"
 
     with st.container():
         # Header
         st.markdown(f"<h3 style='text-align: center; margin-bottom: 10px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
 
         # Summary content
-        st.markdown(f"<div class='summary-content'>{html_summary}</div>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div id="{summary_id}" class='summary-content' data-html-content="{html_summary.replace('"', '&quot;')}">
+            {html_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
         # Action buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st_copy_to_clipboard(html_summary, "📋 Kopieer (met opmaak)"):
-                st.success("Gekopieerd met opmaak!")
+            st.markdown(f"""
+            <button onclick="copyFormattedText('{summary_id}')" style="width:100%">
+                📋 Kopieer (met opmaak)
+            </button>
+            """, unsafe_allow_html=True)
         with col2:
             b64_docx = export_to_docx(current_summary)
             st.download_button(
