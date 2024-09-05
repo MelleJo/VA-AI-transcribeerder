@@ -198,19 +198,18 @@ def render_summary_versions(summaries, button_key_prefix):
 
     current_summary = summaries[st.session_state.current_version]
 
-    # Create a container for the entire card
     with st.container():
         # Header
         st.markdown(f"<h3 style='text-align: center; margin-bottom: 10px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
 
         # Summary content
-        st.markdown(f"<div style='background-color: white; padding: 20px; border-radius: 5px; border: 1px solid #e0e0e0; margin-bottom: 15px;'>{current_summary}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='summary-content'>{current_summary}</div>", unsafe_allow_html=True)
 
         # Action buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("📋 Kopieer", key=f"copy_{button_key_prefix}", use_container_width=True):
-                st.write(current_summary)  # This will be copied to clipboard
+            if st.button("📋 Kopieer", key=f"copy_{button_key_prefix}"):
+                st.write(current_summary)
                 st.success("Gekopieerd!")
         with col2:
             b64_docx = export_to_docx(current_summary)
@@ -218,8 +217,7 @@ def render_summary_versions(summaries, button_key_prefix):
                 label="📄 Download Word",
                 data=base64.b64decode(b64_docx),
                 file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
         with col3:
             b64_pdf = export_to_pdf(current_summary)
@@ -227,29 +225,26 @@ def render_summary_versions(summaries, button_key_prefix):
                 label="📁 Download PDF",
                 data=base64.b64decode(b64_pdf),
                 file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.pdf",
-                mime="application/pdf",
-                use_container_width=True
+                mime="application/pdf"
             )
 
         # Version navigation
-        st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-top: 15px;'>", unsafe_allow_html=True)
-        
-        if st.session_state.current_version > 0:
-            st.button("◀ Vorige", key=f"prev_version_{button_key_prefix}", use_container_width=True)
-        else:
-            st.write("")  # Empty column for alignment
-        
-        st.markdown(f"<p style='text-align: center; margin: 0;'>Versie {st.session_state.current_version + 1} van {len(summaries)}</p>", unsafe_allow_html=True)
-        
-        if st.session_state.current_version < len(summaries) - 1:
-            st.button("Volgende ▶", key=f"next_version_{button_key_prefix}", use_container_width=True)
-        else:
-            st.write("")  # Empty column for alignment
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col1:
+            if st.session_state.current_version > 0:
+                if st.button("◀ Vorige", key=f"prev_version_{button_key_prefix}"):
+                    st.session_state.current_version -= 1
+                    st.rerun()
+        with col2:
+            st.markdown(f"<p class='version-display'>Versie {st.session_state.current_version + 1} van {len(summaries)}</p>", unsafe_allow_html=True)
+        with col3:
+            if st.session_state.current_version < len(summaries) - 1:
+                if st.button("Volgende ▶", key=f"next_version_{button_key_prefix}"):
+                    st.session_state.current_version += 1
+                    st.rerun()
 
     # Customization button
-    if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}", use_container_width=True):
+    if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}"):
         st.session_state.show_customization = True
 
     # Customization section
