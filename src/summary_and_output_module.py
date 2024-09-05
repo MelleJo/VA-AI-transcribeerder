@@ -221,7 +221,7 @@ def render_summary_versions(summaries, button_key_prefix):
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"""
-            <button onclick="copyFormattedText('{summary_id}')" style="width:100%">
+            <button onclick="copyFormattedText('{summary_id}')" class="stButton">
                 📋 Kopieer (met opmaak)
             </button>
             """, unsafe_allow_html=True)
