@@ -74,13 +74,12 @@ def customize_summary(current_summary, customization_request, transcript):
         return None
 
 def render_summary_buttons(summary, button_key_prefix):
-    html_content = markdown2.markdown(summary)
-    ui_copy_button(html_content, "Kopieer naar klembord (met opmaak)")
+    ui_copy_button(summary, "Kopieer naar klembord")
     
     col1, col2 = st.columns(2)
     with col1:
         b64_docx = export_to_docx(summary)
-        ui_download_button("Download als Word", b64_docx, f"samenvatting_{button_key_prefix}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        ui_download_button("Download als Word", b64_docx, f"samenvatting_{button_key_prefix}.docx", "application/vnd.openxmlformats-officeddocument.wordprocessingml.document")
 
     with col2:
         b64_pdf = export_to_pdf(summary)
