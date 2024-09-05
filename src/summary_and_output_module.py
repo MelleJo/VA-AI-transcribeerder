@@ -12,6 +12,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.enums import TA_JUSTIFY
 import markdown2
 from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, ui_expandable_text_area, sanitize_html
 import smtplib
@@ -79,11 +80,21 @@ def render_summary_buttons(summary, button_key_prefix):
     col1, col2 = st.columns(2)
     with col1:
         b64_docx = export_to_docx(summary)
-        ui_download_button("Download als Word", b64_docx, f"samenvatting_{button_key_prefix}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        st.download_button(
+            label="Download als Word",
+            data=base64.b64decode(b64_docx),
+            file_name=f"samenvatting_{button_key_prefix}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
     with col2:
         b64_pdf = export_to_pdf(summary)
-        ui_download_button("Download als PDF", b64_pdf, f"samenvatting_{button_key_prefix}.pdf", "application/pdf")
+        st.download_button(
+            label="Download als PDF",
+            data=base64.b64decode(b64_pdf),
+            file_name=f"samenvatting_{button_key_prefix}.pdf",
+            mime="application/pdf"
+        )
 
 def render_summary_and_output():
     st.header("Stap 4: Samenvatting en Output")
@@ -251,44 +262,61 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
 def export_to_docx(summary):
     doc = Document()
     styles = doc.styles
-    try:
-        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
-    except ValueError:
-        style = styles['Body Text']
+
+    # Create a style for the body text
+    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
     style.font.size = Pt(11)
-    
-    paragraphs = markdown_to_html(summary).split('<p>')
+    style.font.name = 'Calibri'
+
+    # Convert Markdown to HTML
+    html = markdown2.markdown(summary)
+
+    # Split the HTML into paragraphs
+    paragraphs = html.split('</p>')
+
     for p in paragraphs:
         if p.strip():
-            para = doc.add_paragraph()
+            # Remove any remaining HTML tags
+            text = p.replace('<p>', '').replace('<strong>', '').replace('</strong>', '').strip()
+            para = doc.add_paragraph(text)
             para.style = 'Body Text'
-            run = para.add_run(p.replace('</p>', '').strip())
+
+            # Apply bold formatting if the original paragraph had <strong> tags
             if '<strong>' in p:
-                run.bold = True
-    
+                for run in para.runs:
+                    run.bold = True
+
+    # Save the document to a bytes buffer
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
     
-    b64 = base64.b64encode(buffer.getvalue()).decode()
-    return b64
+    return base64.b64encode(buffer.getvalue()).decode()
 
 def export_to_pdf(summary):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+
+    # Create custom styles
     styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
     
+    # Convert Markdown to HTML
+    html = markdown2.markdown(summary)
+
+    # Split the HTML into paragraphs
+    paragraphs = html.split('</p>')
+
     story = []
-    paragraphs = markdown_to_html(summary).split('<p>')
     for p in paragraphs:
         if p.strip():
-            if '<strong>' in p:
-                p = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
-            story.append(Paragraph(p.replace('</p>', '').strip(), styles['BodyText']))
+            # Remove any remaining HTML tags
+            text = p.replace('<p>', '').replace('<strong>', '').replace('</strong>', '').strip()
+            para = Paragraph(text, styles['Justify'])
+            story.append(para)
             story.append(Spacer(1, 12))
-    
+
     doc.build(story)
     buffer.seek(0)
     
-    b64 = base64.b64encode(buffer.getvalue()).decode()
-    return b64
+    return base64.b64encode(buffer.getvalue()).decode()
