@@ -200,9 +200,6 @@ def render_summary_versions(summaries, button_key_prefix):
 
     current_summary = summaries[st.session_state.current_version]
     
-    # Convert markdown to HTML
-    html_summary = markdown2.markdown(current_summary)
-    
     # Generate a unique ID for this summary
     summary_id = f"summary_{uuid.uuid4().hex}"
 
@@ -212,19 +209,17 @@ def render_summary_versions(summaries, button_key_prefix):
 
         # Summary content
         st.markdown(f"""
-        <div id="{summary_id}" class='summary-content' data-html-content="{html_summary.replace('"', '&quot;')}">
-            {html_summary}
+        <div id="{summary_id}" class='summary-content'>
+            {current_summary}
         </div>
         """, unsafe_allow_html=True)
 
         # Action buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.markdown(f"""
-            <button onclick="copyFormattedText('{summary_id}')" class="stButton">
-                📋 Kopieer (met opmaak)
-            </button>
-            """, unsafe_allow_html=True)
+            if st.button("📋 Kopieer", key=f"copy_{button_key_prefix}"):
+                st.write(current_summary)  # This will be copied to clipboard
+                st.success("Gekopieerd!")
         with col2:
             b64_docx = export_to_docx(current_summary)
             st.download_button(
