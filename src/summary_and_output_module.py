@@ -21,6 +21,7 @@ import smtplib
 from email.mime.text import MIMEText
 from st_copy_to_clipboard import st_copy_to_clipboard
 from email.mime.multipart import MIMEMultipart
+import uuid
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
