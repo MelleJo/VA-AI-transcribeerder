@@ -31,51 +31,24 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
 
-def ui_copy_button(markdown_text: str, label: str = "Kopiëren"):
-    # Convert Markdown to HTML
-    html_content = markdown2.markdown(markdown_text)
-    
-    # Encode the HTML content
-    encoded_html = base64.b64encode(html_content.encode()).decode()
-
-    # Create a data URL
-    data_url = f"data:text/html;base64,{encoded_html}"
-
-    # JavaScript to handle copying
-    js_code = f"""
-    <script>
-    function copyFormattedText() {{
-        const listener = function(e) {{
-            e.clipboardData.setData("text/html", atob("{encoded_html}"));
-            e.clipboardData.setData("text/plain", document.getElementById("formatted-content").innerText);
-            e.preventDefault();
-        }};
-        document.addEventListener("copy", listener);
-        document.execCommand("copy");
-        document.removeEventListener("copy", listener);
-        alert("Gekopieerd! De opmaak blijft behouden bij het plakken in een teksteditor die opmaak ondersteunt.");
-    }}
-    </script>
-    """
-
-    # HTML for the button and hidden content
-    button_html = f"""
-    <button onclick="copyFormattedText()" style="font-size: 16px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+def ui_copy_button(text: str, label: str = "Kopiëren"):
+    button_id = f"copy_button_{hash(text)}"
+    st.markdown(f"""
+    <button id="{button_id}" class="css-16u8z0w edgvbvh10">
         {label}
     </button>
-    <div id="formatted-content" style="display: none;">
-        {html_content}
-    </div>
-    """
-
-    # Combine JavaScript and HTML
-    full_html = js_code + button_html
-
-    # Render the HTML
-    st.components.v1.html(full_html, height=50)
-
-    # Provide a link for browsers that don't support copying
-    st.markdown(f'<a href="{data_url}" download="formatted_text.html" style="display: none;">Backup Download Link</a>', unsafe_allow_html=True)
+    <script>
+        const btn = document.getElementById('{button_id}');
+        btn.addEventListener('click', function() {{
+            navigator.clipboard.writeText(`{text}`).then(function() {{
+                btn.textContent = 'Gekopieerd!';
+                setTimeout(() => btn.textContent = '{label}', 2000);
+            }}).catch(function(err) {{
+                console.error('Kon niet kopiëren: ', err);
+            }});
+        }});
+    </script>
+    """, unsafe_allow_html=True)
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
     placeholder = st.empty()
