@@ -78,7 +78,7 @@ button, .stButton>button, .stDownloadButton>button {
 }
 
 /* Copy Button Styles */
-.css-16u8z0w.edgvbvh10 {
+.stCopyToClipboard > button {
     width: 100%;
     padding: 0.5rem 1rem;
     background-color: #f0f2f6;
@@ -97,6 +97,6 @@ button, .stButton>button, .stDownloadButton>button {
     min-height: 38px !important;
 }
 
-.css-16u8z0w.edgvbvh10:hover {
+.stCopyToClipboard > button:hover {
     background-color: #d1d5db;
 }

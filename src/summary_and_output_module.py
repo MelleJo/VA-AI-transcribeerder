@@ -208,7 +208,8 @@ def render_summary_versions(summaries, button_key_prefix):
         # Action buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            ui_copy_button(current_summary, "📋 Kopieer")
+            if st_copy_to_clipboard(current_summary, "📋 Kopieer"):
+                st.success("Gekopieerd!")
         with col2:
             b64_docx = export_to_docx(current_summary)
             st.download_button(
