@@ -263,8 +263,13 @@ def export_to_docx(summary):
     doc = Document()
     styles = doc.styles
 
-    # Create a style for the body text
-    style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    # Check if 'Body Text' style exists, if not, create it
+    if 'Body Text' not in styles:
+        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    else:
+        style = styles['Body Text']
+
+    # Set font properties
     style.font.size = Pt(11)
     style.font.name = 'Calibri'
 
