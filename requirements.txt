@@ -10,3 +10,4 @@ pydub
 pandas
 reportlab
 streamlit_mic_recorder
+moviepy

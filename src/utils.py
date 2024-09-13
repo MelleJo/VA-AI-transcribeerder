@@ -8,6 +8,7 @@ from pydub import AudioSegment
 import tempfile
 import io
 import json
+import moviepy.editor as mp
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -48,6 +49,16 @@ def split_audio(file):
 
 def transcribe_audio(audio_file, progress_callback=None):
     try:
+        file_extension = os.path.splitext(audio_file)[1].lower()
+        if file_extension == '.mp4':
+            # Extract audio from mp4
+            video = mp.VideoFileClip(audio_file)
+            audio = video.audio
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+                audio.write_audiofile(temp_audio.name)
+                audio_file = temp_audio.name
+            video.close()
+        
         audio = AudioSegment.from_file(audio_file)
         chunks = split_audio(audio_file)
         total_chunks = len(chunks)

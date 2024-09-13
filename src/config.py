@@ -5,7 +5,7 @@ import os
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
 # Input Configuration
-ALLOWED_AUDIO_TYPES = ["mp3", "wav", "ogg", "m4a"]
+ALLOWED_AUDIO_TYPES = ["mp3", "wav", "ogg", "m4a", "mp4"]
 ALLOWED_TEXT_TYPES = ["txt", "pdf", "docx"]
 
 # Prompt Configuration

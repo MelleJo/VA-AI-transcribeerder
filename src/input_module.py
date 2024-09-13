@@ -92,10 +92,10 @@ def render_input_step():
         )
 
         if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
-            uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
+            uploaded_file = st.file_uploader("Upload een audio- of videobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
-                if st.button("Verwerk audio", key="process_audio_button"):
+                if st.button("Verwerk audio/video", key="process_audio_button"):
                     process_uploaded_audio(uploaded_file)
 
         elif input_method == "Meerdere audiobestanden uploaden" and not st.session_state.transcription_complete:
