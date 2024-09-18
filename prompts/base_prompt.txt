@@ -28,7 +28,7 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
       - Besteed extra aandacht aan discussies over tools, processen en verbetervoorstellen
       - Vermijd vage of algemene beschrijvingen; geef altijd concrete details en specifieke informatie
 
-   d) Actiepunten:
+   d) Actiepunten(enkel punten die niet zijn genoemd in de actiepunten, wanneer de actiepunten alles omvatten laat je dit onderdeel weg):
       - Lijst alle actiepunten op met:
         • De exacte beschrijving van de actie
         • De naam van de verantwoordelijke persoon
@@ -42,7 +42,7 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
       - Beschrijf de verwachte resultaten of doelen van deze afspraken
       - Leg uit hoe deze afspraken bijdragen aan de overkoepelende doelstellingen
 
-   f) Openstaande vragen of onopgeloste kwesties:
+   f) Openstaande vragen of onopgeloste kwesties (enkel punten die niet zijn genoemd in de actiepunten, wanneer de actiepunten alles omvatten laat je dit onderdeel weg):
       - Lijst punten op die verder onderzoek of opvolging vereisen
       - Geef aan waarom deze punten onopgelost bleven
       - Suggereer mogelijke volgende stappen om deze kwesties aan te pakken
