@@ -2,81 +2,114 @@
 
 /* Global Styles */
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f0f4f8;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
     color: #1a202c;
 }
 
 .stApp {
-    background-color: #f0f4f8;
+    background-color: #f8fafc;
 }
 
 /* Header Styles */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
+    font-weight: 700;
     color: #2c5282;
 }
 
 /* Button Styles */
 .stButton > button {
-    background-color: #4299e1;
+    background-color: #4a5568;
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
+    border-radius: 8px;
+    padding: 12px 24px;
     font-weight: 600;
     transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stButton > button:hover {
-    background-color: #3182ce;
+    background-color: #2d3748;
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
 }
 
 /* Input Styles */
-.stTextInput > div > div > input {
-    border-radius: 5px;
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea {
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
+    padding: 12px;
+    transition: all 0.3s ease;
 }
 
-.stTextArea > div > div > textarea {
-    border-radius: 5px;
-    border: 1px solid #e2e8f0;
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    border-color: #4a5568;
+    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.2);
 }
 
 /* Progress Bar Styles */
 .stProgress > div > div > div {
-    background-color: #4299e1;
+    background-color: #4a5568;
+    height: 8px;
+    border-radius: 4px;
 }
 
 /* Expander Styles */
 .streamlit-expanderHeader {
     background-color: #edf2f7;
-    border-radius: 5px;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 600;
+    color: #2d3748;
 }
 
 /* Custom Spinner */
 .custom-spinner {
     display: inline-block;
-    width: 50px;
-    height: 50px;
-    border: 3px solid rgba(66, 153, 225, 0.3);
-    border-radius: 50%;
-    border-top-color: #4299e1;
-    animation: spin 1s ease-in-out infinite;
-    -webkit-animation: spin 1s ease-in-out infinite;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.custom-spinner div {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #4a5568;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
-
-@keyframes spin {
-    to { transform: translate(-50%, -50%) rotate(360deg); }
+.custom-spinner div:nth-child(1) {
+    left: 8px;
+    animation: custom-spinner1 0.6s infinite;
 }
-@-webkit-keyframes spin {
-    to { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
+.custom-spinner div:nth-child(2) {
+    left: 8px;
+    animation: custom-spinner2 0.6s infinite;
+}
+.custom-spinner div:nth-child(3) {
+    left: 32px;
+    animation: custom-spinner2 0.6s infinite;
+}
+.custom-spinner div:nth-child(4) {
+    left: 56px;
+    animation: custom-spinner3 0.6s infinite;
+}
+@keyframes custom-spinner1 {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+@keyframes custom-spinner3 {
+    0% { transform: scale(1); }
+    100% { transform: scale(0); }
+}
+@keyframes custom-spinner2 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(24px, 0); }
 }
 
 /* Hide default Streamlit spinner */
@@ -94,22 +127,23 @@ h1, h2, h3, h4, h5, h6 {
 /* Progress Checkmarks */
 .progress-checkmarks {
     background-color: #ffffff;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 24px;
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .progress-checkmarks p {
-    margin: 10px 0;
+    margin: 12px 0;
     font-size: 16px;
     display: flex;
     align-items: center;
+    color: #4a5568;
 }
 
 .progress-checkmarks p::before {
     content: '⏳';
-    margin-right: 10px;
+    margin-right: 12px;
     font-size: 20px;
 }
 
@@ -120,10 +154,16 @@ h1, h2, h3, h4, h5, h6 {
 /* Card-like containers */
 .info-container {
     background-color: #ffffff;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.info-container:hover {
+    box-shadow: 0 8px 12px rgba(50, 50, 93, 0.15), 0 2px 6px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
 /* Sleek Scrollbar */
@@ -133,15 +173,16 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: #cbd5e0;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #a0aec0;
 }
 
 /* Responsive Design */
@@ -151,6 +192,135 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .info-container {
-        padding: 15px;
+        padding: 20px;
     }
+}
+
+/* Custom styles for select boxes */
+.stSelectbox > div > div {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.stSelectbox > div > div:hover {
+    border-color: #4a5568;
+}
+
+/* Custom styles for radio buttons */
+.stRadio > div {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stRadio > div > label {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+/* Custom styles for checkboxes */
+.stCheckbox > label {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+/* Improve readability of text areas */
+.stTextArea > div > div > textarea {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Style for the main title */
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c5282;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Style for section titles */
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #4a5568;
+    padding-bottom: 0.5rem;
+}
+
+/* Style for info text */
+.info-text {
+    font-size: 1rem;
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Style for success messages */
+.success-message {
+    background-color: #c6f6d5;
+    color: #2f855a;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+/* Style for warning messages */
+.warning-message {
+    background-color: #fefcbf;
+    color: #d69e2e;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+/* Sidebar styles */
+.sidebar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c5282;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Main content area */
+.main-content {
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Navigation progress bar */
+.stProgress > div > div > div {
+    background-color: #4299e1;
+}
+
+/* Improve contrast for placeholder text */
+::placeholder {
+    color: #a0aec0 !important;
+    opacity: 1 !important;
+}
+
+/* Style for links */
+a {
+    color: #4299e1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #2b6cb0;
+    text-decoration: underline;
 }

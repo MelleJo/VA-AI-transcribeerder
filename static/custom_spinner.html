@@ -1,9 +1,54 @@
-<![CDATA[<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Spinner</title>
+    <style>
+        .custom-spinner {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .custom-spinner div {
+            position: absolute;
+            top: 33px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #4a5568;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        .custom-spinner div:nth-child(1) {
+            left: 8px;
+            animation: custom-spinner1 0.6s infinite;
+        }
+        .custom-spinner div:nth-child(2) {
+            left: 8px;
+            animation: custom-spinner2 0.6s infinite;
+        }
+        .custom-spinner div:nth-child(3) {
+            left: 32px;
+            animation: custom-spinner2 0.6s infinite;
+        }
+        .custom-spinner div:nth-child(4) {
+            left: 56px;
+            animation: custom-spinner3 0.6s infinite;
+        }
+        @keyframes custom-spinner1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        @keyframes custom-spinner3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        @keyframes custom-spinner2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(24px, 0); }
+        }
+    </style>
 </head>
 <body>
     <script>
@@ -13,6 +58,7 @@
                 if (!spinner.nextElementSibling || !spinner.nextElementSibling.classList.contains('custom-spinner')) {
                     const customSpinner = document.createElement('div');
                     customSpinner.className = 'custom-spinner';
+                    customSpinner.innerHTML = '<div></div><div></div><div></div><div></div>';
                     spinner.parentNode.insertBefore(customSpinner, spinner.nextSibling);
                 }
             });
@@ -67,4 +113,4 @@
         }
     </script>
 </body>
-</html>]]>
+</html>

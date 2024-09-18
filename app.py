@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
 from src.utils import post_process_grammar_check, format_currency
@@ -21,7 +19,7 @@ def load_custom_spinner():
         return f.read()
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
+    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
     # Apply custom CSS
     st.markdown(load_css(), unsafe_allow_html=True)
@@ -71,7 +69,24 @@ def main():
     </script>
     """, unsafe_allow_html=True)
 
-    st.title("Gesprekssamenvatter API - versie 0.0.2.")
+    # Sidebar
+    with st.sidebar:
+        st.image("https://via.placeholder.com/150?text=AI+Logo", width=150)
+        st.markdown("<h2 class='sidebar-title'>Gesprekssamenvatter AI</h2>", unsafe_allow_html=True)
+        st.markdown("<p class='sidebar-text'>Versie 0.0.2</p>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<p class='sidebar-text'>Deze AI-assistent helpt u bij het samenvatten en analyseren van gesprekken.</p>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        if st.button("Over deze app", key="about_button"):
+            st.markdown("""
+            <div class='info-container'>
+            <h3>Over Gesprekssamenvatter AI</h3>
+            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Main content
+    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'step' not in st.session_state:
@@ -93,22 +108,28 @@ def main():
     steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
     st.progress((st.session_state.step - 1) / (len(steps) - 1))
 
-    if st.session_state.step == 1:
-        prompt_module.render_prompt_selection()
-    elif st.session_state.step == 2:
-        input_module.render_input_step()
-    elif st.session_state.step == 3:
-        transcript_module.render_transcript_edit()
-    elif st.session_state.step == 4:
-        summary_and_output_module.render_summary_and_output()
-    elif st.session_state.step == 5:
-        history_module.render_history()
+    # Display current step
+    st.markdown(f"<h2 class='section-title'>Stap {st.session_state.step}: {steps[st.session_state.step - 1]}</h2>", unsafe_allow_html=True)
+
+    # Render step content
+    with st.container():
+        if st.session_state.step == 1:
+            prompt_module.render_prompt_selection()
+        elif st.session_state.step == 2:
+            input_module.render_input_step()
+        elif st.session_state.step == 3:
+            transcript_module.render_transcript_edit()
+        elif st.session_state.step == 4:
+            summary_and_output_module.render_summary_and_output()
+        elif st.session_state.step == 5:
+            history_module.render_history()
 
     # Navigation buttons
+    st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.session_state.step > 1:
-            if st.button("Vorige", key="previous_button"):
+            if st.button("◀ Vorige", key="previous_button"):
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u teruggaat.")
                 else:
@@ -117,7 +138,7 @@ def main():
 
     with col3:
         if st.session_state.step < len(steps):
-            next_label = "Volgende" if st.session_state.step < 4 else "Bekijk Geschiedenis"
+            next_label = "Volgende ▶" if st.session_state.step < 4 else "Bekijk Geschiedenis ▶"
             if st.button(next_label, key=f"next_button_{st.session_state.step}"):
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u verdergaat.")
@@ -127,8 +148,9 @@ def main():
                     st.session_state.step += 1
                     st.rerun()
 
-    # Debug Info Expander using Streamlit's native expander
+    # Debug Info Expander
     with st.expander("Debug Info"):
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.write(f"Step: {st.session_state.step}")
         st.write(f"Selected Prompt: {st.session_state.selected_prompt}")
         st.write(f"Input Text Length: {len(st.session_state.input_text)}")
@@ -136,6 +158,7 @@ def main():
         st.write(f"History Items: {len(st.session_state.history)}")
         st.write(f"Is Recording: {st.session_state.is_recording}")
         st.write(f"Transcription Complete: {st.session_state.transcription_complete}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

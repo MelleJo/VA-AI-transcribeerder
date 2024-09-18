@@ -15,7 +15,6 @@ def format_time(seconds):
     minutes, seconds = divmod(int(seconds), 60)
     return f"{minutes:02d}:{seconds:02d}"
 
-
 def transcribe_with_progress(audio_file):
     audio_length = get_audio_length(audio_file)
     
@@ -74,7 +73,7 @@ def process_multiple_audio_files(uploaded_files):
 
 def render_input_step():
     st.session_state.grammar_checked = False  # Reset grammar check flag
-    st.header("Stap 2: Invoer")
+    st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
     
     if 'transcription_complete' not in st.session_state:
         st.session_state.transcription_complete = False
@@ -86,20 +85,24 @@ def render_input_step():
         st.session_state.audio_data = None
 
     if not st.session_state.is_recording:
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         input_method = st.radio(
             "Kies invoermethode:",
             ["Audio uploaden", "Meerdere audiobestanden uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
             key="input_method_radio"
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
         if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader("Upload een audio- of videobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
-                if st.button("Verwerk audio", key="process_audio_button", type="primary"):
-                    process_uploaded_audio(uploaded_file)
+                st.button("Verwerk audio", key="process_audio_button", type="primary", on_click=process_uploaded_audio, args=(uploaded_file,))
+            st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.write("Klik op de knop om de opname te starten.")
             st.write("Vergeet niet de volgende onderwerpen te behandelen:")
             st.checkbox("Pensioendatum", key="checklist_pension_date")
@@ -115,8 +118,10 @@ def render_input_step():
                 elif isinstance(audio_data, dict) and 'bytes' in audio_data:
                     st.session_state.audio_data = audio_data
                     process_recorded_audio(audio_data)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300, key="text_input_area")
             if st.button("Verwerk tekst", key="process_text_button"):
                 if st.session_state.input_text:
@@ -124,15 +129,18 @@ def render_input_step():
                     st.success("Tekst succesvol verwerkt!")
                 else:
                     st.warning("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES, key="text_file_uploader")
             if uploaded_file:
                 st.session_state.uploaded_text = uploaded_file
-                if st.button("Verwerk bestand", key="process_file_button"):
-                    process_uploaded_text(uploaded_file)
+                st.button("Verwerk bestand", key="process_file_button", on_click=process_uploaded_text, args=(uploaded_file,))
+            st.markdown("</div>", unsafe_allow_html=True)
 
     else:  # This block will only show when recording is in progress
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
         audio_data = mic_recorder(key="audio_recorder_in_progress", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
         
@@ -141,16 +149,17 @@ def render_input_step():
             st.session_state.audio_data = audio_data
             process_recorded_audio(audio_data)
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.transcription_complete:
-        st.markdown("### Transcript")
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # Add the "Volgende" button with conditional disabling
     if st.session_state.transcription_complete:
-        if st.button("Volgende", key="next_button"):
-            st.session_state.step += 1
-            st.rerun()
+        st.button("Volgende", key="next_button", on_click=lambda: setattr(st.session_state, 'step', st.session_state.step + 1))
     else:
         st.button("Volgende", key="next_button", disabled=True)
 
