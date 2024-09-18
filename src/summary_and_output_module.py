@@ -34,8 +34,18 @@ def markdown_to_html(markdown_text):
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
+        st.write("Samenvatting genereren...")
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+
+        # Step 1: Preparing prompt
+        status_text.text("Stap 1: Prompt voorbereiden")
+        progress_bar.progress(20)
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
-        
+
+        # Step 2: Generating initial summary
+        status_text.text("Stap 2: Initiële samenvatting genereren")
+        progress_bar.progress(40)
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
             messages=[
@@ -51,24 +61,29 @@ def generate_summary(input_text, base_prompt, selected_prompt):
             stop=None
         )
         summary = response.choices[0].message.content.strip()
-        
-        # Apply post-processing
+
+        # Step 3: Grammar and spelling check
+        status_text.text("Stap 3: Grammatica en spelling controleren")
+        progress_bar.progress(60)
         if not st.session_state.grammar_checked:
             summary = post_process_grammar_check(summary)
-            summary = format_currency(summary)
             st.session_state.grammar_checked = True
+
+        # Step 4: Currency formatting
+        status_text.text("Stap 4: Valuta-opmaak toepassen")
+        progress_bar.progress(80)
+        summary = format_currency(summary)
+
+        # Step 5: Final formatting
+        status_text.text("Stap 5: Eindopmaak toepassen")
+        progress_bar.progress(100)
         
-        # Apply consistent formatting
-        sections = ["Aanleiding/Doelstelling", "Inventarisatie", "Actiepunten", "Advies"]
-        formatted_summary = ""
-        for section in sections:
-            formatted_summary += f"**{section}**\n\n"
-            # For now, we'll just keep the original content
-            formatted_summary += summary + "\n\n"
-        
-        if not formatted_summary:
+        if not summary:
             raise ValueError("Generated summary is empty")
-        return formatted_summary
+
+        status_text.text("Samenvatting voltooid!")
+        st.success("Grammatica en spelling gecontroleerd ✅")
+        return summary
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None

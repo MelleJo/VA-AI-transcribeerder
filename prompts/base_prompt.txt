@@ -103,21 +103,11 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
    - Kwantificeer informatie waar mogelijk (bijv. exacte aantallen pagina's, duur van gesprekken, etc.)
    - Geef een beknopte chronologie van het gesprek om de volgorde van besproken onderwerpen te verduidelijken
 
-9. Technische details:
-   - Besteed extra aandacht aan de technische aspecten van besproken tools of processen
-   - Leg kort uit hoe deze tools werken of zouden moeten werken in de context van de discussie
-
-
-10. Afsluitende analyse:
-    - Vat de belangrijkste punten en beslissingen kort samen
-    - Identificeer overkoepelende thema's of patronen in het gesprek
-    - Schets de toekomstige richting op basis van de gemaakte afspraken en openstaande punten
-    - Geef een beknopt overzicht van de volgende stappen en hun potentiële impact
-
-
 
 Zorg ervoor dat de samenvatting geschikt is voor directe opname in een dossier of voor gebruik bij vervolgacties. Als een bepaald onderdeel niet van toepassing is of niet werd besproken, vermeld dit expliciet in de samenvatting.
 
 Pas deze richtlijnen flexibel toe, afhankelijk van de aard en lengte van het gesprek. Voor kortere gesprekken, focus op de meest relevante secties. Voor langere of complexere gesprekken, zorg voor een uitgebreide dekking van alle aspecten.
+
+Let extra op de inventarisatie van de onderneming op financieel en activiteiten gebied, indien dit besproken wordt.
 
 [TASK_SPECIFIC_INSTRUCTIONS]
