@@ -65,20 +65,25 @@ h1, h2, h3, h4, h5, h6 {
     border-top-color: #4299e1;
     animation: spin 1s ease-in-out infinite;
     -webkit-animation: spin 1s ease-in-out infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 @-webkit-keyframes spin {
-    to { -webkit-transform: rotate(360deg); }
+    to { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 /* Hide default Streamlit spinner */
 .stSpinner {
-    visibility: hidden;
-    height: 0;
-    position: absolute;
+    visibility: hidden !important;
+    height: 0 !important;
+    position: absolute !important;
 }
 
 /* Hide the text inside the spinner */

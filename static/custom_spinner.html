@@ -18,12 +18,34 @@
             });
         };
 
+        const showCustomSpinner = () => {
+            const customSpinners = document.querySelectorAll('.custom-spinner');
+            customSpinners.forEach(spinner => {
+                spinner.style.display = 'inline-block';
+            });
+        };
+
+        const hideCustomSpinner = () => {
+            const customSpinners = document.querySelectorAll('.custom-spinner');
+            customSpinners.forEach(spinner => {
+                spinner.style.display = 'none';
+            });
+        };
+
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                     for (let node of mutation.addedNodes) {
                         if (node.classList && node.classList.contains('stSpinner')) {
                             replaceSpinner();
+                            showCustomSpinner();
+                        }
+                    }
+                }
+                if (mutation.removedNodes && mutation.removedNodes.length > 0) {
+                    for (let node of mutation.removedNodes) {
+                        if (node.classList && node.classList.contains('stSpinner')) {
+                            hideCustomSpinner();
                         }
                     }
                 }
@@ -37,6 +59,12 @@
 
         // Initial replacement
         replaceSpinner();
+
+        // Check for existing spinners and show custom spinner if needed
+        const existingSpinners = document.querySelectorAll('.stSpinner');
+        if (existingSpinners.length > 0) {
+            showCustomSpinner();
+        }
     </script>
 </body>
 </html>]]>
