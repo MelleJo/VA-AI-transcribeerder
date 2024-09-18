@@ -90,10 +90,12 @@ def main():
 
     # Navigation
     steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
-    st.progress((st.session_state.step - 1) / (len(steps) - 1))
-
+    
     # Display current step
     st.markdown(f"<h2 class='section-title'>Stap {st.session_state.step}: {steps[st.session_state.step - 1]}</h2>", unsafe_allow_html=True)
+    
+    # Progress bar
+    st.progress((st.session_state.step - 1) / (len(steps) - 1))
 
     # Render step content
     with st.container():

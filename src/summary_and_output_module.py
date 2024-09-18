@@ -24,6 +24,7 @@ from st_copy_to_clipboard import st_copy_to_clipboard
 from email.mime.multipart import MIMEMultipart
 import uuid
 import time
+import pandas as pd
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -254,6 +255,9 @@ def render_summary_versions(summaries, button_key_prefix):
     # Create a plain text version
     plain_summary = strip_html(html_summary)
 
+    # Convert markdown tables to HTML
+    current_summary = convert_markdown_tables_to_html(current_summary)
+
     # Apply custom CSS for better readability
     styled_summary = f"""
     <style>
@@ -278,9 +282,22 @@ def render_summary_versions(summaries, button_key_prefix):
         .summary-content li {{
             margin-bottom: 5px;
         }}
+        .summary-content table {{
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 15px;
+        }}
+        .summary-content th, .summary-content td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }}
+        .summary-content th {{
+            background-color: #f2f2f2;
+        }}
     </style>
     <div class="summary-content">
-        {html_summary}
+        {current_summary}
     </div>
     """
 
@@ -511,3 +528,24 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
+    
+def convert_markdown_tables_to_html(text):
+    lines = text.split('\n')
+    table_start = -1
+    html_tables = []
+    
+    for i, line in enumerate(lines):
+        if line.startswith('|') and '-|-' in line:
+            table_start = i - 1
+        elif table_start != -1 and (not line.startswith('|') or i == len(lines) - 1):
+            table_end = i if not line.startswith('|') else i + 1
+            markdown_table = '\n'.join(lines[table_start:table_end])
+            df = pd.read_csv(io.StringIO(markdown_table), sep='|', skipinitialspace=True).dropna(axis=1, how='all')
+            html_table = df.to_html(index=False, escape=False)
+            html_tables.append((table_start, table_end, html_table))
+            table_start = -1
+
+    for start, end, html_table in reversed(html_tables):
+        lines[start:end] = [html_table]
+    
+    return '\n'.join(lines)
