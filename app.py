@@ -11,7 +11,11 @@ logging.getLogger('watchdog').setLevel(logging.ERROR)
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
-        return f'<style>{f.read()}</style>'
+        css = f.read()
+    # Adding logo style directly in the CSS loaded here
+    css += "
+<style>.logo {margin-bottom: 20px;}</style>"
+    return f'<style>{css}</style>'
 
 def load_custom_spinner():
     spinner_path = os.path.join('static', 'custom_spinner.html')
@@ -83,7 +87,7 @@ def main():
 
     # Sidebar
     with st.sidebar:
-        st.image("https://via.placeholder.com/150?text=AI+Logo", width=150, class_="logo")
+        st.image("https://via.placeholder.com/150?text=AI+Logo", width=150)
         st.markdown("<h2 class='sidebar-title'>Gesprekssamenvatter AI</h2>", unsafe_allow_html=True)
         st.markdown("<p class='sidebar-text'>Versie 0.0.2</p>", unsafe_allow_html=True)
         st.markdown("<hr>", unsafe_allow_html=True)
@@ -93,7 +97,7 @@ def main():
             st.markdown("""
             <div class='info-container'>
             <h3 class='section-subtitle'>Over Gesprekssamenvatter AI</h3>
-            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren.</p>
+            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren...</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -173,7 +177,7 @@ def main():
             if st.button(next_label, key=f"next_button_{st.session_state.step}", style="display: none;"):
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u verdergaat.")
-                elif st.session_state.step == 2 and not st.session_state.transcription_complete:
+                elif st.session_state.step == 2 en not st.session_state.transcription_complete:
                     st.warning("Verwerk eerst de input door op 'Stop opname' te klikken en het transcript te laten genereren.")
                 else:
                     st.session_state.step += 1
