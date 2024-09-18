@@ -75,10 +75,15 @@ def render_recording_reminders(prompt_type):
     reminders = config.PROMPT_REMINDERS.get(prompt_type, [])
     if reminders:
         st.markdown("### Vergeet niet de volgende onderwerpen te behandelen:")
-        for reminder in reminders:
-            with st.container():
+        
+        # Calculate the number of columns based on the number of reminders
+        num_columns = min(3, len(reminders))  # Maximum of 3 columns
+        cols = st.columns(num_columns)
+        
+        for i, reminder in enumerate(reminders):
+            with cols[i % num_columns]:
                 st.markdown(f"""
-                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
+                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 10px; height: 100%;">
                     <h4 style="margin: 0;">{reminder['topic']}</h4>
                     <ul style="margin: 5px 0 0 0; padding-left: 20px;">
                         {"".join(f"<li>{detail}</li>" for detail in reminder['details'])}
@@ -107,6 +112,22 @@ def render_input_step():
             key="input_method_radio"
         )
         st.markdown("</div>", unsafe_allow_html=True)
+
+        if input_method == "Audio opnemen" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.write("Klik op de knop om de opname te starten.")
+            render_recording_reminders(st.session_state.selected_prompt)
+            
+            audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+            
+            if audio_data is not None:
+                if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
+                    st.session_state.is_recording = True
+                    st.rerun()
+                elif isinstance(audio_data, dict) and 'bytes' in audio_data:
+                    st.session_state.audio_data = audio_data
+                    process_recorded_audio(audio_data)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
