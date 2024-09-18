@@ -71,8 +71,23 @@ def process_multiple_audio_files(uploaded_files):
     else:
         ui_info_box("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.", "error")
 
+def render_recording_reminders(prompt_type):
+    reminders = config.PROMPT_REMINDERS.get(prompt_type, [])
+    if reminders:
+        st.markdown("### Vergeet niet de volgende onderwerpen te behandelen:")
+        for reminder in reminders:
+            with st.container():
+                st.markdown(f"""
+                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
+                    <h4 style="margin: 0;">{reminder['topic']}</h4>
+                    <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                        {"".join(f"<li>{detail}</li>" for detail in reminder['details'])}
+                    </ul>
+                </div>
+                """, unsafe_allow_html=True)
+
 def render_input_step():
-    st.session_state.grammar_checked = False  # Reset grammar check flag
+    st.session_state.grammar_checked = False
     st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
     
     if 'transcription_complete' not in st.session_state:
@@ -104,10 +119,7 @@ def render_input_step():
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.write("Klik op de knop om de opname te starten.")
-            st.write("Vergeet niet de volgende onderwerpen te behandelen:")
-            st.checkbox("Pensioendatum", key="checklist_pension_date")
-            st.checkbox("Arbeidsongeschiktheid", key="checklist_disability")
-            st.checkbox("Overlijden", key="checklist_death")
+            render_recording_reminders(st.session_state.selected_prompt)
             
             audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
             
