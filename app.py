@@ -15,12 +15,20 @@ def load_css():
     with open(css_path) as f:
         return f'<style>{f.read()}</style>'
 
+def load_custom_spinner():
+    spinner_path = os.path.join('static', 'custom_spinner.html')
+    with open(spinner_path, 'r') as f:
+        return f.read()
+
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
 
     # Apply custom CSS
     st.markdown(load_css(), unsafe_allow_html=True)
     ui_components.apply_custom_css()
+
+    # Include custom spinner
+    st.components.v1.html(load_custom_spinner(), height=0)
 
     # Initialize OpenAI client
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])

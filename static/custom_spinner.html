@@ -1,0 +1,42 @@
+<![CDATA[<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Spinner</title>
+</head>
+<body>
+    <script>
+        const replaceSpinner = () => {
+            const spinners = document.querySelectorAll('.stSpinner');
+            spinners.forEach(spinner => {
+                if (!spinner.nextElementSibling || !spinner.nextElementSibling.classList.contains('custom-spinner')) {
+                    const customSpinner = document.createElement('div');
+                    customSpinner.className = 'custom-spinner';
+                    spinner.parentNode.insertBefore(customSpinner, spinner.nextSibling);
+                }
+            });
+        };
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.classList && node.classList.contains('stSpinner')) {
+                            replaceSpinner();
+                        }
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Initial replacement
+        replaceSpinner();
+    </script>
+</body>
+</html>]]>
