@@ -66,7 +66,7 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         
         # Step 1: Transcript reading
         progress_placeholder.text("Stap 1/3: Transcript lezen...")
-        time.sleep(1)  # Simulating reading time
+        time.sleep(0.5)  # Reduced simulated reading time
         
         # Step 2: Generate summary
         progress_placeholder.text("Stap 2/3: Samenvatting maken...")
@@ -87,14 +87,14 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         )
         summary = response.choices[0].message.content.strip()
         
-        # Step 3: Spelling check
-        progress_placeholder.text("Stap 3/3: Spellingscontrole uitvoeren...")
+        # Step 3: Spelling check and currency formatting
+        progress_placeholder.text("Stap 3/3: Spellingscontrole en opmaak uitvoeren...")
         summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
         
         # Complete
         progress_placeholder.text("Samenvatting voltooid!")
-        time.sleep(1)  # Short delay to show completion
+        time.sleep(0.5)  # Reduced delay to show completion
         progress_placeholder.empty()
         
         if not summary:
@@ -132,7 +132,6 @@ def export_to_docx(summary):
     doc = Document()
     styles = doc.styles
 
-    # Ensure 'Body Text' style exists and is configured
     if 'Body Text' not in styles:
         style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
     else:
@@ -140,37 +139,29 @@ def export_to_docx(summary):
     style.font.size = Pt(11)
     style.font.name = 'Calibri'
 
-    # Create a style for headings
     heading_style = styles.add_style('Custom Heading', WD_STYLE_TYPE.PARAGRAPH)
     heading_style.font.size = Pt(14)
     heading_style.font.bold = True
     heading_style.font.color.rgb = RGBColor(0, 0, 139)  # Dark Blue
 
-    # Convert Markdown to HTML
     html = markdown2.markdown(summary)
-
-    # Split the HTML into paragraphs
     paragraphs = re.split(r'</?p>', html)
 
     for p in paragraphs:
         if p.strip():
-            # Check if it's a heading
             if p.startswith('<h'):
                 level = int(p[2])
                 text = re.sub(r'</?h\d>', '', p).strip()
                 para = doc.add_paragraph(text, style='Custom Heading')
                 para.paragraph_format.space_after = Pt(12)
             else:
-                # Remove any remaining HTML tags
                 text = re.sub(r'<.*?>', '', p).strip()
                 para = doc.add_paragraph(text, style='Body Text')
                 
-                # Apply bold formatting
                 for run in para.runs:
                     if '<strong>' in p:
                         run.bold = True
 
-    # Save the document to a bytes buffer
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
@@ -181,37 +172,28 @@ def export_to_pdf(summary):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
 
-    # Create custom styles
     styles = getSampleStyleSheet()
     
-    # Customize the existing Heading1 style
     styles['Heading1'].fontSize = 14
     styles['Heading1'].leading = 16
     styles['Heading1'].textColor = darkblue
     styles['Heading1'].spaceBefore = 12
     styles['Heading1'].spaceAfter = 6
 
-    # Customize the Normal style for justified text
     styles['Normal'].alignment = TA_JUSTIFY
 
-    # Convert Markdown to HTML
     html = markdown2.markdown(summary)
-
-    # Split the HTML into paragraphs
     paragraphs = re.split(r'</?p>', html)
 
     story = []
     for p in paragraphs:
         if p.strip():
-            # Check if it's a heading
             if p.startswith('<h'):
                 level = int(p[2])
                 text = re.sub(r'</?h\d>', '', p).strip()
                 para = Paragraph(text, styles['Heading1'])
             else:
-                # Process bold text
                 text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
-                # Remove any remaining HTML tags
                 text = re.sub(r'<(?!/?b).*?>', '', text).strip()
                 para = Paragraph(text, styles['Normal'])
             story.append(para)
@@ -244,21 +226,39 @@ def render_summary_buttons(summary, button_key_prefix):
             mime="application/pdf"
         )
 
+def convert_markdown_tables_to_html(text):
+    lines = text.split('\n')
+    table_start = -1
+    html_tables = []
+    
+    for i, line in enumerate(lines):
+        if line.startswith('|') and '-|-' in line:
+            table_start = i - 1
+        elif table_start != -1 and (not line.startswith('|') or i == len(lines) - 1):
+            table_end = i if not line.startswith('|') else i + 1
+            markdown_table = '\n'.join(lines[table_start:table_end])
+            df = pd.read_csv(io.StringIO(markdown_table), sep='|', skipinitialspace=True).dropna(axis=1, how='all')
+            df.columns = df.columns.str.strip()
+            html_table = df.to_html(index=False, escape=False, classes='styled-table')
+            html_tables.append((table_start, table_end, html_table))
+            table_start = -1
+
+    for start, end, html_table in reversed(html_tables):
+        lines[start:end] = [html_table]
+    
+    return '\n'.join(lines)
+
 def render_summary_versions(summaries, button_key_prefix):
     if 'current_version' not in st.session_state:
         st.session_state.current_version = 0
 
     current_summary = summaries[st.session_state.current_version]
     
-    # Convert markdown to HTML for formatted copying
     html_summary = markdown2.markdown(current_summary)
-    # Create a plain text version
     plain_summary = strip_html(html_summary)
 
-    # Convert markdown tables to HTML
     current_summary = convert_markdown_tables_to_html(current_summary)
 
-    # Apply custom CSS for better readability
     styled_summary = f"""
     <style>
         .summary-content {{
@@ -282,18 +282,31 @@ def render_summary_versions(summaries, button_key_prefix):
         .summary-content li {{
             margin-bottom: 5px;
         }}
-        .summary-content table {{
+        .styled-table {{
             border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 15px;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
         }}
-        .summary-content th, .summary-content td {{
-            border: 1px solid #ddd;
-            padding: 8px;
+        .styled-table thead tr {{
+            background-color: #009879;
+            color: #ffffff;
             text-align: left;
         }}
-        .summary-content th {{
-            background-color: #f2f2f2;
+        .styled-table th,
+        .styled-table td {{
+            padding: 12px 15px;
+        }}
+        .styled-table tbody tr {{
+            border-bottom: 1px solid #dddddd;
+        }}
+        .styled-table tbody tr:nth-of-type(even) {{
+            background-color: #f3f3f3;
+        }}
+        .styled-table tbody tr:last-of-type {{
+            border-bottom: 2px solid #009879;
         }}
     </style>
     <div class="summary-content">
@@ -302,13 +315,10 @@ def render_summary_versions(summaries, button_key_prefix):
     """
 
     with st.container():
-        # Header
         st.markdown(f"<h3 style='text-align: center; margin-bottom: 20px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
 
-        # Summary content
         st.markdown(styled_summary, unsafe_allow_html=True)
 
-        # Action buttons
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             if st_copy_to_clipboard(html_summary, "📋 Kopieer (met opmaak)"):
@@ -335,7 +345,6 @@ def render_summary_versions(summaries, button_key_prefix):
                 use_container_width=True
             )
 
-        # Version navigation
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
             if st.session_state.current_version > 0:
@@ -354,11 +363,9 @@ def render_summary_versions(summaries, button_key_prefix):
             else:
                 st.empty()
 
-    # Customization button
     if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}", use_container_width=True):
         st.session_state.show_customization = True
 
-    # Customization section
     if st.session_state.get('show_customization', False):
         st.markdown("### Pas de samenvatting aan")
         customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key=f"customization_request_{button_key_prefix}")
@@ -528,25 +535,3 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
-    
-def convert_markdown_tables_to_html(text):
-    lines = text.split('\n')
-    table_start = -1
-    html_tables = []
-    
-    for i, line in enumerate(lines):
-        if line.startswith('|') and '-|-' in line:
-            table_start = i - 1
-        elif table_start != -1 and (not line.startswith('|') or i == len(lines) - 1):
-            table_end = i if not line.startswith('|') else i + 1
-            markdown_table = '\n'.join(lines[table_start:table_end])
-            df = pd.read_csv(io.StringIO(markdown_table), sep='|', skipinitialspace=True).dropna(axis=1, how='all')
-            df.columns = df.columns.str.strip()
-            html_table = df.to_html(index=False, escape=False, classes='styled-table')
-            html_tables.append((table_start, table_end, html_table))
-            table_start = -1
-
-    for start, end, html_table in reversed(html_tables):
-        lines[start:end] = [html_table]
-    
-    return '\n'.join(lines)
