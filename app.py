@@ -63,7 +63,7 @@ def main():
     </script>
     """, unsafe_allow_html=True)
 
-    st.title("Gesprekssamenvatter API")
+    st.title("Gesprekssamenvatter API - versie 0.0.2.")
 
     # Initialize session state
     if 'step' not in st.session_state:

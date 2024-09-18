@@ -62,20 +62,13 @@ def update_progress(progress_placeholder, checkmarks, step):
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
         progress_placeholder = st.empty()
-        status_placeholder = st.empty()
         
         # Step 1: Transcript reading
-        with progress_placeholder.container():
-            st.progress(0)
-        status_placeholder.text("Transcript lezen...")
-        # Simulate transcript reading (remove this in production)
-        import time
-        time.sleep(1)
+        progress_placeholder.text("Stap 1/3: Transcript lezen...")
+        time.sleep(1)  # Simulating reading time
         
         # Step 2: Generate summary
-        with progress_placeholder.container():
-            st.progress(33)
-        status_placeholder.text("Samenvatting maken...")
+        progress_placeholder.text("Stap 2/3: Samenvatting maken...")
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
@@ -94,19 +87,14 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         summary = response.choices[0].message.content.strip()
         
         # Step 3: Spelling check
-        with progress_placeholder.container():
-            st.progress(66)
-        status_placeholder.text("Spellingscontrole uitvoeren...")
+        progress_placeholder.text("Stap 3/3: Spellingscontrole uitvoeren...")
         summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
         
         # Complete
-        with progress_placeholder.container():
-            st.progress(100)
-        status_placeholder.text("Samenvatting voltooid!")
+        progress_placeholder.text("Samenvatting voltooid!")
         time.sleep(1)  # Short delay to show completion
         progress_placeholder.empty()
-        status_placeholder.empty()
         
         if not summary:
             raise ValueError("Generated summary is empty")
