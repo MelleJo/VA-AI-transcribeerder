@@ -3,20 +3,18 @@
 /* Global Styles */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f0f4f8;
+    background-color: #f8fafc;
     color: #1a202c;
-    line-height: 1.6;
 }
 
 .stApp {
-    background-color: #f0f4f8;
+    background-color: #f8fafc;
 }
 
 /* Header Styles */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     color: #2c5282;
-    margin-bottom: 1rem;
 }
 
 /* Button Styles */
@@ -30,7 +28,6 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stButton > button:hover {
@@ -46,7 +43,6 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid #e2e8f0;
     padding: 12px;
     transition: all 0.3s ease;
-    background-color: #ffffff;
 }
 
 .stTextInput > div > div > input:focus,
@@ -57,7 +53,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Progress Bar Styles */
 .stProgress > div > div > div {
-    background-color: #4299e1;
+    background-color: #4a5568;
     height: 8px;
     border-radius: 4px;
 }
@@ -69,11 +65,6 @@ h1, h2, h3, h4, h5, h6 {
     padding: 12px;
     font-weight: 600;
     color: #2d3748;
-    transition: all 0.3s ease;
-}
-
-.streamlit-expanderHeader:hover {
-    background-color: #e2e8f0;
 }
 
 /* Custom Spinner */
@@ -209,7 +200,6 @@ h1, h2, h3, h4, h5, h6 {
 .stSelectbox > div > div {
     border-radius: 8px;
     border: 1px solid #e2e8f0;
-    background-color: #ffffff;
 }
 
 .stSelectbox > div > div:hover {
@@ -250,12 +240,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 2rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    animation: fadeIn 1s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Style for section titles */
@@ -266,21 +250,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1rem;
     border-bottom: 2px solid #4a5568;
     padding-bottom: 0.5rem;
-    animation: slideIn 0.5s ease-out;
-}
-
-/* Style for section subtitles */
-.section-subtitle {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 1rem;
-    animation: slideIn 0.5s ease-out;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
 }
 
 /* Style for info text */
@@ -299,7 +268,6 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     margin-bottom: 1rem;
     font-weight: 500;
-    animation: fadeIn 0.5s ease-out;
 }
 
 /* Style for warning messages */
@@ -310,7 +278,6 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     margin-bottom: 1rem;
     font-weight: 500;
-    animation: fadeIn 0.5s ease-out;
 }
 
 /* Sidebar styles */
@@ -333,13 +300,11 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    animation: fadeIn 0.5s ease-out;
 }
 
 /* Navigation progress bar */
 .stProgress > div > div > div {
     background-color: #4299e1;
-    transition: width 0.5s ease-out;
 }
 
 /* Improve contrast for placeholder text */
@@ -358,230 +323,4 @@ a {
 a:hover {
     color: #2b6cb0;
     text-decoration: underline;
-}
-
-/* Navigation buttons container */
-.nav-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-}
-
-/* Step indicator */
-.step-indicator {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 2rem;
-}
-
-.step-indicator .step {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #e2e8f0;
-    color: #4a5568;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin: 0 5px;
-    transition: all 0.3s ease;
-}
-
-.step-indicator .step.active {
-    background-color: #4299e1;
-    color: #ffffff;
-}
-
-.step-indicator .step.completed {
-    background-color: #48bb78;
-    color: #ffffff;
-}
-
-/* Tooltip styles */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: #2d3748;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* Input group styles */
-.input-group {
-    margin-bottom: 1.5rem;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #4a5568;
-}
-
-/* Improve visibility of disabled elements */
-.stButton:disabled > button {
-    background-color: #cbd5e0 !important;
-    color: #718096 !important;
-    cursor: not-allowed;
-}
-
-/* Add a subtle transition to all interactive elements */
-button, input, select, textarea {
-    transition: all 0.2s ease-in-out;
-}
-
-/* Improve the appearance of code blocks */
-pre {
-    background-color: #edf2f7;
-    border-radius: 8px;
-    padding: 16px;
-    overflow-x: auto;
-}
-
-code {
-    font-family: 'Fira Code', monospace;
-    font-size: 14px;
-}
-
-/* Add a subtle animation to the logo */
-.logo {
-    transition: transform 0.3s ease-in-out;
-}
-
-.logo:hover {
-    transform: scale(1.05);
-}
-
-/* Styling for recording controls */
-.stAudio > div {
-    background-color: #edf2f7;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 1rem;
-}
-
-.stAudio > div > button {
-    background-color: #4a5568;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.stAudio > div > button:hover {
-    background-color: #2d3748;
-}
-
-/* Styling for checklist items */
-.stCheckbox {
-    margin-bottom: 0.5rem;
-}
-
-.stCheckbox > label {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-    color: #4a5568;
-}
-
-.stCheckbox > label > span {
-    margin-left: 0.5rem;
-}
-
-/* Styling for file upload components */
-.stFileUploader > div > div {
-    border: 2px dashed #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.stFileUploader > div > div:hover {
-    border-color: #4a5568;
-}
-
-/* Additional animations for smoother interactions */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.stButton > button:active {
-    animation: pulse 0.3s ease-in-out;
-}
-
-/* Improve readability of long text */
-.stTextArea > div > div > textarea {
-    line-height: 1.8;
-    padding: 16px;
-}
-
-/* Style for information icons or help text */
-.info-icon {
-    color: #4299e1;
-    font-size: 18px;
-    margin-left: 5px;
-    cursor: help;
-}
-
-/* Styling for error messages */
-.error-message {
-    background-color: #fed7d7;
-    color: #c53030;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-weight: 500;
-    animation: fadeIn 0.5s ease-out;
-}
-
-/* Enhance focus styles for better accessibility */
-*:focus {
-    outline: 2px solid #4299e1;
-    outline-offset: 2px;
-}
-
-/* Styling for dropdown menus */
-.stSelectbox > div > div {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.stSelectbox > div > div:hover,
-.stSelectbox > div > div:focus {
-    border-color: #4a5568;
-    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.2);
-}
-
-/* Improve contrast for placeholder text in dark mode */
-@media (prefers-color-scheme: dark) {
-    ::placeholder {
-        color: #cbd5e0 !important;
-    }
 }
