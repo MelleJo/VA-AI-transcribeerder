@@ -128,7 +128,7 @@ def main():
     with col3:
         if st.session_state.step < len(steps):
             next_label = "Volgende" if st.session_state.step < 4 else "Bekijk Geschiedenis"
-            if st.button(next_label, key="next_button"):
+            if st.button(next_label, key=f"next_button_{st.session_state.step}"):  # Changed key here
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u verdergaat.")
                 elif st.session_state.step == 2 and not st.session_state.transcription_complete:
