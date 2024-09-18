@@ -69,22 +69,6 @@ def main():
     </script>
     """, unsafe_allow_html=True)
 
-    # Sidebar
-    with st.sidebar:
-        st.image("https://via.placeholder.com/150?text=AI+Logo", width=150)
-        st.markdown("<h2 class='sidebar-title'>Gesprekssamenvatter AI</h2>", unsafe_allow_html=True)
-        st.markdown("<p class='sidebar-text'>Versie 0.0.2</p>", unsafe_allow_html=True)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        st.markdown("<p class='sidebar-text'>Deze AI-assistent helpt u bij het samenvatten en analyseren van gesprekken.</p>", unsafe_allow_html=True)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        if st.button("Over deze app", key="about_button"):
-            st.markdown("""
-            <div class='info-container'>
-            <h3>Over Gesprekssamenvatter AI</h3>
-            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren.</p>
-            </div>
-            """, unsafe_allow_html=True)
-
     # Main content
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 

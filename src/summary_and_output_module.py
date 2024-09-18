@@ -358,8 +358,6 @@ def render_summary_versions(summaries, button_key_prefix):
                     st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
 
 def render_summary_and_output():
-    st.header("Stap 4: Samenvatting en Output")
-    
     prompts = load_prompts()
     base_prompt = prompts.get('base_prompt.txt', '')
     prompt_name = st.session_state.get('selected_prompt', 'None')
@@ -447,7 +445,7 @@ def render_summary_and_output():
                 if key in st.session_state:
                     del st.session_state[key]
             st.session_state.step = 1
-            st.rerun
+            st.rerun()
 
 def send_feedback_email(transcript, summary, revised_summary, feedback, additional_feedback, user_name, selected_prompt):
     try:
