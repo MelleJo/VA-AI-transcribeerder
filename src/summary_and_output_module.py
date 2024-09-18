@@ -541,7 +541,8 @@ def convert_markdown_tables_to_html(text):
             table_end = i if not line.startswith('|') else i + 1
             markdown_table = '\n'.join(lines[table_start:table_end])
             df = pd.read_csv(io.StringIO(markdown_table), sep='|', skipinitialspace=True).dropna(axis=1, how='all')
-            html_table = df.to_html(index=False, escape=False)
+            df.columns = df.columns.str.strip()
+            html_table = df.to_html(index=False, escape=False, classes='styled-table')
             html_tables.append((table_start, table_end, html_table))
             table_start = -1
 
