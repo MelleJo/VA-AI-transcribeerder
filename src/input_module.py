@@ -118,7 +118,7 @@ def render_input_step():
             st.write("Klik op de knop om de opname te starten.")
             render_recording_reminders(st.session_state.selected_prompt)
             
-            audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+            audio_data = mic_recorder(key="audio_recorder_start", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
             
             if audio_data is not None:
                 if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
@@ -128,6 +128,18 @@ def render_input_step():
                     st.session_state.audio_data = audio_data
                     process_recorded_audio(audio_data)
             st.markdown("</div>", unsafe_allow_html=True)
+
+    else:  # This block will only show when recording is in progress
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
+        audio_data = mic_recorder(key="audio_recorder_stop", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+        
+        if audio_data is not None and isinstance(audio_data, dict) and 'bytes' in audio_data:
+            st.session_state.is_recording = False
+            st.session_state.audio_data = audio_data
+            process_recorded_audio(audio_data)
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
         if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
