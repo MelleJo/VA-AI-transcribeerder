@@ -13,8 +13,7 @@ def load_css():
     with open(css_path) as f:
         css = f.read()
     # Adding logo style directly in the CSS loaded here
-    css += "
-<style>.logo {margin-bottom: 20px;}</style>"
+    css += "\n<style>.logo {margin-bottom: 20px;}</style>"
     return f'<style>{css}</style>'
 
 def load_custom_spinner():
@@ -97,7 +96,7 @@ def main():
             st.markdown("""
             <div class='info-container'>
             <h3 class='section-subtitle'>Over Gesprekssamenvatter AI</h3>
-            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren...</p>
+            <p>Gesprekssamenvatter AI is een geavanceerde tool die gebruik maakt van kunstmatige intelligentie om gesprekken te transcriberen, analyseren en samenvatten. Of het nu gaat om klantenservice-interacties, interviews, of vergaderingen, onze AI helpt u om snel de belangrijkste punten te identificeren en actiepunten te genereren.</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -117,7 +116,7 @@ def main():
         st.session_state.history = []
     if 'is_recording' not in st.session_state:
         st.session_state.is_recording = False
-    if 'transcription_complete' not in st.session_state:
+    if 'transcription_complete' not in st.session_state...
         st.session_state.transcription_complete = False
 
     # Navigation
@@ -168,10 +167,10 @@ def main():
             tooltip_text = "Ga naar de volgende stap" if st.session_state.step < 4 else "Bekijk de geschiedenis van uw samenvattingen"
             st.markdown(f"""
             <div class="tooltip">
-                <button class="stButton" onclick="document.getElementById('next_button_{st.session_state.step}').click()">
+                <button class="stButton" onclick="document.getElementById('next_button_{st.session_state.step}").click()">
                     {next_label}
                 </button>
-                <span class="tooltiptext">{tooltip_text}</span>
+                <span class="tooltiptext">{tooltip_text}"</span>
             </div>
             """, unsafe_allow_html=True)
             if st.button(next_label, key=f"next_button_{st.session_state.step}", style="display: none;"):
