@@ -23,6 +23,7 @@ from email.mime.text import MIMEText
 from st_copy_to_clipboard import st_copy_to_clipboard
 from email.mime.multipart import MIMEMultipart
 import uuid
+import time
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -32,20 +33,42 @@ def strip_html(html):
 def markdown_to_html(markdown_text):
     return markdown2.markdown(markdown_text)
 
+def display_progress_checkmarks():
+    progress_placeholder = st.empty()
+    checkmarks = {
+        "transcript_read": "⏳ Transcript lezen...",
+        "summary_generated": "⏳ Samenvatting maken...",
+        "spelling_checked": "⏳ Spellingscontrole uitvoeren..."
+    }
+    
+    progress_html = "<div style='text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;'>"
+    progress_html += "<div class='stSpinner'></div>"
+    for key, value in checkmarks.items():
+        progress_html += f"<p>{value}</p>"
+    progress_html += "</div>"
+    
+    progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+    return progress_placeholder, checkmarks
+
+def update_progress(progress_placeholder, checkmarks, step):
+    checkmarks[step] = checkmarks[step].replace("⏳", "✅")
+    progress_html = "<div style='text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;'>"
+    progress_html += "<div class='stSpinner'></div>"
+    for value in checkmarks.values():
+        progress_html += f"<p>{value}</p>"
+    progress_html += "</div>"
+    progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
-        st.write("Samenvatting genereren...")
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-
-        # Step 1: Preparing prompt
-        status_text.text("Stap 1: Prompt voorbereiden")
-        progress_bar.progress(20)
+        progress_placeholder, checkmarks = display_progress_checkmarks()
+        
+        # Simulate transcript reading
+        time.sleep(2)
+        update_progress(progress_placeholder, checkmarks, "transcript_read")
+        
+        # Generate summary
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
-
-        # Step 2: Generating initial summary
-        status_text.text("Stap 2: Initiële samenvatting genereren")
-        progress_bar.progress(40)
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
             messages=[
@@ -61,28 +84,18 @@ def generate_summary(input_text, base_prompt, selected_prompt):
             stop=None
         )
         summary = response.choices[0].message.content.strip()
-
-        # Step 3: Grammar and spelling check
-        status_text.text("Stap 3: Grammatica en spelling controleren")
-        progress_bar.progress(60)
-        if not st.session_state.grammar_checked:
-            summary = post_process_grammar_check(summary)
-            st.session_state.grammar_checked = True
-
-        # Step 4: Currency formatting
-        status_text.text("Stap 4: Valuta-opmaak toepassen")
-        progress_bar.progress(80)
+        update_progress(progress_placeholder, checkmarks, "summary_generated")
+        
+        # Perform real spelling check
+        summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
-
-        # Step 5: Final formatting
-        status_text.text("Stap 5: Eindopmaak toepassen")
-        progress_bar.progress(100)
+        update_progress(progress_placeholder, checkmarks, "spelling_checked")
+        
+        time.sleep(1)  # Give user time to see all checkmarks
+        progress_placeholder.empty()
         
         if not summary:
             raise ValueError("Generated summary is empty")
-
-        status_text.text("Samenvatting voltooid!")
-        st.success("Grammatica en spelling gecontroleerd ✅")
         return summary
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")

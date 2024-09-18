@@ -15,17 +15,6 @@ def load_css():
     with open(css_path) as f:
         return f'<style>{f.read()}</style>'
 
-def display_summary_status():
-    if 'summary_generated' in st.session_state and st.session_state.summary_generated:
-        st.sidebar.success("Samenvatting gegenereerd ✅")
-    else:
-        st.sidebar.info("Samenvatting nog niet gegenereerd")
-    
-    if st.session_state.grammar_checked:
-        st.sidebar.success("Grammatica en spelling gecontroleerd ✅")
-    else:
-        st.sidebar.info("Grammatica en spelling nog niet gecontroleerd")
-
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter API", layout="wide")
 
@@ -35,12 +24,6 @@ def main():
 
     # Initialize OpenAI client
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-    # Add these lines
-    if 'grammar_checked' not in st.session_state:
-        st.session_state.grammar_checked = False
-    if 'summary_generated' not in st.session_state:
-        st.session_state.summary_generated = False
 
     # Add JavaScript for formatted text copying
     st.markdown("""
@@ -109,7 +92,6 @@ def main():
     elif st.session_state.step == 3:
         transcript_module.render_transcript_edit()
     elif st.session_state.step == 4:
-        display_summary_status()
         summary_and_output_module.render_summary_and_output()
     elif st.session_state.step == 5:
         history_module.render_history()
@@ -128,7 +110,7 @@ def main():
     with col3:
         if st.session_state.step < len(steps):
             next_label = "Volgende" if st.session_state.step < 4 else "Bekijk Geschiedenis"
-            if st.button(next_label, key=f"next_button_{st.session_state.step}"):  # Changed key here
+            if st.button(next_label, key=f"next_button_{st.session_state.step}"):
                 if st.session_state.is_recording:
                     st.warning("Stop eerst de opname voordat u verdergaat.")
                 elif st.session_state.step == 2 and not st.session_state.transcription_complete:

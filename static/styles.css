@@ -1,68 +1,136 @@
+/* styles.css */
+
 /* Global Styles */
 body {
     font-family: 'Roboto', sans-serif;
-    color: #333;
-    line-height: 1.6;
+    background-color: #f0f4f8;
+    color: #1a202c;
 }
 
 .stApp {
-    background-color: #f5f7fa;
+    background-color: #f0f4f8;
+}
+
+/* Header Styles */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: #2c5282;
 }
 
 /* Button Styles */
-button, .stButton > button, .stDownloadButton > button, .stCopyToClipboard > button, button.stButton {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    background-color: #f0f2f6;
-    color: #31333F;
-    border: none;
-    border-radius: 4px !important;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px !important;
-    margin: 4px 2px;
-    cursor: pointer;
-    transition-duration: 0.4s;
-    height: auto !important;
-    min-height: 38px !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-button:hover, .stButton > button:hover, .stCopyToClipboard > button:hover, button.stButton:hover {
-    background-color: #d1d5db;
-}
-
-/* Download Button Styles */
-.stDownloadButton > button {
-    background-color: #27ae60;
+.stButton > button {
+    background-color: #4299e1;
     color: white;
-}
-
-.stDownloadButton > button:hover {
-    background-color: #2ecc71;
-}
-
-/* Summary Content Styles */
-.summary-content {
-    background-color: white;
-    padding: 20px;
+    border: none;
     border-radius: 5px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 15px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-/* Version Display Styles */
-.version-display {
-    text-align: center;
-    margin: 0;
-    font-weight: bold;
+.stButton > button:hover {
+    background-color: #3182ce;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* Column Spacing */
-div[data-testid="column"] {
-    padding: 0 5px;
+/* Input Styles */
+.stTextInput > div > div > input {
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+}
+
+.stTextArea > div > div > textarea {
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Progress Bar Styles */
+.stProgress > div > div > div {
+    background-color: #4299e1;
+}
+
+/* Expander Styles */
+.streamlit-expanderHeader {
+    background-color: #edf2f7;
+    border-radius: 5px;
+}
+
+/* Custom Spinner */
+.stSpinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #edf2f7;
+    border-top: 5px solid #4299e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Progress Checkmarks */
+.progress-checkmarks {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.progress-checkmarks p {
+    margin: 10px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.progress-checkmarks p::before {
+    content: '⏳';
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.progress-checkmarks p.completed::before {
+    content: '✅';
+}
+
+/* Card-like containers */
+.info-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Sleek Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stButton > button {
+        width: 100%;
+    }
+    
+    .info-container {
+        padding: 15px;
+    }
 }
