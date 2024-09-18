@@ -95,6 +95,7 @@ def render_input_step():
     st.session_state.grammar_checked = False
     st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
     
+    # Initialize session state variables if they don't exist
     if 'transcription_complete' not in st.session_state:
         st.session_state.transcription_complete = False
     if 'is_recording' not in st.session_state:
@@ -103,55 +104,142 @@ def render_input_step():
         st.session_state.input_text = ""
     if 'audio_data' not in st.session_state:
         st.session_state.audio_data = None
-
+    if 'uploaded_files' not in st.session_state:
+        st.session_state.uploaded_files = []
+    
     if not st.session_state.is_recording:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         input_method = st.radio(
             "Kies invoermethode:",
-            ["Audio uploaden", "Meerdere audiobestanden uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"],
+            [
+                "Audio uploaden",
+                "Meerdere audiobestanden uploaden",
+                "Audio opnemen",
+                "Tekst schrijven/plakken",
+                "Tekstbestand uploaden"
+            ],
             key="input_method_radio"
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if input_method == "Audio opnemen" and not st.session_state.transcription_complete:
+        if input_method == "Audio uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_file = st.file_uploader(
+                "Upload een audiobestand:",
+                type=["mp3", "wav", "ogg"],
+                key="single_audio_upload"
+            )
+            if uploaded_file is not None:
+                st.session_state.audio_data = uploaded_file
+                process_uploaded_audio(uploaded_file)
+                st.session_state.transcription_complete = True
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        elif input_method == "Meerdere audiobestanden uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "Upload meerdere audiobestanden:",
+                type=["mp3", "wav", "ogg"],
+                accept_multiple_files=True,
+                key="multiple_audio_upload"
+            )
+            if uploaded_files:
+                st.session_state.uploaded_files = uploaded_files
+                process_uploaded_audios(uploaded_files)
+                st.session_state.transcription_complete = True
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.write("Klik op de knop om de opname te starten.")
             render_recording_reminders(st.session_state.selected_prompt)
             
-            audio_data = mic_recorder(key="audio_recorder_start", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+            audio_data = mic_recorder(
+                key="audio_recorder_start",
+                start_prompt="Start opname",
+                stop_prompt="Stop opname",
+                use_container_width=True
+            )
             
             if audio_data is not None:
                 if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
                     st.session_state.is_recording = True
-                    st.rerun()
+                    st.experimental_rerun()
                 elif isinstance(audio_data, dict) and 'bytes' in audio_data:
                     st.session_state.audio_data = audio_data
                     process_recorded_audio(audio_data)
+                    st.session_state.transcription_complete = True
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        elif input_method == "Tekst schrijven/plakken":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.session_state.input_text = st.text_area(
+                "Schrijf of plak hier je tekst:",
+                value=st.session_state.input_text,
+                height=300,
+                key="text_input"
+            )
+            if st.session_state.input_text.strip() != "":
+                st.session_state.transcription_complete = True
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        elif input_method == "Tekstbestand uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            text_file = st.file_uploader(
+                "Upload een tekstbestand:",
+                type=["txt", "docx"],
+                key="text_file_upload"
+            )
+            if text_file is not None:
+                st.session_state.input_text = text_file.read().decode("utf-8")
+                st.session_state.transcription_complete = True
             st.markdown("</div>", unsafe_allow_html=True)
 
     else:  # This block will only show when recording is in progress
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
-        audio_data = mic_recorder(key="audio_recorder_stop", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
+        audio_data = mic_recorder(
+            key="audio_recorder_stop",
+            start_prompt="Start opname",
+            stop_prompt="Stop opname",
+            use_container_width=True
+        )
         
         if audio_data is not None and isinstance(audio_data, dict) and 'bytes' in audio_data:
             st.session_state.is_recording = False
             st.session_state.audio_data = audio_data
             process_recorded_audio(audio_data)
-            st.rerun()
+            st.session_state.transcription_complete = True
+            st.experimental_rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.transcription_complete:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-        st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
+        st.session_state.input_text = st.text_area(
+            "Bewerk indien nodig:",
+            value=st.session_state.input_text,
+            height=300,
+            key="final_transcript"
+        )
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Add the "Volgende" button with conditional disabling
-    if st.session_state.transcription_complete:
-        ui_styled_button("Volgende", on_click=lambda: setattr(st.session_state, 'step', st.session_state.step + 1), key="next_button", is_active=True, primary=True)
+    if st.session_state.transcription_complete or st.session_state.uploaded_files:
+        ui_styled_button(
+            "Volgende",
+            on_click=lambda: setattr(st.session_state, 'step', st.session_state.step + 1),
+            key="next_button",
+            is_active=True,
+            primary=True
+        )
     else:
-        ui_styled_button("Volgende", on_click=None, key="next_button", is_active=False)
+        ui_styled_button(
+            "Volgende",
+            on_click=None,
+            key="next_button",
+            is_active=False
+        )
 
     # Return the recording state to be used in the main app for navigation control
     return st.session_state.is_recording
