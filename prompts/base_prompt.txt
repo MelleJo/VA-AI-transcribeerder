@@ -14,10 +14,6 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
       - Volledige namen en functies van alle deelnemers
       - Doel of aanleiding van het gesprek
 
-   b) Contextoverzicht:
-      • Beschrijf kort de bredere context waarin het gesprek plaatsvindt
-      • Vermeld relevante voorgeschiedenis of aanleiding voor het gesprek
-
    c) Inhoudelijke punten:
       - Maak een chronologische lijst van alle besproken hoofdonderwerpen
       - Gebruik duidelijke subkopjes en indien nodig geneste bulletpoints voor elk hoofdonderwerp
@@ -32,7 +28,7 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
       - Besteed extra aandacht aan discussies over tools, processen en verbetervoorstellen
       - Vermijd vage of algemene beschrijvingen; geef altijd concrete details en specifieke informatie
 
-   d) Actiepunten en verantwoordelijkheden:
+   d) Actiepunten:
       - Lijst alle actiepunten op met:
         • De exacte beschrijving van de actie
         • De naam van de verantwoordelijke persoon
@@ -50,24 +46,6 @@ Indien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie va
       - Lijst punten op die verder onderzoek of opvolging vereisen
       - Geef aan waarom deze punten onopgelost bleven
       - Suggereer mogelijke volgende stappen om deze kwesties aan te pakken
-
-   g) Gebruikte of genoemde documenten en tools:
-      - Noteer alle documenten en tools die werden besproken of waarnaar werd verwezen
-      - Geef een korte beschrijving van de relevantie van elk document of tool
-      - Vermeld eventuele problemen of verbeterpunten met betrekking tot deze documenten of tools
-
-   h) Gespreksanalyse:
-      - Beschrijf de algemene toon van het gesprek (formeel, informeel, gespannen, etc.)
-      - Vermeld eventuele technische problemen tijdens het gesprek
-      - Noteer significante veranderingen in de gesprekssfeer of -dynamiek
-      - Identificeer terugkerende thema's of punten van nadruk
-      - Beschrijf de algemene houding van deelnemers ten opzichte van besproken onderwerpen
-
-   i) Productspecifieke informatie (indien van toepassing):
-      - Lijst alle besproken producten of diensten op
-      - Noteer specifieke vragen, opmerkingen of feedback over deze producten/diensten
-      - Beschrijf eventuele vergelijkingen met concurrerende producten of alternatieven
-      - Vat samen hoe producten of diensten zich verhouden tot de bredere bedrijfsdoelstellingen
 
 3. Detaillering en specificiteit:
    - Zorg ervoor dat elke besproken kwestie volledig wordt uitgewerkt met concrete details
