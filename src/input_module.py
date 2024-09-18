@@ -141,56 +141,6 @@ def render_input_step():
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
-            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-            uploaded_file = st.file_uploader("Upload een audio- of videobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
-            if uploaded_file:
-                st.session_state.uploaded_audio = uploaded_file
-                ui_styled_button("Verwerk audio", on_click=lambda: process_uploaded_audio(uploaded_file), key="process_audio_button", is_active=True, primary=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
-            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-            st.write("Klik op de knop om de opname te starten.")
-            render_recording_reminders(st.session_state.selected_prompt)
-            
-            audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
-            
-            if audio_data is not None:
-                if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
-                    st.session_state.is_recording = True
-                    st.rerun()
-                elif isinstance(audio_data, dict) and 'bytes' in audio_data:
-                    st.session_state.audio_data = audio_data
-                    process_recorded_audio(audio_data)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
-            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-            st.session_state.input_text = st.text_area("Voer tekst in of plak tekst:", height=300, key="text_input_area")
-            ui_styled_button("Verwerk tekst", on_click=process_text_input, key="process_text_button", is_active=bool(st.session_state.input_text))
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
-            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-            uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES, key="text_file_uploader")
-            if uploaded_file:
-                st.session_state.uploaded_text = uploaded_file
-                ui_styled_button("Verwerk bestand", on_click=lambda: process_uploaded_text(uploaded_file), key="process_file_button", is_active=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    else:  # This block will only show when recording is in progress
-        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-        st.write("Opname is bezig. Klik op 'Stop opname' om de opname te beëindigen.")
-        audio_data = mic_recorder(key="audio_recorder_in_progress", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
-        
-        if audio_data is not None and isinstance(audio_data, dict) and 'bytes' in audio_data:
-            st.session_state.is_recording = False
-            st.session_state.audio_data = audio_data
-            process_recorded_audio(audio_data)
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
     if st.session_state.transcription_complete:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
