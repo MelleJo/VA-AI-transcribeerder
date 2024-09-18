@@ -9,6 +9,7 @@ import tempfile
 import io
 import json
 import moviepy.editor as mp
+import re
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -114,3 +115,22 @@ def process_audio_input(audio_data):
     except Exception as e:
         st.error(f"An error occurred while processing the audio input: {str(e)}")
         return None
+    
+def post_process_grammar_check(text):
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Je bent een professionele corrector gespecialiseerd in Nederlandse financiële en verzekeringstermen. Corrigeer eventuele spel- of grammaticafouten in de volgende tekst, met speciale aandacht voor vakspecifieke termen."},
+                {"role": "user", "content": text}
+            ],
+            max_tokens=16384
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        st.error(f"Fout bij grammatica- en spellingscontrole: {str(e)}")
+        return text  # Return original text if there's an error
+
+def format_currency(text):
+    return re.sub(r'(€)(\d)', r'\1 \2', text)

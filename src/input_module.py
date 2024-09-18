@@ -73,6 +73,7 @@ def process_multiple_audio_files(uploaded_files):
         st.error("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.")
 
 def render_input_step():
+    st.session_state.grammar_checked = False  # Reset grammar check flag
     st.header("Stap 2: Invoer")
     
     if 'transcription_complete' not in st.session_state:
@@ -95,18 +96,16 @@ def render_input_step():
             uploaded_file = st.file_uploader("Upload een audio- of videobestand", type=config.ALLOWED_AUDIO_TYPES, key="audio_uploader")
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
-                if st.button("Verwerk audio/video", key="process_audio_button"):
+                if st.button("Verwerk audio", key="process_audio_button", type="primary"):
                     process_uploaded_audio(uploaded_file)
-
-        elif input_method == "Meerdere audiobestanden uploaden" and not st.session_state.transcription_complete:
-            uploaded_files = st.file_uploader("Upload meerdere audiobestanden", type=config.ALLOWED_AUDIO_TYPES, accept_multiple_files=True, key="multiple_audio_uploader")
-            if uploaded_files:
-                st.session_state.uploaded_audio_files = uploaded_files
-                if st.button("Verwerk audiobestanden", key="process_multiple_audio_button"):
-                    process_multiple_audio_files(uploaded_files)
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
             st.write("Klik op de knop om de opname te starten.")
+            st.write("Vergeet niet de volgende onderwerpen te behandelen:")
+            st.checkbox("Pensioendatum", key="checklist_pension_date")
+            st.checkbox("Arbeidsongeschiktheid", key="checklist_disability")
+            st.checkbox("Overlijden", key="checklist_death")
+            
             audio_data = mic_recorder(key="audio_recorder", start_prompt="Start opname", stop_prompt="Stop opname", use_container_width=True)
             
             if audio_data is not None:
@@ -146,6 +145,14 @@ def render_input_step():
     if st.session_state.transcription_complete:
         st.markdown("### Transcript")
         st.session_state.input_text = st.text_area("Bewerk indien nodig:", value=st.session_state.input_text, height=300, key="final_transcript")
+
+    # Add the "Volgende" button with conditional disabling
+    if st.session_state.transcription_complete:
+        if st.button("Volgende", key="next_button"):
+            st.session_state.step += 1
+            st.rerun()
+    else:
+        st.button("Volgende", key="next_button", disabled=True)
 
     # Return the recording state to be used in the main app for navigation control
     return st.session_state.is_recording

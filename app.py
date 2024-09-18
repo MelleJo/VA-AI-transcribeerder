@@ -2,9 +2,11 @@
 
 import streamlit as st
 from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
+from src.utils import post_process_grammar_check, format_currency
 import logging
 import os
 import uuid
+from openai import OpenAI
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
@@ -19,6 +21,13 @@ def main():
     # Apply custom CSS
     st.markdown(load_css(), unsafe_allow_html=True)
     ui_components.apply_custom_css()
+
+    # Initialize OpenAI client
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+    # Add these lines
+    if 'grammar_checked' not in st.session_state:
+        st.session_state.grammar_checked = False
 
     # Add JavaScript for formatted text copying
     st.markdown("""

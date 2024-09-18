@@ -3,6 +3,7 @@ from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 from src.history_module import add_to_history
 from src.utils import load_prompts, get_prompt_content
+from src.utils import post_process_grammar_check, format_currency
 from datetime import datetime
 import base64
 import io
@@ -50,9 +51,24 @@ def generate_summary(input_text, base_prompt, selected_prompt):
             stop=None
         )
         summary = response.choices[0].message.content.strip()
-        if not summary:
+        
+        # Apply post-processing
+        if not st.session_state.grammar_checked:
+            summary = post_process_grammar_check(summary)
+            summary = format_currency(summary)
+            st.session_state.grammar_checked = True
+        
+        # Apply consistent formatting
+        sections = ["Aanleiding/Doelstelling", "Inventarisatie", "Actiepunten", "Advies"]
+        formatted_summary = ""
+        for section in sections:
+            formatted_summary += f"**{section}**\n\n"
+            # For now, we'll just keep the original content
+            formatted_summary += summary + "\n\n"
+        
+        if not formatted_summary:
             raise ValueError("Generated summary is empty")
-        return summary
+        return formatted_summary
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
         return None
