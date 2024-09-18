@@ -61,13 +61,21 @@ def update_progress(progress_placeholder, checkmarks, step):
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
-        progress_placeholder, checkmarks = display_progress_checkmarks()
+        progress_placeholder = st.empty()
+        status_placeholder = st.empty()
         
-        # Simulate transcript reading
-        time.sleep(2)
-        update_progress(progress_placeholder, checkmarks, "transcript_read")
+        # Step 1: Transcript reading
+        with progress_placeholder.container():
+            st.progress(0)
+        status_placeholder.text("Transcript lezen...")
+        # Simulate transcript reading (remove this in production)
+        import time
+        time.sleep(1)
         
-        # Generate summary
+        # Step 2: Generate summary
+        with progress_placeholder.container():
+            st.progress(33)
+        status_placeholder.text("Samenvatting maken...")
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
@@ -84,15 +92,21 @@ def generate_summary(input_text, base_prompt, selected_prompt):
             stop=None
         )
         summary = response.choices[0].message.content.strip()
-        update_progress(progress_placeholder, checkmarks, "summary_generated")
         
-        # Perform real spelling check
+        # Step 3: Spelling check
+        with progress_placeholder.container():
+            st.progress(66)
+        status_placeholder.text("Spellingscontrole uitvoeren...")
         summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
-        update_progress(progress_placeholder, checkmarks, "spelling_checked")
         
-        time.sleep(1)  # Give user time to see all checkmarks
+        # Complete
+        with progress_placeholder.container():
+            st.progress(100)
+        status_placeholder.text("Samenvatting voltooid!")
+        time.sleep(1)  # Short delay to show completion
         progress_placeholder.empty()
+        status_placeholder.empty()
         
         if not summary:
             raise ValueError("Generated summary is empty")
