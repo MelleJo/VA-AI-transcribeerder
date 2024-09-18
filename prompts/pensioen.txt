@@ -109,4 +109,3 @@ Let bij het maken van de samenvatting op de volgende punten:
 2. Zorg voor een logische flow van informatie, waarbij de bedrijfsinventarisatie een duidelijk beeld geeft van de context waarin pensioenadvies wordt gegeven.
 3. Maak expliciete verbanden tussen de bedrijfssituatie en de pensioenplanning van de ondernemer of DGA.
 
-Als het transcript alleen 'test' bevat, antwoord dan met: 'Ja, prompt: Veldhuis Advies - Pensioen werkt succesvol. Kom maar op met dat transcript!'

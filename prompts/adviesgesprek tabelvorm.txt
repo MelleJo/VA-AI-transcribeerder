@@ -43,4 +43,3 @@ Vervolgafspraken:
 
 Besteed extra aandacht aan exacte cijfers, datums en bedragen. Gebruik professionele verzekeringstermen en bedrijfsterminologie waar van toepassing. Baseer alle informatie uitsluitend op het gegeven transcript, zonder aannames of toevoegingen.
 
-Als het transcript alleen 'test' bevat, antwoord dan met: 'Ja, prompt: Bedrijven - Adviesgesprek tabelvorm werkt succesvol. Kom maar op met dat transcript!'

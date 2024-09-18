@@ -28,4 +28,3 @@ Algemene richtlijnen:
 - Zorg voor een duidelijke structuur met witregels tussen secties.
 - Baseer je uitsluitend op de informatie in het transcript, zonder eigen aannames of toevoegingen.
 
-Als het transcript alleen 'test' bevat, antwoord dan met: 'Ja, prompt: Casemanager gespreksverslag werkt succesvol. Kom maar op met dat transcript!'

@@ -43,4 +43,3 @@ Vervolgafspraken:
 
 Gebruik professionele verzekeringstermen en bedrijfsterminologie waar van toepassing, maar zorg dat de samenvatting begrijpelijk blijft. Maak gebruik van bullet points voor overzichtelijkheid. Baseer alle informatie uitsluitend op het gegeven transcript, zonder aannames of toevoegingen.
 
-Als het transcript alleen 'test' bevat, antwoord dan met: 'Ja, prompt: Bedrijven - Klantvraag werkt succesvol. Kom maar op met dat transcript!'

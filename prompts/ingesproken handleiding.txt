@@ -53,4 +53,3 @@ Besteed extra aandacht aan:
 
 Gebruik een heldere en instructieve toon die past bij een handleiding. Maak gebruik van genummerde lijsten voor stapsgewijze instructies en bullet points voor opsommingen. Baseer alle informatie uitsluitend op het gegeven transcript, zonder aannames of toevoegingen.
 
-Als het transcript alleen 'test' bevat, antwoord dan met: 'Ja, prompt: Algemeen - Ingesproken handleiding werkt succesvol. Kom maar op met dat transcript!'
