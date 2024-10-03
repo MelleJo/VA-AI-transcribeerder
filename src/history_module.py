@@ -1,11 +1,17 @@
-# src/history_module.py
-
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 import datetime
 
 def add_to_history(prompt, input_text, summary):
+    """
+    Add a summary to the history.
+    
+    Args:
+        prompt (str): The prompt used for the summary.
+        input_text (str): The original input text.
+        summary (str): The generated summary.
+    """
     if 'history' not in st.session_state:
         st.session_state.history = []
     
@@ -17,9 +23,12 @@ def add_to_history(prompt, input_text, summary):
     })
 
 def render_history():
-    st.header("Geschiedenis - let op: dit is nog een zeer experimentele functie")
+    """
+    Render the history of summaries.
+    """
+    st.subheader("Geschiedenis")
 
-    if not st.session_state.history:
+    if not st.session_state.get('history', []):
         st.info("Er zijn nog geen samenvattingen gemaakt.")
         return
 
@@ -27,12 +36,9 @@ def render_history():
     
     for index, row in df.iterrows():
         with st.expander(f"Samenvatting {index + 1} - {row['timestamp']}"):
-            st.subheader("Prompt")
-            st.write(row['prompt'])
-            st.subheader("Invoertekst")
-            st.write(row['input_text'][:200] + "..." if len(row['input_text']) > 200 else row['input_text'])
-            st.subheader("Samenvatting")
-            st.write(row['summary'])
+            st.write("**Prompt:**", row['prompt'])
+            st.write("**Invoertekst:**", row['input_text'][:200] + "..." if len(row['input_text']) > 200 else row['input_text'])
+            st.write("**Samenvatting:**", row['summary'])
 
     if st.button("Download geschiedenis als CSV"):
         csv = df.to_csv(index=False)
@@ -51,6 +57,15 @@ def render_history():
         st.success("Geschiedenis is gewist.")
         st.rerun()
 
-    if st.button("Terug naar instructie selecteren"):
+def view_history():
+    """
+    View the history of summaries.
+    """
+    st.subheader("Bekijk Geschiedenis")
+    
+    if st.button("Toon Geschiedenis"):
+        render_history()
+    
+    if st.button("Terug naar hoofdmenu"):
         st.session_state.step = 1
         st.rerun()

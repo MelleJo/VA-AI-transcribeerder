@@ -1,5 +1,3 @@
-/* styles.css */
-
 /* Global Styles */
 body {
     font-family: 'Inter', sans-serif;
@@ -12,315 +10,194 @@ body {
 }
 
 /* Header Styles */
-h1, h2, h3, h4, h5, h6 {
+.header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    margin-right: 1rem;
+}
+
+.app-name {
+    font-size: 1.5rem;
     font-weight: 700;
     color: #2c5282;
+    margin: 0;
+}
+
+/* Main Content Styles */
+.main-prompt {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.sub-prompt {
+    font-size: 1.1rem;
+    color: #4a5568;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Chat Interface Styles */
+.stChatMessage {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.stChatMessage[data-testid="user-message"] {
+    background-color: #ebf8ff;
+}
+
+.stChatMessage[data-testid="assistant-message"] {
+    background-color: #f0fff4;
 }
 
 /* Button Styles */
 .stButton > button {
-    background-color: #4a5568;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-.stButton > button:hover {
-    background-color: #2d3748;
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+.ui-button-primary {
+    background-color: #4299e1;
+    color: #ffffff;
+}
+
+.ui-button-primary:hover {
+    background-color: #3182ce;
+}
+
+.ui-button-secondary {
+    background-color: #edf2f7;
+    color: #2d3748;
+}
+
+.ui-button-secondary:hover {
+    background-color: #e2e8f0;
 }
 
 /* Input Styles */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 1px solid #e2e8f0;
-    padding: 12px;
-    transition: all 0.3s ease;
+    padding: 0.75rem;
 }
 
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
-    border-color: #4a5568;
-    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.2);
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+/* File Uploader Styles */
+.stFileUploader > div > button {
+    border-radius: 0.5rem;
+    background-color: #edf2f7;
+    color: #2d3748;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader > div > button:hover {
+    background-color: #e2e8f0;
 }
 
 /* Progress Bar Styles */
 .stProgress > div > div > div {
-    background-color: #4a5568;
-    height: 8px;
-    border-radius: 4px;
+    background-color: #4299e1;
+    height: 0.5rem;
+    border-radius: 0.25rem;
 }
 
-/* Expander Styles */
-.streamlit-expanderHeader {
-    background-color: #edf2f7;
-    border-radius: 8px;
-    padding: 12px;
+/* Info Box Styles */
+.ui-info-box {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ui-info-box.info {
+    background-color: #ebf8ff;
+    border: 1px solid #4299e1;
+}
+
+.ui-info-box.success {
+    background-color: #f0fff4;
+    border: 1px solid #48bb78;
+}
+
+.ui-info-box.warning {
+    background-color: #fffaf0;
+    border: 1px solid #ed8936;
+}
+
+.ui-info-box.error {
+    background-color: #fff5f5;
+    border: 1px solid #f56565;
+}
+
+/* Card Styles */
+.ui-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.5rem;
+}
+
+.ui-card h3 {
+    font-size: 1.25rem;
     font-weight: 600;
     color: #2d3748;
+    margin-bottom: 1rem;
 }
 
-/* Custom Spinner */
-.custom-spinner {
-    display: inline-block;
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
-.custom-spinner div {
-    position: absolute;
-    top: 33px;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: #4a5568;
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.custom-spinner div:nth-child(1) {
-    left: 8px;
-    animation: custom-spinner1 0.6s infinite;
-}
-.custom-spinner div:nth-child(2) {
-    left: 8px;
-    animation: custom-spinner2 0.6s infinite;
-}
-.custom-spinner div:nth-child(3) {
-    left: 32px;
-    animation: custom-spinner2 0.6s infinite;
-}
-.custom-spinner div:nth-child(4) {
-    left: 56px;
-    animation: custom-spinner3 0.6s infinite;
-}
-@keyframes custom-spinner1 {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
-}
-@keyframes custom-spinner3 {
-    0% { transform: scale(1); }
-    100% { transform: scale(0); }
-}
-@keyframes custom-spinner2 {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(24px, 0); }
-}
-
-/* Hide default Streamlit spinner */
-.stSpinner {
-    visibility: hidden !important;
-    height: 0 !important;
-    position: absolute !important;
-}
-
-/* Hide the text inside the spinner */
-.stSpinner > div > span {
-    display: none !important;
-}
-
-/* Progress Checkmarks */
-.progress-checkmarks {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    margin-bottom: 24px;
-}
-
-.progress-checkmarks p {
-    margin: 12px 0;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
+.ui-card-content {
     color: #4a5568;
 }
 
-.progress-checkmarks p::before {
-    content: '⏳';
-    margin-right: 12px;
-    font-size: 20px;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-prompt {
+        font-size: 1.5rem;
+    }
+
+    .sub-prompt {
+        font-size: 1rem;
+    }
+
+    .stButton > button {
+        width: 100%;
+    }
 }
 
-.progress-checkmarks p.completed::before {
-    content: '✅';
-}
-
-/* Card-like containers */
-.info-container {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
-
-.info-container:hover {
-    box-shadow: 0 8px 12px rgba(50, 50, 93, 0.15), 0 2px 6px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-}
-
-/* Sleek Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
+    background: #888;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .stButton > button {
-        width: 100%;
-    }
-    
-    .info-container {
-        padding: 20px;
-    }
-}
-
-/* Custom styles for select boxes */
-.stSelectbox > div > div {
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.stSelectbox > div > div:hover {
-    border-color: #4a5568;
-}
-
-/* Custom styles for radio buttons */
-.stRadio > div {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.stRadio > div > label {
-    font-weight: 500;
-    color: #4a5568;
-}
-
-/* Custom styles for checkboxes */
-.stCheckbox > label {
-    font-weight: 500;
-    color: #4a5568;
-}
-
-/* Improve readability of text areas */
-.stTextArea > div > div > textarea {
-    font-size: 16px;
-    line-height: 1.6;
-}
-
-/* Style for the main title */
-.main-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #2c5282;
-    text-align: center;
-    margin-bottom: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Style for section titles */
-.section-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #4a5568;
-    padding-bottom: 0.5rem;
-}
-
-/* Style for info text */
-.info-text {
-    font-size: 1rem;
-    color: #4a5568;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-/* Style for success messages */
-.success-message {
-    background-color: #c6f6d5;
-    color: #2f855a;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
-/* Style for warning messages */
-.warning-message {
-    background-color: #fefcbf;
-    color: #d69e2e;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
-/* Sidebar styles */
-.sidebar-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2c5282;
-    margin-bottom: 0.5rem;
-}
-
-.sidebar-text {
-    font-size: 0.9rem;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-/* Main content area */
-.main-content {
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-/* Navigation progress bar */
-.stProgress > div > div > div {
-    background-color: #4299e1;
-}
-
-/* Improve contrast for placeholder text */
-::placeholder {
-    color: #a0aec0 !important;
-    opacity: 1 !important;
-}
-
-/* Style for links */
-a {
-    color: #4299e1;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: #2b6cb0;
-    text-decoration: underline;
+    background: #555;
 }
