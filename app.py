@@ -87,10 +87,11 @@ def render_input_selection():
         if ui_components.input_method_card("Uploaden", "paperclip"):
             st.session_state.input_method = "upload"
             uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
+            
             if uploaded_file is not None:
                 st.session_state.uploaded_file = uploaded_file
                 st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
-                st.write(f"Debug: File uploaded - {uploaded_file.name}, size: {uploaded_file.size} bytes")
+                st.write(f"Debug: File uploaded - Name: {uploaded_file.name}, Type: {uploaded_file.type}, Size: {uploaded_file.size} bytes")
                 
                 # Process the file immediately
                 try:
@@ -101,6 +102,8 @@ def render_input_selection():
                     st.write(f"Debug: File processed, input text length: {len(st.session_state.input_text)}")
                 except Exception as e:
                     st.error(f"Error processing file: {str(e)}")
+            else:
+                st.write("Debug: No file uploaded yet")
     
     with col3:
         if ui_components.input_method_card("Typen", "pencil"):
