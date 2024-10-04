@@ -41,23 +41,25 @@ def get_prompt_content(prompt_name):
     prompts = load_prompts()
     return prompts.get(prompt_name, "")
 
+
 def split_audio(audio):
     chunks = []
-    for i in range(0, len(audio), AUDIO_SEGMENT_LENGTH):
-        chunks.append(audio[i:i+AUDIO_SEGMENT_LENGTH])
+    chunk_length_ms = 60000  # 60 seconds
+    for i in range(0, len(audio), chunk_length_ms):
+        chunks.append(audio[i:i+chunk_length_ms])
     return chunks
 
-def transcribe_audio(uploaded_file, progress_callback=None):
+def transcribe_audio(audio_file, progress_callback=None):
     try:
         # Create a temporary directory to store the file
         with tempfile.TemporaryDirectory() as temp_dir:
             # Get the file extension
-            file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+            file_extension = os.path.splitext(audio_file.name)[1].lower()
             
             # Save the uploaded file to the temporary directory
             temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
             with open(temp_file_path, "wb") as f:
-                f.write(uploaded_file.getvalue())
+                f.write(audio_file.getvalue())
             
             # Handle mp4 files (convert to audio)
             if file_extension == '.mp4':
@@ -82,7 +84,7 @@ def transcribe_audio(uploaded_file, progress_callback=None):
                 
                 with open(chunk_path, "rb") as audio_chunk:
                     response = client.audio.transcriptions.create(
-                        model=AUDIO_MODEL,
+                        model="whisper-1",
                         file=audio_chunk,
                         response_format="text"
                     )

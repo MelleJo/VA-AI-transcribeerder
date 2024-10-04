@@ -87,19 +87,32 @@ def render_input_selection():
         if ui_components.input_method_card("Uploaden", "paperclip"):
             st.session_state.input_method = "upload"
             uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
-            if uploaded_file:
+            if uploaded_file is not None:
                 st.session_state.uploaded_file = uploaded_file
                 st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
+                st.write(f"Debug: File uploaded - {uploaded_file.name}, size: {uploaded_file.size} bytes")
+                
                 # Process the file immediately
-                if uploaded_file.type.startswith('audio/'):
-                    st.session_state.input_text = transcribe_audio(uploaded_file)
-                else:
-                    st.session_state.input_text = process_text_file(uploaded_file)
+                try:
+                    if uploaded_file.type.startswith('audio/'):
+                        st.session_state.input_text = transcribe_audio(uploaded_file)
+                    else:
+                        st.session_state.input_text = process_text_file(uploaded_file)
+                    st.write(f"Debug: File processed, input text length: {len(st.session_state.input_text)}")
+                except Exception as e:
+                    st.error(f"Error processing file: {str(e)}")
     
     with col3:
         if ui_components.input_method_card("Typen", "pencil"):
             st.session_state.input_method = "type"
             st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
+
+    # Display debug information
+    st.write("Debug Information:")
+    st.write(f"Input method: {st.session_state.get('input_method', 'Not set')}")
+    st.write(f"Uploaded file: {getattr(st.session_state.get('uploaded_file'), 'name', 'No file uploaded')}")
+    st.write(f"Input text length: {len(st.session_state.get('input_text', ''))}")
+    st.write(f"Selected prompt: {st.session_state.get('selected_prompt', 'Not selected')}")
 
     # Check if we have input text and a selected prompt before enabling the button
     button_disabled = not (st.session_state.get('input_text') and st.session_state.get('selected_prompt'))
