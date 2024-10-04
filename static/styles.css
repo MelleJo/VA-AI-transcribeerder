@@ -30,6 +30,32 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.5px;
 }
 
+.prompt-card, .input-method-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.prompt-card:hover, .input-method-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.prompt-card h3, .input-method-card p {
+    margin: 0;
+    color: #333;
+}
+
+.input-method-card i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #4a90e2;
+}
+
 .stButton > button:hover {
     background-color: #2d3748;
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);

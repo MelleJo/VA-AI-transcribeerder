@@ -30,6 +30,29 @@ def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
         use_container_width=True
     )
 
+def prompt_card(title):
+    return st.button(
+        f"""
+        <div class="prompt-card">
+            <h3>{title}</h3>
+        </div>
+        """,
+        key=f"prompt_{title}",
+        unsafe_allow_html=True
+    )
+
+def input_method_card(title, icon):
+    return st.button(
+        f"""
+        <div class="input-method-card">
+            <i class="fas fa-{icon}"></i>
+            <p>{title}</p>
+        </div>
+        """,
+        key=f"input_{title}",
+        unsafe_allow_html=True
+    )
+
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
