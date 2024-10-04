@@ -90,35 +90,31 @@ def render_input_selection():
             if uploaded_file:
                 st.session_state.uploaded_file = uploaded_file
                 st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
+                # Process the file immediately
+                if uploaded_file.type.startswith('audio/'):
+                    st.session_state.input_text = transcribe_audio(uploaded_file)
+                else:
+                    st.session_state.input_text = process_text_file(uploaded_file)
     
     with col3:
         if ui_components.input_method_card("Typen", "pencil"):
             st.session_state.input_method = "type"
             st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
 
-    if st.button("Genereer samenvatting", key="start_process_button"):
+    # Check if we have input text and a selected prompt before enabling the button
+    button_disabled = not (st.session_state.get('input_text') and st.session_state.get('selected_prompt'))
+    
+    if st.button("GENEREER SAMENVATTING", key="start_process_button", disabled=button_disabled):
         process_input_and_generate_summary()
-
+    
+    if button_disabled:
+        st.warning("Upload een bestand, neem audio op, of voer tekst in voordat je de samenvatting genereert.")
 
 def process_input_and_generate_summary():
     with st.spinner("Bezig met verwerken..."):
         st.write("Debug: Entering process_input_and_generate_summary")
         st.write(f"Debug: Input method: {st.session_state.get('input_method')}")
         st.write(f"Debug: Uploaded file: {st.session_state.get('uploaded_file')}")
-        
-        if st.session_state.get('input_method') == "upload" and 'uploaded_file' in st.session_state:
-            uploaded_file = st.session_state.uploaded_file
-            st.write(f"Debug: Processing uploaded file: {uploaded_file.name}")
-            if uploaded_file.type.startswith('audio/'):
-                st.write("Debug: Transcribing audio file")
-                st.session_state.input_text = transcribe_audio(uploaded_file)
-            else:
-                st.write("Debug: Processing text file")
-                st.session_state.input_text = process_text_file(uploaded_file)
-        elif st.session_state.get('input_method') == "record" and 'audio_data' in st.session_state:
-            st.write("Debug: Transcribing recorded audio")
-            st.session_state.input_text = transcribe_audio(st.session_state.audio_data)
-        
         st.write(f"Debug: Input text length: {len(st.session_state.get('input_text', ''))}")
         st.write(f"Debug: Selected prompt: {st.session_state.get('selected_prompt')}")
 
@@ -134,7 +130,7 @@ def process_input_and_generate_summary():
             st.experimental_rerun()
         else:
             st.error("Er is geen input tekst of geen prompt geselecteerd. Controleer of je een bestand hebt geüpload of tekst hebt ingevoerd, en of je een prompt hebt gekozen.")
-            
+
 def render_results():
     col1, col2 = st.columns([3, 2])
     
