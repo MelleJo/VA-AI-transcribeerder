@@ -7,6 +7,11 @@ from openai import OpenAI
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
+# Initialize base_prompt at the script level
+if 'base_prompt' not in st.session_state:
+    prompts = load_prompts()
+    st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
@@ -37,9 +42,10 @@ def main():
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
 
-    # Load prompts
-    prompts = load_prompts()
-    st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+    # Ensure base_prompt is initialized
+    if 'base_prompt' not in st.session_state:
+        prompts = load_prompts()
+        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
