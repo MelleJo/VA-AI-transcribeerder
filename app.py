@@ -1,6 +1,6 @@
 import streamlit as st
 from src import config, prompt_module, input_module, summary_and_output_module, ui_components, history_module
-from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file
+from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file, get_prompt_names
 import logging
 import os
 from openai import OpenAI
@@ -12,7 +12,7 @@ def load_css():
     with open(css_path) as f:
         css_content = f.read()
     
-    # Add Font Awesome
+    # Add Font Awesome for the arrow icon
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
     return f'<style>{css_content}</style>{font_awesome}'
@@ -53,21 +53,25 @@ def main():
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
     
+    # Define categories and their corresponding prompts
     prompt_categories = {
-        "Zakelijk": ["Vergadernotulen", "Klantgesprek", "Presentatie"],
-        "Persoonlijk": ["Dagboek", "Ideeën", "Reisverslag"],
-        "Educatief": ["Lezing", "Studiemateriaal", "Onderzoeksnotities"]
+        "Verzekeringen": ["aov", "expertise_gesprek", "klantrapport", "klantvraag", "mutatie", "risico_analyse", "schade_beoordeling", "schademelding"],
+        "Financieel": ["financieelplanningstraject", "hypotheek", "hypotheek_rapport"],
+        "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
+        "Overig": ["adviesgesprek", "gesprek_bedrijfsarts", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
     }
-
-    selected_category = st.selectbox("Kies een categorie", list(prompt_categories.keys()))
     
-    col1, col2, col3 = st.columns(3)
-    for i, prompt in enumerate(prompt_categories[selected_category]):
-        with [col1, col2, col3][i % 3]:
-            if ui_components.prompt_card(prompt):
-                st.session_state.selected_prompt = prompt
-                st.session_state.step = 'input_selection'
-                st.experimental_rerun()
+    # Radio buttons for category selection
+    selected_category = st.radio("Kies een categorie:", list(prompt_categories.keys()))
+    
+    # Dropdown for prompt selection
+    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[selected_category])
+    
+    # Button to proceed
+    if st.button("Verder ➔"):
+        st.session_state.selected_prompt = selected_prompt
+        st.session_state.step = 'input_selection'
+        st.experimental_rerun()
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
