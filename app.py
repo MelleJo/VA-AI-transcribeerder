@@ -1,8 +1,8 @@
 # app.py
 
 import streamlit as st
-from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
-from src.utils import post_process_grammar_check, format_currency
+from src import config, prompt_module, input_module, summary_and_output_module, ui_components
+from src.utils import post_process_grammar_check, format_currency, load_prompts
 import logging
 import os
 import uuid
@@ -34,6 +34,11 @@ def main():
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
+    
+    # Load prompts
+    prompts = load_prompts()
+    if 'base_prompt' not in st.session_state:
+        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
     # Main content
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)

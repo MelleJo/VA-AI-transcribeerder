@@ -30,9 +30,22 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
 def render_summary():
-    if not st.session_state.summary:
-        st.session_state.summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
-    st.markdown(st.session_state.summary)
+    if not st.session_state.get('summary'):
+        if all(key in st.session_state for key in ['input_text', 'selected_prompt', 'base_prompt']):
+            with st.spinner("Samenvatting wordt gegenereerd..."):
+                st.session_state.summary = generate_summary(
+                    st.session_state.input_text,
+                    st.session_state.base_prompt,
+                    st.session_state.selected_prompt
+                )
+        else:
+            st.warning("Zorg ervoor dat zowel de invoertekst als de prompt zijn geselecteerd voordat u een samenvatting genereert.")
+            return
+
+    if st.session_state.summary:
+        st.markdown(st.session_state.summary)
+    else:
+        st.error("Er is een fout opgetreden bij het genereren van de samenvatting. Probeer het opnieuw.")
 
 def render_chat_interface():
     if 'messages' not in st.session_state:
