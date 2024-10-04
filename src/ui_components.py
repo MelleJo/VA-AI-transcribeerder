@@ -30,15 +30,29 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     st.markdown(href, unsafe_allow_html=True)
 
 def ui_card_button(title: str, description: str):
-    return st.button(
-        f"""
-        <div class="card-button">
+    button_id = f"card_button_{title.lower().replace(' ', '_')}"
+    st.markdown(f"""
+        <div id="{button_id}" class="card-button">
             <h3>{title}</h3>
             <p>{description}</p>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+    
+    # Use an empty button to trigger the click event
+    is_clicked = st.button("", key=button_id, help=f"Click to {title}")
+    
+    # Use custom JavaScript to make the entire card clickable
+    st.markdown(f"""
+        <script>
+            const cardButton = document.getElementById('{button_id}');
+            cardButton.addEventListener('click', function() {{
+                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
+                button.click();
+            }});
+        </script>
+    """, unsafe_allow_html=True)
+    
+    return is_clicked
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
     button_id = f"copy_button_{hash(text)}"
