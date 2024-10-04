@@ -180,7 +180,7 @@ def render_input_step():
             if audio_data is not None:
                 if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
                     st.session_state.is_recording = True
-                    st.experimental_rerun()
+                    st.rerun()
                 elif isinstance(audio_data, dict) and 'bytes' in audio_data:
                     st.session_state.audio_data = audio_data
                     process_recorded_audio(audio_data)
@@ -234,7 +234,7 @@ def render_input_step():
             st.session_state.is_recording = False
             st.session_state.audio_data = audio_data
             process_recorded_audio(audio_data)
-            st.experimental_rerun()
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.transcription_complete:

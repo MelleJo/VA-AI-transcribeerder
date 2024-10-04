@@ -71,7 +71,7 @@ def render_prompt_selection():
     if st.button("Verder ➔"):
         st.session_state.selected_prompt = selected_prompt
         st.session_state.step = 'input_selection'
-        st.experimental_rerun()
+        st.rerun()
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
@@ -115,7 +115,7 @@ def process_input_and_generate_summary():
                 get_prompt_content(st.session_state.selected_prompt)
             )
             st.session_state.step = 'results'
-            st.experimental_rerun()
+            st.rerun()
 
 def render_results():
     col1, col2 = st.columns([3, 2])
@@ -138,14 +138,14 @@ def render_results():
                     st.session_state.base_prompt,
                     get_prompt_content(st.session_state.selected_prompt)
                 )
-                st.experimental_rerun()
+                st.rerun()
 
     if st.button("Terug naar begin", key="back_to_start_button"):
         st.session_state.step = 'prompt_selection'
         st.session_state.selected_prompt = None
         st.session_state.input_text = ""
         st.session_state.summary = ""
-        st.experimental_rerun()
+        st.rerun()
 
 if __name__ == "__main__":
     main()
