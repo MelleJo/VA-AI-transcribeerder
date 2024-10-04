@@ -20,9 +20,15 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
                 with cols[i]:
                     button()
 
-def ui_button(label: str, on_click: Callable, key: str, primary: bool = False, disabled: bool = False):
+def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
     button_class = "ui-button-primary" if primary else "ui-button-secondary"
-    return st.button(label, on_click=on_click, key=key, help=f"Klik om {label.lower()}", use_container_width=True, disabled=disabled)
+    return st.button(
+        label,
+        on_click=on_click,
+        key=key,
+        help=f"Klik om {label.lower()}",
+        use_container_width=True
+    )
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()

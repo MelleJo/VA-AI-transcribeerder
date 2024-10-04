@@ -82,7 +82,11 @@ def render_transcript_and_prompt_selection():
         prompt_module.render_prompt_selection()
     
     if st.session_state.input_text and st.session_state.selected_prompt:
-        if ui_components.ui_button("Genereer samenvatting", on_click=lambda: setattr(st.session_state, 'step', 3)):
+        if ui_components.ui_button(
+            label="Genereer samenvatting",
+            on_click=lambda: setattr(st.session_state, 'step', 3),
+            key="generate_summary_button"
+        ):
             st.session_state.step = 3
 
 def render_summary_and_chat():
