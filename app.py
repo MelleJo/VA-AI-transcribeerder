@@ -22,6 +22,8 @@ if 'summary_versions' not in st.session_state:
     st.session_state.summary_versions = []
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
+if 'summary' not in st.session_state:
+    st.session_state.summary = ""
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')
@@ -111,6 +113,7 @@ def process_input_and_generate_summary(input_method):
             )
             st.session_state.summary_versions.append(new_summary)
             st.session_state.current_version = len(st.session_state.summary_versions) - 1
+            st.session_state.summary = new_summary  # Initialize the summary
             st.session_state.step = 'results'
             st.rerun()
         else:
@@ -140,6 +143,7 @@ def render_results():
                 )
                 st.session_state.summary_versions.append(new_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
+                st.session_state.summary = new_summary  # Update the summary
                 st.rerun()
 
     if st.button("Terug naar begin", key="back_to_start_button"):
@@ -148,6 +152,7 @@ def render_results():
         st.session_state.input_text = ""
         st.session_state.summary_versions = []
         st.session_state.current_version = 0
+        st.session_state.summary = ""  # Reset the summary
         st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
@@ -160,6 +165,7 @@ def render_summary_with_version_control():
         with col1:
             if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
                 st.session_state.current_version -= 1
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
                 st.rerun()
         
         with col2:
@@ -168,6 +174,7 @@ def render_summary_with_version_control():
         with col3:
             if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
                 st.session_state.current_version += 1
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
                 st.rerun()
         
         st.markdown("</div>", unsafe_allow_html=True)
@@ -178,8 +185,9 @@ def render_summary_with_version_control():
         st.markdown("</div>", unsafe_allow_html=True)
         
         if edited_summary != current_summary:
-            if st.button("Wijzigingen opslaan", key="save_changes_button", class_="save-changes-btn"):
+            if st.button("Wijzigingen opslaan", key="save_changes_button"):
                 st.session_state.summary_versions[st.session_state.current_version] = edited_summary
+                st.session_state.summary = edited_summary  # Update the summary
                 st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:
