@@ -1,6 +1,6 @@
 import streamlit as st
 from src import config, prompt_module, input_module, summary_and_output_module, ui_components, history_module
-from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file, get_prompt_names
+from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file, get_prompt_names, get_prompt_content
 import logging
 import os
 from openai import OpenAI
@@ -76,40 +76,32 @@ def render_prompt_selection():
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        if ui_components.input_method_card("Opnemen", "microphone"):
-            st.session_state.input_method = "record"
-            input_module.render_audio_input()
-    
-    with col2:
-        if ui_components.input_method_card("Uploaden", "paperclip"):
-            st.session_state.input_method = "upload"
-            uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
-            if uploaded_file:
-                st.session_state.uploaded_file = uploaded_file
-                st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
-    
-    with col3:
-        if ui_components.input_method_card("Typen", "pencil"):
-            st.session_state.input_method = "type"
-            st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
+    input_method = st.radio("Kies invoermethode:", ["Uploaden", "Opnemen", "Typen"])
 
-    if st.button("Begin transcriptie en samenvatting", key="start_process_button"):
-        process_input_and_generate_summary()
+    if input_method == "Uploaden":
+        uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
+        if uploaded_file:
+            st.session_state.uploaded_file = uploaded_file
+            st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
+    elif input_method == "Opnemen":
+        input_module.render_audio_input()
+    elif input_method == "Typen":
+        st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
 
-def process_input_and_generate_summary():
+    if st.button("Begin transcriptie en samenvatting"):
+        process_input_and_generate_summary(input_method)
+
+def process_input_and_generate_summary(input_method):
     with st.spinner("Bezig met verwerken..."):
-        if st.session_state.input_method == "upload" and 'uploaded_file' in st.session_state:
+        if input_method == "Uploaden" and 'uploaded_file' in st.session_state:
             if st.session_state.uploaded_file.type.startswith('audio/'):
                 st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
             else:
                 st.session_state.input_text = process_text_file(st.session_state.uploaded_file)
-        elif st.session_state.input_method == "record" and 'audio_data' in st.session_state:
+        elif input_method == "Opnemen" and 'audio_data' in st.session_state:
             st.session_state.input_text = transcribe_audio(st.session_state.audio_data)
-
-        if st.session_state.input_text and st.session_state.selected_prompt:
+        
+        if 'input_text' in st.session_state and st.session_state.input_text:
             st.session_state.summary = summary_and_output_module.generate_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
@@ -117,6 +109,8 @@ def process_input_and_generate_summary():
             )
             st.session_state.step = 'results'
             st.rerun()
+        else:
+            st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
 
 def render_results():
     col1, col2 = st.columns([3, 2])
@@ -149,4 +143,12 @@ def render_results():
         st.rerun()
 
 if __name__ == "__main__":
-    main()
+    if 'step' not in st.session_state:
+        st.session_state.step = 'prompt_selection'
+
+    if st.session_state.step == 'prompt_selection':
+        render_prompt_selection()
+    elif st.session_state.step == 'input_selection':
+        render_input_selection()
+    elif st.session_state.step == 'results':
+        render_results()
