@@ -41,51 +41,57 @@ def get_prompt_content(prompt_name):
     prompts = load_prompts()
     return prompts.get(prompt_name, "")
 
-def split_audio(file):
-    audio = AudioSegment.from_file(file)
+def split_audio(audio):
     chunks = []
     for i in range(0, len(audio), AUDIO_SEGMENT_LENGTH):
         chunks.append(audio[i:i+AUDIO_SEGMENT_LENGTH])
     return chunks
 
-def transcribe_audio(audio_file, progress_callback=None):
+def transcribe_audio(uploaded_file, progress_callback=None):
     try:
-        file_extension = os.path.splitext(audio_file)[1].lower()
-        if file_extension == '.mp4':
-            # Extract audio from mp4
-            video = mp.VideoFileClip(audio_file)
-            audio = video.audio
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
-                audio.write_audiofile(temp_audio.name)
-                audio_file = temp_audio.name
-            video.close()
-        
-        audio = AudioSegment.from_file(audio_file)
-        chunks = split_audio(audio_file)
-        total_chunks = len(chunks)
-        full_transcript = ""
+        # Create a temporary directory to store the file
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Get the file extension
+            file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+            
+            # Save the uploaded file to the temporary directory
+            temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
+            with open(temp_file_path, "wb") as f:
+                f.write(uploaded_file.getvalue())
+            
+            # Handle mp4 files (convert to audio)
+            if file_extension == '.mp4':
+                video = mp.VideoFileClip(temp_file_path)
+                audio = video.audio
+                temp_audio_path = os.path.join(temp_dir, "temp_audio.wav")
+                audio.write_audiofile(temp_audio_path)
+                temp_file_path = temp_audio_path
+                video.close()
+            
+            # Load the audio file
+            audio = AudioSegment.from_file(temp_file_path)
+            
+            # Split the audio into chunks
+            chunks = split_audio(audio)
+            total_chunks = len(chunks)
+            full_transcript = ""
 
-        for i, chunk in enumerate(chunks):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_chunk:
-                chunk.export(temp_chunk.name, format="wav")
-                with open(temp_chunk.name, "rb") as audio_chunk:
-                    try:
-                        response = client.audio.transcriptions.create(
-                            model=AUDIO_MODEL,
-                            file=audio_chunk,
-                            response_format="text"
-                        )
-                        transcript = response
-                    except json.JSONDecodeError:
-                        st.warning(f"Er was een probleem bij het decoderen van het antwoord voor chunk {i+1}. Overslaan en doorgaan.")
-                        continue
-                full_transcript += transcript + " "
-            os.unlink(temp_chunk.name)
+            for i, chunk in enumerate(chunks):
+                chunk_path = os.path.join(temp_dir, f"chunk_{i}.wav")
+                chunk.export(chunk_path, format="wav")
+                
+                with open(chunk_path, "rb") as audio_chunk:
+                    response = client.audio.transcriptions.create(
+                        model=AUDIO_MODEL,
+                        file=audio_chunk,
+                        response_format="text"
+                    )
+                    full_transcript += response + " "
 
-            if progress_callback:
-                progress_callback(i + 1, total_chunks)
+                if progress_callback:
+                    progress_callback(i + 1, total_chunks)
 
-        return full_transcript.strip()
+            return full_transcript.strip()
     except Exception as e:
         raise Exception(f"An error occurred during audio transcription: {str(e)}")
 

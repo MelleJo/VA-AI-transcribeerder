@@ -322,11 +322,15 @@ def process_text_input():
 def render_upload_input():
     uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
     if uploaded_file:
-        if uploaded_file.type.startswith('audio/'):
-            st.session_state.input_text = transcribe_audio(uploaded_file)
-        else:
-            st.session_state.input_text = process_text_file(uploaded_file)
-        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+        try:
+            if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
+                with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
+                    st.session_state.input_text = transcribe_audio(uploaded_file)
+            else:
+                st.session_state.input_text = process_text_file(uploaded_file)
+            st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+        except Exception as e:
+            st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
 
 
 def render_audio_input():
