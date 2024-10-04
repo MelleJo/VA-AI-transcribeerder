@@ -10,7 +10,12 @@ logging.getLogger('watchdog').setLevel(logging.ERROR)
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
-        return f'<style>{f.read()}</style>'
+        css_content = f.read()
+    
+    # Add Font Awesome
+    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
+    
+    return f'<style>{css_content}</style>{font_awesome}'
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")

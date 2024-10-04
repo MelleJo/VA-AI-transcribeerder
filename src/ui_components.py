@@ -31,27 +31,49 @@ def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
     )
 
 def prompt_card(title):
-    return st.button(
-        f"""
-        <div class="prompt-card">
+    button_id = f"prompt_{title.lower().replace(' ', '_')}"
+    st.markdown(f"""
+        <div id="{button_id}" class="prompt-card">
             <h3>{title}</h3>
         </div>
-        """,
-        key=f"prompt_{title}",
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+    
+    is_clicked = st.button("", key=button_id, help=f"Select {title}")
+    
+    st.markdown(f"""
+        <script>
+            const card = document.getElementById('{button_id}');
+            card.addEventListener('click', function() {{
+                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
+                button.click();
+            }});
+        </script>
+    """, unsafe_allow_html=True)
+    
+    return is_clicked
 
 def input_method_card(title, icon):
-    return st.button(
-        f"""
-        <div class="input-method-card">
+    button_id = f"input_{title.lower().replace(' ', '_')}"
+    st.markdown(f"""
+        <div id="{button_id}" class="input-method-card">
             <i class="fas fa-{icon}"></i>
             <p>{title}</p>
         </div>
-        """,
-        key=f"input_{title}",
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+    
+    is_clicked = st.button("", key=button_id, help=f"Select {title} input method")
+    
+    st.markdown(f"""
+        <script>
+            const card = document.getElementById('{button_id}');
+            card.addEventListener('click', function() {{
+                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
+                button.click();
+            }});
+        </script>
+    """, unsafe_allow_html=True)
+    
+    return is_clicked
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
