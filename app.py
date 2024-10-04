@@ -124,7 +124,7 @@ def render_results():
     col1, col2 = st.columns([3, 2])
     
     with col1:
-        st.markdown("<h2 class='section-title'>Samenvatting</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Summary</h2>", unsafe_allow_html=True)
         render_summary_with_version_control()
     
     with col2:

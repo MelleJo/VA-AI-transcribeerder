@@ -52,14 +52,31 @@ def render_chat_interface():
         st.session_state.messages = []
 
     for message in st.session_state.messages:
-        st.chat_message(message["role"]).markdown(message["content"])
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-    if prompt := st.chat_input("Stel een vraag over de samenvatting of vraag om aanpassingen"):
+    if prompt := st.chat_input("Ask a question about the summary or request changes"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        response = customize_summary(st.session_state.summary, prompt, st.session_state.input_text)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.session_state.summary = response
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
+        with st.chat_message("assistant"):
+            response_placeholder = st.empty()
+            full_response = customize_summary(st.session_state.summary, prompt, st.session_state.input_text)
+            response_placeholder.markdown(full_response)
+
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+    
+     # Add a button to apply changes to the main summary
+    if st.button("Apply changes to main summary"):
+        if st.session_state.messages:
+            latest_summary = next((msg["content"] for msg in reversed(st.session_state.messages) if msg["role"] == "assistant"), None)
+            if latest_summary:
+                st.session_state.summary = latest_summary
+                st.session_state.summaries.append(latest_summary)
+                st.session_state.current_version = len(st.session_state.summaries) - 1
+                st.success("Changes applied to the main summary.")
+                st.rerun()
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
@@ -139,26 +156,44 @@ def generate_summary(input_text, base_prompt, selected_prompt):
 
 def customize_summary(current_summary, customization_request, transcript):
     try:
-        response = client.chat.completions.create(
+        messages = [
+            {"role": "system", "content": "You are an AI-assistant that customizes summaries based on specific requests. Maintain the essence of the original summary but adjust it according to the user's request."},
+            {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nCustomization request: {customization_request}\n\nAdjust the summary according to this request."}
+        ]
+        
+        stream = client.chat.completions.create(
             model=SUMMARY_MODEL,
-            messages=[
-                {"role": "system", "content": "Je bent een AI-assistent die samenvattingen aanpast op basis van specifieke verzoeken. Behoud de essentie van de oorspronkelijke samenvatting, maar pas deze aan volgens het verzoek van de gebruiker."},
-                {"role": "user", "content": f"Oorspronkelijke samenvatting:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nAanpassingsverzoek: {customization_request}\n\nPas de samenvatting aan volgens dit verzoek."}
-            ],
+            messages=messages,
             max_tokens=MAX_TOKENS,
             temperature=TEMPERATURE,
             top_p=TOP_P,
             frequency_penalty=FREQUENCY_PENALTY,
             presence_penalty=PRESENCE_PENALTY,
-            n=1,
-            stop=None
+            stream=True
         )
-        customized_summary = response.choices[0].message.content.strip()
+
+        customized_summary = ""
+        placeholder = st.empty()
+
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                customized_summary += chunk.choices[0].delta.content
+                placeholder.markdown(customized_summary + "▌")
+            time.sleep(0.01)
+
+        placeholder.markdown(customized_summary)
+
         if not customized_summary:
-            raise ValueError("Aangepaste samenvatting is leeg")
+            raise ValueError("Customized summary is empty")
+
+        # Update the main summary state
+        st.session_state.summary = customized_summary
+        st.session_state.summaries.append(customized_summary)
+        st.session_state.current_version = len(st.session_state.summaries) - 1
+
         return customized_summary
     except Exception as e:
-        st.error(f"Er is een fout opgetreden bij het aanpassen van de samenvatting: {str(e)}")
+        st.error(f"An error occurred while customizing the summary: {str(e)}")
         return None
 
 def export_to_docx(summary):
