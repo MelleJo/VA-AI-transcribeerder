@@ -29,6 +29,17 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
 
+def ui_card_button(title: str, description: str):
+    return st.button(
+        f"""
+        <div class="card-button">
+            <h3>{title}</h3>
+            <p>{description}</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 def ui_copy_button(text: str, label: str = "Kopiëren"):
     button_id = f"copy_button_{hash(text)}"
     st.markdown(f"""

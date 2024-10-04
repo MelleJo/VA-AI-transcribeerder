@@ -318,3 +318,22 @@ def process_text_input():
         ui_info_box("Tekst succesvol verwerkt!", "success")
     else:
         ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
+
+def render_upload_input():
+    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
+    if uploaded_file:
+        if uploaded_file.type.startswith('audio/'):
+            st.session_state.input_text = transcribe_audio(uploaded_file)
+        else:
+            st.session_state.input_text = process_text_file(uploaded_file)
+        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+
+
+def render_audio_input():
+    audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
+    if audio_data:
+        st.session_state.input_text = transcribe_audio(audio_data)
+        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+
+def render_text_input():
+    st.session_state.input_text = st.text_area("Voer tekst in:", height=300)

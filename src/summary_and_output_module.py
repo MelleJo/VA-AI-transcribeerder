@@ -28,6 +28,26 @@ import pandas as pd
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+
+def render_summary():
+    if not st.session_state.summary:
+        st.session_state.summary = generate_summary(st.session_state.input_text, st.session_state.selected_prompt)
+    st.markdown(st.session_state.summary)
+
+def render_chat_interface():
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+
+    for message in st.session_state.messages:
+        st.chat_message(message["role"]).markdown(message["content"])
+
+    if prompt := st.chat_input("Stel een vraag over de samenvatting of vraag om aanpassingen"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        response = customize_summary(st.session_state.summary, prompt, st.session_state.input_text)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.summary = response
+
+
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
 

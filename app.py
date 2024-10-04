@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 from src import config, prompt_module, input_module, transcript_module, summary_and_output_module, ui_components, history_module
 from src.utils import post_process_grammar_check, format_currency
@@ -13,11 +15,6 @@ def load_css():
     with open(css_path) as f:
         return f'<style>{f.read()}</style>'
 
-def load_custom_spinner():
-    spinner_path = os.path.join('static', 'custom_spinner.html')
-    with open(spinner_path, 'r') as f:
-        return f.read()
-
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
@@ -25,52 +22,8 @@ def main():
     st.markdown(load_css(), unsafe_allow_html=True)
     ui_components.apply_custom_css()
 
-    # Include custom spinner
-    st.components.v1.html(load_custom_spinner(), height=0)
-
     # Initialize OpenAI client
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-    # Add JavaScript for formatted text copying
-    st.markdown("""
-    <script>
-    function copyFormattedText(elementId) {
-        const element = document.getElementById(elementId);
-        const htmlContent = element.getAttribute('data-html-content');
-        
-        const listener = function(e) {
-            e.clipboardData.setData("text/html", htmlContent);
-            e.clipboardData.setData("text/plain", element.innerText);
-            e.preventDefault();
-        };
-        
-        document.addEventListener("copy", listener);
-        document.execCommand("copy");
-        document.removeEventListener("copy", listener);
-        
-        // Show success message
-        const successMsg = document.createElement('div');
-        successMsg.textContent = 'Gekopieerd met opmaak!';
-        successMsg.style.position = 'fixed';
-        successMsg.style.top = '10px';
-        successMsg.style.left = '50%';
-        successMsg.style.transform = 'translateX(-50%)';
-        successMsg.style.backgroundColor = '#4CAF50';
-        successMsg.style.color = 'white';
-        successMsg.style.padding = '10px';
-        successMsg.style.borderRadius = '5px';
-        successMsg.style.zIndex = '9999';
-        document.body.appendChild(successMsg);
-        
-        setTimeout(() => {
-            successMsg.remove();
-        }, 2000);
-    }
-    </script>
-    """, unsafe_allow_html=True)
-
-    # Main content
-    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'step' not in st.session_state:
@@ -81,70 +34,67 @@ def main():
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
-    if 'history' not in st.session_state:
-        st.session_state.history = []
-    if 'is_recording' not in st.session_state:
-        st.session_state.is_recording = False
-    if 'transcription_complete' not in st.session_state:
-        st.session_state.transcription_complete = False
 
-    # Navigation
-    steps = ["Prompt Selectie", "Invoer", "Transcript Bewerken", "Samenvatting", "Geschiedenis"]
+    # Main content
+    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
+
+    if st.session_state.step == 1:
+        render_input_options()
+    elif st.session_state.step == 2:
+        render_transcript_and_prompt_selection()
+    elif st.session_state.step == 3:
+        render_summary_and_chat()
+
+def render_input_options():
+    st.markdown("<h2 class='section-title'>Kies een invoermethode</h2>", unsafe_allow_html=True)
     
-    # Display current step
-    st.markdown(f"<h2 class='section-title'>Stap {st.session_state.step}: {steps[st.session_state.step - 1]}</h2>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
     
-    # Progress bar
-    st.progress((st.session_state.step - 1) / (len(steps) - 1))
-
-    # Render step content
-    with st.container():
-        if st.session_state.step == 1:
-            prompt_module.render_prompt_selection()
-        elif st.session_state.step == 2:
-            input_module.render_input_step()
-        elif st.session_state.step == 3:
-            transcript_module.render_transcript_edit()
-        elif st.session_state.step == 4:
-            summary_and_output_module.render_summary_and_output()
-        elif st.session_state.step == 5:
-            history_module.render_history()
-
-    # Navigation buttons
-    st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        if st.session_state.step > 1:
-            if st.button("◀ Vorige", key="previous_button"):
-                if st.session_state.is_recording:
-                    st.warning("Stop eerst de opname voordat u teruggaat.")
-                else:
-                    st.session_state.step -= 1
-                    st.rerun()
-
+        if ui_components.ui_card_button("Uploaden", "Upload een audio- of tekstbestand"):
+            st.session_state.input_method = "upload"
+            st.session_state.step = 2
+    
+    with col2:
+        if ui_components.ui_card_button("Inspreken", "Neem audio op met je microfoon"):
+            st.session_state.input_method = "record"
+            st.session_state.step = 2
+    
     with col3:
-        if st.session_state.step < len(steps):
-            next_label = "Volgende ▶" if st.session_state.step < 4 else "Bekijk Geschiedenis ▶"
-            if st.button(next_label, key=f"next_button_{st.session_state.step}"):
-                if st.session_state.is_recording:
-                    st.warning("Stop eerst de opname voordat u verdergaat.")
-                elif st.session_state.step == 2 and not st.session_state.transcription_complete:
-                    st.warning("Verwerk eerst de input door op 'Stop opname' te klikken en het transcript te laten genereren.")
-                else:
-                    st.session_state.step += 1
-                    st.rerun()
+        if ui_components.ui_card_button("Typen", "Voer tekst direct in"):
+            st.session_state.input_method = "type"
+            st.session_state.step = 2
 
-    # Debug Info Expander
-    with st.expander("Debug Info"):
-        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-        st.write(f"Step: {st.session_state.step}")
-        st.write(f"Selected Prompt: {st.session_state.selected_prompt}")
-        st.write(f"Input Text Length: {len(st.session_state.input_text)}")
-        st.write(f"Summary Length: {len(st.session_state.summary)}")
-        st.write(f"History Items: {len(st.session_state.history)}")
-        st.write(f"Is Recording: {st.session_state.is_recording}")
-        st.write(f"Transcription Complete: {st.session_state.transcription_complete}")
-        st.markdown("</div>", unsafe_allow_html=True)
+def render_transcript_and_prompt_selection():
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("<h2 class='section-title'>Transcript</h2>", unsafe_allow_html=True)
+        if st.session_state.input_method == "upload":
+            input_module.render_upload_input()
+        elif st.session_state.input_method == "record":
+            input_module.render_audio_input()
+        elif st.session_state.input_method == "type":
+            input_module.render_text_input()
+    
+    with col2:
+        st.markdown("<h2 class='section-title'>Kies een instructieset</h2>", unsafe_allow_html=True)
+        prompt_module.render_prompt_selection()
+    
+    if st.session_state.input_text and st.session_state.selected_prompt:
+        if ui_components.ui_button("Genereer samenvatting", on_click=lambda: setattr(st.session_state, 'step', 3)):
+            st.session_state.step = 3
+
+def render_summary_and_chat():
+    col1, col2 = st.columns([3, 2])
+    
+    with col1:
+        st.markdown("<h2 class='section-title'>Samenvatting</h2>", unsafe_allow_html=True)
+        summary_and_output_module.render_summary()
+    
+    with col2:
+        st.markdown("<h2 class='section-title'>Chat</h2>", unsafe_allow_html=True)
+        summary_and_output_module.render_chat_interface()
 
 if __name__ == "__main__":
     main()
