@@ -1,5 +1,98 @@
 /* styles.css */
 
+/* Existing styles... */
+
+/* New styles for version control and summary editing */
+
+/* Version control navigation */
+.version-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.version-control button {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.version-control button:hover:not(:disabled) {
+    background-color: #2d3748;
+}
+
+.version-control button:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+.version-info {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Summary editing area */
+.summary-edit-area {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-edit-area textarea {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    resize: vertical;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #2d3748;
+}
+
+.summary-edit-area textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+/* Save changes button */
+.save-changes-btn {
+    background-color: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.save-changes-btn:hover {
+    background-color: #38a169;
+}
+
+/* Success message for saved changes */
+.save-success-message {
+    background-color: #c6f6d5;
+    color: #2f855a;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Existing styles... */
+
 /* Global Styles */
 body {
     font-family: 'Inter', sans-serif;

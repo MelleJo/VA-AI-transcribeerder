@@ -17,7 +17,7 @@ def load_css():
     with open(css_path) as f:
         css_content = f.read()
     
-    # Add Font Awesome for the arrow icon
+    # Add Font Awesome for icons
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
     return f'<style>{css_content}</style>{font_awesome}'
@@ -39,8 +39,10 @@ def main():
         st.session_state.selected_prompt = None
     if 'input_text' not in st.session_state:
         st.session_state.input_text = ""
-    if 'summary' not in st.session_state:
-        st.session_state.summary = ""
+    if 'summary_versions' not in st.session_state:
+        st.session_state.summary_versions = []
+    if 'current_version' not in st.session_state:
+        st.session_state.current_version = 0
 
     # Ensure base_prompt is initialized
     if 'base_prompt' not in st.session_state:
@@ -74,7 +76,7 @@ def render_prompt_selection():
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[selected_category])
     
     # Button to proceed
-    if st.button("Verder ➔"):
+    if st.button("Verder ➔", key="proceed_button"):
         st.session_state.selected_prompt = selected_prompt
         st.session_state.step = 'input_selection'
         st.rerun()
@@ -94,7 +96,7 @@ def render_input_selection():
     elif input_method == "Typen":
         st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
 
-    if st.button("Begin transcriptie en samenvatting"):
+    if st.button("Begin transcriptie en samenvatting", key="start_processing_button"):
         process_input_and_generate_summary(input_method)
 
 def process_input_and_generate_summary(input_method):
@@ -108,22 +110,25 @@ def process_input_and_generate_summary(input_method):
             st.session_state.input_text = transcribe_audio(st.session_state.audio_data)
         
         if 'input_text' in st.session_state and st.session_state.input_text:
-            st.session_state.summary = summary_and_output_module.generate_summary(
+            new_summary = summary_and_output_module.generate_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
                 get_prompt_content(st.session_state.selected_prompt)
             )
+            st.session_state.summary_versions.append(new_summary)
+            st.session_state.current_version = len(st.session_state.summary_versions) - 1
             st.session_state.step = 'results'
             st.rerun()
         else:
             st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
 
 def render_results():
+    st.markdown("<div class='main-content'>", unsafe_allow_html=True)
     col1, col2 = st.columns([3, 2])
     
     with col1:
         st.markdown("<h2 class='section-title'>Samenvatting</h2>", unsafe_allow_html=True)
-        summary_and_output_module.render_summary()
+        render_summary_with_version_control()
     
     with col2:
         st.markdown("<h2 class='section-title'>Chat</h2>", unsafe_allow_html=True)
@@ -133,20 +138,58 @@ def render_results():
         edited_transcript = st.text_area("Transcript:", value=st.session_state.input_text, height=300)
         if edited_transcript != st.session_state.input_text:
             st.session_state.input_text = edited_transcript
-            if st.button("Genereer opnieuw"):
-                st.session_state.summary = summary_and_output_module.generate_summary(
+            if st.button("Genereer opnieuw", key="regenerate_button"):
+                new_summary = summary_and_output_module.generate_summary(
                     st.session_state.input_text,
                     st.session_state.base_prompt,
                     get_prompt_content(st.session_state.selected_prompt)
                 )
+                st.session_state.summary_versions.append(new_summary)
+                st.session_state.current_version = len(st.session_state.summary_versions) - 1
                 st.rerun()
 
     if st.button("Terug naar begin", key="back_to_start_button"):
         st.session_state.step = 'prompt_selection'
         st.session_state.selected_prompt = None
         st.session_state.input_text = ""
-        st.session_state.summary = ""
+        st.session_state.summary_versions = []
+        st.session_state.current_version = 0
         st.rerun()
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+
+def render_summary_with_version_control():
+    if st.session_state.summary_versions:
+        st.markdown("<div class='version-control'>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 3, 1])
+        
+        with col1:
+            if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
+                st.session_state.current_version -= 1
+                st.rerun()
+        
+        with col2:
+            st.markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
+        
+        with col3:
+            if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
+                st.session_state.current_version += 1
+                st.rerun()
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        current_summary = st.session_state.summary_versions[st.session_state.current_version]
+        st.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
+        edited_summary = st.text_area("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        if edited_summary != current_summary:
+            if st.button("Wijzigingen opslaan", key="save_changes_button", class_="save-changes-btn"):
+                st.session_state.summary_versions[st.session_state.current_version] = edited_summary
+                st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen.</div>", unsafe_allow_html=True)
+                st.rerun()
+    else:
+        st.warning("Geen samenvatting beschikbaar.")
 
 if __name__ == "__main__":
     if 'step' not in st.session_state:
