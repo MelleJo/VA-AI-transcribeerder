@@ -7,10 +7,21 @@ from openai import OpenAI
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
-# Initialize base_prompt at the script level
+# Initialize session state variables at the script level
 if 'base_prompt' not in st.session_state:
     prompts = load_prompts()
     st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+
+if 'step' not in st.session_state:
+    st.session_state.step = 'prompt_selection'
+if 'selected_prompt' not in st.session_state:
+    st.session_state.selected_prompt = None
+if 'input_text' not in st.session_state:
+    st.session_state.input_text = ""
+if 'summary_versions' not in st.session_state:
+    st.session_state.summary_versions = []
+if 'current_version' not in st.session_state:
+    st.session_state.current_version = 0
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')
@@ -31,23 +42,6 @@ def main():
 
     # Initialize OpenAI client
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-    # Initialize session state
-    if 'step' not in st.session_state:
-        st.session_state.step = 'prompt_selection'
-    if 'selected_prompt' not in st.session_state:
-        st.session_state.selected_prompt = None
-    if 'input_text' not in st.session_state:
-        st.session_state.input_text = ""
-    if 'summary_versions' not in st.session_state:
-        st.session_state.summary_versions = []
-    if 'current_version' not in st.session_state:
-        st.session_state.current_version = 0
-
-    # Ensure base_prompt is initialized
-    if 'base_prompt' not in st.session_state:
-        prompts = load_prompts()
-        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
@@ -192,12 +186,4 @@ def render_summary_with_version_control():
         st.warning("Geen samenvatting beschikbaar.")
 
 if __name__ == "__main__":
-    if 'step' not in st.session_state:
-        st.session_state.step = 'prompt_selection'
-
-    if st.session_state.step == 'prompt_selection':
-        render_prompt_selection()
-    elif st.session_state.step == 'input_selection':
-        render_input_selection()
-    elif st.session_state.step == 'results':
-        render_results()
+    main()
