@@ -55,28 +55,48 @@ def render_chat_interface():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("Ask a question about the summary or request changes"):
+    if prompt := st.chat_input("Ask a question or request changes to the summary"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            full_response = customize_summary(st.session_state.summary, prompt, st.session_state.input_text)
-            response_placeholder.markdown(full_response)
+            response = process_chat_request(prompt)
+            st.markdown(response)
 
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
-    
-     # Add a button to apply changes to the main summary
-    if st.button("Apply changes to main summary"):
-        if st.session_state.messages:
-            latest_summary = next((msg["content"] for msg in reversed(st.session_state.messages) if msg["role"] == "assistant"), None)
-            if latest_summary:
-                st.session_state.summary = latest_summary
-                st.session_state.summaries.append(latest_summary)
-                st.session_state.current_version = len(st.session_state.summaries) - 1
-                st.success("Changes applied to the main summary.")
-                st.rerun()
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+def process_chat_request(prompt):
+    current_summary = st.session_state.summaries[-1]
+    transcript = st.session_state.input_text
+    base_prompt = st.session_state.base_prompt
+    selected_prompt = get_prompt_content(st.session_state.selected_prompt)
+
+    messages = [
+        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}"},
+        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nProcess this request and if it involves modifying the summary, provide a new version. Otherwise, respond to the user's question or request."}
+    ]
+
+    response = client.chat.completions.create(
+        model=SUMMARY_MODEL,
+        messages=messages,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        frequency_penalty=FREQUENCY_PENALTY,
+        presence_penalty=PRESENCE_PENALTY,
+    )
+
+    ai_response = response.choices[0].message.content.strip()
+
+    # Check if the response contains a new summary version
+    if "New summary version:" in ai_response:
+        new_summary = ai_response.split("New summary version:", 1)[1].strip()
+        st.session_state.summaries.append(new_summary)
+        st.session_state.current_version = len(st.session_state.summaries) - 1
+        return f"I've created a new version of the summary based on your request. You can view it in the main summary area."
+    else:
+        return ai_response
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
@@ -112,14 +132,6 @@ def update_progress(progress_placeholder, checkmarks, step):
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
-        progress_placeholder = st.empty()
-        
-        # Step 1: Transcript reading
-        progress_placeholder.text("Stap 1/3: Transcript lezen...")
-        time.sleep(0.5)  # Reduced simulated reading time
-        
-        # Step 2: Generate summary
-        progress_placeholder.text("Stap 2/3: Samenvatting maken...")
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
@@ -137,22 +149,27 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         )
         summary = response.choices[0].message.content.strip()
         
-        # Step 3: Spelling check and currency formatting
-        progress_placeholder.text("Stap 3/3: Spellingscontrole en opmaak uitvoeren...")
+        # Post-processing
         summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
         
-        # Complete
-        progress_placeholder.text("Samenvatting voltooid!")
-        time.sleep(0.5)  # Reduced delay to show completion
-        progress_placeholder.empty()
-        
         if not summary:
             raise ValueError("Generated summary is empty")
+        
+        # Initialize summaries list if it doesn't exist
+        if 'summaries' not in st.session_state:
+            st.session_state.summaries = []
+        
+        st.session_state.summaries.append(summary)
+        st.session_state.current_version = len(st.session_state.summaries) - 1
+        
         return summary
     except Exception as e:
-        st.error(f"Er is een fout opgetreden bij het genereren van de samenvatting: {str(e)}")
+        st.error(f"An error occurred while generating the summary: {str(e)}")
         return None
+
+        
+
 
 def customize_summary(current_summary, customization_request, transcript):
     try:
@@ -316,138 +333,25 @@ def convert_markdown_tables_to_html(text):
     
     return '\n'.join(lines)
 
-def render_summary_versions(summaries, button_key_prefix):
-    if 'current_version' not in st.session_state:
-        st.session_state.current_version = 0
+def render_summary_versions():
+    if 'summaries' not in st.session_state or not st.session_state.summaries:
+        st.warning("No summary available yet.")
+        return
 
-    current_summary = summaries[st.session_state.current_version]
-    
-    html_summary = markdown2.markdown(current_summary)
-    plain_summary = strip_html(html_summary)
+    current_summary = st.session_state.summaries[st.session_state.current_version]
+    st.markdown(current_summary)
 
-    current_summary = convert_markdown_tables_to_html(current_summary)
-
-    styled_summary = f"""
-    <style>
-        .summary-content {{
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }}
-        .summary-content h2 {{
-            color: #2c3e50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 20px;
-        }}
-        .summary-content p {{
-            margin-bottom: 15px;
-        }}
-        .summary-content ul {{
-            margin-bottom: 15px;
-            padding-left: 20px;
-        }}
-        .summary-content li {{
-            margin-bottom: 5px;
-        }}
-        .styled-table {{
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 0.9em;
-            font-family: sans-serif;
-            min-width: 400px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        }}
-        .styled-table thead tr {{
-            background-color: #009879;
-            color: #ffffff;
-            text-align: left;
-        }}
-        .styled-table th,
-        .styled-table td {{
-            padding: 12px 15px;
-        }}
-        .styled-table tbody tr {{
-            border-bottom: 1px solid #dddddd;
-        }}
-        .styled-table tbody tr:nth-of-type(even) {{
-            background-color: #f3f3f3;
-        }}
-        .styled-table tbody tr:last-of-type {{
-            border-bottom: 2px solid #009879;
-        }}
-    </style>
-    <div class="summary-content">
-        {current_summary}
-    </div>
-    """
-
-    with st.container():
-        st.markdown(f"<h3 style='text-align: center; margin-bottom: 20px;'>Samenvatting (Versie {st.session_state.current_version + 1}/{len(summaries)})</h3>", unsafe_allow_html=True)
-
-        st.markdown(styled_summary, unsafe_allow_html=True)
-
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            if st_copy_to_clipboard(html_summary, "📋 Kopieer (met opmaak)"):
-                st.success("Gekopieerd met opmaak!")
-        with col2:
-            if st_copy_to_clipboard(plain_summary, "📋 Kopieer (platte tekst)"):
-                st.success("Gekopieerd als platte tekst!")
-        with col3:
-            b64_docx = export_to_docx(current_summary)
-            st.download_button(
-                label="📄 Download Word",
-                data=base64.b64decode(b64_docx),
-                file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
-            )
-        with col4:
-            b64_pdf = export_to_pdf(current_summary)
-            st.download_button(
-                label="📁 Download PDF",
-                data=base64.b64decode(b64_pdf),
-                file_name=f"samenvatting_{button_key_prefix}_{st.session_state.current_version+1}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col1:
-            if st.session_state.current_version > 0:
-                if st.button("◀ Vorige", key=f"prev_version_{button_key_prefix}", use_container_width=True):
-                    st.session_state.current_version -= 1
-                    st.rerun()
-            else:
-                st.empty()
-        with col2:
-            st.markdown(f"<p class='version-display'>Versie {st.session_state.current_version + 1} van {len(summaries)}</p>", unsafe_allow_html=True)
-        with col3:
-            if st.session_state.current_version < len(summaries) - 1:
-                if st.button("Volgende ▶", key=f"next_version_{button_key_prefix}", use_container_width=True):
-                    st.session_state.current_version += 1
-                    st.rerun()
-            else:
-                st.empty()
-
-    if st.button("✏️ Pas samenvatting aan", key=f"customize_button_{button_key_prefix}", use_container_width=True):
-        st.session_state.show_customization = True
-
-    if st.session_state.get('show_customization', False):
-        st.markdown("### Pas de samenvatting aan")
-        customization_request = st.text_area("Voer hier uw aanpassingsverzoek in:", key=f"customization_request_{button_key_prefix}")
-        if st.button("Pas samenvatting aan", key=f"apply_customization_button_{button_key_prefix}", use_container_width=True):
-            with st.spinner("Samenvatting wordt aangepast..."):
-                customized_summary = customize_summary(current_summary, customization_request, st.session_state.input_text)
-                if customized_summary:
-                    summaries.append(customized_summary)
-                    st.session_state.current_version = len(summaries) - 1
-                    st.success("Samenvatting succesvol aangepast!")
-                    st.session_state.show_customization = False
-                    st.rerun()
-                else:
-                    st.error("Aanpassing van de samenvatting mislukt. Probeer het opnieuw.")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("◀ Previous", disabled=st.session_state.current_version == 0):
+            st.session_state.current_version -= 1
+            st.rerun()
+    with col2:
+        st.markdown(f"Version {st.session_state.current_version + 1} of {len(st.session_state.summaries)}")
+    with col3:
+        if st.button("Next ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
+            st.session_state.current_version += 1
+            st.rerun()
 
 def render_summary_and_output():
     prompts = load_prompts()

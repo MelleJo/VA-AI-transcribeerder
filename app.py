@@ -125,7 +125,7 @@ def render_results():
     
     with col1:
         st.markdown("<h2 class='section-title'>Summary</h2>", unsafe_allow_html=True)
-        render_summary_with_version_control()
+        summary_and_output_module.render_summary_versions()
     
     with col2:
         st.markdown("<h2 class='section-title'>Chat</h2>", unsafe_allow_html=True)
