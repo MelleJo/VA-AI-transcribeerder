@@ -121,7 +121,7 @@ def process_input_and_generate_summary(input_method):
             st.rerun()
         else:
             st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
-
+         
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
     col1, col2 = st.columns([3, 2])
