@@ -100,3 +100,6 @@
 
 # 2024-10-06 01:47:22.580029
 +Can you also add a greeting message to the chat when the user enters the summary screen, something like: "Hoe kan ik je helpen? Je kunt me vragen stellen over de samenvatting of ik kan acties voor je ondernemen. Als je meer wilt weten, zeg het maar." (or something similar, sure you can write better)
+
+# 2024-10-06 01:51:21.248779
++Still the loading screen doesn't work well. it is buggy and doesn't work. I just want it to be a white page, with a nice loader, status updates, estimated time, and nothing else. Immediately starting when the transcription begins
