@@ -24,6 +24,10 @@ if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 if 'summary' not in st.session_state:
     st.session_state.summary = ""
+if 'summaries' not in st.session_state:
+    st.session_state.summaries = []
+if 'current_version' not in st.session_state:
+    st.session_state.current_version = 0
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')

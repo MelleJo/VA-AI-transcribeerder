@@ -448,31 +448,37 @@ def render_summary_versions():
         return
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
+
+    # Display the current summary
+    st.markdown("### Summary")
     st.markdown(current_summary)
 
-    if 'email_versions' in st.session_state and st.session_state.email_versions:
-        with st.expander("Email Version"):
-            st.markdown(st.session_state.email_versions[-1])
-
-    if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
-        with st.expander("Main Points"):
-            st.markdown(st.session_state.main_points_versions[-1])
-
-    if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
-        with st.expander("Actiepunten"):
-            st.markdown(st.session_state.actiepunten_versions[-1])
-
+    # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.button("◀ Previous", disabled=st.session_state.current_version == 0):
             st.session_state.current_version -= 1
             st.rerun()
     with col2:
-        st.markdown(f"Version {st.session_state.current_version + 1} of {len(st.session_state.summaries)}")
+        st.markdown(f"<div style='text-align: center;'>Version {st.session_state.current_version + 1} of {len(st.session_state.summaries)}</div>", unsafe_allow_html=True)
     with col3:
         if st.button("Next ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
             st.session_state.current_version += 1
             st.rerun()
+
+    # Display additional information if available
+    if st.session_state.current_version == len(st.session_state.summaries) - 1:  # Only for the latest version
+        if 'email_versions' in st.session_state and st.session_state.email_versions:
+            with st.expander("Email Version"):
+                st.markdown(st.session_state.email_versions[-1])
+
+        if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
+            with st.expander("Main Points"):
+                st.markdown(st.session_state.main_points_versions[-1])
+
+        if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
+            with st.expander("Actiepunten"):
+                st.markdown(st.session_state.actiepunten_versions[-1])
 
 def render_summary_and_output():
     prompts = load_prompts()
