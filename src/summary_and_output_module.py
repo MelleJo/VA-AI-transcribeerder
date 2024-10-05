@@ -80,6 +80,28 @@ def render_chat_interface():
                 st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
                 update_summary_display(response)
 
+    # Add suggested questions UI
+    if st.session_state.summaries:
+        suggestions = suggest_questions(st.session_state.summaries[-1])
+        st.markdown("### Suggesties voor vervolgvragen:")
+        cols = st.columns(3)
+        for i, question in enumerate(suggestions):
+            if cols[i].button(question, key=f"suggest_q_{i}"):
+                st.session_state.messages.append({"role": "user", "content": question})
+                st.rerun()
+
+def suggest_questions(summary):
+    prompt = f"Based on this summary, suggest 3 short, relevant follow-up questions:\n\n{summary}"
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # Using gpt4o-mini as specified
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=100,
+        temperature=0.7
+    )
+    # Split the response into individual questions and remove any numbering
+    questions = [q.strip().split('. ', 1)[-1] for q in response.choices[0].message.content.strip().split('\n')]
+    return questions
+
 def get_confirmation_message(response_type):
     messages = {
         "summary": "Zeker, ik ga de samenvatting aanpassen. Een momentje...",
