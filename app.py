@@ -96,21 +96,77 @@ def render_input_selection():
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
+def display_progress_animation():
+    progress_placeholder = st.empty()
+    progress_html = """
+    <div style="text-align: center; padding: 20px;">
+        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        <style>
+        .lds-ellipsis {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .lds-ellipsis div {
+            position: absolute;
+            top: 33px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        .lds-ellipsis div:nth-child(1) {
+            left: 8px;
+            animation: lds-ellipsis1 0.6s infinite;
+        }
+        .lds-ellipsis div:nth-child(2) {
+            left: 8px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+        .lds-ellipsis div:nth-child(3) {
+            left: 32px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+        .lds-ellipsis div:nth-child(4) {
+            left: 56px;
+            animation: lds-ellipsis3 0.6s infinite;
+        }
+        @keyframes lds-ellipsis1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        @keyframes lds-ellipsis3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        @keyframes lds-ellipsis2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(24px, 0); }
+        }
+        </style>
+    </div>
+    """
+    progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+    return progress_placeholder
+
 def process_input_and_generate_summary():
-    with st.spinner("Bezig met verwerken..."):
-        if 'input_text' in st.session_state and st.session_state.input_text:
-            new_summary = summary_and_output_module.generate_summary(
-                st.session_state.input_text,
-                st.session_state.base_prompt,
-                get_prompt_content(st.session_state.selected_prompt)
-            )
-            st.session_state.summary_versions.append(new_summary)
-            st.session_state.current_version = len(st.session_state.summary_versions) - 1
-            st.session_state.summary = new_summary  # Initialize the summary
-            st.session_state.step = 'results'
-            st.rerun()
-        else:
-            st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
+    progress_placeholder = display_progress_animation()
+    if 'input_text' in st.session_state and st.session_state.input_text:
+        new_summary = summary_and_output_module.generate_summary(
+            st.session_state.input_text,
+            st.session_state.base_prompt,
+            get_prompt_content(st.session_state.selected_prompt)
+        )
+        st.session_state.summary_versions.append(new_summary)
+        st.session_state.current_version = len(st.session_state.summary_versions) - 1
+        st.session_state.summary = new_summary  # Initialize the summary
+        st.session_state.step = 'results'
+        st.rerun()
+    else:
+        st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
+    progress_placeholder.empty()
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
