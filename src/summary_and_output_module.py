@@ -80,10 +80,9 @@ def render_chat_interface():
             response = process_chat_request(prompt)
             handle_chat_response(response)
 
-    # Add suggested actions UI
     if st.session_state.summaries:
         suggestions = suggest_actions(st.session_state.summaries[-1])
-        st.markdown("### Suggesties:")
+        st.markdown("### Suggestions:")
         
         # Custom CSS for minimalistic buttons
         st.markdown("""
@@ -126,20 +125,20 @@ def handle_chat_response(response):
 
 def suggest_actions(summary):
     prompt = f"""
-    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker zou kunnen vragen aan de AI samenvattingsassistent. 
-    Afhankelijk van de soort samenvatting maak je de keuze. Neem de rol van gebruiker van de samenvattingstool en beeld je in wat jij graag zou willen doen als jij de medewerker was die dit gebruikt. 
-    Context voor jou: de gebruikers van de tool zijn medewerkers van een verzekerings en financieel advies bureau. Dus, dan weet je een beetje wat de context is.
-    Voorbeelden:
-    - "Extraheer de actiepunten"
-    - "Maak samenvatting korter"
-    - "Maak samenvatting langer"
-    - "Stel e-mail op voor klant"
-    - "Zet om in e-mail voor collega"
+    Analyze the following summary and suggest 3 specific, actionable tasks that the user could ask the AI summarization assistant to do. 
+    Depending on the type of summary, make your choice. Take on the role of a user of the summarization tool and imagine what you would like to do if you were the employee using this.
+    Context for you: the users of the tool are employees of an insurance and financial advice bureau. So, you know a bit about the context.
+    Examples:
+    - "Extract action points"
+    - "Make summary shorter"
+    - "Make summary longer"
+    - "Draft email for client"
+    - "Convert to email for colleague"
 
-    Samenvatting:
+    Summary:
     {summary}
 
-    Geef alleen de 3 suggesties, één per regel, zonder extra tekst of nummering.
+    Give only the 3 suggestions, one per line, without extra text or numbering.
     """
     
     response = client.chat.completions.create(
@@ -150,7 +149,7 @@ def suggest_actions(summary):
     )
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
-    return suggestions[:3]  # Zorg ervoor dat we maximaal 3 suggesties teruggeven
+    return suggestions[:3]  # Ensure we return at most 3 suggestions
 
 def get_confirmation_message(response_type):
     messages = {
