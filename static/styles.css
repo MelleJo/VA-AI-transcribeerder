@@ -96,18 +96,19 @@
 /* Global Styles */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f8fafc;
-    color: #1a202c;
+    background-color: #ffffff;
+    color: #333333;
 }
 
 .stApp {
-    background-color: #f8fafc;
+    background-color: #ffffff;
 }
 
 /* Header Styles */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    color: #2c5282;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 0.5rem;
 }
 
 /* Button Styles */
@@ -158,16 +159,16 @@ h1, h2, h3, h4, h5, h6 {
 /* Input Styles */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    padding: 12px;
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    transition: border-color 0.3s ease;
 }
 
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
-    border-color: #4a5568;
-    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.2);
+    border-color: #007bff;
+    box-shadow: none;
 }
 
 /* Progress Bar Styles */
