@@ -94,3 +94,9 @@
 
 # 2024-10-06 01:42:52.506341
 +the loading screen now only starts after the transcript, but I want the transcript making (and waiting by the user) to be added to the loading screen. And I want a super clean UI for the loading screen, with nice indicators, but in a super clean way, and all of the other UI hidden in the whole page
+
+# 2024-10-06 01:45:58.804878
++I think I know why there are so much versions (that bug I spoke of) it seems to be every time I rerun, it creates a new copy. Can you fix that? also, now when a new version is made I have to rerun in order to see it, can you make sure this happens automatically after a change? 
+
+# 2024-10-06 01:47:22.580029
++Can you also add a greeting message to the chat when the user enters the summary screen, something like: "Hoe kan ik je helpen? Je kunt me vragen stellen over de samenvatting of ik kan acties voor je ondernemen. Als je meer wilt weten, zeg het maar." (or something similar, sure you can write better)
