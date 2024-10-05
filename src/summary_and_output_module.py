@@ -28,6 +28,15 @@ import pandas as pd
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def update_summary_display(response):
+    if response["type"] == "summary":
+        st.session_state.summaries.append(response["content"])
+        st.session_state.current_version = len(st.session_state.summaries) - 1
+    elif response["type"] == "email":
+        st.session_state.email_version = response["content"]
+    elif response["type"] == "main_points":
+        st.session_state.main_points = response["content"]
+    st.rerun()
 
 def render_summary():
     if not st.session_state.get('summary'):
@@ -62,9 +71,12 @@ def render_chat_interface():
 
         with st.chat_message("assistant"):
             response = process_chat_request(prompt)
-            st.markdown(response)
-
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            if response["type"] == "chat":
+                st.markdown(response["content"])
+                st.session_state.messages.append({"role": "assistant", "content": response["content"]})
+            else:
+                st.markdown("I've processed your request. Please check the summary area for the update.")
+                update_summary_display(response)
 
 def process_chat_request(prompt):
     current_summary = st.session_state.summaries[-1]
@@ -74,7 +86,7 @@ def process_chat_request(prompt):
 
     messages = [
         {"role": "system", "content": f"{base_prompt}\n{selected_prompt}"},
-        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nProcess this request and if it involves modifying the summary, provide a new version. Otherwise, respond to the user's question or request."}
+        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nProcess this request and determine if it's a request to modify the summary, create an email, extract main points, or any other task that should be displayed in the summary screen. If it's a quick question, answer it directly."}
     ]
 
     response = client.chat.completions.create(
@@ -89,14 +101,20 @@ def process_chat_request(prompt):
 
     ai_response = response.choices[0].message.content.strip()
 
-    # Check if the response contains a new summary version
+    # Determine the type of response
     if "New summary version:" in ai_response:
         new_summary = ai_response.split("New summary version:", 1)[1].strip()
-        st.session_state.summaries.append(new_summary)
-        st.session_state.current_version = len(st.session_state.summaries) - 1
-        return f"I've created a new version of the summary based on your request. You can view it in the main summary area."
+        return {"type": "summary", "content": new_summary}
+    elif "Email version:" in ai_response:
+        email_content = ai_response.split("Email version:", 1)[1].strip()
+        return {"type": "email", "content": email_content}
+    elif "Main points:" in ai_response:
+        main_points = ai_response.split("Main points:", 1)[1].strip()
+        return {"type": "main_points", "content": main_points}
+    elif ai_response.startswith("This is a quick answer:"):
+        return {"type": "chat", "content": ai_response}
     else:
-        return ai_response
+        return {"type": "summary", "content": ai_response}
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
@@ -340,6 +358,14 @@ def render_summary_versions():
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
     st.markdown(current_summary)
+
+    if 'email_version' in st.session_state:
+        with st.expander("Email Version"):
+            st.markdown(st.session_state.email_version)
+
+    if 'main_points' in st.session_state:
+        with st.expander("Main Points"):
+            st.markdown(st.session_state.main_points)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
