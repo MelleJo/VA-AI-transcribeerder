@@ -91,3 +91,6 @@
 
 # 2024-10-06 01:40:36.481460
 +now I see the new alterations were indeed added as new versions, thank you. but what I see is that they are added many times (like 4-5 times per time clicking on a suggestion). Can you fix this bug?
+
+# 2024-10-06 01:42:52.506341
++the loading screen now only starts after the transcript, but I want the transcript making (and waiting by the user) to be added to the loading screen. And I want a super clean UI for the loading screen, with nice indicators, but in a super clean way, and all of the other UI hidden in the whole page
