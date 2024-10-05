@@ -22,7 +22,7 @@ TEMPERATURE = 0.3
 TOP_P = 0.95
 FREQUENCY_PENALTY = 0.2
 PRESENCE_PENALTY = 0.1
-AUDIO_SEGMENT_LENGTH = 30000  # 30 seconds in milliseconds
+AUDIO_SEGMENT_LENGTH = 60000  # 30 seconds in milliseconds
 
 # Prompt Reminders
 PROMPT_REMINDERS = {
