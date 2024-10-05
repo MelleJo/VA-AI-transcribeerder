@@ -109,18 +109,22 @@ def render_chat_interface():
         cols = st.columns(3)
         for i, action in enumerate(suggestions):
             if cols[i].button(action, key=f"suggest_action_{i}"):
-                st.session_state.messages.append({"role": "user", "content": f"Could you {action.lower()}?"})
+                st.session_state.messages.append({"role": "user", "content": f"{action}"})
                 st.rerun()
 
 def suggest_actions(summary):
-    prompt = f"""Based on this summary, suggest 3 relevant actions the user might want to take. 
-    These should be brief, action-oriented phrases like 'Shorten summary', 'Add more detail about [specific topic]', 
-    'Create email version', etc. Ensure they are relevant to the content of the summary.
+    prompt = f"""
+    Analyze the following summary and suggest 3 specific, actionable tasks that the user might want to perform. 
+    The suggestions should be diverse, covering different aspects like focusing on specific points, 
+    creating action items, or communicating with specific people mentioned. 
+    Make sure each suggestion is concise (max 5-6 words) and directly actionable.
+    Avoid vague words like "investigate" or "assess".
 
     Summary:
     {summary}
 
-    Suggested actions:"""
+    Provide only the 3 suggestions, one per line, without any additional text or numbering.
+    """
     
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -129,8 +133,8 @@ def suggest_actions(summary):
         temperature=0.7
     )
     
-    actions = [action.strip() for action in response.choices[0].message.content.strip().split('\n') if action.strip()]
-    return actions[:3]  # Ensure we only return up to 3 actions
+    suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
+    return suggestions[:3]  # Ensure we only return up to 3 suggestions
 
 def get_confirmation_message(response_type):
     messages = {
