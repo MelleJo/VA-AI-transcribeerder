@@ -106,6 +106,7 @@ def display_progress_animation():
     progress_html = """
     <div class="full-screen-loader">
         <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        <div class="progress-text">Transcription in progress... Please wait.</div>
     </div>
     """
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
