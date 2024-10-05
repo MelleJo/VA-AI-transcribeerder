@@ -34,3 +34,12 @@
 
 # 2024-10-05 23:01:51.752531
 +thank you, can you now make it so that when processing the rest of all UI dissapears (or is hidden) and only the visualisation is shown?
+
+# 2024-10-05 23:06:22.417774
++I want that when the upload is completed (or recording or typing), let's say when the input is ready, I want then that the screen switches to a loading screen where you see your nice animation together with (in nice UI design) an estimation of time left, and also what it is doing now, like a status update. E.g. "Transcriberen" "Samenvatten" "Controleren"
+
+# 2024-10-06 01:22:24.716867
++ Y
+
+# 2024-10-06 01:22:26.986755
++y
