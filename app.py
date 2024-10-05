@@ -113,26 +113,25 @@ def display_progress_animation():
 
 def process_input_and_generate_summary():
     # Clear the UI and show only the progress animation
-    st.empty()  # Clear the UI
     st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)  # Hide all input elements
-    progress_placeholder, checkmarks = summary_and_output_module.display_progress_checkmarks()
+    progress_placeholder = display_progress_animation()
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "transcript_read")
-        time.sleep(2)  # Simulate time taken for transcription
+        st.session_state.input_text = transcribe_audio(st.session_state.input_text)
+        summary_and_output_module.update_progress(progress_placeholder, "transcript_read")
         
         # Update progress: Summarizing
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated")
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
             get_prompt_content(st.session_state.selected_prompt)
         )
+        summary_and_output_module.update_progress(progress_placeholder, "summary_generated")
         
         # Update progress: Checking
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "spelling_checked")
         time.sleep(1)  # Simulate time taken for checking
+        summary_and_output_module.update_progress(progress_placeholder, "spelling_checked")
         
         st.session_state.summary_versions.append(new_summary)
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
