@@ -117,6 +117,7 @@ def render_recording_reminders(prompt_type):
                 </div>
                 """, unsafe_allow_html=True)
 
+
 def render_input_step():
     st.session_state.grammar_checked = False  # Reset grammar check flag
     st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
