@@ -66,6 +66,11 @@ def render_summary():
 def render_chat_interface():
     if 'messages' not in st.session_state:
         st.session_state.messages = []
+        # Add a greeting message when entering the summary screen
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": "Hoe kan ik je helpen? Je kunt me vragen stellen over de samenvatting of ik kan acties voor je ondernemen. Als je meer wilt weten, zeg het maar."
+        })
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
