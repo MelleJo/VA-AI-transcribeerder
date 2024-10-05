@@ -513,16 +513,19 @@ def render_summary_versions():
     # Display additional information if available
     if st.session_state.current_version == len(st.session_state.summaries) - 1:  # Only for the latest version
         if 'email_versions' in st.session_state and st.session_state.email_versions:
-            st.session_state.summaries.append(st.session_state.email_versions[-1])
-            st.session_state.current_version = len(st.session_state.summaries) - 1
+            if st.session_state.email_versions[-1] not in st.session_state.summaries:
+                st.session_state.summaries.append(st.session_state.email_versions[-1])
+                st.session_state.current_version = len(st.session_state.summaries) - 1
 
         if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
-            st.session_state.summaries.append(st.session_state.main_points_versions[-1])
-            st.session_state.current_version = len(st.session_state.summaries) - 1
+            if st.session_state.main_points_versions[-1] not in st.session_state.summaries:
+                st.session_state.summaries.append(st.session_state.main_points_versions[-1])
+                st.session_state.current_version = len(st.session_state.summaries) - 1
 
         if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
-            st.session_state.summaries.append(st.session_state.actiepunten_versions[-1])
-            st.session_state.current_version = len(st.session_state.summaries) - 1
+            if st.session_state.actiepunten_versions[-1] not in st.session_state.summaries:
+                st.session_state.summaries.append(st.session_state.actiepunten_versions[-1])
+                st.session_state.current_version = len(st.session_state.summaries) - 1
 
 def render_summary_and_output():
     prompts = load_prompts()
