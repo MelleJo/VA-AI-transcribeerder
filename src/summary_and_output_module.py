@@ -105,7 +105,7 @@ def render_chat_interface():
         </style>
         """, unsafe_allow_html=True)
         
-         # Display action buttons in a more compact layout
+        # Display action buttons in a more compact layout
         cols = st.columns(3)
         for i, action in enumerate(suggestions):
             if cols[i].button(action, key=f"suggest_action_{i}"):
@@ -114,16 +114,23 @@ def render_chat_interface():
 
 def suggest_actions(summary):
     prompt = f"""
-    Analyze the following summary and suggest 3 specific, actionable tasks that the user might want to perform. 
-    The suggestions should be diverse, covering different aspects like focusing on specific points, 
-    creating action items, or communicating with specific people mentioned. 
-    Make sure each suggestion is concise (max 5-6 words) and directly actionable.
-    Avoid vague words like "investigate" or "assess".
+    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker zou kunnen willen uitvoeren.
+    De suggesties moeten divers zijn en verschillende aspecten dekken, zoals focussen op specifieke punten,
+    actiepunten creëren, of communiceren met specifieke genoemde personen.
+    Zorg ervoor dat elke suggestie beknopt is (maximaal 5-6 woorden) en direct uitvoerbaar.
+    Vermijd vage woorden zoals "onderzoeken" of "beoordelen".
 
-    Summary:
+    Voorbeelden:
+    - "Extraheer de actiepunten"
+    - "Maak samenvatting korter"
+    - "Maak samenvatting langer"
+    - "Stel e-mail op voor klant"
+    - "Zet om in e-mail voor collega"
+
+    Samenvatting:
     {summary}
 
-    Provide only the 3 suggestions, one per line, without any additional text or numbering.
+    Geef alleen de 3 suggesties, één per regel, zonder extra tekst of nummering.
     """
     
     response = client.chat.completions.create(
@@ -134,7 +141,7 @@ def suggest_actions(summary):
     )
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
-    return suggestions[:3]  # Ensure we only return up to 3 suggestions
+    return suggestions[:3]  # Zorg ervoor dat we maximaal 3 suggesties teruggeven
 
 def get_confirmation_message(response_type):
     messages = {
