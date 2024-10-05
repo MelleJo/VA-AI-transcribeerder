@@ -80,27 +80,57 @@ def render_chat_interface():
                 st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
                 update_summary_display(response)
 
-    # Add suggested questions UI
+    # Add suggested actions UI
     if st.session_state.summaries:
-        suggestions = suggest_questions(st.session_state.summaries[-1])
-        st.markdown("### Suggesties voor vervolgvragen:")
+        suggestions = suggest_actions(st.session_state.summaries[-1])
+        st.markdown("### Suggesties:")
+        
+        # Custom CSS for minimalistic buttons
+        st.markdown("""
+        <style>
+        .stButton>button {
+            background-color: #f0f2f6;
+            color: #31333F;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .stButton>button:hover {
+            background-color: #d1d5db;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+         # Display action buttons in a more compact layout
         cols = st.columns(3)
-        for i, question in enumerate(suggestions):
-            if cols[i].button(question, key=f"suggest_q_{i}"):
-                st.session_state.messages.append({"role": "user", "content": question})
+        for i, action in enumerate(suggestions):
+            if cols[i].button(action, key=f"suggest_action_{i}"):
+                st.session_state.messages.append({"role": "user", "content": f"Could you {action.lower()}?"})
                 st.rerun()
 
-def suggest_questions(summary):
-    prompt = f"Based on this summary, suggest 3 short, relevant follow-up questions:\n\n{summary}"
+def suggest_actions(summary):
+    prompt = f"""Based on this summary, suggest 3 relevant actions the user might want to take. 
+    These should be brief, action-oriented phrases like 'Shorten summary', 'Add more detail about [specific topic]', 
+    'Create email version', etc. Ensure they are relevant to the content of the summary.
+
+    Summary:
+    {summary}
+
+    Suggested actions:"""
+    
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # Using gpt4o-mini as specified
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=100,
         temperature=0.7
     )
-    # Split the response into individual questions and remove any numbering
-    questions = [q.strip().split('. ', 1)[-1] for q in response.choices[0].message.content.strip().split('\n')]
-    return questions
+    
+    actions = [action.strip() for action in response.choices[0].message.content.strip().split('\n') if action.strip()]
+    return actions[:3]  # Ensure we only return up to 3 actions
 
 def get_confirmation_message(response_type):
     messages = {
