@@ -53,13 +53,17 @@ def transcribe_audio(audio_file, progress_callback=None):
     try:
         # Create a temporary directory to store the file
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Get the file extension
-            file_extension = os.path.splitext(audio_file.name)[1].lower()
-            
-            # Save the uploaded file to the temporary directory
-            temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
-            with open(temp_file_path, "wb") as f:
-                f.write(audio_file.getvalue())
+            # Determine if audio_file is a file path or a file-like object
+            if isinstance(audio_file, str):
+                # It's a file path
+                temp_file_path = audio_file
+                file_extension = os.path.splitext(audio_file)[1].lower()
+            else:
+                # It's a file-like object (e.g., from st.file_uploader)
+                file_extension = os.path.splitext(audio_file.name)[1].lower()
+                temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
+                with open(temp_file_path, "wb") as f:
+                    f.write(audio_file.getvalue())
             
             # Handle mp4 files (convert to audio)
             if file_extension == '.mp4':

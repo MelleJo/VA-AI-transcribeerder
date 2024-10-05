@@ -274,6 +274,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
             on_input_complete()
         else:
             ui_info_box("Transcriptie is mislukt. Probeer een ander audiobestand.", "error")
+        os.unlink(tmp_file_path)  # Clean up the temporary file
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
@@ -291,6 +292,7 @@ def process_recorded_audio(audio_data, on_input_complete):
             on_input_complete()
         else:
             ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
+        os.unlink(tmp_file_path)  # Clean up the temporary file
 
 def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")
