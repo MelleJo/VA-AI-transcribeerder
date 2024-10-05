@@ -159,7 +159,7 @@ def display_progress_animation():
 def process_input_and_generate_summary():
     # Clear the UI and show only the progress animation
     st.empty()  # Clear the UI
-    st.markdown("<style>.main-content {display: none;}</style>", unsafe_allow_html=True)  # Hide main content
+    st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)  # Hide all input elements
     progress_placeholder, checkmarks = summary_and_output_module.display_progress_checkmarks()
     
     if 'input_text' in st.session_state and st.session_state.input_text:
