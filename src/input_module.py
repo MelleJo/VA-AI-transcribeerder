@@ -138,6 +138,8 @@ def render_input_step():
         st.session_state.uploaded_text = None
     if 'selected_prompt' not in st.session_state:
         st.session_state.selected_prompt = "default_prompt"  # Set a default prompt or ensure it's set elsewhere
+    if 'previous_input_method' not in st.session_state:
+        st.session_state.previous_input_method = None
 
     if not st.session_state.is_recording:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
@@ -155,7 +157,12 @@ def render_input_step():
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if input_method == "Audio uploaden" and not st.session_state.transcription_complete:
+        # Reset transcription_complete when input method changes
+        if st.session_state.previous_input_method != input_method:
+            st.session_state.transcription_complete = False
+            st.session_state.previous_input_method = input_method
+
+        if input_method == "Audio uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader(
                 "Upload een audio- of videobestand",
@@ -167,7 +174,7 @@ def render_input_step():
                 process_uploaded_audio(uploaded_file)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        elif input_method == "Meerdere audiobestanden uploaden" and not st.session_state.transcription_complete:
+        elif input_method == "Meerdere audiobestanden uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere audio- of videobestanden",
@@ -181,7 +188,7 @@ def render_input_step():
                     process_multiple_audio_files(uploaded_files)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
+        elif input_method == "Audio opnemen":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.write("Klik op de knop om de opname te starten.")
             render_recording_reminders(st.session_state.selected_prompt)
@@ -202,7 +209,7 @@ def render_input_step():
                     process_recorded_audio(audio_data)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        elif input_method == "Tekst schrijven/plakken" and not st.session_state.transcription_complete:
+        elif input_method == "Tekst schrijven/plakken":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.session_state.input_text = st.text_area(
                 "Voer tekst in of plak tekst:",
@@ -218,7 +225,7 @@ def render_input_step():
             )
             st.markdown("</div>", unsafe_allow_html=True)
 
-        elif input_method == "Tekstbestand uploaden" and not st.session_state.transcription_complete:
+        elif input_method == "Tekstbestand uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader(
                 "Upload een tekstbestand",
@@ -229,7 +236,7 @@ def render_input_step():
                 process_uploaded_text(uploaded_file)
             st.markdown("</div>", unsafe_allow_html=True)
         
-        elif input_method == "Meerdere tekstbestanden uploaden" and not st.session_state.transcription_complete:
+        elif input_method == "Meerdere tekstbestanden uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere tekstbestanden",
