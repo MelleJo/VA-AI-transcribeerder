@@ -81,6 +81,7 @@ def render_chat_interface():
                 update_summary_display(response)
 
     # Add suggested actions UI
+      # Add suggested actions UI
     if st.session_state.summaries:
         suggestions = suggest_actions(st.session_state.summaries[-1])
         st.markdown("### Suggesties:")
@@ -110,9 +111,6 @@ def render_chat_interface():
         for i, action in enumerate(suggestions):
             if cols[i].button(action, key=f"suggest_action_{i}"):
                 st.session_state.messages.append({"role": "user", "content": action})
-                response = process_chat_request(action)
-                st.session_state.messages.append({"role": "assistant", "content": get_confirmation_message(response["type"])})
-                update_summary_display(response)
                 st.rerun()
 
 def suggest_actions(summary):
