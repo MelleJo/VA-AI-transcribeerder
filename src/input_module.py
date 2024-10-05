@@ -71,6 +71,32 @@ def process_multiple_audio_files(uploaded_files):
     else:
         ui_info_box("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.", "error")
 
+def process_multiple_text_files(uploaded_files):
+    ui_info_box(f"{len(uploaded_files)} tekstbestanden geüpload. Verwerking wordt gestart...", "info")
+    full_text = ""
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    for i, uploaded_file in enumerate(uploaded_files):
+        with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt..."):
+            text = process_text_file(uploaded_file)
+            if text:
+                full_text += text + "\n\n"
+                progress = (i + 1) / len(uploaded_files)
+                ui_progress_bar(progress, f"{progress*100:.1f}%")
+                status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
+            else:
+                ui_info_box(f"Verwerking van bestand {uploaded_file.name} is mislukt.", "error")
+
+    if full_text:
+        st.session_state.input_text = full_text
+        ui_info_box("Alle tekstbestanden zijn succesvol verwerkt!", "success")
+        st.write("Volledige tekst lengte:", len(full_text))
+        st.write("Eerste 100 karakters van volledige tekst:", full_text[:100])
+        st.session_state.transcription_complete = True
+    else:
+        ui_info_box("Verwerking van alle bestanden is mislukt. Probeer het opnieuw.", "error")
+
 def render_recording_reminders(prompt_type):
     reminders = config.PROMPT_REMINDERS.get(prompt_type, [])
     if reminders:
@@ -122,7 +148,8 @@ def render_input_step():
                 "Meerdere audiobestanden uploaden",
                 "Audio opnemen",
                 "Tekst schrijven/plakken",
-                "Tekstbestand uploaden"
+                "Tekstbestand uploaden",
+                "Meerdere tekstbestanden uploaden"
             ],
             key="input_method_radio"
         )
@@ -137,13 +164,7 @@ def render_input_step():
             )
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
-                ui_styled_button(
-                    "Verwerk audio",
-                    on_click=lambda: process_uploaded_audio(uploaded_file),
-                    key="process_audio_button",
-                    is_active=True,
-                    primary=True
-                )
+                process_uploaded_audio(uploaded_file)
             st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Meerdere audiobestanden uploaden" and not st.session_state.transcription_complete:
@@ -156,13 +177,8 @@ def render_input_step():
             )
             if uploaded_files:
                 st.session_state.uploaded_audios = uploaded_files
-                ui_styled_button(
-                    "Verwerk audiobestanden",
-                    on_click=lambda: process_multiple_audio_files(uploaded_files),  # Updated function name
-                    key="process_audios_button",
-                    is_active=True,
-                    primary=True
-                )
+                if st.button("Verwerk audiobestanden", key="process_audios_button"):
+                    process_multiple_audio_files(uploaded_files)
             st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Audio opnemen" and not st.session_state.transcription_complete:
@@ -210,14 +226,21 @@ def render_input_step():
                 key="text_file_uploader"
             )
             if uploaded_file:
-                st.session_state.uploaded_text = uploaded_file
-                ui_styled_button(
-                    "Verwerk bestand",
-                    on_click=lambda: process_uploaded_text(uploaded_file),
-                    key="process_file_button",
-                    is_active=True,
-                    primary=True
-                )
+                process_uploaded_text(uploaded_file)
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        elif input_method == "Meerdere tekstbestanden uploaden" and not st.session_state.transcription_complete:
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "Upload meerdere tekstbestanden",
+                type=config.ALLOWED_TEXT_TYPES,
+                key="multi_text_uploader",
+                accept_multiple_files=True
+            )
+            if uploaded_files:
+                st.session_state.uploaded_texts = uploaded_files
+                if st.button("Verwerk tekstbestanden", key="process_texts_button"):
+                    process_multiple_text_files(uploaded_files)
             st.markdown("</div>", unsafe_allow_html=True)
 
     else:  # This block will only show when recording is in progress
@@ -307,8 +330,8 @@ def process_uploaded_text(uploaded_file):
         if st.session_state.input_text:
             st.session_state.transcription_complete = True
             ui_info_box("Bestand succesvol geüpload en verwerkt!", "success")
-            st.write("Transcript lengte:", len(st.session_state.input_text))
-            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+            st.write("Tekst lengte:", len(st.session_state.input_text))
+            st.write("Eerste 100 karakters van tekst:", st.session_state.input_text[:100])
         else:
             ui_info_box("Verwerking is mislukt. Probeer een ander bestand.", "error")
 

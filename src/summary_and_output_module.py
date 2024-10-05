@@ -38,6 +38,7 @@ def update_summary_display(response):
         st.session_state.main_points = response["content"]
     st.rerun()
 
+
 def render_summary():
     if not st.session_state.get('summary'):
         if all(key in st.session_state for key in ['input_text', 'selected_prompt', 'base_prompt']):
