@@ -167,8 +167,20 @@ def process_chat_request(prompt):
     selected_prompt = get_prompt_content(st.session_state.selected_prompt)
 
     messages = [
-        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}\n\nImportant: If the user asks for a modification to the summary or a complex task like drafting an email, do not provide the result in the chat. Instead, return the result in a structured format for display in the summary section."},
-        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nDetermine if this is a simple question to be answered directly, or a request to modify the summary or perform a complex task. Format your response accordingly."}
+        {"role": "system", "content": f"""
+        {base_prompt}
+        {selected_prompt}
+
+        Important: Format your responses as follows:
+        - For simple chat responses, start with "CHAT:"
+        - For summary updates, start with "SUMMARY_UPDATE:"
+        - For email drafts, start with "EMAIL_DRAFT:"
+        - For main points extraction, start with "MAIN_POINTS:"
+        - For action points, start with "ACTIEPUNTEN:"
+        
+        Use only one of these formats per response. If the user request requires multiple types of responses, prioritize the most relevant one and suggest the user asks for the others separately.
+        """},
+        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nRespond to this request using the specified format."}
     ]
 
     response = client.chat.completions.create(
@@ -183,20 +195,21 @@ def process_chat_request(prompt):
 
     ai_response = response.choices[0].message.content.strip()
 
-    if "SUMMARY_UPDATE:" in ai_response:
-        new_summary = ai_response.split("SUMMARY_UPDATE:", 1)[1].strip()
-        return {"type": "summary", "content": new_summary}
-    elif "EMAIL_DRAFT:" in ai_response:
-        email_content = ai_response.split("EMAIL_DRAFT:", 1)[1].strip()
-        return {"type": "email", "content": email_content}
-    elif "MAIN_POINTS:" in ai_response:
-        main_points = ai_response.split("MAIN_POINTS:", 1)[1].strip()
-        return {"type": "main_points", "content": main_points}
-    elif "ACTIEPUNTEN:" in ai_response:
-        actiepunten = ai_response.split("ACTIEPUNTEN:", 1)[1].strip()
-        return {"type": "actiepunten", "content": actiepunten}
-    else:
-        return {"type": "chat", "content": ai_response}
+    response_types = {
+        "CHAT:": "chat",
+        "SUMMARY_UPDATE:": "summary",
+        "EMAIL_DRAFT:": "email",
+        "MAIN_POINTS:": "main_points",
+        "ACTIEPUNTEN:": "actiepunten"
+    }
+
+    for prefix, resp_type in response_types.items():
+        if ai_response.startswith(prefix):
+            content = ai_response[len(prefix):].strip()
+            return {"type": resp_type, "content": content}
+
+    # If no matching prefix is found, treat it as a chat response
+    return {"type": "chat", "content": ai_response}
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
