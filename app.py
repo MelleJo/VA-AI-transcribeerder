@@ -119,7 +119,6 @@ def process_input_and_generate_summary():
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         # Update progress: Transcribing
-        st.session_state.input_text = transcribe_audio(st.session_state.input_text)
         summary_and_output_module.update_progress(progress_placeholder, "transcript_read")
         
         # Update progress: Summarizing
