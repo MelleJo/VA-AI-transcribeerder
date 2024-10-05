@@ -36,6 +36,8 @@ def update_summary_display(response):
         st.session_state.email_version = response["content"]
     elif response["type"] == "main_points":
         st.session_state.main_points = response["content"]
+    
+    # Force a rerun to update the summary display
     st.rerun()
 
 def render_summary():
