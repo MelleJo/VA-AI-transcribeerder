@@ -114,11 +114,8 @@ def render_chat_interface():
 
 def suggest_actions(summary):
     prompt = f"""
-    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker zou kunnen willen uitvoeren.
-    De suggesties moeten divers zijn en verschillende aspecten dekken, zoals focussen op specifieke punten,
-    actiepunten creëren, of communiceren met specifieke genoemde personen.
-    Zorg ervoor dat elke suggestie beknopt is (maximaal 5-6 woorden) en direct uitvoerbaar.
-    Vermijd vage woorden zoals "onderzoeken" of "beoordelen".
+    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker zou kunnen vragen aan de AI samenvattingsassistent. 
+    Afhankelijk van de soort samenvatting maak je de keuze. Neem de rol van gebruiker van de samenvattingstool en beeld je in wat jij graag zou willen doen als jij de medewerker was die dit gebruikt. 
 
     Voorbeelden:
     - "Extraheer de actiepunten"
