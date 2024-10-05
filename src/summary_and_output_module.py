@@ -95,8 +95,8 @@ def process_chat_request(prompt):
     selected_prompt = get_prompt_content(st.session_state.selected_prompt)
 
     messages = [
-        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}"},
-        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nProcess this request and determine if it's a request to modify the summary, create an email, extract main points, or any other task that should be displayed in the summary screen. If it's a quick question, answer it directly."}
+        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}\n\nImportant: If the user asks a simple question about the content of the transcript or summary, answer it directly in the chat. Only suggest modifying the summary if the user explicitly requests changes or additions to the summary itself."},
+        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nDetermine if this is a simple question to be answered directly or a request to modify the summary. Format your response accordingly."}
     ]
 
     response = client.chat.completions.create(
@@ -112,7 +112,9 @@ def process_chat_request(prompt):
     ai_response = response.choices[0].message.content.strip()
 
     # Determine the type of response
-    if "New summary version:" in ai_response:
+    if ai_response.startswith("Direct answer:"):
+        return {"type": "chat", "content": ai_response.split("Direct answer:", 1)[1].strip()}
+    elif "New summary version:" in ai_response:
         new_summary = ai_response.split("New summary version:", 1)[1].strip()
         return {"type": "summary", "content": new_summary}
     elif "Email version:" in ai_response:
@@ -121,10 +123,8 @@ def process_chat_request(prompt):
     elif "Main points:" in ai_response:
         main_points = ai_response.split("Main points:", 1)[1].strip()
         return {"type": "main_points", "content": main_points}
-    elif ai_response.startswith("This is a quick answer:"):
-        return {"type": "chat", "content": ai_response}
     else:
-        return {"type": "summary", "content": ai_response}
+        return {"type": "chat", "content": ai_response}  # Default to chat for unrecognized formats
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
