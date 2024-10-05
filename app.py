@@ -119,7 +119,7 @@ def process_input_and_generate_summary():
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "transcript_read")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "transcript_read", "transcript_read")
         st.experimental_rerun()  # Ensure UI updates
         
         # Update progress: Summarizing
@@ -128,12 +128,12 @@ def process_input_and_generate_summary():
             st.session_state.base_prompt,
             get_prompt_content(st.session_state.selected_prompt)
         )
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated", "summary_generated")
         st.experimental_rerun()  # Ensure UI updates
         
         # Update progress: Checking
         time.sleep(1)  # Simulate time taken for checking
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "spelling_checked")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "spelling_checked", "spelling_checked")
         st.experimental_rerun()  # Ensure UI updates
         
         st.session_state.summary_versions.append(new_summary)
