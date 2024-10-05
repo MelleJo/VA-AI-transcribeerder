@@ -38,7 +38,6 @@ def update_summary_display(response):
         st.session_state.main_points = response["content"]
     st.rerun()
 
-
 def render_summary():
     if not st.session_state.get('summary'):
         if all(key in st.session_state for key in ['input_text', 'selected_prompt', 'base_prompt']):
@@ -110,7 +109,10 @@ def render_chat_interface():
         cols = st.columns(3)
         for i, action in enumerate(suggestions):
             if cols[i].button(action, key=f"suggest_action_{i}"):
-                st.session_state.messages.append({"role": "user", "content": f"{action}"})
+                st.session_state.messages.append({"role": "user", "content": action})
+                response = process_chat_request(action)
+                st.session_state.messages.append({"role": "assistant", "content": get_confirmation_message(response["type"])})
+                update_summary_display(response)
                 st.rerun()
 
 def suggest_actions(summary):
@@ -256,9 +258,6 @@ def generate_summary(input_text, base_prompt, selected_prompt):
     except Exception as e:
         st.error(f"An error occurred while generating the summary: {str(e)}")
         return None
-
-        
-
 
 def customize_summary(current_summary, customization_request, transcript):
     try:
@@ -483,7 +482,7 @@ def render_summary_and_output():
                 summary_placeholder.error("Samenvatting genereren mislukt. Probeer het opnieuw.")
 
     if st.session_state.summary:
-        render_summary_versions(st.session_state.summaries, "initial")
+        render_summary_versions()
 
         if ui_button("Pas samenvatting aan", lambda: setattr(st.session_state, 'show_customization', True), "customize_summary_button"):
             st.session_state.show_customization = True
