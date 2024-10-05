@@ -64,7 +64,7 @@ def render_chat_interface():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("Ask a question or request changes to the summary"):
+    if prompt := st.chat_input("Stel een vraag of vraag om wijzigingen in de samenvatting"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -75,8 +75,18 @@ def render_chat_interface():
                 st.markdown(response["content"])
                 st.session_state.messages.append({"role": "assistant", "content": response["content"]})
             else:
-                st.markdown("I've processed your request. Please check the summary area for the update.")
+                confirmation_message = get_confirmation_message(response["type"])
+                st.markdown(confirmation_message)
+                st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
                 update_summary_display(response)
+
+def get_confirmation_message(response_type):
+    messages = {
+        "summary": "Zeker, ik ga de samenvatting aanpassen. Een momentje...",
+        "email": "Zeker, ik zal de samenvatting omzetten in een e-mail. Een momentje...",
+        "main_points": "Ik ga de hoofdpunten voor u samenvatten. Een ogenblik geduld...",
+    }
+    return messages.get(response_type, "Ik verwerk uw verzoek. Een moment alstublieft...")
 
 def process_chat_request(prompt):
     current_summary = st.session_state.summaries[-1]
