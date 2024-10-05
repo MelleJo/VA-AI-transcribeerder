@@ -71,14 +71,7 @@ def render_chat_interface():
 
         with st.chat_message("assistant"):
             response = process_chat_request(prompt)
-            if response["type"] == "chat":
-                st.markdown(response["content"])
-                st.session_state.messages.append({"role": "assistant", "content": response["content"]})
-            else:
-                confirmation_message = get_confirmation_message(response["type"])
-                st.markdown(confirmation_message)
-                st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
-                update_summary_display(response)
+            handle_chat_response(response)
 
     # Add suggested actions UI
     if st.session_state.summaries:
@@ -109,21 +102,20 @@ def render_chat_interface():
         cols = st.columns(3)
         for i, action in enumerate(suggestions):
             if cols[i].button(action, key=f"suggest_action_{i}"):
-                # Add user message
                 st.session_state.messages.append({"role": "user", "content": action})
-                
-                # Process the action
                 response = process_chat_request(action)
-                
-                # Add assistant response
-                confirmation_message = get_confirmation_message(response["type"])
-                st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
-                
-                # Update summary if needed
-                update_summary_display(response)
-                
-                # Rerun to show new messages
+                handle_chat_response(response)
                 st.rerun()
+
+def handle_chat_response(response):
+    if response["type"] == "chat":
+        st.markdown(response["content"])
+        st.session_state.messages.append({"role": "assistant", "content": response["content"]})
+    else:
+        confirmation_message = get_confirmation_message(response["type"])
+        st.markdown(confirmation_message)
+        st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
+        update_summary_display(response)
 
 def suggest_actions(summary):
     prompt = f"""
@@ -155,11 +147,11 @@ def suggest_actions(summary):
 
 def get_confirmation_message(response_type):
     messages = {
-        "summary": "Zeker, ik ga de samenvatting aanpassen. Een momentje...",
-        "email": "Zeker, ik zal de samenvatting omzetten in een e-mail. Een momentje...",
-        "main_points": "Ik ga de hoofdpunten voor u samenvatten. Een ogenblik geduld...",
+        "summary": "Ik heb de samenvatting aangepast. U kunt het resultaat bekijken in het samenvattingsgedeelte.",
+        "email": "Ik heb een conceptmail opgesteld. U kunt deze bekijken in het samenvattingsgedeelte.",
+        "main_points": "Ik heb de hoofdpunten samengevat. U kunt deze bekijken in het samenvattingsgedeelte.",
     }
-    return messages.get(response_type, "Ik verwerk uw verzoek. Een moment alstublieft...")
+    return messages.get(response_type, "Ik heb uw verzoek verwerkt. Controleer het samenvattingsgedeelte voor het resultaat.")
 
 def process_chat_request(prompt):
     current_summary = st.session_state.summaries[-1]
@@ -168,8 +160,8 @@ def process_chat_request(prompt):
     selected_prompt = get_prompt_content(st.session_state.selected_prompt)
 
     messages = [
-        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}\n\nImportant: If the user asks a simple question about the content of the transcript or summary, answer it directly in the chat. Only suggest modifying the summary if the user explicitly requests changes or additions to the summary itself."},
-        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nDetermine if this is a simple question to be answered directly or a request to modify the summary. Format your response accordingly."}
+        {"role": "system", "content": f"{base_prompt}\n{selected_prompt}\n\nImportant: If the user asks for a modification to the summary or a complex task like drafting an email, do not provide the result in the chat. Instead, return the result in a structured format for display in the summary section."},
+        {"role": "user", "content": f"Original summary:\n\n{current_summary}\n\nTranscript:\n\n{transcript}\n\nUser request: {prompt}\n\nDetermine if this is a simple question to be answered directly, or a request to modify the summary or perform a complex task. Format your response accordingly."}
     ]
 
     response = client.chat.completions.create(
@@ -184,20 +176,17 @@ def process_chat_request(prompt):
 
     ai_response = response.choices[0].message.content.strip()
 
-    # Determine the type of response
-    if ai_response.startswith("Direct answer:"):
-        return {"type": "chat", "content": ai_response.split("Direct answer:", 1)[1].strip()}
-    elif "New summary version:" in ai_response:
-        new_summary = ai_response.split("New summary version:", 1)[1].strip()
+    if "SUMMARY_UPDATE:" in ai_response:
+        new_summary = ai_response.split("SUMMARY_UPDATE:", 1)[1].strip()
         return {"type": "summary", "content": new_summary}
-    elif "Email version:" in ai_response:
-        email_content = ai_response.split("Email version:", 1)[1].strip()
+    elif "EMAIL_DRAFT:" in ai_response:
+        email_content = ai_response.split("EMAIL_DRAFT:", 1)[1].strip()
         return {"type": "email", "content": email_content}
-    elif "Main points:" in ai_response:
-        main_points = ai_response.split("Main points:", 1)[1].strip()
+    elif "MAIN_POINTS:" in ai_response:
+        main_points = ai_response.split("MAIN_POINTS:", 1)[1].strip()
         return {"type": "main_points", "content": main_points}
     else:
-        return {"type": "chat", "content": ai_response}  # Default to chat for unrecognized formats
+        return {"type": "chat", "content": ai_response}
 
 def strip_html(html):
     return re.sub('<[^<]+?>', '', html)
