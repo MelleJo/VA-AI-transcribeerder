@@ -116,7 +116,7 @@ def suggest_actions(summary):
     prompt = f"""
     Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker zou kunnen vragen aan de AI samenvattingsassistent. 
     Afhankelijk van de soort samenvatting maak je de keuze. Neem de rol van gebruiker van de samenvattingstool en beeld je in wat jij graag zou willen doen als jij de medewerker was die dit gebruikt. 
-
+    Context voor jou: de gebruikers van de tool zijn medewerkers van een verzekerings en financieel advies bureau. Dus, dan weet je een beetje wat de context is.
     Voorbeelden:
     - "Extraheer de actiepunten"
     - "Maak samenvatting korter"
