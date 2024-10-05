@@ -115,11 +115,12 @@ def display_progress_animation():
 def process_input_and_generate_summary():
     # Clear the UI and show only the progress animation
     st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)  # Hide all input elements
-    progress_placeholder = display_progress_animation()
+    progress_placeholder, checkmarks = summary_and_output_module.display_progress_checkmarks()
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, "transcript_read")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "transcript_read")
+        st.experimental_rerun()  # Ensure UI updates
         
         # Update progress: Summarizing
         new_summary = summary_and_output_module.generate_summary(
@@ -127,17 +128,19 @@ def process_input_and_generate_summary():
             st.session_state.base_prompt,
             get_prompt_content(st.session_state.selected_prompt)
         )
-        summary_and_output_module.update_progress(progress_placeholder, "summary_generated")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated")
+        st.experimental_rerun()  # Ensure UI updates
         
         # Update progress: Checking
         time.sleep(1)  # Simulate time taken for checking
-        summary_and_output_module.update_progress(progress_placeholder, "spelling_checked")
+        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "spelling_checked")
+        st.experimental_rerun()  # Ensure UI updates
         
         st.session_state.summary_versions.append(new_summary)
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
         st.session_state.summary = new_summary  # Initialize the summary
         st.session_state.step = 'results'
-        st.rerun()
+        st.experimental_rerun()
     else:
         st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     
