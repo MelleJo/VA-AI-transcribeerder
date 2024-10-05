@@ -152,7 +152,10 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
+    # Clear the UI and show only the progress animation
+    st.empty()
     progress_placeholder = display_progress_animation()
+    
     if 'input_text' in st.session_state and st.session_state.input_text:
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
@@ -166,6 +169,7 @@ def process_input_and_generate_summary():
         st.rerun()
     else:
         st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
+    
     progress_placeholder.empty()
          
 def render_results():
