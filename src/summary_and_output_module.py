@@ -137,7 +137,7 @@ def suggest_actions(summary):
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=100,
-        temperature=0.7
+        temperature=0.1
     )
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
