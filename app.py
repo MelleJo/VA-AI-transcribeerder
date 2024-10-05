@@ -77,63 +77,27 @@ def render_prompt_selection():
         st.session_state.step = 'input_selection'
         st.rerun()
 
+def handle_input_complete():
+    process_input_and_generate_summary()
+
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
-    input_method = st.radio("Kies invoermethode:", [
-        "Audio uploaden",
-        "Meerdere audiobestanden uploaden",
-        "Audio opnemen",
-        "Tekst schrijven/plakken",
-        "Tekstbestand uploaden",
-        "Meerdere tekstbestanden uploaden"
-    ])
+    is_recording = input_module.render_input_step(handle_input_complete)
+    
+    if not is_recording and st.session_state.input_text:
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
+        st.session_state.input_text = st.text_area(
+            "Bewerk indien nodig:",
+            value=st.session_state.input_text,
+            height=300,
+            key="final_transcript"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    if input_method == "Audio uploaden":
-        uploaded_file = st.file_uploader("Upload een audiobestand", type=config.ALLOWED_AUDIO_TYPES)
-        if uploaded_file:
-            st.session_state.uploaded_file = uploaded_file
-            st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
-    elif input_method == "Meerdere audiobestanden uploaden":
-        uploaded_files = st.file_uploader("Upload meerdere audiobestanden", type=config.ALLOWED_AUDIO_TYPES, accept_multiple_files=True)
-        if uploaded_files:
-            st.session_state.uploaded_files = uploaded_files
-            st.success(f"{len(uploaded_files)} bestanden succesvol geüpload.")
-    elif input_method == "Audio opnemen":
-        input_module.render_audio_input()
-    elif input_method == "Tekst schrijven/plakken":
-        st.session_state.input_text = st.text_area("Voer tekst in:", height=200)
-    elif input_method == "Tekstbestand uploaden":
-        uploaded_file = st.file_uploader("Upload een tekstbestand", type=config.ALLOWED_TEXT_TYPES)
-        if uploaded_file:
-            st.session_state.uploaded_file = uploaded_file
-            st.success(f"Bestand '{uploaded_file.name}' succesvol geüpload.")
-    elif input_method == "Meerdere tekstbestanden uploaden":
-        uploaded_files = st.file_uploader("Upload meerdere tekstbestanden", type=config.ALLOWED_TEXT_TYPES, accept_multiple_files=True)
-        if uploaded_files:
-            st.session_state.uploaded_files = uploaded_files
-            st.success(f"{len(uploaded_files)} bestanden succesvol geüpload.")
-
-    if st.button("Begin transcriptie en samenvatting", key="start_processing_button"):
-        process_input_and_generate_summary(input_method)
-
-def process_input_and_generate_summary(input_method):
+def process_input_and_generate_summary():
     with st.spinner("Bezig met verwerken..."):
-        if input_method == "Audio uploaden" and 'uploaded_file' in st.session_state:
-            st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
-        elif input_method == "Meerdere audiobestanden uploaden" and 'uploaded_files' in st.session_state:
-            st.session_state.input_text = ""
-            for file in st.session_state.uploaded_files:
-                st.session_state.input_text += transcribe_audio(file) + "\n\n"
-        elif input_method == "Audio opnemen" and 'audio_data' in st.session_state:
-            st.session_state.input_text = transcribe_audio(st.session_state.audio_data)
-        elif input_method == "Tekstbestand uploaden" and 'uploaded_file' in st.session_state:
-            st.session_state.input_text = process_text_file(st.session_state.uploaded_file)
-        elif input_method == "Meerdere tekstbestanden uploaden" and 'uploaded_files' in st.session_state:
-            st.session_state.input_text = ""
-            for file in st.session_state.uploaded_files:
-                st.session_state.input_text += process_text_file(file) + "\n\n"
-        
         if 'input_text' in st.session_state and st.session_state.input_text:
             new_summary = summary_and_output_module.generate_summary(
                 st.session_state.input_text,
