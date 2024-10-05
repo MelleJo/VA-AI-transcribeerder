@@ -255,9 +255,10 @@ def render_summary_with_version_control():
         
         if edited_summary != current_summary:
             if st.button("Wijzigingen opslaan", key="save_changes_button"):
-                st.session_state.summary_versions[st.session_state.current_version] = edited_summary
+                st.session_state.summary_versions.append(edited_summary)
+                st.session_state.current_version = len(st.session_state.summary_versions) - 1
                 st.session_state.summary = edited_summary  # Update the summary
-                st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:
         st.warning("Geen samenvatting beschikbaar.")
