@@ -49,3 +49,36 @@
 
 # 2024-10-06 01:29:57.023627
 +also, i want the visualation the kind of loading screen, to be the only thing visible when loading, so all the UI from the input to dissapear. so bascially 1. input 2. loading screen 3. summary. like kind of steps, do you understand? Also, now the loading bars are under each other which looks ugly, please refine the loading screen
+
+# 2024-10-06 01:32:21.512781
++/add src\config.py
+
+# 2024-10-06 01:32:27.969153
++/add utils.py
+
+# 2024-10-06 01:32:35.357574
++n
+
+# 2024-10-06 01:32:48.561659
++/add src\utils.py
+
+# 2024-10-06 01:33:15.492400
++/add src\prompt_module.py
+
+# 2024-10-06 01:33:22.263013
++/add src\input_module.py
+
+# 2024-10-06 01:33:31.101944
++can you see now my code?
+
+# 2024-10-06 01:34:33.468012
++now please fix that the newly edited summary, or action points, or anything that the user wants to do with the summary will be displayed as a new summary version and not as an st.expandable
+
+# 2024-10-06 01:34:55.171123
++how can the ai now decide what to show in chat and what in the summary screen?
+
+# 2024-10-06 01:35:16.764364
++do you think this method is robust enough?
+
+# 2024-10-06 01:35:39.332516
++no thank you. but do you have other simple suggestions for the app?
