@@ -33,12 +33,17 @@ def update_summary_display(response):
         st.session_state.summaries.append(response["content"])
         st.session_state.current_version = len(st.session_state.summaries) - 1
     elif response["type"] == "email":
-        st.session_state.email_version = response["content"]
+        if 'email_versions' not in st.session_state:
+            st.session_state.email_versions = []
+        st.session_state.email_versions.append(response["content"])
     elif response["type"] == "main_points":
-        st.session_state.main_points = response["content"]
-    
-    # Force a rerun to update the summary display
-    st.rerun()
+        if 'main_points_versions' not in st.session_state:
+            st.session_state.main_points_versions = []
+        st.session_state.main_points_versions.append(response["content"])
+    elif response["type"] == "actiepunten":
+        if 'actiepunten_versions' not in st.session_state:
+            st.session_state.actiepunten_versions = []
+        st.session_state.actiepunten_versions.append(response["content"])
 
 def render_summary():
     if not st.session_state.get('summary'):
@@ -187,6 +192,9 @@ def process_chat_request(prompt):
     elif "MAIN_POINTS:" in ai_response:
         main_points = ai_response.split("MAIN_POINTS:", 1)[1].strip()
         return {"type": "main_points", "content": main_points}
+    elif "ACTIEPUNTEN:" in ai_response:
+        actiepunten = ai_response.split("ACTIEPUNTEN:", 1)[1].strip()
+        return {"type": "actiepunten", "content": actiepunten}
     else:
         return {"type": "chat", "content": ai_response}
 
@@ -430,13 +438,17 @@ def render_summary_versions():
     current_summary = st.session_state.summaries[st.session_state.current_version]
     st.markdown(current_summary)
 
-    if 'email_version' in st.session_state:
+    if 'email_versions' in st.session_state and st.session_state.email_versions:
         with st.expander("Email Version"):
-            st.markdown(st.session_state.email_version)
+            st.markdown(st.session_state.email_versions[-1])
 
-    if 'main_points' in st.session_state:
+    if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
         with st.expander("Main Points"):
-            st.markdown(st.session_state.main_points)
+            st.markdown(st.session_state.main_points_versions[-1])
+
+    if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
+        with st.expander("Actiepunten"):
+            st.markdown(st.session_state.actiepunten_versions[-1])
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
