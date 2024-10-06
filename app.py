@@ -86,6 +86,11 @@ def render_prompt_selection():
     # Custom CSS for minimalistic design
     st.markdown("""
     <style>
+    body {
+        background-color: white;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: black;
+    }
     .stRadio > div {
         display: flex;
         justify-content: space-between;

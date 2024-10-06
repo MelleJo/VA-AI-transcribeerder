@@ -87,6 +87,11 @@ def render_chat_interface():
         # Custom CSS for minimalistic buttons
         st.markdown("""
         <style>
+        body {
+            background-color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: black;
+        }
         .stButton>button {
             background-color: #007BFF;
             color: white;
