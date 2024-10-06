@@ -802,3 +802,27 @@
 
 # 2024-10-06 16:08:16.873019
 +Can you fix this: WARNING:__main__:process_input_and_generate_summary called but is_processing is False
+
+# 2024-10-06 16:09:30.503705
++Still the same: [14:08:47] 🔄 Updated app!
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++INFO:__main__:Transcription successful. Text length: 2149
++
++INFO:__main__:Generating summary
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
++
++WARNING:__main__:process_input_and_generate_summary called but is_processing is False
+
+# 2024-10-06 16:09:41.111736
++Y
