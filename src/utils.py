@@ -99,9 +99,6 @@ def transcribe_audio(audio_file, progress_callback=None):
 
             return full_transcript.strip()
     except Exception as e:
-        st.error(f"An error occurred during audio transcription: {str(e)}")
-        st.error(f"Audio file path: {temp_file_path}")
-        st.error(f"File extension: {file_extension}")
         raise Exception(f"An error occurred during audio transcription: {str(e)}")
 
 def process_text_file(file):

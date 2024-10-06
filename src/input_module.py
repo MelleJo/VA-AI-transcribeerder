@@ -1,5 +1,3 @@
-# src/input_module.py
-
 import streamlit as st
 from src import config
 from src.utils import transcribe_audio, process_text_file
@@ -9,9 +7,6 @@ from pydub import AudioSegment
 import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar
-import logging
-
-logger = logging.getLogger(__name__)
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
@@ -24,16 +19,32 @@ def format_time(seconds):
 def transcribe_with_progress(audio_file):
     audio_length = get_audio_length(audio_file)
     
-    def update_progress(current, total):
-        pass  # No operation needed for progress update
+    progress_bar = st.progress(0)
+    status_text = st.empty()
     
+    def update_progress(current, total):
+        progress = current / total
+        elapsed_time = time.time() - start_time
+        estimated_total_time = elapsed_time / progress if progress > 0 else audio_length
+        remaining_time = max(0, estimated_total_time - elapsed_time)
+        
+        ui_progress_bar(progress, f"{progress*100:.1f}%")
+        status_text.text(f"Geschatte resterende tijd: {format_time(remaining_time)} (mm:ss)")
+    
+    start_time = time.time()
     transcript = transcribe_audio(audio_file, progress_callback=update_progress)
+    
+    progress_bar.progress(1.0)
+    status_text.text("Transcriptie voltooid!")
     
     return transcript
 
 def process_multiple_audio_files(uploaded_files):
     ui_info_box(f"{len(uploaded_files)} audiobestanden geüpload. Transcriptie wordt gestart...", "info")
     full_transcript = ""
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
     for i, uploaded_file in enumerate(uploaded_files):
         with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt en getranscribeerd..."):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
@@ -43,6 +54,9 @@ def process_multiple_audio_files(uploaded_files):
             transcript = transcribe_with_progress(tmp_file_path)
             if transcript:
                 full_transcript += transcript + "\n\n"
+                progress = (i + 1) / len(uploaded_files)
+                ui_progress_bar(progress, f"{progress*100:.1f}%")
+                status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
             else:
                 ui_info_box(f"Transcriptie van bestand {uploaded_file.name} is mislukt.", "error")
 
@@ -54,10 +68,8 @@ def process_multiple_audio_files(uploaded_files):
         st.write("Volledige transcript lengte:", len(full_transcript))
         st.write("Eerste 100 karakters van volledig transcript:", full_transcript[:100])
         st.session_state.transcription_complete = True
-        return full_transcript
     else:
         ui_info_box("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.", "error")
-        return None
 
 def process_multiple_text_files(uploaded_files):
     ui_info_box(f"{len(uploaded_files)} tekstbestanden geüpload. Verwerking wordt gestart...", "info")
@@ -82,10 +94,8 @@ def process_multiple_text_files(uploaded_files):
         st.write("Volledige tekst lengte:", len(full_text))
         st.write("Eerste 100 karakters van volledige tekst:", full_text[:100])
         st.session_state.transcription_complete = True
-        return full_text
     else:
         ui_info_box("Verwerking van alle bestanden is mislukt. Probeer het opnieuw.", "error")
-        return None
 
 def render_recording_reminders(prompt_type):
     reminders = config.PROMPT_REMINDERS.get(prompt_type, [])
@@ -107,114 +117,224 @@ def render_recording_reminders(prompt_type):
                 </div>
                 """, unsafe_allow_html=True)
 
-def render_input_step():
-    input_method = st.radio("Kies invoermethode:", ["Tekst invoeren", "Audio uploaden", "Tekstbestand uploaden"])
+def render_input_step(on_input_complete):
+    st.session_state.grammar_checked = False  # Reset grammar check flag
+    st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
+    
+    # Initialize session state variables if not present
+    if 'transcription_complete' not in st.session_state:
+        st.session_state.transcription_complete = False
+    if 'is_recording' not in st.session_state:
+        st.session_state.is_recording = False
+    if 'input_text' not in st.session_state:
+        st.session_state.input_text = ""
+    if 'audio_data' not in st.session_state:
+        st.session_state.audio_data = None
+    if 'uploaded_audios' not in st.session_state:
+        st.session_state.uploaded_audios = []
+    if 'uploaded_audio' not in st.session_state:
+        st.session_state.uploaded_audio = None
+    if 'uploaded_text' not in st.session_state:
+        st.session_state.uploaded_text = None
+    if 'selected_prompt' not in st.session_state:
+        st.session_state.selected_prompt = "default_prompt"  # Set a default prompt or ensure it's set elsewhere
+    if 'previous_input_method' not in st.session_state:
+        st.session_state.previous_input_method = None
 
-    if input_method == "Tekst invoeren":
-        return handle_text_input()
-    elif input_method == "Audio uploaden":
-        return handle_audio_upload()
-    elif input_method == "Tekstbestand uploaden":
-        return handle_text_file_upload()
+    if not st.session_state.is_recording:
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        input_method = st.radio(
+            "Kies invoermethode:",
+            [
+                "Audio uploaden",
+                "Meerdere audiobestanden uploaden",
+                "Audio opnemen",
+                "Tekst schrijven/plakken",
+                "Tekstbestand uploaden",
+                "Meerdere tekstbestanden uploaden"
+            ],
+            key="input_method_radio"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
-def handle_text_input():
-    text = st.text_area("Voer de gespreksinhoud in:", height=300)
-    if st.button("Verwerk tekst"):
-        return text
-    return None
+        # Reset transcription_complete when input method changes
+        if st.session_state.previous_input_method != input_method:
+            st.session_state.transcription_complete = False
+            st.session_state.previous_input_method = input_method
 
+        if input_method == "Audio uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_file = st.file_uploader(
+                "Upload een audio- of videobestand",
+                type=config.ALLOWED_AUDIO_TYPES,
+                key="audio_uploader"
+            )
+            if uploaded_file:
+                st.session_state.uploaded_audio = uploaded_file
+                process_uploaded_audio(uploaded_file, on_input_complete)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-def handle_audio_upload():
-    uploaded_file = st.file_uploader("Upload een audiobestand", type=["mp3", "m4a", "wav", "ogg"])
-    if uploaded_file is not None:
-        with st.spinner("Audio wordt verwerkt..."):
-            with tempfile.NamedTemporaryFile(delete=False, suffix="."+uploaded_file.name.split(".")[-1]) as tmp_file:
-                tmp_file.write(uploaded_file.getvalue())
-                tmp_file_path = tmp_file.name
+        elif input_method == "Meerdere audiobestanden uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "Upload meerdere audio- of videobestanden",
+                type=config.ALLOWED_AUDIO_TYPES,
+                key="multi_audio_uploader",
+                accept_multiple_files=True
+            )
+            if uploaded_files:
+                st.session_state.uploaded_audios = uploaded_files
+                process_multiple_audio_files(uploaded_files)
+                on_input_complete()
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        elif input_method == "Audio opnemen":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.write("Klik op de knop om de opname te starten.")
+            render_recording_reminders(st.session_state.selected_prompt)
             
-            try:
-                transcription = transcribe_audio(tmp_file_path)
-                os.unlink(tmp_file_path)
-                return transcription
-            except Exception as e:
-                st.error(f"Er is een fout opgetreden bij het verwerken van het audiobestand: {str(e)}")
-                os.unlink(tmp_file_path)
-    return None
+            audio_data = mic_recorder(
+                key="audio_recorder",
+                start_prompt="Start opname",
+                stop_prompt="Stop opname",
+                use_container_width=True
+            )
+            
+            if audio_data is not None:
+                if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
+                    st.session_state.is_recording = True
+                    st.rerun()
+                elif isinstance(audio_data, dict) and 'bytes' in audio_data:
+                    st.session_state.is_recording = False
+                    st.session_state.audio_data = audio_data
+                    process_recorded_audio(audio_data, on_input_complete)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-def handle_text_file_upload():
-    uploaded_file = st.file_uploader("Upload een tekstbestand", type=["txt", "pdf", "docx"])
-    if uploaded_file is not None:
-        with st.spinner("Bestand wordt verwerkt..."):
-            try:
-                text = process_text_file(uploaded_file)
-                return text
-            except Exception as e:
-                st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
-    return None
+        elif input_method == "Tekst schrijven/plakken":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.session_state.input_text = st.text_area(
+                "Voer tekst in of plak tekst:",
+                height=300,
+                key="text_input_area",
+                on_change=lambda: process_text_input(on_input_complete)
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
 
-def process_uploaded_audio(uploaded_file):
-    logger.info(f"Processing uploaded audio file: {uploaded_file.name}")
-    st.info("Audiobestand geüpload. Transcriptie wordt gestart...")
+        elif input_method == "Tekstbestand uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_file = st.file_uploader(
+                "Upload een tekstbestand",
+                type=config.ALLOWED_TEXT_TYPES,
+                key="text_file_uploader"
+            )
+            if uploaded_file:
+                process_uploaded_text(uploaded_file, on_input_complete)
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        elif input_method == "Meerdere tekstbestanden uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "Upload meerdere tekstbestanden",
+                type=config.ALLOWED_TEXT_TYPES,
+                key="multi_text_uploader",
+                accept_multiple_files=True
+            )
+            if uploaded_files:
+                st.session_state.uploaded_texts = uploaded_files
+                process_multiple_text_files(uploaded_files)
+                on_input_complete()
+            st.markdown("</div>", unsafe_allow_html=True)
+
+    if st.session_state.transcription_complete:
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
+        st.session_state.input_text = st.text_area(
+            "Bewerk indien nodig:",
+            value=st.session_state.input_text,
+            height=300,
+            key="final_transcript"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Return the recording state to be used in the main app for navigation control
+    return st.session_state.is_recording
+
+def process_uploaded_audio(uploaded_file, on_input_complete):
+    ui_info_box("Audiobestand geüpload. Transcriptie wordt gestart...", "info")
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
-        
-        try:
-            logger.debug(f"Transcribing audio file: {tmp_file_path}")
-            transcript = transcribe_audio(tmp_file_path)
-            if transcript:
-                logger.info(f"Transcription successful. Text length: {len(transcript)}")
-                st.session_state.is_processing = True
-                logger.debug(f"is_processing set to True after transcription")
-                return transcript
-            else:
-                logger.warning("Transcription resulted in empty text")
-                st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
-        except Exception as e:
-            logger.exception(f"Error during audio transcription: {str(e)}")
-            st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
-        finally:
-            os.unlink(tmp_file_path)
-            logger.debug(f"Temporary file removed: {tmp_file_path}")
-    return None
+        st.session_state.input_text = transcribe_with_progress(tmp_file_path)
+        if st.session_state.input_text:
+            ui_info_box("Audio succesvol verwerkt en getranscribeerd!", "success")
+            st.write("Transcript lengte:", len(st.session_state.input_text))
+            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+            st.session_state.transcription_complete = True
+            on_input_complete()
+        else:
+            ui_info_box("Transcriptie is mislukt. Probeer een ander audiobestand.", "error")
+        os.unlink(tmp_file_path)  # Clean up the temporary file
 
-def process_recorded_audio(audio_data):
-    logger.info("Processing recorded audio")
+def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_file:
-            audio_file.write(audio_data['bytes'])
-            audio_file_path = audio_file.name
+        audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        audio_file.write(audio_data['bytes'])
+        audio_file_path = audio_file.name
+        audio_file.close()
         
-        try:
-            logger.debug(f"Transcribing audio file: {audio_file_path}")
-            transcript = transcribe_audio(audio_file_path)
-            if transcript:
-                logger.info(f"Transcription successful. Text length: {len(transcript)}")
-                st.session_state.is_processing = True
-                logger.debug(f"is_processing set to True after recorded audio transcription")
-                return transcript
-            else:
-                logger.warning("Transcription resulted in empty text")
-                st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
-        except Exception as e:
-            logger.exception(f"Error during audio transcription: {str(e)}")
-            st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
-        finally:
-            os.unlink(audio_file_path)
-            logger.debug(f"Temporary file removed: {audio_file_path}")
-    return None
+        st.session_state.input_text = transcribe_with_progress(audio_file_path)
+        if st.session_state.input_text:
+            ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
+            st.write("Transcript lengte:", len(st.session_state.input_text))
+            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+            st.session_state.transcription_complete = True
+            on_input_complete()
+        else:
+            ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
+        os.unlink(tmp_file_path)  # Clean up the temporary file
 
-def process_uploaded_text(uploaded_file):
+def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")
     with st.spinner("Bestand wordt verwerkt..."):
-        text = process_text_file(uploaded_file)
-        if text:
+        st.session_state.input_text = process_text_file(uploaded_file)
+        if st.session_state.input_text:
             st.session_state.transcription_complete = True
             ui_info_box("Bestand succesvol geüpload en verwerkt!", "success")
-            st.write("Tekst lengte:", len(text))
-            st.write("Eerste 100 karakters van tekst:", text[:100])
-            return text
+            st.write("Tekst lengte:", len(st.session_state.input_text))
+            st.write("Eerste 100 karakters van tekst:", st.session_state.input_text[:100])
+            on_input_complete()
         else:
             ui_info_box("Verwerking is mislukt. Probeer een ander bestand.", "error")
-    return None
+
+def process_text_input(on_input_complete):
+    if st.session_state.input_text:
+        st.session_state.transcription_complete = True
+        ui_info_box("Tekst succesvol verwerkt!", "success")
+        on_input_complete()
+    else:
+        ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
+
+def render_upload_input(on_input_complete):
+    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
+    if uploaded_file:
+        try:
+            if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
+                with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
+                    st.session_state.input_text = transcribe_audio(uploaded_file)
+            else:
+                st.session_state.input_text = process_text_file(uploaded_file)
+            st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+            on_input_complete()
+        except Exception as e:
+            st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
+
+def render_audio_input(on_stop_recording):
+    audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
+    if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
+        st.session_state.input_text = transcribe_audio(audio_data)
+        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+        on_stop_recording()
+
+def render_text_input(on_input_complete):
+    st.session_state.input_text = st.text_area("Voer tekst in:", height=300, on_change=on_input_complete)

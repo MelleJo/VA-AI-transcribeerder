@@ -66,11 +66,6 @@ def render_summary():
 def render_chat_interface():
     if 'messages' not in st.session_state:
         st.session_state.messages = []
-        # Add a greeting message when entering the summary screen
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": "Hoe kan ik je helpen? Je kunt me vragen stellen over de samenvatting of ik kan acties voor je ondernemen. Als je meer wilt weten, zeg het maar."
-        })
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -229,57 +224,12 @@ def display_progress_checkmarks():
         "spelling_checked": "⏳ Spellingscontrole uitvoeren..."
     }
     
-    progress_html = """
-    <div style='text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;'>
-        <div class='lds-roller'>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-        </div>
-        <style>
-        .lds-roller {
-            display: inline-block;
-            position: relative;
-            width: 80px;
-            height: 80px;
-        }
-        .lds-roller div {
-            animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-            transform-origin: 40px 40px;
-        }
-        .lds-roller div:after {
-            content: " ";
-            display: block;
-            position: absolute;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #4CAF50;
-            margin: -4px 0 0 -4px;
-        }
-        .lds-roller div:nth-child(1) { animation-delay: -0.036s; }
-        .lds-roller div:nth-child(1):after { top: 63px; left: 63px; }
-        .lds-roller div:nth-child(2) { animation-delay: -0.072s; }
-        .lds-roller div:nth-child(2):after { top: 68px; left: 56px; }
-        .lds-roller div:nth-child(3) { animation-delay: -0.108s; }
-        .lds-roller div:nth-child(3):after { top: 71px; left: 48px; }
-        .lds-roller div:nth-child(4) { animation-delay: -0.144s; }
-        .lds-roller div:nth-child(4):after { top: 72px; left: 40px; }
-        .lds-roller div:nth-child(5) { animation-delay: -0.18s; }
-        .lds-roller div:nth-child(5):after { top: 71px; left: 32px; }
-        .lds-roller div:nth-child(6) { animation-delay: -0.216s; }
-        .lds-roller div:nth-child(6):after { top: 68px; left: 24px; }
-        .lds-roller div:nth-child(7) { animation-delay: -0.252s; }
-        .lds-roller div:nth-child(7):after { top: 63px; left: 17px; }
-        .lds-roller div:nth-child(8) { animation-delay: -0.288s; }
-        .lds-roller div:nth-child(8):after { top: 56px; left: 12px; }
-        @keyframes lds-roller {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        </style>
-    </div>
-    """
+    progress_html = "<div style='text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;'>"
+    progress_html += "<div class='stSpinner'></div>"
+    for key, value in checkmarks.items():
+        progress_html += f"<p>{value}</p>"
+    progress_html += "</div>"
     
-    # Ensure progress updates are displayed without resetting
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
@@ -322,10 +272,8 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         if 'summaries' not in st.session_state:
             st.session_state.summaries = []
         
-        if not st.session_state.summaries or st.session_state.summaries[-1] != summary:
-            st.session_state.summaries.append(summary)
-            st.session_state.current_version = len(st.session_state.summaries) - 1
-            st.rerun()  # Automatically rerun to reflect changes
+        st.session_state.summaries.append(summary)
+        st.session_state.current_version = len(st.session_state.summaries) - 1
         
         return summary
     except Exception as e:
@@ -521,19 +469,16 @@ def render_summary_versions():
     # Display additional information if available
     if st.session_state.current_version == len(st.session_state.summaries) - 1:  # Only for the latest version
         if 'email_versions' in st.session_state and st.session_state.email_versions:
-            if st.session_state.email_versions[-1] not in st.session_state.summaries:
-                st.session_state.summaries.append(st.session_state.email_versions[-1])
-                st.session_state.current_version = len(st.session_state.summaries) - 1
+            with st.expander("Email Version"):
+                st.markdown(st.session_state.email_versions[-1])
 
         if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
-            if st.session_state.main_points_versions[-1] not in st.session_state.summaries:
-                st.session_state.summaries.append(st.session_state.main_points_versions[-1])
-                st.session_state.current_version = len(st.session_state.summaries) - 1
+            with st.expander("Main Points"):
+                st.markdown(st.session_state.main_points_versions[-1])
 
         if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
-            if st.session_state.actiepunten_versions[-1] not in st.session_state.summaries:
-                st.session_state.summaries.append(st.session_state.actiepunten_versions[-1])
-                st.session_state.current_version = len(st.session_state.summaries) - 1
+            with st.expander("Actiepunten"):
+                st.markdown(st.session_state.actiepunten_versions[-1])
 
 def render_summary_and_output():
     prompts = load_prompts()
