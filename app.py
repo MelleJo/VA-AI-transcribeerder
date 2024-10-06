@@ -27,8 +27,8 @@ if 'summary' not in st.session_state:
     st.session_state.summary = ""
 if 'summaries' not in st.session_state:
     st.session_state.summaries = []
-if 'current_version' not in st.session_state:
-    st.session_state.current_version = 0
+if 'is_processing' not in st.session_state:
+    st.session_state.is_processing = False
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')
@@ -85,7 +85,8 @@ def render_prompt_selection():
         st.rerun()
 
 def handle_input_complete():
-    if st.session_state.input_text:
+    if st.session_state.input_text and not st.session_state.is_processing:
+        st.session_state.is_processing = True
         st.session_state.step = 'processing'
         st.rerun()
 
@@ -99,13 +100,16 @@ def display_progress_animation():
     progress_html = """
     <div class="full-screen-loader">
         <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-        <div class="progress-text">Transcription in progress... Please wait.</div>
+        <div class="progress-text">Verwerking bezig... Even geduld aub.</div>
     </div>
     """
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder
 
 def process_input_and_generate_summary():
+    if not st.session_state.is_processing:
+        return
+
     st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)
     progress_placeholder = display_progress_animation()
     
@@ -123,7 +127,9 @@ def process_input_and_generate_summary():
     except Exception as e:
         st.error(f"An error occurred during summary generation: {str(e)}")
     finally:
+        st.session_state.is_processing = False
         progress_placeholder.empty()
+        time.sleep(0.1)  # Small delay to ensure smooth transition
         st.rerun()
          
 def render_results():
@@ -143,14 +149,8 @@ def render_results():
         if edited_transcript != st.session_state.input_text:
             st.session_state.input_text = edited_transcript
             if st.button("Genereer opnieuw", key="regenerate_button"):
-                new_summary = summary_and_output_module.generate_summary(
-                    st.session_state.input_text,
-                    st.session_state.base_prompt,
-                    get_prompt_content(st.session_state.selected_prompt)
-                )
-                st.session_state.summary_versions.append(new_summary)
-                st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = new_summary  # Update the summary
+                st.session_state.is_processing = True
+                st.session_state.step = 'processing'
                 st.rerun()
 
     if st.button("Terug naar begin", key="back_to_start_button"):
@@ -159,7 +159,8 @@ def render_results():
         st.session_state.input_text = ""
         st.session_state.summary_versions = []
         st.session_state.current_version = 0
-        st.session_state.summary = ""  # Reset the summary
+        st.session_state.summary = ""
+        st.session_state.is_processing = False
         st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
@@ -172,7 +173,7 @@ def render_summary_with_version_control():
         with col1:
             if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
                 st.session_state.current_version -= 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         with col2:
@@ -181,7 +182,7 @@ def render_summary_with_version_control():
         with col3:
             if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
                 st.session_state.current_version += 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         st.markdown("</div>", unsafe_allow_html=True)
@@ -195,7 +196,7 @@ def render_summary_with_version_control():
             if st.button("Wijzigingen opslaan", key="save_changes_button"):
                 st.session_state.summary_versions.append(edited_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = edited_summary  # Update the summary
+                st.session_state.summary = edited_summary
                 st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:

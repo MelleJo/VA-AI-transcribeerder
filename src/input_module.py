@@ -127,7 +127,10 @@ def render_input_step(on_input_complete):
             key="text_input_area"
         )
         if st.button("Verwerk tekst"):
-            process_text_input(on_input_complete)
+            if st.session_state.input_text:
+                on_input_complete()
+            else:
+                ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
 
     elif input_method == "Tekstbestand uploaden":
         uploaded_file = st.file_uploader(
@@ -148,26 +151,33 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         
-        st.session_state.input_text = transcribe_audio(tmp_file_path)
-        if st.session_state.input_text:
-            on_input_complete()
-        else:
-            ui_info_box("Transcriptie is mislukt. Probeer een ander audiobestand.", "error")
-        os.unlink(tmp_file_path)  # Clean up the temporary file
+        try:
+            st.session_state.input_text = transcribe_audio(tmp_file_path)
+            if st.session_state.input_text:
+                on_input_complete()
+            else:
+                ui_info_box("Transcriptie is mislukt. Probeer een ander audiobestand.", "error")
+        except Exception as e:
+            ui_info_box(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}", "error")
+        finally:
+            os.unlink(tmp_file_path)  # Clean up the temporary file
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        audio_file.write(audio_data['bytes'])
-        audio_file_path = audio_file.name
-        audio_file.close()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_file:
+            audio_file.write(audio_data['bytes'])
+            audio_file_path = audio_file.name
         
-        st.session_state.input_text = transcribe_audio(audio_file_path)
-        if st.session_state.input_text:
-            on_input_complete()
-        else:
-            ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
-        os.unlink(audio_file_path)  # Clean up the temporary file
+        try:
+            st.session_state.input_text = transcribe_audio(audio_file_path)
+            if st.session_state.input_text:
+                on_input_complete()
+            else:
+                ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
+        except Exception as e:
+            ui_info_box(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}", "error")
+        finally:
+            os.unlink(audio_file_path)  # Clean up the temporary file
 
 def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")
