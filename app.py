@@ -129,7 +129,7 @@ def process_input_and_generate_summary():
             get_prompt_content(st.session_state.selected_prompt)
         )
         summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated")
-        st.rerun()  # Ensure UI updates
+        # Remove unnecessary rerun to prevent progress reset
         
         # Update progress: Checking
         time.sleep(1)  # Simulate time taken for checking
