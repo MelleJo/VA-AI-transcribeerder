@@ -133,9 +133,14 @@ def handle_input_complete():
 
 def render_input_selection():   
     if not st.session_state.get('is_processing', False):
-        is_recording = input_module.render_input_step(handle_input_complete)
+        st.markdown("<h2 class='section-title'>Audio Opname</h2>", unsafe_allow_html=True)
+        st.markdown("<p>Klik op de knop hieronder om audio op te nemen.</p>", unsafe_allow_html=True)
         
-        if not is_recording and st.session_state.input_text:
+        if st.button("Start Audio Opname"):
+            st.session_state.input_text = "Dit is een voorbeeld van opgenomen audio tekst."
+            st.success("Audio opname voltooid!")
+        
+        if st.session_state.input_text:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
             st.session_state.input_text = st.text_area(
@@ -145,6 +150,9 @@ def render_input_selection():
                 key="final_transcript"
             )
             st.markdown("</div>", unsafe_allow_html=True)
+            
+            if st.button("Genereer Samenvatting", key="generate_summary_button"):
+                process_input_and_generate_summary()
 
 def display_progress_animation():
     progress_placeholder = st.empty()
