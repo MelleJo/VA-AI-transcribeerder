@@ -63,13 +63,9 @@ def main():
 
         st.write(f"Current step: {st.session_state.step}")
         st.write(f"Is processing: {st.session_state.is_processing}")
+        st.write(f"Input text length: {len(st.session_state.input_text)}")
 
         if st.button("Reset Application"):
-            reset_app_state()
-            st.rerun()
-
-        if not check_state_consistency():
-            st.warning("The application is in an inconsistent state. Resetting...")
             reset_app_state()
             st.rerun()
 
@@ -78,10 +74,17 @@ def main():
         elif st.session_state.step == 'input_selection':
             render_input_selection()
         elif st.session_state.step == 'processing':
-            process_input_and_generate_summary()
+            if not st.session_state.is_processing:
+                logger.warning("Processing step reached but is_processing is False")
+                st.warning("Unexpected state. Resetting application.")
+                reset_app_state()
+                st.rerun()
+            else:
+                process_input_and_generate_summary()
         elif st.session_state.step == 'results':
             render_results()
         else:
+            logger.error(f"Unknown step: {st.session_state.step}")
             st.error(f"Unknown step: {st.session_state.step}")
             reset_app_state()
             st.rerun()
@@ -117,15 +120,26 @@ def render_prompt_selection():
         st.rerun()
 
 def handle_input_complete():
-    if st.session_state.input_text and not st.session_state.is_processing:
+    logger.debug("handle_input_complete called")
+    if st.session_state.input_text:
+        logger.info(f"Input text received. Length: {len(st.session_state.input_text)}")
         st.session_state.is_processing = True
         st.session_state.step = 'processing'
+        logger.debug("State updated to processing")
         st.rerun()
+    else:
+        logger.warning("handle_input_complete called with empty input_text")
+        st.warning("No input text received. Please try again.")
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
-    is_recording = input_module.render_input_step(handle_input_complete)
+    try:
+        is_recording = input_module.render_input_step(handle_input_complete)
+        logger.debug(f"Input selection rendered. Is recording: {is_recording}")
+    except Exception as e:
+        logger.exception("Error in render_input_selection")
+        st.error(f"An error occurred during input selection: {str(e)}")
 
 def display_progress_animation():
     progress_placeholder = st.empty()
@@ -139,7 +153,9 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
+    logger.debug("Entering process_input_and_generate_summary")
     if not st.session_state.is_processing:
+        logger.warning("process_input_and_generate_summary called but is_processing is False")
         st.warning("No processing is currently happening. Resetting the application.")
         reset_app_state()
         st.rerun()
@@ -149,6 +165,7 @@ def process_input_and_generate_summary():
     progress_placeholder = display_progress_animation()
     
     try:
+        logger.info("Generating summary")
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
@@ -159,6 +176,7 @@ def process_input_and_generate_summary():
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
         st.session_state.summary = new_summary
         st.session_state.step = 'results'
+        logger.info("Summary generated successfully")
     except Exception as e:
         logger.exception("Error during summary generation")
         st.error(f"An error occurred during summary generation: {str(e)}")
@@ -166,7 +184,7 @@ def process_input_and_generate_summary():
     finally:
         st.session_state.is_processing = False
         progress_placeholder.empty()
-        time.sleep(0.1)
+        logger.debug("Exiting process_input_and_generate_summary")
         st.rerun()
          
 def render_results():
