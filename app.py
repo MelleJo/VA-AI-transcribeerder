@@ -86,26 +86,27 @@ def render_prompt_selection():
     # Custom CSS for minimalistic design
     st.markdown("""
     <style>
-    .stRadio > div { 
-        display: flex; 
-        justify-content: space-around; 
-        margin-bottom: 20px; 
+    .stRadio > div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
     }
-    .stSelectbox > div { 
-        margin-bottom: 20px; 
+    .stSelectbox > div {
+        margin-bottom: 15px;
     }
-    .stButton > button { 
-        background-color: #4CAF50; 
-        color: white; 
-        border: none; 
-        border-radius: 4px; 
-        padding: 10px 24px; 
-        font-size: 16px; 
-        cursor: pointer; 
-        transition: background-color 0.3s ease; 
+    .stButton > button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
-    .stButton > button:hover { 
-        background-color: #45a049; 
+    .stButton > button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
     }
     </style>
     """, unsafe_allow_html=True)

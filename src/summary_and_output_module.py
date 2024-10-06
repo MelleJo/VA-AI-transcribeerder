@@ -88,18 +88,19 @@ def render_chat_interface():
         st.markdown("""
         <style>
         .stButton>button {
-            background-color: #f0f2f6;
-            color: #31333F;
+            background-color: #007BFF;
+            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             padding: 0.5rem 1rem;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
         .stButton>button:hover {
-            background-color: #d1d5db;
+            background-color: #0056b3;
+            transform: translateY(-2px);
         }
         </style>
         """, unsafe_allow_html=True)
