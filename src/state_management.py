@@ -22,40 +22,26 @@ def initialize_session_state():
         st.session_state.input_text = ""
     if 'summary' not in st.session_state:
         st.session_state.summary = ""
-    if 'summaries' not in st.session_state:
-        st.session_state.summaries = []
-    if 'current_version' not in st.session_state:
-        st.session_state.current_version = 0
+    if 'processing_complete' not in st.session_state:
+        st.session_state.processing_complete = False
     if 'base_prompt' not in st.session_state:
         prompts = load_prompts()
         st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
-    if 'processing_complete' not in st.session_state:
-        st.session_state.processing_complete = False
 
-def transition_to_input_selection():
-    st.session_state.state = AppState.INPUT_SELECTION
-    logger.info("Transitioned to INPUT_SELECTION state")
-
-def transition_to_processing(input_text):
-    st.session_state.input_text = input_text
-    st.session_state.state = AppState.PROCESSING
-    st.session_state.processing_complete = False
-    logger.info("Transitioned to PROCESSING state")
-
-def transition_to_results(summary):
-    st.session_state.summary = summary
-    st.session_state.summaries.append(summary)
-    st.session_state.current_version = len(st.session_state.summaries) - 1
-    st.session_state.state = AppState.RESULTS
-    st.session_state.processing_complete = True
-    logger.info("Transitioned to RESULTS state")
+def transition_to_next_state():
+    current_state = st.session_state.state
+    if current_state == AppState.PROMPT_SELECTION:
+        st.session_state.state = AppState.INPUT_SELECTION
+    elif current_state == AppState.INPUT_SELECTION:
+        st.session_state.state = AppState.PROCESSING
+    elif current_state == AppState.PROCESSING:
+        st.session_state.state = AppState.RESULTS
+    logger.info(f"Transitioned from {current_state} to {st.session_state.state}")
 
 def reset_state():
     st.session_state.state = AppState.PROMPT_SELECTION
     st.session_state.selected_prompt = None
     st.session_state.input_text = ""
     st.session_state.summary = ""
-    st.session_state.summaries = []
-    st.session_state.current_version = 0
     st.session_state.processing_complete = False
     logger.info("Reset application state")

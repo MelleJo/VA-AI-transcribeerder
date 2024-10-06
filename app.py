@@ -3,7 +3,7 @@
 import streamlit as st
 from src import config, prompt_module, input_module, summary_and_output_module, ui_components
 from src.utils import transcribe_audio, process_text_file, get_prompt_content, load_prompts
-from src.state_management import AppState, initialize_session_state, transition_to_input_selection, transition_to_processing, transition_to_results, reset_state
+from src.state_management import AppState, initialize_session_state, transition_to_next_state, reset_state
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -39,7 +39,7 @@ def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
     prompt_module.render_prompt_selection()
     if st.button("Verder ➔", key="proceed_button"):
-        transition_to_input_selection()
+        transition_to_next_state()
         st.rerun()
 
 def render_input_selection():
@@ -47,12 +47,13 @@ def render_input_selection():
     input_text = input_module.render_input_step()
     if input_text:
         logger.debug("Input text received, transitioning to processing state")
-        transition_to_processing(input_text)
+        st.session_state.input_text = input_text
+        transition_to_next_state()
         st.rerun()
 
 def process_input():
     logger.debug("Entering process_input function")
-    if 'processing_complete' not in st.session_state or not st.session_state.processing_complete:
+    if not st.session_state.get('processing_complete', False):
         progress_placeholder = ui_components.display_progress_animation()
         st.info("Verwerking en samenvatting worden gegenereerd...")
         
@@ -69,8 +70,9 @@ def process_input():
             
             if summary:
                 logger.debug("Summary generated successfully")
-                transition_to_results(summary)
+                st.session_state.summary = summary
                 st.session_state.processing_complete = True
+                transition_to_next_state()
             else:
                 st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
                 reset_state()
@@ -84,7 +86,8 @@ def process_input():
         st.rerun()
     else:
         logger.debug("Processing already complete, moving to results")
-        render_results()
+        transition_to_next_state()
+        st.rerun()
 
 def render_results():
     logger.debug("Rendering results")
