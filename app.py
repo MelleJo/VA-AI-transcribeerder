@@ -30,13 +30,63 @@ if 'summaries' not in st.session_state:
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 
+# In app.py, update the load_css function
+
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
         css_content = f.read()
     
-    # Inject the CSS using st.markdown
-    st.markdown(f'<style>{css_content}</style>', unsafe_allow_html=True)
+    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
+    
+    full_screen_loading_css = """
+    <style>
+    .fullscreen-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .loader-content {
+        text-align: center;
+    }
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .progress-container {
+        width: 300px;
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+    .progress-bar {
+        height: 100%;
+        background-color: #4CAF50;
+        transition: width 0.5s ease-in-out;
+    }
+    </style>
+    """
+    
+    st.markdown(f'{font_awesome}{full_screen_loading_css}<style>{css_content}</style>', unsafe_allow_html=True)
+
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
@@ -79,6 +129,39 @@ def render_prompt_selection():
         }
     }
 
+    # Custom CSS for minimalistic design
+    st.markdown("""
+    <style>
+    body {
+        background-color: white;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: black;
+    }
+    .stRadio > div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    .stSelectbox > div {
+        margin-bottom: 15px;
+    }
+    .stButton > button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .stButton > button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Radio buttons for category selection
     main_category = st.radio("Kies een hoofd categorie:", list(prompt_categories.keys()))
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
@@ -96,43 +179,20 @@ def handle_input_complete():
     process_input_and_generate_summary()
 
 def render_input_selection():
-    if not st.session_state.get('is_processing', False):
-        st.markdown("<h2 class='section-title'>Kies een invoermethode</h2>", unsafe_allow_html=True)
-        
-        input_method = st.radio("", ["Audio opnemen", "Bestand uploaden", "Tekst invoeren"])
-        
-        if input_method == "Audio opnemen":
-            if st.button("Start Audio Opname"):
-                # Here you would implement the actual audio recording functionality
-                st.session_state.input_text = "Dit is een voorbeeld van opgenomen audio tekst."
-                st.success("Audio opname voltooid!")
-        
-        elif input_method == "Bestand uploaden":
-            uploaded_file = st.file_uploader("Kies een bestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
-            if uploaded_file is not None:
-                if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
-                    st.session_state.input_text = transcribe_audio(uploaded_file)
-                else:
-                    st.session_state.input_text = process_text_file(uploaded_file)
-                st.success(f"Bestand {uploaded_file.name} succesvol geüpload!")
-                process_input_and_generate_summary()
-        
-        elif input_method == "Tekst invoeren":
-            st.session_state.input_text = st.text_area("Voer uw tekst in:", height=150)
-        
-        if st.session_state.input_text:
-            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-            st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-            st.session_state.input_text = st.text_area(
-                "Bewerk indien nodig:",
-                value=st.session_state.input_text,
-                height=300,
-                key="final_transcript"
-            )
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-            if st.button("Genereer Samenvatting", key="generate_summary_button"):
-                process_input_and_generate_summary()
+    st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
+    
+    is_recording = input_module.render_input_step(handle_input_complete)
+    
+    if not is_recording and st.session_state.input_text:
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
+        st.session_state.input_text = st.text_area(
+            "Bewerk indien nodig:",
+            value=st.session_state.input_text,
+            height=300,
+            key="final_transcript"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
 def display_progress_animation():
     progress_placeholder = st.empty()
@@ -190,8 +250,7 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
-    st.session_state.is_processing = True
-    st.rerun()  # Rerun to update UI
+    # Create a full-screen overlay
     overlay_placeholder = st.empty()
     overlay_placeholder.markdown(
         """
@@ -238,8 +297,8 @@ def process_input_and_generate_summary():
     overlay_placeholder.empty()
     progress_placeholder.empty()
     
-    st.session_state.is_processing = False  # Reset processing state
-    st.rerun()
+    if st.session_state.step == 'results':
+        st.rerun()
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)

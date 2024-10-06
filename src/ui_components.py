@@ -61,7 +61,7 @@ def input_method_card(title, icon):
         </div>
     """, unsafe_allow_html=True)
     
-    is_clicked = st.button("Select", key=button_id, help=f"Select {title} input method", label_visibility="collapsed")
+    is_clicked = st.button("", key=button_id, help=f"Select {title} input method")
     
     st.markdown(f"""
         <script>

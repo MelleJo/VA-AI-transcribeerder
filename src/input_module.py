@@ -8,9 +8,6 @@ import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar
 
-# Import allowed file types from config
-from src.config import ALLOWED_AUDIO_TYPES, ALLOWED_TEXT_TYPES
-
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
     return len(audio) / 1000  # Length in seconds
@@ -169,21 +166,19 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader(
                 "Upload een audio- of videobestand",
-                type=ALLOWED_AUDIO_TYPES,
+                type=config.ALLOWED_AUDIO_TYPES,
                 key="audio_uploader"
             )
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
                 process_uploaded_audio(uploaded_file, on_input_complete)
-            if st.session_state.transcription_complete:
-                on_input_complete()
             st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Meerdere audiobestanden uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere audio- of videobestanden",
-                type=ALLOWED_AUDIO_TYPES,
+                type=config.ALLOWED_AUDIO_TYPES,
                 key="multi_audio_uploader",
                 accept_multiple_files=True
             )
@@ -229,7 +224,7 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader(
                 "Upload een tekstbestand",
-                type=ALLOWED_TEXT_TYPES,
+                type=config.ALLOWED_TEXT_TYPES,
                 key="text_file_uploader"
             )
             if uploaded_file:
@@ -240,7 +235,7 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere tekstbestanden",
-                type=ALLOWED_TEXT_TYPES,
+                type=config.ALLOWED_TEXT_TYPES,
                 key="multi_text_uploader",
                 accept_multiple_files=True
             )
@@ -297,7 +292,7 @@ def process_recorded_audio(audio_data, on_input_complete):
             on_input_complete()
         else:
             ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
-        os.unlink(audio_file_path)  # Clean up the temporary file
+        os.unlink(tmp_file_path)  # Clean up the temporary file
 
 def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")
@@ -321,7 +316,7 @@ def process_text_input(on_input_complete):
         ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
 
 def render_upload_input(on_input_complete):
-    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=ALLOWED_AUDIO_TYPES + ALLOWED_TEXT_TYPES)
+    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
     if uploaded_file:
         try:
             if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
@@ -342,4 +337,3 @@ def render_audio_input(on_stop_recording):
         on_stop_recording()
 
 def render_text_input(on_input_complete):
-    st.session_state.input_text = st.text_area("Voer tekst in:", height=300, on_change=on_input_complete)
