@@ -2013,3 +2013,6 @@
 
 # 2024-10-07 00:39:38.341928
 +Can you make it that when generating the transcript and summary that then the UI for uploading/recording et cetera is hidden? or dissapears? that the user only sees the progress bar?
+
+# 2024-10-07 00:53:58.887467
++2024-10-06 22:53:50.259 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
