@@ -7,6 +7,10 @@ from pydub import AudioSegment
 import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
@@ -99,12 +103,13 @@ def render_recording_reminders(prompt_type):
                 """, unsafe_allow_html=True)
 
 def render_input_step(on_input_complete):
-    st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
+    logger.debug("Rendering input step")
     
     input_method = st.radio(
         "Kies invoermethode:",
         ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"]
     )
+    logger.info(f"Selected input method: {input_method}")
 
     if input_method == "Audio uploaden":
         uploaded_file = st.file_uploader(
@@ -112,12 +117,14 @@ def render_input_step(on_input_complete):
             type=config.ALLOWED_AUDIO_TYPES
         )
         if uploaded_file:
+            logger.info(f"Audio file uploaded: {uploaded_file.name}")
             process_uploaded_audio(uploaded_file, on_input_complete)
 
     elif input_method == "Audio opnemen":
         st.write("Klik op de knop om de opname te starten.")
         audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
         if isinstance(audio_data, dict) and 'bytes' in audio_data:
+            logger.info("Audio recording completed")
             process_recorded_audio(audio_data, on_input_complete)
 
     elif input_method == "Tekst schrijven/plakken":
@@ -127,10 +134,9 @@ def render_input_step(on_input_complete):
             key="text_input_area"
         )
         if st.button("Verwerk tekst"):
-            if st.session_state.input_text:
-                on_input_complete()
-            else:
-                ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
+            logger.info(f"Text input received. Length: {len(st.session_state.input_text)}")
+            st.session_state.is_processing = True
+            on_input_complete()
 
     elif input_method == "Tekstbestand uploaden":
         uploaded_file = st.file_uploader(
@@ -138,46 +144,64 @@ def render_input_step(on_input_complete):
             type=config.ALLOWED_TEXT_TYPES
         )
         if uploaded_file:
+            logger.info(f"Text file uploaded: {uploaded_file.name}")
             st.session_state.input_text = process_text_file(uploaded_file)
             if st.session_state.input_text:
+                logger.info(f"Text file processed. Text length: {len(st.session_state.input_text)}")
+                st.session_state.is_processing = True
                 on_input_complete()
 
-    return False  # is_recording flag (always False in this simplified version)
+    logger.debug("Input step rendering complete")
+    return False  # is_recording flag
 
 def process_uploaded_audio(uploaded_file, on_input_complete):
-    ui_info_box("Audiobestand geüpload. Transcriptie wordt gestart...", "info")
+    logger.info(f"Processing uploaded audio file: {uploaded_file.name}")
+    st.info("Audiobestand geüpload. Transcriptie wordt gestart...")
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         
         try:
+            logger.debug(f"Transcribing audio file: {tmp_file_path}")
             st.session_state.input_text = transcribe_audio(tmp_file_path)
             if st.session_state.input_text:
+                logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
+                st.session_state.is_processing = True
                 on_input_complete()
             else:
-                ui_info_box("Transcriptie is mislukt. Probeer een ander audiobestand.", "error")
+                logger.warning("Transcription resulted in empty text")
+                st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
         except Exception as e:
-            ui_info_box(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}", "error")
+            logger.exception(f"Error during audio transcription: {str(e)}")
+            st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
         finally:
-            os.unlink(tmp_file_path)  # Clean up the temporary file
+            os.unlink(tmp_file_path)
+            logger.debug(f"Temporary file removed: {tmp_file_path}")
 
 def process_recorded_audio(audio_data, on_input_complete):
+    logger.info("Processing recorded audio")
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_file:
             audio_file.write(audio_data['bytes'])
             audio_file_path = audio_file.name
         
         try:
+            logger.debug(f"Transcribing audio file: {audio_file_path}")
             st.session_state.input_text = transcribe_audio(audio_file_path)
             if st.session_state.input_text:
+                logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
+                st.session_state.is_processing = True
                 on_input_complete()
             else:
-                ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
+                logger.warning("Transcription resulted in empty text")
+                st.error("Transcriptie is mislukt. Probeer opnieuw op te nemen.")
         except Exception as e:
-            ui_info_box(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}", "error")
+            logger.exception(f"Error during audio transcription: {str(e)}")
+            st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
         finally:
-            os.unlink(audio_file_path)  # Clean up the temporary file
+            os.unlink(audio_file_path)
+            logger.debug(f"Temporary file removed: {audio_file_path}")
 
 def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")

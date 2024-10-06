@@ -50,72 +50,38 @@ def check_state_consistency():
     return True
 
 def main():
-    try:
-        st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-        st.markdown(load_css(), unsafe_allow_html=True)
-        ui_components.apply_custom_css()
-        
-        initialize_session_state()
-        
-        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    initialize_session_state()
+    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+    ui_components.apply_custom_css()
 
-        st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
-        st.write(f"Current step: {st.session_state.step}")
-        st.write(f"Is processing: {st.session_state.is_processing}")
-        st.write(f"Input text length: {len(st.session_state.input_text)}")
+    logger.debug(f"Current step: {st.session_state.step}")
+    logger.debug(f"Is processing: {st.session_state.is_processing}")
+    logger.debug(f"Input text length: {len(st.session_state.input_text)}")
 
-        if st.button("Reset Application"):
-            reset_app_state()
-            st.rerun()
+    if st.button("Reset Application"):
+        reset_app_state()
+        st.rerun()
 
-        if st.session_state.step == 'prompt_selection':
-            render_prompt_selection()
-        elif st.session_state.step == 'input_selection':
-            render_input_selection()
-        elif st.session_state.step == 'processing':
-            if not st.session_state.is_processing:
-                logger.warning("Processing step reached but is_processing is False")
-                st.warning("Unexpected state. Resetting application.")
-                reset_app_state()
-                st.rerun()
-            else:
-                process_input_and_generate_summary()
-        elif st.session_state.step == 'results':
-            render_results()
-        else:
-            logger.error(f"Unknown step: {st.session_state.step}")
-            st.error(f"Unknown step: {st.session_state.step}")
-            reset_app_state()
-            st.rerun()
-
-    except Exception as e:
-        logger.exception("An error occurred in the main function")
-        st.error(f"An unexpected error occurred: {str(e)}")
-        if st.button("Reset Application (Error Recovery)"):
-            reset_app_state()
-            st.rerun()
+    if st.session_state.step == 'prompt_selection':
+        render_prompt_selection()
+    elif st.session_state.step == 'input_selection':
+        render_input_selection()
+    elif st.session_state.step == 'processing':
+        process_input_and_generate_summary()
+    elif st.session_state.step == 'results':
+        render_results()
+    else:
+        logger.error(f"Unknown step: {st.session_state.step}")
+        st.error(f"Unknown step: {st.session_state.step}")
+        reset_app_state()
+        st.rerun()
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
-    
-    # Define categories and their corresponding prompts
-    prompt_categories = {
-        "Verzekeringen": ["aov", "expertise_gesprek", "klantrapport", "klantvraag", "mutatie", "risico_analyse", "schade_beoordeling", "schademelding"],
-        "Financieel": ["financieelplanningstraject", "hypotheek", "hypotheek_rapport"],
-        "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
-        "Overig": ["adviesgesprek", "gesprek_bedrijfsarts", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
-    }
-    
-    # Radio buttons for category selection
-    selected_category = st.radio("Kies een categorie:", list(prompt_categories.keys()))
-    
-    # Dropdown for prompt selection
-    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[selected_category])
-    
-    # Button to proceed
+    prompt_module.render_prompt_selection()
     if st.button("Verder ➔", key="proceed_button"):
-        st.session_state.selected_prompt = selected_prompt
         st.session_state.step = 'input_selection'
         st.rerun()
 
@@ -133,13 +99,7 @@ def handle_input_complete():
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
-    
-    try:
-        is_recording = input_module.render_input_step(handle_input_complete)
-        logger.debug(f"Input selection rendered. Is recording: {is_recording}")
-    except Exception as e:
-        logger.exception("Error in render_input_selection")
-        st.error(f"An error occurred during input selection: {str(e)}")
+    input_module.render_input_step(handle_input_complete)
 
 def display_progress_animation():
     progress_placeholder = st.empty()
@@ -153,16 +113,15 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
-    logger.debug("Entering process_input_and_generate_summary")
+    logger.debug(f"Entering process_input_and_generate_summary. is_processing: {st.session_state.is_processing}")
     if not st.session_state.is_processing:
         logger.warning("process_input_and_generate_summary called but is_processing is False")
-        st.warning("No processing is currently happening. Resetting the application.")
+        st.warning("No processing is currently happening. Please start over.")
         reset_app_state()
         st.rerun()
         return
 
-    st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)
-    progress_placeholder = display_progress_animation()
+    progress_placeholder = ui_components.display_progress_animation()
     
     try:
         logger.info("Generating summary")
@@ -188,37 +147,8 @@ def process_input_and_generate_summary():
         st.rerun()
          
 def render_results():
-    st.markdown("<div class='main-content'>", unsafe_allow_html=True)
-    col1, col2 = st.columns([3, 2])
-    
-    with col1:
-        st.markdown("<h2 class='section-title'>Summary</h2>", unsafe_allow_html=True)
-        summary_and_output_module.render_summary_versions()
-    
-    with col2:
-        st.markdown("<h2 class='section-title'>Chat</h2>", unsafe_allow_html=True)
-        summary_and_output_module.render_chat_interface()
-
-    with st.expander("Bekijk/Bewerk Transcript"):
-        edited_transcript = st.text_area("Transcript:", value=st.session_state.input_text, height=300)
-        if edited_transcript != st.session_state.input_text:
-            st.session_state.input_text = edited_transcript
-            if st.button("Genereer opnieuw", key="regenerate_button"):
-                st.session_state.is_processing = True
-                st.session_state.step = 'processing'
-                st.rerun()
-
-    if st.button("Terug naar begin", key="back_to_start_button"):
-        st.session_state.step = 'prompt_selection'
-        st.session_state.selected_prompt = None
-        st.session_state.input_text = ""
-        st.session_state.summary_versions = []
-        st.session_state.current_version = 0
-        st.session_state.summary = ""
-        st.session_state.is_processing = False
-        st.rerun()
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+    summary_and_output_module.render_summary_versions()
+    summary_and_output_module.render_chat_interface()
 
 def render_summary_with_version_control():
     if st.session_state.summary_versions:
