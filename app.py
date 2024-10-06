@@ -1,98 +1,72 @@
 # app.py
 
 import streamlit as st
-from src import config, prompt_module, input_module, summary_and_output_module, ui_components
-from src.utils import transcribe_audio, process_text_file, get_prompt_content, load_prompts
-from src.state_management import AppState, initialize_session_state, transition_to_next_state, reset_state
+from src import input_module, summary_and_output_module
+from src.utils import get_prompt_content, load_prompts
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def main():
-    initialize_session_state()
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-    ui_components.apply_custom_css()
+    st.title("Gesprekssamenvatter AI")
 
-    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
+    if 'step' not in st.session_state:
+        st.session_state.step = 'input'
 
-    if st.button("Reset Application"):
-        reset_state()
-        st.rerun()
+    if 'base_prompt' not in st.session_state:
+        prompts = load_prompts()
+        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
-    logger.debug(f"Current state: {st.session_state.state}")
-    logger.debug(f"Base prompt loaded: {bool(st.session_state.base_prompt)}")
-    logger.debug(f"Input text available: {'input_text' in st.session_state}")
-    if 'input_text' in st.session_state:
-        logger.debug(f"Input text length: {len(st.session_state.input_text)}")
+    if st.session_state.step == 'input':
+        handle_input()
+    elif st.session_state.step == 'summary':
+        generate_summary()
+    elif st.session_state.step == 'display':
+        display_summary()
 
-    if st.session_state.state == AppState.PROMPT_SELECTION:
-        render_prompt_selection()
-    elif st.session_state.state == AppState.INPUT_SELECTION:
-        render_input_selection()
-    elif st.session_state.state == AppState.PROCESSING:
-        process_input()
-    elif st.session_state.state == AppState.RESULTS:
-        render_results()
+def handle_input():
+    st.header("Stap 1: Voer gespreksinhoud in")
+    
+    prompt_options = [p for p in load_prompts().keys() if p != 'base_prompt.txt']
+    selected_prompt = st.selectbox("Kies een prompt:", prompt_options)
+    st.session_state.selected_prompt = selected_prompt
 
-def render_prompt_selection():
-    st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
-    prompt_module.render_prompt_selection()
-    if st.button("Verder ➔", key="proceed_button"):
-        transition_to_next_state()
-        st.rerun()
-
-def render_input_selection():
-    st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     input_text = input_module.render_input_step()
+    
     if input_text:
-        logger.debug("Input text received, transitioning to processing state")
         st.session_state.input_text = input_text
-        transition_to_next_state()
+        st.session_state.step = 'summary'
         st.rerun()
 
-def process_input():
-    logger.debug("Entering process_input function")
-    if not st.session_state.get('processing_complete', False):
-        progress_placeholder = ui_components.display_progress_animation()
-        st.info("Verwerking en samenvatting worden gegenereerd...")
+def generate_summary():
+    st.header("Stap 2: Samenvatting genereren")
+    
+    with st.spinner("Samenvatting wordt gegenereerd..."):
+        summary = summary_and_output_module.generate_summary(
+            st.session_state.input_text,
+            st.session_state.base_prompt,
+            get_prompt_content(st.session_state.selected_prompt)
+        )
         
-        try:
-            if not st.session_state.base_prompt:
-                logger.error("Base prompt is not loaded")
-                raise ValueError("Base prompt is not loaded")
+        if summary:
+            st.session_state.summary = summary
+            st.session_state.step = 'display'
+            st.rerun()
+        else:
+            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+            st.session_state.step = 'input'
 
-            summary = summary_and_output_module.generate_summary(
-                st.session_state.input_text,
-                st.session_state.base_prompt,
-                get_prompt_content(st.session_state.selected_prompt)
-            )
-            
-            if summary:
-                logger.debug("Summary generated successfully")
-                st.session_state.summary = summary
-                st.session_state.processing_complete = True
-                transition_to_next_state()
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-                reset_state()
-        except Exception as e:
-            logger.exception(f"Error during processing: {str(e)}")
-            st.error(f"Er is een fout opgetreden: {str(e)}")
-            reset_state()
-        finally:
-            progress_placeholder.empty()
-        
+def display_summary():
+    st.header("Stap 3: Samenvatting")
+    st.markdown(st.session_state.summary)
+    
+    if st.button("Nieuwe samenvatting maken"):
+        st.session_state.step = 'input'
+        st.session_state.input_text = ""
+        st.session_state.summary = ""
         st.rerun()
-    else:
-        logger.debug("Processing already complete, moving to results")
-        transition_to_next_state()
-        st.rerun()
-
-def render_results():
-    logger.debug("Rendering results")
-    summary_and_output_module.render_summary_versions()
-    summary_and_output_module.render_chat_interface()
 
 if __name__ == "__main__":
     main()

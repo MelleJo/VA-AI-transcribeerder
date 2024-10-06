@@ -108,54 +108,48 @@ def render_recording_reminders(prompt_type):
                 """, unsafe_allow_html=True)
 
 def render_input_step():
-    logger.debug("Rendering input step")
-    
-    input_method = st.radio(
-        "Kies invoermethode:",
-        ["Audio uploaden", "Audio opnemen", "Tekst schrijven/plakken", "Tekstbestand uploaden"]
-    )
-    logger.info(f"Selected input method: {input_method}")
+    input_method = st.radio("Kies invoermethode:", ["Tekst invoeren", "Audio uploaden", "Tekstbestand uploaden"])
 
-    if input_method == "Audio uploaden":
-        uploaded_files = st.file_uploader(
-            "Upload een of meerdere audio- of videobestanden",
-            type=config.ALLOWED_AUDIO_TYPES,
-            accept_multiple_files=True
-        )
-        if uploaded_files:
-            logger.info(f"Audio files uploaded: {[file.name for file in uploaded_files]}")
-            return process_multiple_audio_files(uploaded_files)
-
-    elif input_method == "Audio opnemen":
-        st.write("Klik op de knop om de opname te starten.")
-        audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
-        if isinstance(audio_data, dict) and 'bytes' in audio_data:
-            logger.info("Audio recording completed")
-            return process_recorded_audio(audio_data)
-
-    elif input_method == "Tekst schrijven/plakken":
-        text_input = st.text_area(
-            "Voer tekst in of plak tekst:",
-            height=300,
-            key="text_input_area"
-        )
-        if st.button("Verwerk tekst"):
-            logger.info(f"Text input received. Length: {len(text_input)}")
-            st.session_state.is_processing = True
-            logger.debug(f"is_processing set to True after text input")
-            return text_input
-
+    if input_method == "Tekst invoeren":
+        return handle_text_input()
+    elif input_method == "Audio uploaden":
+        return handle_audio_upload()
     elif input_method == "Tekstbestand uploaden":
-        uploaded_files = st.file_uploader(
-            "Upload een of meerdere tekstbestanden",
-            type=config.ALLOWED_TEXT_TYPES,
-            accept_multiple_files=True
-        )
-        if uploaded_files:
-            logger.info(f"Text files uploaded: {[file.name for file in uploaded_files]}")
-            return process_multiple_text_files(uploaded_files)
+        return handle_text_file_upload()
 
-    logger.debug("Input step rendering complete")
+def handle_text_input():
+    text = st.text_area("Voer de gespreksinhoud in:", height=300)
+    if st.button("Verwerk tekst"):
+        return text
+    return None
+
+
+def handle_audio_upload():
+    uploaded_file = st.file_uploader("Upload een audiobestand", type=["mp3", "wav", "ogg"])
+    if uploaded_file is not None:
+        with st.spinner("Audio wordt verwerkt..."):
+            with tempfile.NamedTemporaryFile(delete=False, suffix="."+uploaded_file.name.split(".")[-1]) as tmp_file:
+                tmp_file.write(uploaded_file.getvalue())
+                tmp_file_path = tmp_file.name
+            
+            try:
+                transcription = transcribe_audio(tmp_file_path)
+                os.unlink(tmp_file_path)
+                return transcription
+            except Exception as e:
+                st.error(f"Er is een fout opgetreden bij het verwerken van het audiobestand: {str(e)}")
+                os.unlink(tmp_file_path)
+    return None
+
+def handle_text_file_upload():
+    uploaded_file = st.file_uploader("Upload een tekstbestand", type=["txt", "pdf", "docx"])
+    if uploaded_file is not None:
+        with st.spinner("Bestand wordt verwerkt..."):
+            try:
+                text = process_text_file(uploaded_file)
+                return text
+            except Exception as e:
+                st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
     return None
 
 def process_uploaded_audio(uploaded_file):
