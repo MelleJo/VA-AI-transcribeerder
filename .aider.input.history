@@ -793,3 +793,12 @@
 
 # 2024-10-06 13:10:50.466039
 +Y
+
+# 2024-10-06 16:07:59.122210
++/add app.py
+
+# 2024-10-06 16:08:07.390772
++/add src\summary_and_output_module.py
+
+# 2024-10-06 16:08:16.873019
++Can you fix this: WARNING:__main__:process_input_and_generate_summary called but is_processing is False
