@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
