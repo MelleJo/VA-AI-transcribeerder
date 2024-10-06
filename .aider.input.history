@@ -2016,3 +2016,6 @@
 
 # 2024-10-07 00:53:58.887467
 +2024-10-06 22:53:50.259 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+
+# 2024-10-07 01:05:54.504264
++can you fix that the widget for upload takes the allowed file types from the config file?
