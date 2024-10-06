@@ -3,7 +3,7 @@
 import streamlit as st
 from enum import Enum, auto
 import logging
-from src.utils import load_prompts  # Add this import
+from src.utils import load_prompts
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ def initialize_session_state():
     if 'base_prompt' not in st.session_state:
         prompts = load_prompts()
         st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+    if 'processing_complete' not in st.session_state:
+        st.session_state.processing_complete = False
 
 def transition_to_input_selection():
     st.session_state.state = AppState.INPUT_SELECTION
@@ -37,6 +39,7 @@ def transition_to_input_selection():
 def transition_to_processing(input_text):
     st.session_state.input_text = input_text
     st.session_state.state = AppState.PROCESSING
+    st.session_state.processing_complete = False
     logger.info("Transitioned to PROCESSING state")
 
 def transition_to_results(summary):
@@ -44,6 +47,7 @@ def transition_to_results(summary):
     st.session_state.summaries.append(summary)
     st.session_state.current_version = len(st.session_state.summaries) - 1
     st.session_state.state = AppState.RESULTS
+    st.session_state.processing_complete = True
     logger.info("Transitioned to RESULTS state")
 
 def reset_state():
@@ -53,4 +57,5 @@ def reset_state():
     st.session_state.summary = ""
     st.session_state.summaries = []
     st.session_state.current_version = 0
+    st.session_state.processing_complete = False
     logger.info("Reset application state")

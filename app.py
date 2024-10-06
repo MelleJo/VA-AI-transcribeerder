@@ -22,6 +22,9 @@ def main():
 
     logger.debug(f"Current state: {st.session_state.state}")
     logger.debug(f"Base prompt loaded: {bool(st.session_state.base_prompt)}")
+    logger.debug(f"Input text available: {'input_text' in st.session_state}")
+    if 'input_text' in st.session_state:
+        logger.debug(f"Input text length: {len(st.session_state.input_text)}")
 
     if st.session_state.state == AppState.PROMPT_SELECTION:
         render_prompt_selection()
@@ -43,39 +46,48 @@ def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     input_text = input_module.render_input_step()
     if input_text:
+        logger.debug("Input text received, transitioning to processing state")
         transition_to_processing(input_text)
         st.rerun()
 
 def process_input():
-    progress_placeholder = ui_components.display_progress_animation()
-    st.info("Verwerking en samenvatting worden gegenereerd...")
-    
-    try:
-        if not st.session_state.base_prompt:
-            logger.error("Base prompt is not loaded")
-            raise ValueError("Base prompt is not loaded")
-
-        summary = summary_and_output_module.generate_summary(
-            st.session_state.input_text,
-            st.session_state.base_prompt,
-            get_prompt_content(st.session_state.selected_prompt)
-        )
+    logger.debug("Entering process_input function")
+    if 'processing_complete' not in st.session_state or not st.session_state.processing_complete:
+        progress_placeholder = ui_components.display_progress_animation()
+        st.info("Verwerking en samenvatting worden gegenereerd...")
         
-        if summary:
-            transition_to_results(summary)
-        else:
-            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+        try:
+            if not st.session_state.base_prompt:
+                logger.error("Base prompt is not loaded")
+                raise ValueError("Base prompt is not loaded")
+
+            summary = summary_and_output_module.generate_summary(
+                st.session_state.input_text,
+                st.session_state.base_prompt,
+                get_prompt_content(st.session_state.selected_prompt)
+            )
+            
+            if summary:
+                logger.debug("Summary generated successfully")
+                transition_to_results(summary)
+                st.session_state.processing_complete = True
+            else:
+                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+                reset_state()
+        except Exception as e:
+            logger.exception(f"Error during processing: {str(e)}")
+            st.error(f"Er is een fout opgetreden: {str(e)}")
             reset_state()
-    except Exception as e:
-        logger.exception(f"Error during processing: {str(e)}")
-        st.error(f"Er is een fout opgetreden: {str(e)}")
-        reset_state()
-    finally:
-        progress_placeholder.empty()
-    
-    st.rerun()
+        finally:
+            progress_placeholder.empty()
+        
+        st.rerun()
+    else:
+        logger.debug("Processing already complete, moving to results")
+        render_results()
 
 def render_results():
+    logger.debug("Rendering results")
     summary_and_output_module.render_summary_versions()
     summary_and_output_module.render_chat_interface()
 
