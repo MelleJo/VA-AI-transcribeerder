@@ -56,6 +56,8 @@ def main():
         render_prompt_selection()
     elif st.session_state.step == 'input_selection':
         render_input_selection()
+    elif st.session_state.step == 'processing':
+        process_input_and_generate_summary()
     elif st.session_state.step == 'results':
         render_results()
 
@@ -83,9 +85,9 @@ def render_prompt_selection():
         st.rerun()
 
 def handle_input_complete():
-    # Directly process input and generate summary after transcription
     if st.session_state.input_text:
-        process_input_and_generate_summary()
+        st.session_state.step = 'processing'
+        st.rerun()
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
@@ -104,31 +106,25 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
-    # Clear the UI and show only the progress animation
-    st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)  # Hide all input elements
+    st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)
     progress_placeholder = display_progress_animation()
     
-    if 'input_text' in st.session_state and st.session_state.input_text:
-        try:
-            # Generate summary without showing the transcript
-            new_summary = summary_and_output_module.generate_summary(
-                st.session_state.input_text,
-                st.session_state.base_prompt,
-                get_prompt_content(st.session_state.selected_prompt)
-            )
-            
-            st.session_state.summary_versions.append(new_summary)
-            st.session_state.current_version = len(st.session_state.summary_versions) - 1
-            st.session_state.summary = new_summary
-            st.session_state.step = 'results'
-        except Exception as e:
-            st.error(f"An error occurred during summary generation: {str(e)}")
-        finally:
-            progress_placeholder.empty()
-            st.rerun()
-    else:
-        st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
+    try:
+        new_summary = summary_and_output_module.generate_summary(
+            st.session_state.input_text,
+            st.session_state.base_prompt,
+            get_prompt_content(st.session_state.selected_prompt)
+        )
+        
+        st.session_state.summary_versions.append(new_summary)
+        st.session_state.current_version = len(st.session_state.summary_versions) - 1
+        st.session_state.summary = new_summary
+        st.session_state.step = 'results'
+    except Exception as e:
+        st.error(f"An error occurred during summary generation: {str(e)}")
+    finally:
         progress_placeholder.empty()
+        st.rerun()
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)

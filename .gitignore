@@ -164,3 +164,4 @@ secrets.toml
 
 # Temporary files
 temp/
+.aider*
