@@ -86,8 +86,8 @@ def transcribe_audio_file():
             st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
             if st.session_state.input_text:
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
-                st.session_state.is_processing = True
                 st.session_state.step = 'processing'
+                st.session_state.is_processing = True
             else:
                 logger.warning("Transcription resulted in empty text")
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
