@@ -35,13 +35,13 @@ if 'current_version' not in st.session_state:
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        css_content = f.read()
     
     # Add Font Awesome for icons
-    st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">', unsafe_allow_html=True)
+    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
     # Add full-screen loading CSS
-    st.markdown("""
+    full_screen_loading_css = """
     <style>
     .fullscreen-loader {
         position: fixed;
@@ -85,14 +85,14 @@ def load_css():
         transition: width 0.5s ease-in-out;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """
+    
+    st.markdown(f'<style>{css_content}</style>{font_awesome}{full_screen_loading_css}', unsafe_allow_html=True)
 
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-    load_css()
-    # Apply custom CSS
-    st.markdown(load_css(), unsafe_allow_html=True)
+    load_css()  # Load CSS at the start of the app
     ui_components.apply_custom_css()
 
     # Initialize OpenAI client
