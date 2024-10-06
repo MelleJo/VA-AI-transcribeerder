@@ -88,6 +88,7 @@ def load_css():
     """
     
     st.markdown(f"{css_content}{font_awesome}{full_screen_loading_css}", unsafe_allow_html=True)
+    st.markdown("<style>body {background-color: white;}</style>", unsafe_allow_html=True)
 
 
 

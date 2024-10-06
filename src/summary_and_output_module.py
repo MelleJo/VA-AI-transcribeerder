@@ -274,6 +274,7 @@ def display_progress_checkmarks():
     progress_html += "</div>"
     
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+    st.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
 def update_progress(progress_placeholder, step, current_step, total_steps, start_time):
