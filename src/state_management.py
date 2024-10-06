@@ -3,6 +3,7 @@
 import streamlit as st
 from enum import Enum, auto
 import logging
+from src.utils import load_prompts  # Add this import
 
 logger = logging.getLogger(__name__)
 

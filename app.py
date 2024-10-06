@@ -2,7 +2,7 @@
 
 import streamlit as st
 from src import config, prompt_module, input_module, summary_and_output_module, ui_components
-from src.utils import transcribe_audio, process_text_file, get_prompt_content
+from src.utils import transcribe_audio, process_text_file, get_prompt_content, load_prompts
 from src.state_management import AppState, initialize_session_state, transition_to_input_selection, transition_to_processing, transition_to_results, reset_state
 import logging
 
