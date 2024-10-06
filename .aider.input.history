@@ -668,3 +668,6 @@
 
 # 2024-10-06 02:09:56.209906
 +now it seems like the progresses aren't processing at all they seem to start over all the time. can you fix that?
+
+# 2024-10-06 02:11:19.106239
++change st.experimental_rerun() to st.rerun(), experimental one is deprecated
