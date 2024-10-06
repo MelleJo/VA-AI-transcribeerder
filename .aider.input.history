@@ -1725,3 +1725,114 @@
 
 # 2024-10-06 23:52:32.524203
 +still
+
+# 2024-10-06 23:55:45.662356
++<thinking>
++The problem is likely occurring because the CSS is being displayed directly in the Streamlit app instead of being properly loaded and applied. To resolve this, we need to:
++
++Ensure that the CSS is loaded correctly at the start of the app.
++Use Streamlit's built-in methods to inject the CSS into the app.
++Remove any instances where CSS might be accidentally displayed as text.
++</thinking>
++
++
++<code_changes>
++Let's modify the app.py file to correctly load and apply the CSS:
++
++First, update the load_css function:
++
++pythonCopydef load_css():
++    css_path = os.path.join('static', 'styles.css')
++    with open(css_path) as f:
++        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
++    
++    # Add Font Awesome for icons
++    st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">', unsafe_allow_html=True)
++    
++    # Add full-screen loading CSS
++    st.markdown("""
++    <style>
++    .fullscreen-loader {
++        position: fixed;
++        top: 0;
++        left: 0;
++        width: 100vw;
++        height: 100vh;
++        background-color: rgba(255, 255, 255, 0.9);
++        display: flex;
++        justify-content: center;
++        align-items: center;
++        z-index: 9999;
++    }
++    .loader-content {
++        text-align: center;
++    }
++    .spinner {
++        border: 4px solid #f3f3f3;
++        border-top: 4px solid #3498db;
++        border-radius: 50%;
++        width: 40px;
++        height: 40px;
++        animation: spin 1s linear infinite;
++        margin: 0 auto 20px;
++    }
++    @keyframes spin {
++        0% { transform: rotate(0deg); }
++        100% { transform: rotate(360deg); }
++    }
++    .progress-container {
++        width: 300px;
++        height: 20px;
++        background-color: #f0f0f0;
++        border-radius: 10px;
++        overflow: hidden;
++        margin-bottom: 10px;
++    }
++    .progress-bar {
++        height: 100%;
++        background-color: #4CAF50;
++        transition: width 0.5s ease-in-out;
++    }
++    </style>
++    """, unsafe_allow_html=True)
++
++In the main() function, call load_css() at the beginning:
++
++pythonCopydef main():
++    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
++    load_css()  # Load CSS at the start of the app
++
++    # Rest of your main function...
++
++Remove any other instances where CSS might be displayed as text. For example, if you have any st.write() or st.markdown() calls that display CSS, replace them with the appropriate Streamlit components or HTML.
++If you're using custom CSS for specific components, make sure to apply it using Streamlit's methods. For example:
++
++pythonCopyst.markdown("""
++    <style>
++    .custom-button {
++        background-color: #4CAF50;
++        color: white;
++        padding: 10px 20px;
++        text-align: center;
++        text-decoration: none;
++        display: inline-block;
++        font-size: 16px;
++        margin: 4px 2px;
++        cursor: pointer;
++        border-radius: 4px;
++    }
++    </style>
++    """, unsafe_allow_html=True)
++
++st.markdown('<button class="custom-button">Custom Button</button>', unsafe_allow_html=True)
++</code_changes>
++<explanation>
++These changes should resolve the issue of CSS code being visible in your app. Here's what we've done:
++
++We've modified the load_css() function to directly inject the CSS into the app using Streamlit's st.markdown() method with unsafe_allow_html=True. This ensures that the CSS is applied as styles rather than displayed as text.
++We're calling load_css() at the beginning of the main() function to ensure all styles are loaded before any content is displayed.
++We've removed any instances where CSS might be accidentally displayed as text.
++For any custom CSS needed for specific components, we're using Streamlit's st.markdown() method to inject the styles.
+
+# 2024-10-06 23:55:49.213861
++n
