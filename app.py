@@ -6,7 +6,9 @@ import time
 import os
 from openai import OpenAI
 
-logging.getLogger('watchdog').setLevel(logging.ERROR)
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize session state variables at the script level
 if 'base_prompt' not in st.session_state:
@@ -41,25 +43,35 @@ def load_css():
     return f'<style>{css_content}</style>{font_awesome}'
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+    try:
+        st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
-    # Apply custom CSS
-    st.markdown(load_css(), unsafe_allow_html=True)
-    ui_components.apply_custom_css()
+        # Apply custom CSS
+        st.markdown(load_css(), unsafe_allow_html=True)
+        ui_components.apply_custom_css()
 
-    # Initialize OpenAI client
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+        # Initialize OpenAI client
+        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
-    if st.session_state.step == 'prompt_selection':
-        render_prompt_selection()
-    elif st.session_state.step == 'input_selection':
-        render_input_selection()
-    elif st.session_state.step == 'processing':
-        process_input_and_generate_summary()
-    elif st.session_state.step == 'results':
-        render_results()
+        # Debug information
+        st.write(f"Current step: {st.session_state.step}")
+        st.write(f"Is processing: {st.session_state.is_processing}")
+
+        if st.session_state.step == 'prompt_selection':
+            render_prompt_selection()
+        elif st.session_state.step == 'input_selection':
+            render_input_selection()
+        elif st.session_state.step == 'processing':
+            process_input_and_generate_summary()
+        elif st.session_state.step == 'results':
+            render_results()
+        else:
+            st.error(f"Unknown step: {st.session_state.step}")
+    except Exception as e:
+        logger.exception("An error occurred in the main function")
+        st.error(f"An unexpected error occurred: {str(e)}")
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
