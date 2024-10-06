@@ -677,3 +677,113 @@
 
 # 2024-10-06 02:13:39.620283
 +Y
+
+# 2024-10-06 02:14:55.504266
++what is an lint error?
+
+# 2024-10-06 02:15:59.015682
++────────────────────── Traceback (most recent call last) ───────────────────────
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/exec_code.py:88 in exec_func_with_error_handling                         
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/script_runner.py:579 in code_to_exec                                     
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:225 in <module>                       
++
++                                                                                
++
++    222 │   │   st.warning("Geen samenvatting beschikbaar.")                    
++
++    223                                                                         
++
++    224 if __name__ == "__main__":                                              
++
++  ❱ 225 │   main()                                                              
++
++    226                                                                         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:58 in main                            
++
++                                                                                
++
++     55 │   if st.session_state.step == 'prompt_selection':                     
++
++     56 │   │   render_prompt_selection()                                       
++
++     57 │   elif st.session_state.step == 'input_selection':                    
++
++  ❱  58 │   │   render_input_selection()                                        
++
++     59 │   elif st.session_state.step == 'results':                            
++
++     60 │   │   render_results()                                                
++
++     61                                                                         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:96 in render_input_selection          
++
++                                                                                
++
++     93 │   if not is_recording and st.session_state.input_text:                
++
++     94 │   │   st.markdown("<div class='info-container'>", unsafe_allow_html=  
++
++     95 │   │   st.markdown("<h3 class='section-title'>Transcript</h3>", unsaf  
++
++  ❱  96 │   │   st.session_state.input_text = st.text_area(                     
++
++     97 │   │   │   "Bewerk indien nodig:",                                     
++
++     98 │   │   │   value=st.session_state.input_text,                          
++
++     99 │   │   │   height=300,                                                 
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/metrics_  
++
++  util.py:410 in wrapped_func                                                   
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/elements/widgets  
++
++  /text_widgets.py:501 in text_area                                             
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/elements/widgets  
++
++  /text_widgets.py:546 in _text_area                                            
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/elements/lib/uti  
++
++  ls.py:226 in compute_and_register_element_id                                  
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/elements/lib/uti  
++
++  ls.py:127 in _register_element_id                                             
++
++────────────────────────────────────────────────────────────────────────────────
++
++StreamlitDuplicateElementKey: There are multiple elements with the same 
++
++`key='final_transcript'`. To fix this, please make sure that the `key` argument 
++
++is unique for each element you create.
