@@ -112,6 +112,9 @@ def process_input_and_generate_summary():
     progress_placeholder = ui_components.display_progress_animation()
     
     try:
+        if not st.session_state.input_text:
+            raise ValueError("Input text is empty")
+
         logger.info("Generating summary")
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
@@ -119,13 +122,16 @@ def process_input_and_generate_summary():
             get_prompt_content(st.session_state.selected_prompt)
         )
         
+        if not new_summary:
+            raise ValueError("Generated summary is empty")
+
         st.session_state.summary_versions.append(new_summary)
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
         st.session_state.summary = new_summary
         st.session_state.step = 'results'
         logger.info("Summary generated successfully")
     except Exception as e:
-        logger.exception("Error during summary generation")
+        logger.exception(f"Error during summary generation: {str(e)}")
         st.error(f"An error occurred during summary generation: {str(e)}")
         reset_app_state()
     finally:
