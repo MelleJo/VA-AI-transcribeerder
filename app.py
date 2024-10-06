@@ -97,7 +97,7 @@ def render_input_selection():
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
-            key="final_transcript"
+            key="final_transcript_input_selection"
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
