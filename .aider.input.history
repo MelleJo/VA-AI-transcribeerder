@@ -1540,3 +1540,15 @@
 
 # 2024-10-06 23:18:49.039593
 +thank you. Can we make the background of the app white, and then all text in a Apple kind of font and black? 
+
+# 2024-10-06 23:20:31.617676
++/architect is there any way how we can speed up the transcription/summary process? without losing accuracy?
+
+# 2024-10-06 23:21:00.146686
++n
+
+# 2024-10-06 23:22:25.273048
++now after uploading a file, it starts automatically to process the transcript and make a summary. This is very good, but I would like that when it is processing and also showing the progress of this, that the other UI (about input et cetera) will dissapear. could you change this?
+
+# 2024-10-06 23:22:54.461878
++y
