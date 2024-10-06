@@ -1525,3 +1525,9 @@
 
 # 2024-10-06 16:33:31.625360
 +still exactly the same problem, can you not change the logic in order to fix this issue?
+
+# 2024-10-06 23:14:43.619900
++I would like on the first page for the prompt selection ("Wat wil je doen?") to be three main categories: Veldhuis Advies / Veldhuis Advies Groep / NLG Arbo. Then, under Veldhuis Advies: Pensioen, Hypotheek, Financiele Planning, and Overig. Then for Veldhuis Advies Groep: Bedrijven, Particulieren, Schade, Overig. Then for NLG Arbo: Casemanager, Bedrijfsarts, Overig. And then I would like you to try to organize the prompts yourself, but if you have questions you let me know and I inform you.
+
+# 2024-10-06 23:15:01.459904
++Everything was clear?
