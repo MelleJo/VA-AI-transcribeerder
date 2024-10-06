@@ -10,65 +10,66 @@ from openai import OpenAI
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize session state variables
-if 'base_prompt' not in st.session_state:
-    prompts = load_prompts()
-    st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
-
-if 'step' not in st.session_state:
-    st.session_state.step = 'prompt_selection'
-if 'selected_prompt' not in st.session_state:
-    st.session_state.selected_prompt = None
-if 'input_text' not in st.session_state:
-    st.session_state.input_text = ""
-if 'summary_versions' not in st.session_state:
-    st.session_state.summary_versions = []
-if 'current_version' not in st.session_state:
-    st.session_state.current_version = 0
-if 'summary' not in st.session_state:
-    st.session_state.summary = ""
-if 'summaries' not in st.session_state:
-    st.session_state.summaries = []
-if 'is_processing' not in st.session_state:
-    st.session_state.is_processing = False
+def initialize_session_state():
+    if 'base_prompt' not in st.session_state:
+        prompts = load_prompts()
+        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+    if 'step' not in st.session_state:
+        st.session_state.step = 'prompt_selection'
+    if 'selected_prompt' not in st.session_state:
+        st.session_state.selected_prompt = None
+    if 'input_text' not in st.session_state:
+        st.session_state.input_text = ""
+    if 'summary_versions' not in st.session_state:
+        st.session_state.summary_versions = []
+    if 'current_version' not in st.session_state:
+        st.session_state.current_version = 0
+    if 'summary' not in st.session_state:
+        st.session_state.summary = ""
+    if 'summaries' not in st.session_state:
+        st.session_state.summaries = []
+    if 'is_processing' not in st.session_state:
+        st.session_state.is_processing = False
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
         css_content = f.read()
-    
-    # Add Font Awesome for icons
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
-    
     return f'<style>{css_content}</style>{font_awesome}'
 
 def reset_app_state():
-    st.session_state.step = 'prompt_selection'
-    st.session_state.is_processing = False
-    st.session_state.input_text = ""
-    st.session_state.summary = ""
-    st.session_state.summary_versions = []
-    st.session_state.current_version = 0
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    initialize_session_state()
+
+def check_state_consistency():
+    if st.session_state.step == 'processing' and not st.session_state.is_processing:
+        logger.warning("Inconsistent state detected: processing step with is_processing=False")
+        return False
+    return True
 
 def main():
     try:
         st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-
-        # Apply custom CSS
         st.markdown(load_css(), unsafe_allow_html=True)
         ui_components.apply_custom_css()
-
-        # Initialize OpenAI client
+        
+        initialize_session_state()
+        
         client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
         st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
-        # Debug information
         st.write(f"Current step: {st.session_state.step}")
         st.write(f"Is processing: {st.session_state.is_processing}")
 
-        # Add a reset button
         if st.button("Reset Application"):
+            reset_app_state()
+            st.rerun()
+
+        if not check_state_consistency():
+            st.warning("The application is in an inconsistent state. Resetting...")
             reset_app_state()
             st.rerun()
 
@@ -77,17 +78,20 @@ def main():
         elif st.session_state.step == 'input_selection':
             render_input_selection()
         elif st.session_state.step == 'processing':
-            if not st.session_state.is_processing:
-                st.warning("The application is in an inconsistent state. Please reset the application.")
-            else:
-                process_input_and_generate_summary()
+            process_input_and_generate_summary()
         elif st.session_state.step == 'results':
             render_results()
         else:
             st.error(f"Unknown step: {st.session_state.step}")
+            reset_app_state()
+            st.rerun()
+
     except Exception as e:
         logger.exception("An error occurred in the main function")
         st.error(f"An unexpected error occurred: {str(e)}")
+        if st.button("Reset Application (Error Recovery)"):
+            reset_app_state()
+            st.rerun()
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
@@ -136,7 +140,9 @@ def display_progress_animation():
 
 def process_input_and_generate_summary():
     if not st.session_state.is_processing:
-        st.warning("No processing is currently happening. Please reset the application and try again.")
+        st.warning("No processing is currently happening. Resetting the application.")
+        reset_app_state()
+        st.rerun()
         return
 
     st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)
@@ -154,11 +160,13 @@ def process_input_and_generate_summary():
         st.session_state.summary = new_summary
         st.session_state.step = 'results'
     except Exception as e:
+        logger.exception("Error during summary generation")
         st.error(f"An error occurred during summary generation: {str(e)}")
+        reset_app_state()
     finally:
         st.session_state.is_processing = False
         progress_placeholder.empty()
-        time.sleep(0.1)  # Small delay to ensure smooth transition
+        time.sleep(0.1)
         st.rerun()
          
 def render_results():
