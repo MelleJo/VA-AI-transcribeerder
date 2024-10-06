@@ -54,6 +54,7 @@ def main():
     elif st.session_state.step == 'transcribing':
         transcribe_audio_file()
     elif st.session_state.step == 'processing':
+        st.session_state.is_processing = True  # Set is_processing to True before calling the function
         process_input_and_generate_summary()
     elif st.session_state.step == 'results':
         render_results()
