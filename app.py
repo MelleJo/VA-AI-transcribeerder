@@ -140,7 +140,7 @@ def process_input_and_generate_summary():
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
         st.session_state.summary = new_summary  # Initialize the summary
         st.session_state.step = 'results'
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     

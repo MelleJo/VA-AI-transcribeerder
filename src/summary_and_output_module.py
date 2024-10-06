@@ -325,7 +325,7 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         if not st.session_state.summaries or st.session_state.summaries[-1] != summary:
             st.session_state.summaries.append(summary)
             st.session_state.current_version = len(st.session_state.summaries) - 1
-            st.experimental_rerun()  # Automatically rerun to reflect changes
+            st.rerun()  # Automatically rerun to reflect changes
         
         return summary
     except Exception as e:
