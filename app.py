@@ -82,20 +82,22 @@ def transcribe_audio_file():
     if st.session_state.uploaded_file:
         progress_placeholder = ui_components.display_progress_animation()
         st.info("Audiobestand wordt getranscribeerd...")
+        st.session_state.is_processing = True
         try:
             st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
             if st.session_state.input_text:
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
-                st.session_state.is_processing = True
                 st.session_state.step = 'processing'
             else:
                 logger.warning("Transcription resulted in empty text")
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
                 st.session_state.step = 'input_selection'
+                st.session_state.is_processing = False
         except Exception as e:
             logger.exception(f"Error during audio transcription: {str(e)}")
             st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
             st.session_state.step = 'input_selection'
+            st.session_state.is_processing = False
         finally:
             progress_placeholder.empty()
             st.rerun()
@@ -135,8 +137,8 @@ def process_input_and_generate_summary():
         st.error(f"An error occurred during summary generation: {str(e)}")
         reset_app_state()
     finally:
-        st.session_state.is_processing = False
         progress_placeholder.empty()
+        st.session_state.is_processing = False
         logger.debug("Exiting process_input_and_generate_summary")
         st.rerun()
 
