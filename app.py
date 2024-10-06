@@ -28,7 +28,6 @@ def initialize_session_state():
     if 'summaries' not in st.session_state:
         st.session_state.summaries = []
     if 'is_processing' not in st.session_state:
-        st.session_state.is_processing = False
     if 'uploaded_file' not in st.session_state:
         st.session_state.uploaded_file = None
 
@@ -88,7 +87,6 @@ def transcribe_audio_file():
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
                 st.session_state.is_processing = True
                 st.session_state.step = 'processing'
-                st.session_state.is_processing = True
             else:
                 logger.warning("Transcription resulted in empty text")
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
