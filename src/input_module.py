@@ -136,6 +136,7 @@ def render_input_step(on_input_complete):
         if st.button("Verwerk tekst"):
             logger.info(f"Text input received. Length: {len(st.session_state.input_text)}")
             st.session_state.is_processing = True
+            logger.debug(f"is_processing set to True after text input")
             on_input_complete()
 
     elif input_method == "Tekstbestand uploaden":
@@ -149,6 +150,7 @@ def render_input_step(on_input_complete):
             if st.session_state.input_text:
                 logger.info(f"Text file processed. Text length: {len(st.session_state.input_text)}")
                 st.session_state.is_processing = True
+                logger.debug(f"is_processing set to True after text file processing")
                 on_input_complete()
 
     logger.debug("Input step rendering complete")
@@ -168,6 +170,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
             if st.session_state.input_text:
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
                 st.session_state.is_processing = True
+                logger.debug(f"is_processing set to True after transcription")
                 on_input_complete()
             else:
                 logger.warning("Transcription resulted in empty text")
@@ -178,6 +181,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
         finally:
             os.unlink(tmp_file_path)
             logger.debug(f"Temporary file removed: {tmp_file_path}")
+
 
 def process_recorded_audio(audio_data, on_input_complete):
     logger.info("Processing recorded audio")
@@ -192,6 +196,7 @@ def process_recorded_audio(audio_data, on_input_complete):
             if st.session_state.input_text:
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
                 st.session_state.is_processing = True
+                logger.debug(f"is_processing set to True after recorded audio transcription")
                 on_input_complete()
             else:
                 logger.warning("Transcription resulted in empty text")

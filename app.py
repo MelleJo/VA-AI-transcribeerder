@@ -91,7 +91,7 @@ def handle_input_complete():
         logger.info(f"Input text received. Length: {len(st.session_state.input_text)}")
         st.session_state.is_processing = True
         st.session_state.step = 'processing'
-        logger.debug("State updated to processing")
+        logger.debug(f"State updated to processing. is_processing: {st.session_state.is_processing}")
         st.rerun()
     else:
         logger.warning("handle_input_complete called with empty input_text")
