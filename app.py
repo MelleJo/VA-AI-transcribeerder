@@ -206,7 +206,7 @@ def display_progress_animation():
 def process_input_and_generate_summary():
     # Clear the UI and show only the progress animation
     st.empty()
-    progress_placeholder, checkmarks = summary_and_output_module.display_progress_checkmarks()
+    progress_placeholder = display_progress_animation()
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         # Update progress: Transcribing
