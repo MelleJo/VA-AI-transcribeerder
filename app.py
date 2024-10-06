@@ -14,17 +14,12 @@ def main():
 
     if 'step' not in st.session_state:
         st.session_state.step = 'input'
-
-    if 'base_prompt' not in st.session_state:
-        prompts = load_prompts()
-        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
+        st.session_state.base_prompt = load_prompts().get('base_prompt.txt', '')
 
     if st.session_state.step == 'input':
         handle_input()
     elif st.session_state.step == 'summary':
         generate_summary()
-    elif st.session_state.step == 'display':
-        display_summary()
 
 def handle_input():
     st.header("Stap 1: Voer gespreksinhoud in")
@@ -51,12 +46,17 @@ def generate_summary():
         )
         
         if summary:
-            st.session_state.summary = summary
-            st.session_state.step = 'display'
-            st.rerun()
+            st.subheader("Gegenereerde Samenvatting:")
+            st.markdown(summary)
+            if st.button("Nieuwe samenvatting maken"):
+                st.session_state.step = 'input'
+                st.session_state.input_text = ""
+                st.rerun()
         else:
             st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-            st.session_state.step = 'input'
+            if st.button("Opnieuw proberen"):
+                st.session_state.step = 'input'
+                st.rerun()
 
 def display_summary():
     st.header("Stap 3: Samenvatting")
