@@ -30,6 +30,8 @@ if 'summaries' not in st.session_state:
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 
+# In app.py, update the load_css function
+
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
@@ -38,7 +40,54 @@ def load_css():
     # Add Font Awesome for icons
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
-    return f'<style>{css_content}</style>{font_awesome}'
+    # Add full-screen loading CSS
+    full_screen_loading_css = """
+    <style>
+    .fullscreen-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .loader-content {
+        text-align: center;
+    }
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .progress-container {
+        width: 300px;
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+    .progress-bar {
+        height: 100%;
+        background-color: #4CAF50;
+        transition: width 0.5s ease-in-out;
+    }
+    </style>
+    """
+    
+    return f'<style>{css_content}</style>{font_awesome}{full_screen_loading_css}'
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
@@ -204,17 +253,32 @@ def display_progress_animation():
     return progress_placeholder
 
 def process_input_and_generate_summary():
-    # Clear the UI and show only the progress animation
-    st.empty()
-    progress_placeholder, checkmarks = summary_and_output_module.display_progress_checkmarks()
+    # Create a full-screen overlay
+    overlay_placeholder = st.empty()
+    overlay_placeholder.markdown(
+        """
+        <div class="fullscreen-loader">
+            <div class="loader-content">
+                <div class="spinner"></div>
+                <div id="progress-container"></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    progress_placeholder = st.empty()
     
     if 'input_text' in st.session_state and st.session_state.input_text:
+        start_time = time.time()
+        total_steps = 3
+        
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "transcript_read")
+        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time)
         time.sleep(2)  # Simulate time taken for transcription
         
         # Update progress: Summarizing
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "summary_generated")
+        summary_and_output_module.update_progress(progress_placeholder, "summary_generated", 2, total_steps, start_time)
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
@@ -222,18 +286,22 @@ def process_input_and_generate_summary():
         )
         
         # Update progress: Checking
-        summary_and_output_module.update_progress(progress_placeholder, checkmarks, "spelling_checked")
+        summary_and_output_module.update_progress(progress_placeholder, "spelling_checked", 3, total_steps, start_time)
         time.sleep(1)  # Simulate time taken for checking
         
         st.session_state.summary_versions.append(new_summary)
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
         st.session_state.summary = new_summary  # Initialize the summary
         st.session_state.step = 'results'
-        st.rerun()
     else:
         st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     
+    # Remove the overlay
+    overlay_placeholder.empty()
     progress_placeholder.empty()
+    
+    if st.session_state.step == 'results':
+        st.rerun()
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)

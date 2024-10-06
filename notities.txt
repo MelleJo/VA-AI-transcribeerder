@@ -1,0 +1,1 @@
+Now the changes in the summaries, or for example other actions like making an email or extracting main points is shown as an st.expandable in the summary screen. However, I would like it to be shown as a new version of the summary (there is also a verion with next and previous). can you fix this?

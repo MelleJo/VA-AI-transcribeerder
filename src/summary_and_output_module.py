@@ -276,14 +276,36 @@ def display_progress_checkmarks():
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
-def update_progress(progress_placeholder, checkmarks, step):
-    checkmarks[step] = checkmarks[step].replace("⏳", "✅")
-    progress_html = "<div style='text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;'>"
-    progress_html += "<div class='stSpinner'></div>"
-    for value in checkmarks.values():
-        progress_html += f"<p>{value}</p>"
-    progress_html += "</div>"
+def update_progress(progress_placeholder, step, current_step, total_steps, start_time):
+    steps = {
+        "transcript_read": "Transcript lezen",
+        "summary_generated": "Samenvatting maken",
+        "spelling_checked": "Spellingscontrole uitvoeren"
+    }
+    
+    elapsed_time = time.time() - start_time
+    estimated_total_time = (elapsed_time / current_step) * total_steps
+    remaining_time = max(0, estimated_total_time - elapsed_time)
+    
+    progress_html = f"""
+    <div class="progress-container">
+        <div class="progress-bar" style="width: {(current_step / total_steps) * 100}%;"></div>
+    </div>
+    <p>{steps[step]}...</p>
+    <p>Geschatte resterende tijd: {int(remaining_time)} seconden</p>
+    """
+    
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+    
+    # Update the progress in the full-screen overlay
+    st.markdown(
+        f"""
+        <script>
+            document.getElementById('progress-container').innerHTML = `{progress_html}`;
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
