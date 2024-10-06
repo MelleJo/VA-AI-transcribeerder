@@ -37,10 +37,8 @@ def load_css():
     with open(css_path) as f:
         css_content = f.read()
     
-    # Add Font Awesome for icons
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
-    # Add full-screen loading CSS
     full_screen_loading_css = """
     <style>
     .fullscreen-loader {
