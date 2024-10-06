@@ -88,6 +88,7 @@ def load_css():
     """
     
     # Ensure HTML content is rendered correctly
+    # Ensure HTML content is rendered correctly
     st.markdown(f"""
     <style>
     {css_content}

@@ -276,6 +276,7 @@ def display_progress_checkmarks():
     
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     # Ensure HTML content is rendered correctly
+    # Ensure HTML content is rendered correctly
     st.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
