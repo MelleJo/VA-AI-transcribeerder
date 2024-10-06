@@ -2019,3 +2019,6 @@
 
 # 2024-10-07 01:05:54.504264
 +can you fix that the widget for upload takes the allowed file types from the config file?
+
+# 2024-10-07 01:07:24.538357
++I see now this in the transcript: Inhoud van fhulshorst.m4a why? I want after the upload (or recxording/typing) that the transcript is being generated and when finished, immediately the summary.
