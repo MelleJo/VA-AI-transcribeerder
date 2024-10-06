@@ -61,7 +61,7 @@ def main():
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
-    
+
     # Define categories and their corresponding prompts
     prompt_categories = {
         "Veldhuis Advies": {
@@ -82,14 +82,41 @@ def render_prompt_selection():
             "Overig": []
         }
     }
-    
+
+    # Custom CSS for minimalistic design
+    st.markdown("""
+    <style>
+    .stRadio > div { 
+        display: flex; 
+        justify-content: space-around; 
+        margin-bottom: 20px; 
+    }
+    .stSelectbox > div { 
+        margin-bottom: 20px; 
+    }
+    .stButton > button { 
+        background-color: #4CAF50; 
+        color: white; 
+        border: none; 
+        border-radius: 4px; 
+        padding: 10px 24px; 
+        font-size: 16px; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
+    }
+    .stButton > button:hover { 
+        background-color: #45a049; 
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Radio buttons for category selection
     main_category = st.radio("Kies een hoofd categorie:", list(prompt_categories.keys()))
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
-    
+
     # Dropdown for prompt selection
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
-    
+
     # Button to proceed
     if st.button("Verder ➔", key="proceed_button"):
         st.session_state.selected_prompt = selected_prompt
