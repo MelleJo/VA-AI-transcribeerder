@@ -5,6 +5,38 @@ import re
 from st_copy_to_clipboard import st_copy_to_clipboard
 import markdown2
 
+def display_progress_animation():
+    progress_placeholder = st.empty()
+    progress_html = """
+    <div class="progress-animation">
+        <div class="spinner"></div>
+        <p>Verwerking bezig... Even geduld aub.</p>
+    </div>
+    <style>
+        .progress-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    """
+    progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+    return progress_placeholder
+
 def ui_card(title: str, content: str, buttons: list[Callable] = None):
     with st.container():
         st.markdown(f"""
