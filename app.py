@@ -191,7 +191,7 @@ def display_progress_animation():
 
 def process_input_and_generate_summary():
     st.session_state.is_processing = True
-    st.experimental_rerun()  # Rerun to update UI
+    st.rerun()  # Rerun to update UI
     overlay_placeholder = st.empty()
     overlay_placeholder.markdown(
         """
