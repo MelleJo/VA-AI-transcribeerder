@@ -108,7 +108,7 @@ def render_input_selection():
                 st.success("Audio opname voltooid!")
         
         elif input_method == "Bestand uploaden":
-            uploaded_file = st.file_uploader("Kies een bestand", type=["txt", "pdf", "docx"])
+            uploaded_file = st.file_uploader("Kies een bestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
             if uploaded_file is not None:
                 # Here you would implement the file processing functionality
                 st.session_state.input_text = f"Inhoud van {uploaded_file.name}"
