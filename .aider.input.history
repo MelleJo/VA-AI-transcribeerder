@@ -650,3 +650,9 @@
 +────────────────────────────────────────────────────────────────────────────────
 +
 +AttributeError: module 'streamlit' has no attribute 'experimental_rerun' it is now st.rerun() instead of experimental
+
+# 2024-10-06 02:05:01.309019
++/architect what happens now is that after the upload the transcript is being made (and shown with the old boring progression bars) then after it finisihes it starts over but with the nice new landing page (at the bottom of the screen, I want it full screen). can you fix this? i do not need the old method anymore
+
+# 2024-10-06 02:05:32.602746
++Y
