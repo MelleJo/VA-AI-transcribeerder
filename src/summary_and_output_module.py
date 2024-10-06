@@ -28,6 +28,12 @@ import pandas as pd
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def estimate_remaining_time(start_time, current_step, total_steps):
+    elapsed_time = time.time() - start_time
+    estimated_total_time = (elapsed_time / current_step) * total_steps
+    remaining_time = max(0, estimated_total_time - elapsed_time)
+    return f"Geschatte resterende tijd: {int(remaining_time)} seconden"
+
 def update_summary_display(response):
     if response["type"] == "summary":
         st.session_state.summaries.append(response["content"])
@@ -156,6 +162,37 @@ def suggest_actions(summary):
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
     return suggestions[:3]  # Ensure we return at most 3 suggestions
+
+
+# In app.py, add this to the load_css function
+
+def load_css():
+    css_path = os.path.join('static', 'styles.css')
+    with open(css_path) as f:
+        css_content = f.read()
+    
+    # Add Font Awesome for icons
+    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
+    
+    # Add full-screen loading CSS
+    full_screen_loading_css = """
+    <style>
+    .fullscreen-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    </style>
+    """
+    
+    return f'<style>{css_content}</style>{font_awesome}{full_screen_loading_css}'
 
 def get_confirmation_message(response_type):
     messages = {
