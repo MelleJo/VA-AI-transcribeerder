@@ -131,9 +131,7 @@ def render_prompt_selection():
 def handle_input_complete():
     process_input_and_generate_summary()
 
-def render_input_selection():
-    st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
-    
+def render_input_selection():   
     if not st.session_state.get('is_processing', False):
         is_recording = input_module.render_input_step(handle_input_complete)
         
