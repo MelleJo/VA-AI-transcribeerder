@@ -48,14 +48,19 @@ def main():
         st.rerun()
 
     if st.session_state.step == 'prompt_selection':
+        logger.debug("Rendering prompt selection")
         render_prompt_selection()
     elif st.session_state.step == 'input_selection':
+        logger.debug("Rendering input selection")
         render_input_selection()
     elif st.session_state.step == 'transcribing':
+        logger.debug("Starting transcription")
         transcribe_audio_file()
     elif st.session_state.step == 'processing':
+        logger.debug("Starting summary generation")
         process_input_and_generate_summary()
     elif st.session_state.step == 'results':
+        logger.debug("Rendering results")
         render_results()
     else:
         logger.error(f"Unknown step: {st.session_state.step}")
@@ -89,8 +94,7 @@ def transcribe_audio_file():
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
                 st.success("Transcriptie succesvol. Samenvatting wordt nu gegenereerd...")
                 st.session_state.step = 'processing'
-                st.session_state.is_processing = True
-                st.rerun()  # Force a rerun to move to the processing step
+                process_input_and_generate_summary()
             else:
                 logger.warning("Transcription resulted in empty text")
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
@@ -142,7 +146,6 @@ def process_input_and_generate_summary():
         progress_placeholder.empty()
         st.session_state.is_processing = False
         logger.debug("Exiting process_input_and_generate_summary")
-        st.rerun()  # Force a rerun to move to the results step
 
 def render_results():
     summary_and_output_module.render_summary_versions()
