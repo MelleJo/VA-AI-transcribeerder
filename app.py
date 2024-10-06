@@ -28,6 +28,7 @@ def initialize_session_state():
     if 'summaries' not in st.session_state:
         st.session_state.summaries = []
     if 'is_processing' not in st.session_state:
+        st.session_state.is_processing = False
     if 'uploaded_file' not in st.session_state:
         st.session_state.uploaded_file = None
 
