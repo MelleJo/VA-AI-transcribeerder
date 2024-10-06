@@ -316,3 +316,156 @@
 +────────────────────────────────────────────────────────────────────────────────
 +
 +TypeError: update_progress() missing 1 required positional argument: 'step'
+
+# 2024-10-06 02:00:40.230778
++────────────────────── Traceback (most recent call last) ───────────────────────
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/exec_code.py:88 in exec_func_with_error_handling                         
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/script_runner.py:579 in code_to_exec                                     
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:225 in <module>                       
++
++                                                                                
++
++    222 │   main()                                                              
++
++    223                                                                         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:58 in main                            
++
++                                                                                
++
++     55 │   if st.session_state.step == 'prompt_selection':                     
++
++     56 │   │   render_prompt_selection()                                       
++
++     57 │   elif st.session_state.step == 'input_selection':                    
++
++  ❱  58 │   │   render_input_selection()                                        
++
++     59 │   elif st.session_state.step == 'results':                            
++
++     60 │   │   render_results()                                                
++
++     61                                                                         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:91 in render_input_selection          
++
++                                                                                
++
++     88 def render_input_selection():                                           
++
++     89 │   st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.se  
++
++     90 │                                                                       
++
++  ❱  91 │   is_recording = input_module.render_input_step(handle_input_complet  
++
++     92 │                                                                       
++
++     93 │   if not is_recording and st.session_state.input_text:                
++
++     94 │   │   st.markdown("<div class='info-container'>", unsafe_allow_html=  
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/src/input_module.py:174 in                   
++
++  render_input_step                                                             
++
++                                                                                
++
++    171 │   │   │   )                                                           
++
++    172 │   │   │   if uploaded_file:                                           
++
++    173 │   │   │   │   st.session_state.uploaded_audio = uploaded_file         
++
++  ❱ 174 │   │   │   │   process_uploaded_audio(uploaded_file, on_input_complet  
++
++    175 │   │   │   st.markdown("</div>", unsafe_allow_html=True)               
++
++    176 │   │                                                                   
++
++    177 │   │   elif input_method == "Meerdere audiobestanden uploaden":        
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/src/input_module.py:274 in                   
++
++  process_uploaded_audio                                                        
++
++                                                                                
++
++    271 │   │   │   st.write("Transcript lengte:", len(st.session_state.input_  
++
++    272 │   │   │   st.write("Eerste 100 karakters van transcript:", st.sessio  
++
++    273 │   │   │   st.session_state.transcription_complete = True              
++
++  ❱ 274 │   │   │   on_input_complete()                                         
++
++    275 │   │   else:                                                           
++
++    276 │   │   │   ui_info_box("Transcriptie is mislukt. Probeer een ander au  
++
++    277 │   │   os.unlink(tmp_file_path)  # Clean up the temporary file         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:86 in handle_input_complete           
++
++                                                                                
++
++     83 │   │   st.rerun()                                                      
++
++     84                                                                         
++
++     85 def handle_input_complete():                                            
++
++  ❱  86 │   process_input_and_generate_summary()                                
++
++     87                                                                         
++
++     88 def render_input_selection():                                           
++
++     89 │   st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.se  
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:122 in                                
++
++  process_input_and_generate_summary                                            
++
++                                                                                
++
++    119 │                                                                       
++
++    120 │   if 'input_text' in st.session_state and st.session_state.input_tex  
++
++    121 │   │   # Update progress: Transcribing                                 
++
++  ❱ 122 │   │   summary_and_output_module.update_progress(progress_placeholder  
++
++    123 │   │                                                                   
++
++    124 │   │   # Update progress: Summarizing                                  
++
++    125 │   │   new_summary = summary_and_output_module.generate_summary(       
++
++────────────────────────────────────────────────────────────────────────────────
++
++TypeError: update_progress() takes 3 positional arguments but 4 were given
