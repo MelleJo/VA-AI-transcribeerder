@@ -125,7 +125,7 @@ def handle_text_input():
 
 
 def handle_audio_upload():
-    uploaded_file = st.file_uploader("Upload een audiobestand", type=["mp3", "wav", "ogg"])
+    uploaded_file = st.file_uploader("Upload een audiobestand", type=["mp3", "m4a", "wav", "ogg"])
     if uploaded_file is not None:
         with st.spinner("Audio wordt verwerkt..."):
             with tempfile.NamedTemporaryFile(delete=False, suffix="."+uploaded_file.name.split(".")[-1]) as tmp_file:
