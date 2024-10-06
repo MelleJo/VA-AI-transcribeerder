@@ -832,3 +832,693 @@
 
 # 2024-10-06 16:26:48.883387
 +y
+
+# 2024-10-06 16:31:31.712245
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.git/refs/tags', wd=18, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.git/refs/tags', wd=13, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='tags'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.git/refs/tags', wd=18, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.streamlit', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='.streamlit'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.streamlit', wd=8, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.streamlit', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='.streamlit'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/.streamlit', wd=8, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='legacy_prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts', wd=5, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='legacy_prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts', wd=5, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/telefoon', wd=5, mask=IN_ISDIR|IN_OPEN, cookie=0, name='telefoon'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/telefoon', wd=23, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/telefoon', wd=5, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='telefoon'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/telefoon', wd=23, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/util', wd=5, mask=IN_ISDIR|IN_OPEN, cookie=0, name='util'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/util', wd=22, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/util', wd=5, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='util'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/legacy_prompts/util', wd=22, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='src'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src', wd=3, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='src'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src', wd=3, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src/__pycache__', wd=3, mask=IN_ISDIR|IN_OPEN, cookie=0, name='__pycache__'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src/__pycache__', wd=24, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src/__pycache__', wd=3, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='__pycache__'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/src/__pycache__', wd=24, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='static'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static', wd=9, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='static'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static', wd=9, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:30:41 GMT'), (b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'2826'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'7500'), (b'x-ratelimit-remaining-requests', b'7499'), (b'x-ratelimit-reset-requests', b'8ms'), (b'x-request-id', b'req_816683c1c7eca4e1035642bd8e73984b'), (b'CF-Cache-Status', b'DYNAMIC'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce659b6ec979b79-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/audio/transcriptions "200 OK" Headers({'date': 'Sun, 06 Oct 2024 14:30:41 GMT', 'content-type': 'text/plain; charset=utf-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'veldhuis-advies-t0w2tr', 'openai-processing-ms': '2826', 'openai-version': '2020-10-01', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-ratelimit-limit-requests': '7500', 'x-ratelimit-remaining-requests': '7499', 'x-ratelimit-reset-requests': '8ms', 'x-request-id': 'req_816683c1c7eca4e1035642bd8e73984b', 'cf-cache-status': 'DYNAMIC', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '8ce659b6ec979b79-SEA', 'content-encoding': 'gzip'})
++
++DEBUG:openai._base_client:request_id: req_816683c1c7eca4e1035642bd8e73984b
++
++DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/audio/transcriptions', 'headers': {'Content-Type': 'multipart/form-data'}, 'files': [('file', SerializationIterator(index=0, iterator=SerializationIterator(index=0, iterator=<_io.BufferedReader name='/tmp/tmpspb7nzgs/chunk_1.wav'>)))], 'json_data': {'model': 'whisper-1', 'response_format': 'text'}}
++
++DEBUG:openai._base_client:Sending HTTP Request: POST https://api.openai.com/v1/audio/transcriptions
++
++DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_headers.complete
++
++DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_body.complete
++
++DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:30:44 GMT'), (b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'2235'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'7500'), (b'x-ratelimit-remaining-requests', b'7499'), (b'x-ratelimit-reset-requests', b'8ms'), (b'x-request-id', b'req_9a39e6e31f25215aca4dcc538b7ace1a'), (b'CF-Cache-Status', b'DYNAMIC'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce659ccfa689b79-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/audio/transcriptions "200 OK" Headers({'date': 'Sun, 06 Oct 2024 14:30:44 GMT', 'content-type': 'text/plain; charset=utf-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'veldhuis-advies-t0w2tr', 'openai-processing-ms': '2235', 'openai-version': '2020-10-01', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-ratelimit-limit-requests': '7500', 'x-ratelimit-remaining-requests': '7499', 'x-ratelimit-reset-requests': '8ms', 'x-request-id': 'req_9a39e6e31f25215aca4dcc538b7ace1a', 'cf-cache-status': 'DYNAMIC', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '8ce659ccfa689b79-SEA', 'content-encoding': 'gzip'})
++
++DEBUG:openai._base_client:request_id: req_9a39e6e31f25215aca4dcc538b7ace1a
++
++DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/audio/transcriptions', 'headers': {'Content-Type': 'multipart/form-data'}, 'files': [('file', SerializationIterator(index=0, iterator=SerializationIterator(index=0, iterator=<_io.BufferedReader name='/tmp/tmpspb7nzgs/chunk_2.wav'>)))], 'json_data': {'model': 'whisper-1', 'response_format': 'text'}}
++
++DEBUG:openai._base_client:Sending HTTP Request: POST https://api.openai.com/v1/audio/transcriptions
++
++DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_headers.complete
++
++DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_body.complete
++
++DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:30:47 GMT'), (b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'2391'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'7500'), (b'x-ratelimit-remaining-requests', b'7499'), (b'x-ratelimit-reset-requests', b'8ms'), (b'x-request-id', b'req_37a6de9df9592888d348609c40e3a3d1'), (b'CF-Cache-Status', b'DYNAMIC'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce659e2894e9b79-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/audio/transcriptions "200 OK" Headers({'date': 'Sun, 06 Oct 2024 14:30:47 GMT', 'content-type': 'text/plain; charset=utf-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'veldhuis-advies-t0w2tr', 'openai-processing-ms': '2391', 'openai-version': '2020-10-01', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-ratelimit-limit-requests': '7500', 'x-ratelimit-remaining-requests': '7499', 'x-ratelimit-reset-requests': '8ms', 'x-request-id': 'req_37a6de9df9592888d348609c40e3a3d1', 'cf-cache-status': 'DYNAMIC', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '8ce659e2894e9b79-SEA', 'content-encoding': 'gzip'})
++
++DEBUG:openai._base_client:request_id: req_37a6de9df9592888d348609c40e3a3d1
++
++DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/audio/transcriptions', 'headers': {'Content-Type': 'multipart/form-data'}, 'files': [('file', SerializationIterator(index=0, iterator=SerializationIterator(index=0, iterator=<_io.BufferedReader name='/tmp/tmpspb7nzgs/chunk_3.wav'>)))], 'json_data': {'model': 'whisper-1', 'response_format': 'text'}}
++
++DEBUG:openai._base_client:Sending HTTP Request: POST https://api.openai.com/v1/audio/transcriptions
++
++DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_headers.complete
++
++DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_body.complete
++
++DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:30:49 GMT'), (b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'1049'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'7500'), (b'x-ratelimit-remaining-requests', b'7499'), (b'x-ratelimit-reset-requests', b'8ms'), (b'x-request-id', b'req_b93fcee16a9e1627c9dc7b12b90473b9'), (b'CF-Cache-Status', b'DYNAMIC'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce659f52d769b79-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/audio/transcriptions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/audio/transcriptions "200 OK" Headers({'date': 'Sun, 06 Oct 2024 14:30:49 GMT', 'content-type': 'text/plain; charset=utf-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'veldhuis-advies-t0w2tr', 'openai-processing-ms': '1049', 'openai-version': '2020-10-01', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-ratelimit-limit-requests': '7500', 'x-ratelimit-remaining-requests': '7499', 'x-ratelimit-reset-requests': '8ms', 'x-request-id': 'req_b93fcee16a9e1627c9dc7b12b90473b9', 'cf-cache-status': 'DYNAMIC', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '8ce659f52d769b79-SEA', 'content-encoding': 'gzip'})
++
++DEBUG:openai._base_client:request_id: req_b93fcee16a9e1627c9dc7b12b90473b9
++
++INFO:__main__:Transcription successful. Text length: 2149
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_OPEN, cookie=0, name='styles.css'>
++
++DEBUG:__main__:Current step: processing
++
++DEBUG:__main__:Is processing: True
++
++DEBUG:__main__:Input text length: 2149
++
++DEBUG:__main__:Entering process_input_and_generate_summary. is_processing: True
++
++INFO:__main__:Generating summary
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_CLOSE_NOWRITE, cookie=0, name='styles.css'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_OPEN, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_OPEN, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_OPEN, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_OPEN, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_OPEN, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_OPEN, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_OPEN, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_OPEN, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'json_data': {'messages': [{'role': 'system', 'content': 'Je bent een AI-assistent gespecialiseerd in het maken van gedetailleerde, praktische en contextrijke samenvattingen van gesprekken. Analyseer het gegeven transcript zorgvuldig en maak een uitgebreide, gestructureerde samenvatting die alle besproken onderwerpen, details, nuances en conclusies bevat. Volg deze richtlijnen:\nBelangrijk: Gebruik geen HTML-tags in je samenvatting. Gebruik alleen Markdown-opmaak voor structuur en nadruk.\n\nZorg dat de samenvatting overzichtelijk en gemakkelijk te scannen is, met een duidelijke structuur en voldoende witruimte. Baseer je uitsluitend op de informatie in het transcript, zonder eigen aannames of toevoegingen.\n\nIndien besproken, besteed je altijd voldoende aandacht aan: de inventarisatie van de onderneming op financieel en activiteiten gebied.\n\n1. Lees het volledige transcript door en identificeer de hoofdthema\'s, terugkerende onderwerpen en onderlinge relaties tussen besproken punten.\n\n2. Structureer de samenvatting met de volgende hoofdelementen, gebruik duidelijke visuele scheiding tussen secties (maar noem het niet a, b, c et cetera, enkel de kop dikgedrukt):\n\n   a) Basisinformatie:\n      - Datum en tijd van het gesprek (indien vermeld)\n      - Volledige namen en functies van alle deelnemers\n      - Doel of aanleiding van het gesprek\n\n   c) Inhoudelijke punten:\n      - Maak een chronologische lijst van alle besproken hoofdonderwerpen\n      - Gebruik duidelijke subkopjes en indien nodig geneste bulletpoints voor elk hoofdonderwerp\n      - Geef voor elk onderwerp een gedetailleerde beschrijving, inclusief:\n        • Concrete feiten en cijfers die werden genoemd\n        • Specifieke beslissingen die werden genomen\n        • Exacte quotes die belangrijk zijn voor de context of besluitvorming\n        • Vergelijkingen of evaluaties van verschillende opties of methoden\n        • Specifieke conclusies of uitkomsten van discussies\n      - Leg expliciet verbanden tussen verschillende onderwerpen waar relevant\n      - Beschrijf de context en achtergrond van besproken punten\n      - Besteed extra aandacht aan discussies over tools, processen en verbetervoorstellen\n      - Vermijd vage of algemene beschrijvingen; geef altijd concrete details en specifieke informatie\n\n   d) Actiepunten(enkel punten die niet zijn genoemd in de actiepunten, wanneer de actiepunten alles omvatten laat je dit onderdeel weg):\n      - Lijst alle actiepunten op met:\n        • De exacte beschrijving van de actie\n        • De naam van de verantwoordelijke persoon\n        • De deadline (indien genoemd)\n      - Groepeer actiepunten per verantwoordelijke persoon\n      - Geef aan hoe actiepunten zich verhouden tot de besproken onderwerpen\n\n   e) Afspraken en vervolgstappen:\n      - Noteer alle gemaakte afspraken\n      - Vermeld geplande vervolgafspraken met datum en tijd\n      - Beschrijf de verwachte resultaten of doelen van deze afspraken\n      - Leg uit hoe deze afspraken bijdragen aan de overkoepelende doelstellingen\n\n   f) Openstaande vragen of onopgeloste kwesties (enkel punten die niet zijn genoemd in de actiepunten, wanneer de actiepunten alles omvatten laat je dit onderdeel weg):\n      - Lijst punten op die verder onderzoek of opvolging vereisen\n      - Geef aan waarom deze punten onopgelost bleven\n      - Suggereer mogelijke volgende stappen om deze kwesties aan te pakken\n\n3. Detaillering en specificiteit:\n   - Zorg ervoor dat elke besproken kwestie volledig wordt uitgewerkt met concrete details\n   - Vermijd vage formuleringen zoals "er werd gediscussieerd over"; geef in plaats daarvan aan wat er precies werd gezegd en besloten\n   - Als er verschillende meningen of standpunten waren, beschrijf deze specifiek\n   - Geef altijd de uitkomst of conclusie van een discussie, zelfs als deze voorlopig is\n\n4. Objectiviteit en volledigheid:\n   - Vermijd interpretaties of aannames\n   - Baseer de samenvatting uitsluitend op de informatie in het transcript\n   - Als er tegenstrijdige standpunten zijn, vat deze neutraal samen\n\n5. Contextuele leesbaarheid:\n   - Zorg dat iemand die het gesprek niet heeft bijgewoond een volledig beeld krijgt\n   - Gebruik indien nodig korte verklarende zinnen om context te bieden\n   - Leg vakterminologie of afkortingen uit waar nodig\n\n6. Structuur en opmaak:\n   - Gebruik consistente en duidelijke kopjes en subkopjes\n   - Zorg voor een logische opbouw en vloeiende overgangen tussen onderwerpen\n   - Gebruik opsommingstekens of nummering voor overzichtelijkheid\n   - Pas inspringingen toe voor hiërarchie in informatie\n\n7. Lengte en detail:\n   - Pas de lengte van de samenvatting aan de complexiteit en duur van het gesprek aan\n   - Voor langere gesprekken, overweeg een korte samenvatting aan het begin te plaatsen\n   - Streef naar volledigheid zonder onnodige herhaling\n\n8. Detaillering en specificiteit:\n   - Zorg ervoor dat elke besproken kwestie volledig wordt uitgewerkt met concrete details\n   - Vermijd vage formuleringen; geef in plaats daarvan aan wat er precies werd gezegd en besloten\n   - Neem 2-3 relevante, letterlijke citaten op die kernpunten van de discussie illustreren\n   - Kwantificeer informatie waar mogelijk (bijv. exacte aantallen pagina\'s, duur van gesprekken, etc.)\n   - Geef een beknopte chronologie van het gesprek om de volgorde van besproken onderwerpen te verduidelijken\n\n\nZorg ervoor dat de samenvatting geschikt is voor directe opname in een dossier of voor gebruik bij vervolgacties. Als een bepaald onderdeel niet van toepassing is of niet werd besproken, vermeld dit expliciet in de samenvatting.\n\nPas deze richtlijnen flexibel toe, afhankelijk van de aard en lengte van het gesprek. Voor kortere gesprekken, focus op de meest relevante secties. Voor langere of complexere gesprekken, zorg voor een uitgebreide dekking van alle aspecten.\n\nLet extra op de inventarisatie van de onderneming op financieel en activiteiten gebied, indien dit besproken wordt.\n\n[TASK_SPECIFIC_INSTRUCTIONS]\n\nJe bent een AI-assistent gespecialiseerd in het samenvatten van deelnemersgesprekken over collectief pensioen voor Veldhuis Advies. Analyseer het gegeven transcript van een deelnemersgesprek en maak een gestructureerde samenvatting met de volgende elementen, maar alleen als ze daadwerkelijk in het transcript voorkomen:\n\nAlgemene informatie:\n- Datum en tijd van het gesprek\n- Naam van de pensioenadviseur\n- Naam en functie van de deelnemer\n- Naam van de werkgever\n\nDeelnemerprofiel:\n- Leeftijd en geplande pensioenleeftijd\n- Dienstjaren bij huidige werkgever\n- Gedetailleerd overzicht van salaris en parttime factor\n- Persoonlijke situatie (burgerlijke staat, kinderen)\n\nHuidige pensioenregeling:\n- Gedetailleerde beschrijving van het type regeling (bijv. middelloon, eindloon, beschikbare premie)\n- Specifiek opbouwpercentage of premiepercentage\n- Exacte franchise en pensioengevend salaris\n- Uitgebreide informatie over nabestaandenpensioen en arbeidsongeschiktheidspensioen\n\nOpgebouwde pensioenaanspraken:\n- Gedetailleerd overzicht van opgebouwd ouderdomspensioen\n- Specifieke informatie over opgebouwd partnerpensioen\n- Details over eventueel wezenpensioen\n- Informatie over eventuele aanvullende regelingen\n\nInzicht in pensioenopbouw:\n- Uitgebreide uitleg over de werking van de specifieke pensioenregeling\n- Gedetailleerde toelichting op het Uniform Pensioenoverzicht (UPO)\n- Stapsgewijze uitleg over het gebruik van www.mijnpensioenoverzicht.nl\n- Bespreking van de impact van verschillende life events op de pensioenopbouw\n\nPensioenverwachting:\n- Gedetailleerde prognose van het te bereiken pensioen\n- Specifieke vergelijking met het huidige inkomen\n- Uitgewerkte scenario\'s (optimistisch, neutraal, pessimistisch)\n- Analyse van de toereikendheid van het verwachte pensioen\n\nPersoonlijke pensioensituatie:\n- Gedetailleerde informatie over AOW-leeftijd en verwacht AOW-bedrag\n- Specifieke berekening van eventuele pensioentekorten\n- Uitgebreide bespreking van mogelijkheden voor aanvullende pensioenopbouw\n- Analyse van de impact van eerdere dienstverbanden op de pensioensituatie\n\nKeuzemogelijkheden:\n- Gedetailleerde uitleg over beschikbare opties (bijv. hoog/laag constructie, uitruil)\n- Specifieke berekeningen van de impact van verschillende keuzes op het pensioen\n- Bespreking van voor- en nadelen van elke keuzemogelijkheid\n- Toelichting op het moment waarop keuzes gemaakt moeten worden\n\nRisico\'s en verzekeringen:\n- Uitgebreide uitleg over risico\'s (overlijden, arbeidsongeschiktheid)\n- Gedetailleerde toelichting op verzekerde dekkingen binnen de pensioenregeling\n- Bespreking van eventuele aanvullende verzekeringsmogelijkheden\n- Analyse van de toereikendheid van de huidige dekkingen\n\nLifecycle en beleggingen (indien van toepassing):\n- Gedetailleerde uitleg over de huidige beleggingsmix\n- Specifieke toelichting op de werking van lifecycle beleggen\n- Bespreking van mogelijkheden om het risicoprofiel aan te passen\n- Uitleg over de impact van beleggingskeuzes op het verwachte pensioenresultaat\n\nVragen en zorgen van de deelnemer:\n- Gedetailleerde weergave van specifieke vragen die de deelnemer heeft gesteld\n- Uitgebreide beschrijving van zorgen of onduidelijkheden die zijn geuit\n- Toelichting op de gegeven antwoorden en oplossingen\n\nActiepunten:\n- Gedetailleerde lijst van actiepunten voor de pensioenadviseur\n- Specifieke actiepunten voor de deelnemer\n- Beschrijving van eventuele vervolgafspraken met datum, tijd en doel\n\nInformatieverstrekking:\n- Gedetailleerd overzicht van verstrekte documenten of brochures\n- Specifieke uitleg over waar aanvullende informatie te vinden is\n- Toelichting op het gebruik van online tools of portals\n\nBesteed extra aandacht aan:\n- Exacte cijfers, datums en bedragen\n- Specifieke situatie en wensen van de deelnemer\n- Uitleg van complexe pensioenconcepten in begrijpelijke taal\n- Vergelijking tussen de huidige situatie en toekomstscenario\'s\n\nGebruik professionele pensioenterminologie waar van toepassing, maar zorg dat de samenvatting begrijpelijk blijft. Maak gebruik van duidelijke kopjes en subkopjes voor overzichtelijkheid, maar neem alleen secties op die daadwerkelijk in het transcript voorkomen. Baseer alle informatie uitsluitend op het gegeven transcript, zonder aannames of toevoegingen.\n\nZorg ervoor dat de samenvatting volledig en gedetailleerd is, zodat een andere medewerker die het dossier later leest een volledig beeld krijgt van wat er is besproken en welke acties er nodig zijn. Wees specifiek en concreet in alle beschrijvingen en vermijd algemeenheden.\n'}, {'role': 'user', 'content': 'Dan gaan we weer met de volgende. Het verzekeringspakket van P heeft aan sprakeheid verzekering bij ons verlopen. Het is belangrijk dat de hoedanigheid goed staat. Op de hoedanigheid van de polen staat een reparatie in onderhoud van machines, reparatie van hoofdzakelijk, zakelijk, keuken en apparatuur. Het is belangrijk om na te gaan of dit nog klopt en of het voldoende is. Hetzelfde geldt voor de rechtsbijstandverzekering, het geldt in dezelfde hoedanigheid en het geldt met name voor hem zelf als zelfstandige, dus niet voor personeel. Dus als hij personeel heeft, moet daar wat gemeld worden. Daarnaast is er inventaris en groeteren verzekerd voor 10.000 euro, is dat nog voldoende? Spullen in de bus zijn verzekerd voor 5.000 euro, is dat ook nog voldoende?\n Daarnaast is er een aanhanger verzekerd. De aanhanger is Allrisk verzekerd. Dat lijkt goed. Verder is er een bus verzekerd. De bus is uit 2016 en is nog Casco verzekerd. Gezien de dagwaarden lijkt dat voldoende, maar dat is toch even goed. Maar het lijkt even goed om te controleren. Verder is er nog een hele mooie Dutch RAM verzekerd. Die is WA verzekerd. Deze is uit 1994. Dat lijkt ook prima. Dit zijn zover de verzekeringen voor het bedrijf. Dan gaan we nu kijken naar de verzekeringen voor de particulier. Die pak ik er even bij.\n heb ik er nu bij. Wat is daar dan verzekerd? Verzekerd is de aanspraak voor gezin zonder kinderen. Dat is prima. Er is een privé rechtsbijstandverzekering. Het zou de overweging kunnen zijn om de rechtsbijstandverzekering van privé over te zetten naar zakelijk, omdat je hem dan zakelijk betaalt. De privé-dekking is eigenlijk uitgebreid. Verkeer, consumentenwonen en inkomen. Tot slot hebben ze een woonhuis en inboedel verzekerd. Dat is bij de Zeeuwse, maar dat heeft te maken met het aanwezige riet wat er is. Er wordt ook jaarlijks een check voor gedaan voor die inboedel en opstal. En er is voor beide een garantie tegen.\n onderverzekering. Als er nog bijzonderheden zijn aangeschaft of bijgebouwd, dan horen wij graag daarover. Voor de rest mist er misschien een reisverzekering, een uitvaart of een ongevallenverzekering. Nou, dat is het.'}], 'model': 'gpt-4o-2024-08-06', 'frequency_penalty': 0.2, 'max_tokens': 14000, 'n': 1, 'presence_penalty': 0.1, 'stop': None, 'temperature': 0.3, 'top_p': 0.95}}
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken notitie.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken notitie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken notitie.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='ingesproken notitie.txt'>
++
++DEBUG:openai._base_client:Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
++
++DEBUG:httpcore.connection:close.started
++
++DEBUG:httpcore.connection:close.complete
++
++DEBUG:httpcore.connection:connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
++
++DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7c8f8e911580>
++
++DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7c8f8e582050> server_hostname='api.openai.com' timeout=5.0
++
++DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7c8f8e911850>
++
++DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_headers.complete
++
++DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_body.complete
++
++DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:30:57 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'7585'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'2000000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'1991828'), (b'x-ratelimit-reset-requests', b'6ms'), (b'x-ratelimit-reset-tokens', b'245ms'), (b'x-request-id', b'req_0bd4c3da46aee658144e6f4144137c8d'), (b'CF-Cache-Status', b'DYNAMIC'), (b'X-Content-Type-Options', b'nosniff'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce659ff09c3a3a4-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers({'date': 'Sun, 06 Oct 2024 14:30:57 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'access-control-expose-headers': 'X-Request-ID', 'openai-organization': 'veldhuis-advies-t0w2tr', 'openai-processing-ms': '7585', 'openai-version': '2020-10-01', 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'x-ratelimit-limit-requests': '10000', 'x-ratelimit-limit-tokens': '2000000', 'x-ratelimit-remaining-requests': '9999', 'x-ratelimit-remaining-tokens': '1991828', 'x-ratelimit-reset-requests': '6ms', 'x-ratelimit-reset-tokens': '245ms', 'x-request-id': 'req_0bd4c3da46aee658144e6f4144137c8d', 'cf-cache-status': 'DYNAMIC', 'x-content-type-options': 'nosniff', 'server': 'cloudflare', 'cf-ray': '8ce659ff09c3a3a4-SEA', 'content-encoding': 'gzip'})
++
++DEBUG:openai._base_client:request_id: req_0bd4c3da46aee658144e6f4144137c8d
++
++DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
++
++DEBUG:httpx:load_verify_locations cafile='/home/adminuser/venv/lib/python3.12/site-packages/certifi/cacert.pem'
++
++DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'json_data': {'messages': [{'role': 'system', 'content': 'Je bent een professionele corrector gespecialiseerd in Nederlandse financiële en verzekeringstermen. Corrigeer eventuele spel- of grammaticafouten in de volgende tekst, met speciale aandacht voor vakspecifieke termen.'}, {'role': 'user', 'content': '**Basisinformatie:**\n\n- Datum en tijd van het gesprek: Niet vermeld\n- Namen en functies van de deelnemers: Niet vermeld\n- Doel of aanleiding van het gesprek: Evaluatie en controle van het verzekeringspakket van een klant, zowel zakelijk als particulier\n\n**Inhoudelijke punten:**\n\n1. **Zakelijke Verzekeringen:**\n   - **Aansprakelijkheidsverzekering:** \n     - De hoedanigheid op de polis vermeldt "reparatie in onderhoud van machines, reparatie van hoofdzakelijk, zakelijk, keuken en apparatuur."\n     - Belangrijk om te controleren of deze hoedanigheid nog correct en voldoende is.\n   - **Rechtsbijstandverzekering:**\n     - Geldt voor de klant als zelfstandige, niet voor personeel.\n     - Indien er personeel is, moet dit gemeld worden.\n   - **Inventaris en Goederenverzekering:**\n     - Verzekerd bedrag is 10.000 euro; evalueren of dit voldoende is.\n   - **Verzekering voor Spullen in de Bus:**\n     - Verzekerd bedrag is 5.000 euro; evalueren of dit voldoende is.\n   - **Aanhangerverzekering:**\n     - Aanhanger is Allrisk verzekerd; dit lijkt adequaat.\n   - **Busverzekering:**\n     - Bus uit 2016 is Casco verzekerd; gezien de dagwaarde lijkt dit voldoende, maar moet gecontroleerd worden.\n   - **Dutch RAM Verzekering:**\n     - WA verzekerd, bouwjaar 1994; lijkt passend.\n\n2. **Particuliere Verzekeringen:**\n   - **Aansprakelijkheidsverzekering voor Gezin zonder Kinderen:** \n     - Dit wordt als prima beschouwd.\n   - **Privé Rechtsbijstandverzekering:**\n     - Overweging om deze over te zetten naar zakelijk gebruik vanwege betalingsvoordelen.\n     - Dekking omvat verkeer, consumentenwonen en inkomen.\n   - **Woonhuis en Inboedelverzekering:**\n     - Verzekerd bij De Zeeuwse vanwege rieten dak.\n     - Jaarlijkse check op inboedel en opstal met garantie tegen onderverzekering.\n   - **Ontbrekende Verzekeringen:**\n     - Mogelijke behoefte aan reis-, uitvaart- of ongevallenverzekering.\n\n**Actiepunten:**\n\n- Controleren of de huidige hoedanigheid op de zakelijke aansprakelijkheidsverzekering nog correct en toereikend is.\n- Evalueren of de verzekerde bedragen voor inventaris, goederen in de bus, en andere zakelijke verzekeringen nog voldoende zijn.\n- Overwegen om de privé rechtsbijstandverzekering over te zetten naar zakelijk gebruik voor financiële voordelen.\n\n**Afspraken en vervolgstappen:**\n\n- Geen specifieke afspraken of vervolgstappen genoemd.\n\n**Openstaande vragen of onopgeloste kwesties:**\n\n- Behoefte aan verdere evaluatie van verzekerde bedragen en dekking op verschillende polissen.\n- Beslissing over het al dan niet toevoegen van ontbrekende verzekeringen zoals reis-, uitvaart- of ongevallenverzekering.\n\nDeze samenvatting biedt een gedetailleerd overzicht van het gesprek over het verzekeringspakket van de klant, met aandacht voor zowel zakelijke als particuliere aspecten. Het bevat concrete actiepunten en openstaande vragen die verdere opvolging vereisen.'}], 'model': 'gpt-4o-mini', 'max_tokens': 16384}}
++
++DEBUG:openai._base_client:Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
++
++DEBUG:httpcore.connection:connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
++
++DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7c8f8fdd66f0>
++
++DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7c8f8e42b6d0> server_hostname='api.openai.com' timeout=5.0
++
++DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7c8f8f0d6d80>
++
++DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_headers.complete
++
++DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:send_request_body.complete
++
++DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 06 Oct 2024 14:31:05 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'veldhuis-advies-t0w2tr'), (b'openai-processing-ms', b'7887'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'10000000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'9991828'), (b'x-ratelimit-reset-requests', b'6ms'), (b'x-ratelimit-reset-tokens', b'49ms'), (b'x-request-id', b'req_9284bb9e5fc477f5eff36efdfcf3c6a6'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=E_B7hovua4MM0gq5uu0Q2V9Y8b1zlI7EUmwtkcOm_RQ-1728225065-1.0.1.1-8F4pZNpU4geSTF_JG3gT70kulesYvtLrleTJ7csNwTCyX._98Tn2PeY5TJWxZD87QCj7pDqbB0vys5f_M9ubpg; path=/; expires=Sun, 06-Oct-24 15:01:05 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=3joWRMvx74Q7H4OuL4pmbz6u8Py8tn3Dd4pofYCQIN8-1728225065515-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8ce65a30cf42eb3b-SEA'), (b'Content-Encoding', b'gzip')])
++
++INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
++
++DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
++
++DEBUG:httpcore.http11:receive_response_body.complete
++
++DEBUG:httpcore.http11:response_closed.started
++
++DEBUG:httpcore.http11:response_closed.complete
++
++DEBUG:openai._base_client:HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Sun, 06 Oct 2024 14:31:05 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'veldhuis-advies-t0w2tr'), ('openai-processing-ms', '7887'), ('openai-version', '2020-10-01'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '10000000'), ('x-ratelimit-remaining-requests', '9999'), ('x-ratelimit-remaining-tokens', '9991828'), ('x-ratelimit-reset-requests', '6ms'), ('x-ratelimit-reset-tokens', '49ms'), ('x-request-id', 'req_9284bb9e5fc477f5eff36efdfcf3c6a6'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=E_B7hovua4MM0gq5uu0Q2V9Y8b1zlI7EUmwtkcOm_RQ-1728225065-1.0.1.1-8F4pZNpU4geSTF_JG3gT70kulesYvtLrleTJ7csNwTCyX._98Tn2PeY5TJWxZD87QCj7pDqbB0vys5f_M9ubpg; path=/; expires=Sun, 06-Oct-24 15:01:05 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=3joWRMvx74Q7H4OuL4pmbz6u8Py8tn3Dd4pofYCQIN8-1728225065515-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '8ce65a30cf42eb3b-SEA'), ('content-encoding', 'gzip')])
++
++DEBUG:openai._base_client:request_id: req_9284bb9e5fc477f5eff36efdfcf3c6a6
++
++DEBUG:__main__:Exiting process_input_and_generate_summary
++
++DEBUG:httpcore.connection:close.started
++
++DEBUG:httpcore.connection:close.complete
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_OPEN, cookie=0, name='styles.css'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_CLOSE_NOWRITE, cookie=0, name='styles.css'>
++
++DEBUG:__main__:Current step: processing
++
++DEBUG:__main__:Is processing: False
++
++DEBUG:__main__:Input text length: 2149
++
++DEBUG:__main__:Entering process_input_and_generate_summary. is_processing: False
++
++WARNING:__main__:process_input_and_generate_summary called but is_processing is False
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_OPEN, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_OPEN, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_OPEN, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_OPEN, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_OPEN, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_OPEN, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_OPEN, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_OPEN, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken notitie.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken notitie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken notitie.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='ingesproken notitie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_OPEN, cookie=0, name='styles.css'>
++
++DEBUG:__main__:Current step: prompt_selection
++
++DEBUG:__main__:Is processing: False
++
++DEBUG:__main__:Input text length: 0
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/static/styles.css', wd=9, mask=IN_CLOSE_NOWRITE, cookie=0, name='styles.css'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/base_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='base_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='prompts'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts', wd=6, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_OPEN, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/narratief_verslag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='narratief_verslag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_OPEN, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/mutatie.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='mutatie.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_OPEN, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/aov.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='aov.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantrapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantrapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek rapport.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek rapport.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek tabelvorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek tabelvorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/samenvatting_gesprek_bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='samenvatting_gesprek_bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken collectief pensioen.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken collectief pensioen.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_OPEN, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schade beoordeling.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schade beoordeling.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_OPEN, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/hypotheek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='hypotheek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsadviesgesprek_tabel_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsadviesgesprek_tabel_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen vergadering.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen vergadering.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_OPEN, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/notulen brainstorm.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='notulen brainstorm.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_OPEN, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/schademelding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='schademelding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_OPEN, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/deelnemersgesprekken_collectief_pensioen_prompt.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='deelnemersgesprekken_collectief_pensioen_prompt.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/expertise gesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='expertise gesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_OPEN, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/gesprek bedrijfsarts.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='gesprek bedrijfsarts.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken handleiding.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='ingesproken handleiding.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_OPEN, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/risico analyse.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='risico analyse.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_OPEN, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/casemanager.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='casemanager.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/adviesgesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='adviesgesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_OPEN, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/telefoongesprek.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='telefoongesprek.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_OPEN, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/onderhoudsgesprekkenwerkgever.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='onderhoudsgesprekkenwerkgever.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_OPEN, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/klantvraag.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='klantvraag.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_OPEN, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/financieelplanningstraject.txt', wd=6, mask=IN_CLOSE_NOWRITE, cookie=0, name='financieelplanningstraject.txt'>
++
++DEBUG:watchdog.observers.inotify_buffer:in-event <InotifyEvent: src_path=b'/mount/src/va-ai-transcribeerder/prompts/ingesproken notitie.txt', wd=6, mask=IN_OPEN, cookie=0, name='ingesproken notitie.txt'>
++
++DEBUG:watchdog.observers.inot
++
+
+# 2024-10-06 16:31:38.781781
++n
+
+# 2024-10-06 16:31:58.083601
++n
++y
+
+# 2024-10-06 16:32:00.824439
++y
