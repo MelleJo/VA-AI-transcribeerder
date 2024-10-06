@@ -2007,3 +2007,9 @@
 
 # 2024-10-07 00:35:20.809483
 +Can you make it that when generating the transcript and summary that then the UI for uploading/recording et cetera is hidden? or dissapears? that the user only sees the progress bar?
+
+# 2024-10-07 00:39:35.022253
++/add src\input_module.py
+
+# 2024-10-07 00:39:38.341928
++Can you make it that when generating the transcript and summary that then the UI for uploading/recording et cetera is hidden? or dissapears? that the user only sees the progress bar?
