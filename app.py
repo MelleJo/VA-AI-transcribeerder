@@ -85,7 +85,7 @@ def load_css():
     </style>
     """
     
-    st.markdown(f'<style>{css_content}</style>{font_awesome}{full_screen_loading_css}', unsafe_allow_html=True)
+    st.markdown(f'{font_awesome}{full_screen_loading_css}<style>{css_content}</style>', unsafe_allow_html=True)
 
 
 def main():
