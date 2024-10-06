@@ -301,7 +301,10 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
     st.markdown(
         f"""
         <script>
-            document.getElementById('progress-container').innerHTML = `{progress_html}`;
+            var progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {{
+                progressContainer.innerHTML = `{progress_html}`;
+            }}
         </script>
         """,
         unsafe_allow_html=True
