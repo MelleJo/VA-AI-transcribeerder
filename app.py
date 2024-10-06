@@ -30,8 +30,6 @@ if 'summaries' not in st.session_state:
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 
-# In app.py, update the load_css function
-
 def load_css():
     css_path = os.path.join('static', 'styles.css')
     with open(css_path) as f:
@@ -39,7 +37,6 @@ def load_css():
     
     # Inject the CSS using st.markdown
     st.markdown(f'<style>{css_content}</style>', unsafe_allow_html=True)
-
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
@@ -82,39 +79,6 @@ def render_prompt_selection():
         }
     }
 
-    # Custom CSS for minimalistic design
-    st.markdown("""
-    <style>
-    body {
-        background-color: white;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        color: black;
-    }
-    .stRadio > div {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
-    }
-    .stSelectbox > div {
-        margin-bottom: 15px;
-    }
-    .stButton > button {
-        background-color: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 8px 20px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .stButton > button:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
     # Radio buttons for category selection
     main_category = st.radio("Kies een hoofd categorie:", list(prompt_categories.keys()))
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
@@ -131,14 +95,27 @@ def render_prompt_selection():
 def handle_input_complete():
     process_input_and_generate_summary()
 
-def render_input_selection():   
+def render_input_selection():
     if not st.session_state.get('is_processing', False):
-        st.markdown("<h2 class='section-title'>Audio Opname</h2>", unsafe_allow_html=True)
-        st.markdown("<p>Klik op de knop hieronder om audio op te nemen.</p>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Kies een invoermethode</h2>", unsafe_allow_html=True)
         
-        if st.button("Start Audio Opname"):
-            st.session_state.input_text = "Dit is een voorbeeld van opgenomen audio tekst."
-            st.success("Audio opname voltooid!")
+        input_method = st.radio("", ["Audio opnemen", "Bestand uploaden", "Tekst invoeren"])
+        
+        if input_method == "Audio opnemen":
+            if st.button("Start Audio Opname"):
+                # Here you would implement the actual audio recording functionality
+                st.session_state.input_text = "Dit is een voorbeeld van opgenomen audio tekst."
+                st.success("Audio opname voltooid!")
+        
+        elif input_method == "Bestand uploaden":
+            uploaded_file = st.file_uploader("Kies een bestand", type=["txt", "pdf", "docx"])
+            if uploaded_file is not None:
+                # Here you would implement the file processing functionality
+                st.session_state.input_text = f"Inhoud van {uploaded_file.name}"
+                st.success(f"Bestand {uploaded_file.name} succesvol geüpload!")
+        
+        elif input_method == "Tekst invoeren":
+            st.session_state.input_text = st.text_area("Voer uw tekst in:", height=150)
         
         if st.session_state.input_text:
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
