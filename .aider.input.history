@@ -1881,3 +1881,90 @@
 +    transition: width 0.5s ease-in-out;
 +}
 +</style>
+
+# 2024-10-07 00:29:21.917508
++[22:27:29] 🔄 Updated app!
++
++────────────────────── Traceback (most recent call last) ───────────────────────
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/exec_code.py:88 in exec_func_with_error_handling                         
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner/script_runner.py:579 in code_to_exec                                     
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:332 in <module>                       
++
++                                                                                
++
++    329 │   │   st.warning("Geen samenvatting beschikbaar.")                    
++
++    330                                                                         
++
++    331 if __name__ == "__main__":                                              
++
++  ❱ 332 │   main()                                                              
++
++    333                                                                         
++
++                                                                                
++
++  /mount/src/va-ai-transcribeerder/app.py:46 in main                            
++
++                                                                                
++
++     43                                                                         
++
++     44 def main():                                                             
++
++     45 │   load_css()  # Load CSS at the start of the app                      
++
++  ❱  46 │   st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wi  
++
++     47 │   ui_components.apply_custom_css()                                    
++
++     48 │                                                                       
++
++     49 │   # Initialize OpenAI client                                          
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/metrics_  
++
++  util.py:410 in wrapped_func                                                   
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/commands/page_co  
++
++  nfig.py:265 in set_page_config                                                
++
++                                                                                
++
++  /home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptru  
++
++  nner_utils/script_run_context.py:174 in enqueue                               
++
++────────────────────────────────────────────────────────────────────────────────
++
++StreamlitSetPageConfigMustBeFirstCommandError: `set_page_config()` can only be 
++
++called once per app page, and must be called as the first Streamlit command in 
++
++your script.
++
++
++For more information refer to the 
++
++[docs](https://docs.streamlit.io/develop/api-reference/configuration/st.set_page
++
++_config).
+
+# 2024-10-07 00:29:24.823759
++n
