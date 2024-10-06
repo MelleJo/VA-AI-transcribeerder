@@ -94,6 +94,7 @@ def transcribe_audio_file():
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
                 st.success("Transcriptie succesvol. Samenvatting wordt nu gegenereerd...")
                 st.session_state.step = 'processing'
+                logger.debug(f"Transitioning to processing step. Current step: {st.session_state.step}")
                 process_input_and_generate_summary()
             else:
                 logger.warning("Transcription resulted in empty text")
