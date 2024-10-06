@@ -2022,3 +2022,6 @@
 
 # 2024-10-07 01:07:24.538357
 +I see now this in the transcript: Inhoud van fhulshorst.m4a why? I want after the upload (or recxording/typing) that the transcript is being generated and when finished, immediately the summary.
+
+# 2024-10-07 01:08:22.855810
++AttributeError: module 'streamlit' has no attribute 'experimental_rerun' should be replaced by st.rerun()
