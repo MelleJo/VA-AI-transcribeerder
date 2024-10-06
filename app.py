@@ -252,7 +252,7 @@ def process_input_and_generate_summary():
     progress_placeholder.empty()
     
     st.session_state.is_processing = False  # Reset processing state
-        st.rerun()
+    st.rerun()
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
