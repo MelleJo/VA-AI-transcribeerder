@@ -83,23 +83,14 @@ def render_prompt_selection():
         st.rerun()
 
 def handle_input_complete():
-    process_input_and_generate_summary()
+    # Directly process input and generate summary after transcription
+    if st.session_state.input_text:
+        process_input_and_generate_summary()
 
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
     is_recording = input_module.render_input_step(handle_input_complete)
-    
-    if not is_recording and st.session_state.input_text:
-        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
-        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-        st.session_state.input_text = st.text_area(
-            "Bewerk indien nodig:",
-            value=st.session_state.input_text,
-            height=300,
-            key="final_transcript_input_selection"
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
 
 def display_progress_animation():
     progress_placeholder = st.empty()
