@@ -89,6 +89,8 @@ def load_css():
     
     return f'<style>{css_content}</style>{font_awesome}{full_screen_loading_css}'
 
+
+
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
