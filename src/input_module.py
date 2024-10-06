@@ -119,7 +119,7 @@ def render_recording_reminders(prompt_type):
 
 def render_input_step(on_input_complete):
     st.session_state.grammar_checked = False  # Reset grammar check flag
-    
+    st.markdown("<h2 class='section-title'>Stap 2: Invoer</h2>", unsafe_allow_html=True)
     
     # Initialize session state variables if not present
     if 'transcription_complete' not in st.session_state:
