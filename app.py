@@ -6,8 +6,7 @@ import time
 import os
 from openai import OpenAI
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def initialize_session_state():
@@ -30,24 +29,8 @@ def initialize_session_state():
         st.session_state.summaries = []
     if 'is_processing' not in st.session_state:
         st.session_state.is_processing = False
-
-def load_css():
-    css_path = os.path.join('static', 'styles.css')
-    with open(css_path) as f:
-        css_content = f.read()
-    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
-    return f'<style>{css_content}</style>{font_awesome}'
-
-def reset_app_state():
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    initialize_session_state()
-
-def check_state_consistency():
-    if st.session_state.step == 'processing' and not st.session_state.is_processing:
-        logger.warning("Inconsistent state detected: processing step with is_processing=False")
-        return False
-    return True
+    if 'uploaded_file' not in st.session_state:
+        st.session_state.uploaded_file = None
 
 def main():
     initialize_session_state()
@@ -68,6 +51,8 @@ def main():
         render_prompt_selection()
     elif st.session_state.step == 'input_selection':
         render_input_selection()
+    elif st.session_state.step == 'transcribing':
+        transcribe_audio_file()
     elif st.session_state.step == 'processing':
         process_input_and_generate_summary()
     elif st.session_state.step == 'results':
@@ -85,32 +70,35 @@ def render_prompt_selection():
         st.session_state.step = 'input_selection'
         st.rerun()
 
-def handle_input_complete():
-    logger.debug("handle_input_complete called")
-    if st.session_state.input_text:
-        logger.info(f"Input text received. Length: {len(st.session_state.input_text)}")
-        st.session_state.is_processing = True
-        st.session_state.step = 'processing'
-        logger.debug(f"State updated to processing. is_processing: {st.session_state.is_processing}")
-        st.rerun()
-    else:
-        logger.warning("handle_input_complete called with empty input_text")
-        st.warning("No input text received. Please try again.")
-
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
-    input_module.render_input_step(handle_input_complete)
+    uploaded_file = st.file_uploader("Upload een audio- of videobestand", type=config.ALLOWED_AUDIO_TYPES)
+    if uploaded_file:
+        st.session_state.uploaded_file = uploaded_file
+        st.session_state.step = 'transcribing'
+        st.rerun()
 
-def display_progress_animation():
-    progress_placeholder = st.empty()
-    progress_html = """
-    <div class="full-screen-loader">
-        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-        <div class="progress-text">Verwerking bezig... Even geduld aub.</div>
-    </div>
-    """
-    progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
-    return progress_placeholder
+def transcribe_audio_file():
+    if st.session_state.uploaded_file:
+        progress_placeholder = ui_components.display_progress_animation()
+        st.info("Audiobestand wordt getranscribeerd...")
+        try:
+            st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
+            if st.session_state.input_text:
+                logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
+                st.session_state.is_processing = True
+                st.session_state.step = 'processing'
+            else:
+                logger.warning("Transcription resulted in empty text")
+                st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
+                st.session_state.step = 'input_selection'
+        except Exception as e:
+            logger.exception(f"Error during audio transcription: {str(e)}")
+            st.error(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
+            st.session_state.step = 'input_selection'
+        finally:
+            progress_placeholder.empty()
+            st.rerun()
 
 def process_input_and_generate_summary():
     logger.debug(f"Entering process_input_and_generate_summary. is_processing: {st.session_state.is_processing}")
@@ -145,47 +133,15 @@ def process_input_and_generate_summary():
         progress_placeholder.empty()
         logger.debug("Exiting process_input_and_generate_summary")
         st.rerun()
-         
+
 def render_results():
     summary_and_output_module.render_summary_versions()
     summary_and_output_module.render_chat_interface()
 
-def render_summary_with_version_control():
-    if st.session_state.summary_versions:
-        st.markdown("<div class='version-control'>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([1, 3, 1])
-        
-        with col1:
-            if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
-                st.session_state.current_version -= 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
-                st.rerun()
-        
-        with col2:
-            st.markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
-        
-        with col3:
-            if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
-                st.session_state.current_version += 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
-                st.rerun()
-        
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        current_summary = st.session_state.summary_versions[st.session_state.current_version]
-        st.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
-        edited_summary = st.text_area("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        if edited_summary != current_summary:
-            if st.button("Wijzigingen opslaan", key="save_changes_button"):
-                st.session_state.summary_versions.append(edited_summary)
-                st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = edited_summary
-                st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
-                st.rerun()
-    else:
-        st.warning("Geen samenvatting beschikbaar.")
+def reset_app_state():
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    initialize_session_state()
 
 if __name__ == "__main__":
     main()
