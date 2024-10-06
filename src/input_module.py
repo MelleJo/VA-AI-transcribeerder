@@ -19,32 +19,16 @@ def format_time(seconds):
 def transcribe_with_progress(audio_file):
     audio_length = get_audio_length(audio_file)
     
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
     def update_progress(current, total):
-        progress = current / total
-        elapsed_time = time.time() - start_time
-        estimated_total_time = elapsed_time / progress if progress > 0 else audio_length
-        remaining_time = max(0, estimated_total_time - elapsed_time)
-        
-        ui_progress_bar(progress, f"{progress*100:.1f}%")
-        status_text.text(f"Geschatte resterende tijd: {format_time(remaining_time)} (mm:ss)")
+        pass  # No operation needed for progress update
     
-    start_time = time.time()
     transcript = transcribe_audio(audio_file, progress_callback=update_progress)
-    
-    progress_bar.progress(1.0)
-    status_text.text("Transcriptie voltooid!")
     
     return transcript
 
 def process_multiple_audio_files(uploaded_files):
     ui_info_box(f"{len(uploaded_files)} audiobestanden geüpload. Transcriptie wordt gestart...", "info")
     full_transcript = ""
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-
     for i, uploaded_file in enumerate(uploaded_files):
         with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt en getranscribeerd..."):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
@@ -54,9 +38,6 @@ def process_multiple_audio_files(uploaded_files):
             transcript = transcribe_with_progress(tmp_file_path)
             if transcript:
                 full_transcript += transcript + "\n\n"
-                progress = (i + 1) / len(uploaded_files)
-                ui_progress_bar(progress, f"{progress*100:.1f}%")
-                status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
             else:
                 ui_info_box(f"Transcriptie van bestand {uploaded_file.name} is mislukt.", "error")
 
