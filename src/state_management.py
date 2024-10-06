@@ -25,6 +25,9 @@ def initialize_session_state():
         st.session_state.summaries = []
     if 'current_version' not in st.session_state:
         st.session_state.current_version = 0
+    if 'base_prompt' not in st.session_state:
+        prompts = load_prompts()
+        st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
 def transition_to_input_selection():
     st.session_state.state = AppState.INPUT_SELECTION

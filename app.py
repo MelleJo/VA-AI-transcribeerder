@@ -21,6 +21,7 @@ def main():
         st.rerun()
 
     logger.debug(f"Current state: {st.session_state.state}")
+    logger.debug(f"Base prompt loaded: {bool(st.session_state.base_prompt)}")
 
     if st.session_state.state == AppState.PROMPT_SELECTION:
         render_prompt_selection()
@@ -50,6 +51,10 @@ def process_input():
     st.info("Verwerking en samenvatting worden gegenereerd...")
     
     try:
+        if not st.session_state.base_prompt:
+            logger.error("Base prompt is not loaded")
+            raise ValueError("Base prompt is not loaded")
+
         summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
