@@ -10,7 +10,7 @@ from openai import OpenAI
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize session state variables at the script level
+# Initialize session state variables
 if 'base_prompt' not in st.session_state:
     prompts = load_prompts()
     st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
@@ -42,6 +42,14 @@ def load_css():
     
     return f'<style>{css_content}</style>{font_awesome}'
 
+def reset_app_state():
+    st.session_state.step = 'prompt_selection'
+    st.session_state.is_processing = False
+    st.session_state.input_text = ""
+    st.session_state.summary = ""
+    st.session_state.summary_versions = []
+    st.session_state.current_version = 0
+
 def main():
     try:
         st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
@@ -59,12 +67,20 @@ def main():
         st.write(f"Current step: {st.session_state.step}")
         st.write(f"Is processing: {st.session_state.is_processing}")
 
+        # Add a reset button
+        if st.button("Reset Application"):
+            reset_app_state()
+            st.rerun()
+
         if st.session_state.step == 'prompt_selection':
             render_prompt_selection()
         elif st.session_state.step == 'input_selection':
             render_input_selection()
         elif st.session_state.step == 'processing':
-            process_input_and_generate_summary()
+            if not st.session_state.is_processing:
+                st.warning("The application is in an inconsistent state. Please reset the application.")
+            else:
+                process_input_and_generate_summary()
         elif st.session_state.step == 'results':
             render_results()
         else:
@@ -120,6 +136,7 @@ def display_progress_animation():
 
 def process_input_and_generate_summary():
     if not st.session_state.is_processing:
+        st.warning("No processing is currently happening. Please reset the application and try again.")
         return
 
     st.markdown("<style>.main-content, .stButton, .stTextArea, .stFileUploader, .stRadio {display: none;}</style>", unsafe_allow_html=True)
