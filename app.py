@@ -646,7 +646,7 @@ def load_css():
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-
+    load_css()
     # Apply custom CSS
     st.markdown(load_css(), unsafe_allow_html=True)
     ui_components.apply_custom_css()
