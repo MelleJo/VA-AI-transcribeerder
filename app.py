@@ -54,7 +54,6 @@ def main():
     elif st.session_state.step == 'transcribing':
         transcribe_audio_file()
     elif st.session_state.step == 'processing':
-        st.session_state.is_processing = True
         process_input_and_generate_summary()
     elif st.session_state.step == 'results':
         render_results()
@@ -88,8 +87,10 @@ def transcribe_audio_file():
             st.session_state.input_text = transcribe_audio(st.session_state.uploaded_file)
             if st.session_state.input_text:
                 logger.info(f"Transcription successful. Text length: {len(st.session_state.input_text)}")
+                st.success("Transcriptie succesvol. Samenvatting wordt nu gegenereerd...")
                 st.session_state.step = 'processing'
                 st.session_state.is_processing = True
+                st.rerun()  # Force a rerun to move to the processing step
             else:
                 logger.warning("Transcription resulted in empty text")
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
@@ -141,6 +142,7 @@ def process_input_and_generate_summary():
         progress_placeholder.empty()
         st.session_state.is_processing = False
         logger.debug("Exiting process_input_and_generate_summary")
+        st.rerun()  # Force a rerun to move to the results step
 
 def render_results():
     summary_and_output_module.render_summary_versions()
