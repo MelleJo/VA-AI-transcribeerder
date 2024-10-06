@@ -671,3 +671,9 @@
 
 # 2024-10-06 02:11:19.106239
 +change st.experimental_rerun() to st.rerun(), experimental one is deprecated
+
+# 2024-10-06 02:13:24.740833
++it keeps repeating the transcript now, it will say it is done, and then restart the transcript
+
+# 2024-10-06 02:13:39.620283
++Y
