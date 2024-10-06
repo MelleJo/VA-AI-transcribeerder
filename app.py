@@ -64,17 +64,31 @@ def render_prompt_selection():
     
     # Define categories and their corresponding prompts
     prompt_categories = {
-        "Verzekeringen": ["aov", "expertise_gesprek", "klantrapport", "klantvraag", "mutatie", "risico_analyse", "schade_beoordeling", "schademelding"],
-        "Financieel": ["financieelplanningstraject", "hypotheek", "hypotheek_rapport"],
-        "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
-        "Overig": ["adviesgesprek", "gesprek_bedrijfsarts", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+        "Veldhuis Advies": {
+            "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
+            "Hypotheek": ["hypotheek", "hypotheek_rapport"],
+            "Financiele Planning": ["financieelplanningstraject"],
+            "Overig": ["adviesgesprek", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+        },
+        "Veldhuis Advies Groep": {
+            "Bedrijven": ["aov", "risico_analyse"],
+            "Particulieren": ["expertise_gesprek", "klantrapport", "klantvraag"],
+            "Schade": ["schade_beoordeling", "schademelding"],
+            "Overig": ["mutatie"]
+        },
+        "NLG Arbo": {
+            "Casemanager": ["casemanager"],
+            "Bedrijfsarts": ["gesprek_bedrijfsarts"],
+            "Overig": []
+        }
     }
     
     # Radio buttons for category selection
-    selected_category = st.radio("Kies een categorie:", list(prompt_categories.keys()))
+    main_category = st.radio("Kies een hoofd categorie:", list(prompt_categories.keys()))
+    sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
     
     # Dropdown for prompt selection
-    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[selected_category])
+    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
     
     # Button to proceed
     if st.button("Verder ➔", key="proceed_button"):
