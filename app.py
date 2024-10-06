@@ -37,60 +37,13 @@ def load_css():
     with open(css_path) as f:
         css_content = f.read()
     
-    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
-    
-    full_screen_loading_css = """
-    <style>
-    .fullscreen-loader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(255, 255, 255, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-    .loader-content {
-        text-align: center;
-    }
-    .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .progress-container {
-        width: 300px;
-        height: 20px;
-        background-color: #f0f0f0;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-    .progress-bar {
-        height: 100%;
-        background-color: #4CAF50;
-        transition: width 0.5s ease-in-out;
-    }
-    </style>
-    """
-    
-    st.markdown(f'{font_awesome}{full_screen_loading_css}<style>{css_content}</style>', unsafe_allow_html=True)
+    # Inject the CSS using st.markdown
+    st.markdown(f'<style>{css_content}</style>', unsafe_allow_html=True)
 
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
     load_css()  # Load CSS at the start of the app
+    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
     ui_components.apply_custom_css()
 
     # Initialize OpenAI client
