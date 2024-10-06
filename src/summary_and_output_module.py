@@ -279,6 +279,7 @@ def display_progress_checkmarks():
     </div>
     """
     
+    # Ensure progress updates are displayed without resetting
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
