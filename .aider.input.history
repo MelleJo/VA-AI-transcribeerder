@@ -787,3 +787,6 @@
 +`key='final_transcript'`. To fix this, please make sure that the `key` argument 
 +
 +is unique for each element you create.
+
+# 2024-10-06 02:17:29.900821
++now it just only provides the transcript, but it should just immediately after finishing the transcript go and make the summary and then afterwards show the suymmary/chat screen. 
