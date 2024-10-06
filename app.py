@@ -110,9 +110,12 @@ def render_input_selection():
         elif input_method == "Bestand uploaden":
             uploaded_file = st.file_uploader("Kies een bestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
             if uploaded_file is not None:
-                # Here you would implement the file processing functionality
-                st.session_state.input_text = f"Inhoud van {uploaded_file.name}"
+                if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
+                    st.session_state.input_text = transcribe_audio(uploaded_file)
+                else:
+                    st.session_state.input_text = process_text_file(uploaded_file)
                 st.success(f"Bestand {uploaded_file.name} succesvol geüpload!")
+                process_input_and_generate_summary()
         
         elif input_method == "Tekst invoeren":
             st.session_state.input_text = st.text_area("Voer uw tekst in:", height=150)

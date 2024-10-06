@@ -175,6 +175,8 @@ def render_input_step(on_input_complete):
             if uploaded_file:
                 st.session_state.uploaded_audio = uploaded_file
                 process_uploaded_audio(uploaded_file, on_input_complete)
+            if st.session_state.transcription_complete:
+                on_input_complete()
             st.markdown("</div>", unsafe_allow_html=True)
 
         elif input_method == "Meerdere audiobestanden uploaden":
