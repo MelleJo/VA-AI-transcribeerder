@@ -202,42 +202,16 @@ def render_chat_interface():
             response = process_chat_request(prompt)
             handle_chat_response(response)
 
+    # Suggestions
     if st.session_state.summaries:
-        suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
-        st.markdown("### Suggesties:")
-        
-        # Custom CSS for minimalistic buttons
-        st.markdown("""
-        <style>
-        .stButton>button {
-            background-color: #f0f2f6;
-            color: #000000;
-            border: 1px solid #d1d5db;
-            border-radius: 5px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-        .stButton>button:hover {
-            background-color: #e5e7eb;
-            transform: translateY(-2px);
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        def add_suggestion_to_chat(suggestion):
-            st.session_state.messages.append({"role": "user", "content": suggestion})
-            response = process_chat_request(suggestion)
-            handle_chat_response(response)
-            st.rerun()
-
-        # Display action buttons in a more compact layout
-        cols = st.columns(3)
-        for i, action in enumerate(suggestions):
-            if cols[i].button(action, key=f"suggest_action_{i}", on_click=add_suggestion_to_chat, args=(action,)):
-                pass  # The on_click function will handle the action
+        with st.expander("Suggesties"):
+            suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
+            for action in suggestions:
+                if st.button(action, key=f"suggest_action_{action}"):
+                    st.session_state.messages.append({"role": "user", "content": action})
+                    response = process_chat_request(action)
+                    handle_chat_response(response)
+                    st.rerun()
 
 def handle_chat_response(response):
     if response["type"] == "chat":
@@ -657,6 +631,19 @@ def render_summary_versions():
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
+    # Version control
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col1:
+        if st.button("◀ Vorige", disabled=st.session_state.current_version == 0):
+            st.session_state.current_version -= 1
+            st.rerun()
+    with col2:
+        st.markdown(f"<div style='text-align: center;'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summaries)}</div>", unsafe_allow_html=True)
+    with col3:
+        if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
+            st.session_state.current_version += 1
+            st.rerun()
+
     st.markdown("### Samenvatting")
     if current_summary["type"] == "email":
         st.markdown("**Email Version**")
@@ -666,43 +653,27 @@ def render_summary_versions():
         st.markdown("**Main Points**")
     st.markdown(current_summary["content"])
 
-    # Navigation buttons
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.button("◀ Vorige", disabled=st.session_state.current_version == 0):
-            st.session_state.current_version -= 1
-            st.rerun()
-    with col2:
-        st.markdown(f"<div style='text-align: center;'>Version {st.session_state.current_version + 1} of {len(st.session_state.summaries)}</div>", unsafe_allow_html=True)
-    with col3:
-        if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
-            st.session_state.current_version += 1
-            st.rerun()
-
-    # Add new buttons for download and copy
-    st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        b64_docx = export_to_docx(current_summary["content"])
-        st.download_button(
-            label="Download als Word",
-            data=base64.b64decode(b64_docx),
-            file_name="samenvatting.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
-
-    with col2:
-        b64_pdf = export_to_pdf(current_summary["content"])
-        st.download_button(
-            label="Download als PDF",
-            data=base64.b64decode(b64_pdf),
-            file_name="samenvatting.pdf",
-            mime="application/pdf"
-        )
-
-    with col3:
-        st_copy_to_clipboard(current_summary["content"], "Kopieer")
+    # Export options
+    with st.expander("Export opties"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            b64_docx = export_to_docx(current_summary["content"])
+            st.download_button(
+                label="Download als Word",
+                data=base64.b64decode(b64_docx),
+                file_name="samenvatting.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+        with col2:
+            b64_pdf = export_to_pdf(current_summary["content"])
+            st.download_button(
+                label="Download als PDF",
+                data=base64.b64decode(b64_pdf),
+                file_name="samenvatting.pdf",
+                mime="application/pdf"
+            )
+        with col3:
+            st_copy_to_clipboard(current_summary["content"], "Kopieer")
 
 def render_summary_and_output():
     prompts = load_prompts()

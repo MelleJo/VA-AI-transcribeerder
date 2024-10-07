@@ -585,3 +585,38 @@ a:hover {
     background-color: #edf2f7;
     margin-right: 2rem;
 }
+
+.main-content {
+    display: flex;
+    gap: 2rem;
+}
+
+.summary-section,
+.chat-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.stExpander {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+.stExpander > div:first-child {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-message {
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.user-message {
+    background-color: #f0f2f6;
+}
+
+.assistant-message {
+    background-color: #e8eaf6;
+}
