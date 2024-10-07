@@ -880,17 +880,39 @@ def convert_markdown_to_plain_text(markdown_text):
     
     return plain_text.strip()
 
-def generate_email_subject(summary):
-    prompt = f"Genereer een korte, beschrijvende onderwerpregel voor een e-mail op basis van deze samenvatting: {summary[:500]}..."
+def generate_email_subject(summary, email_type, relatienummer=None):
+    prompt = f"""
+    Generate a clear and concise email subject based on the following summary:
+    {summary[:500]}...
+
+    The subject should be informative and reflect the main topic or purpose of the email.
+    It should be no longer than 10 words. It should be in Dutch. It should convey the meaning/and make it easily searchable. 
+    
+    Email type: {email_type}
+    """
+    
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=50,
         temperature=0.7
     )
+    
     subject = response.choices[0].message.content.strip()
-    return f"Samenvatting door AI over: {subject}"
-
+    
+    # Add email type prefix
+    if email_type == 'colleague':
+        subject = f"[Collega] {subject}"
+    elif email_type in ['client', 'client_request']:
+        subject = f"[Klant] {subject}"
+    elif email_type == 'self':
+        subject = f"[Samenvatting] {subject}"
+    
+    # Add relatienummer if provided
+    if relatienummer:
+        subject = f"[{relatienummer}] {subject}"
+    
+    return subject
 def extract_user_name(transcript):
     prompt = f"Extract the name of the speaker from this transcript. If no name is explicitly mentioned, respond with 'Not Found'. Transcript: {transcript[:500]}..."
     response = client.chat.completions.create(
@@ -905,9 +927,6 @@ def extract_user_name(transcript):
 def create_email(summary, transcript, email_type):
     st.subheader(f"E-mail {'naar collega' if email_type == 'colleague' else 'opstellen'}")
     
-    # Generate subject using AI
-    subject = generate_email_subject(summary)
-    
     # Extract user's name from transcript or prompt user
     user_name = extract_user_name(transcript)
     if not user_name:
@@ -919,10 +938,8 @@ def create_email(summary, transcript, email_type):
     # Field for extra information
     extra_info = st.text_area("Extra informatie (optioneel):", key="extra_info_input")
     
-    # Add relatienummer field for colleague or self emails
-    relatienummer = None
-    if email_type in ['colleague', 'self']:
-        relatienummer = st.text_input("Relatienummer (optioneel):", key="relatienummer_input")
+    # Add relatienummer field for all email types
+    relatienummer = st.text_input("Relatienummer (optioneel):", key="relatienummer_input")
     
     email_prompt = None
     if email_type in ['client', 'client_request']:
@@ -937,7 +954,13 @@ def create_email(summary, transcript, email_type):
         recipient = st.secrets["email"]["username"]  # Sending to self for other types
         recipient_name = "klant" if email_type in ['client', 'client_request'] else user_name
 
+    # Generate subject using AI
+    subject = generate_email_subject(plain_summary, email_type, relatienummer)
+    
     email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, relatienummer, email_prompt)
+    
+    # Display the generated subject
+    st.write(f"Gegenereerd onderwerp: {subject}")
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
         if send_email(recipient, subject, email_body):
