@@ -865,22 +865,22 @@ def handle_action(action, summary):
         return process_chat_request(action)
 
 def convert_markdown_to_plain_text(markdown_text):
-    # Remove bold (**) formatting
-    plain_text = re.sub(r'\*\*(.*?)\*\*', r'\1', markdown_text)
+    # Remove bold (**) and italic (*) formatting
+    plain_text = re.sub(r'\*\*(.*?)\*\*|\*(.*?)\*', r'\1\2', markdown_text)
     
-    # Remove italic (*) formatting
-    plain_text = re.sub(r'\*(.*?)\*', r'\1', plain_text)
+    # Convert bullet points to plain text while preserving indentation
+    plain_text = re.sub(r'^(\s*)[-*+]\s', r'\1- ', plain_text, flags=re.MULTILINE)
     
-    # Convert bullet points to plain text
-    plain_text = re.sub(r'^\s*[-*+]\s', '- ', plain_text, flags=re.MULTILINE)
-    
-    # Convert numbered lists to plain text
-    plain_text = re.sub(r'^\s*\d+\.\s', '', plain_text, flags=re.MULTILINE)
+    # Convert numbered lists to plain text while preserving indentation
+    plain_text = re.sub(r'^(\s*)\d+\.\s', r'\1', plain_text, flags=re.MULTILINE)
     
     # Remove any remaining special Markdown characters
     plain_text = re.sub(r'[#>`_]', '', plain_text)
     
-    return plain_text
+    # Ensure double line breaks between sections
+    plain_text = re.sub(r'\n\n+', '\n\n', plain_text)
+    
+    return plain_text.strip()
 
 
 def create_email_to_colleague(summary):
