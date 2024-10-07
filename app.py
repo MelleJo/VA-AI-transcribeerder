@@ -15,7 +15,7 @@ def convert_summaries_to_dict_format():
         for i, summary in enumerate(st.session_state.summaries):
             if isinstance(summary, str):
                 st.session_state.summaries[i] = {
-                    "type": "summary",
+                    "type": "samenvatting",
                     "content": summary
                 }
     
@@ -24,7 +24,7 @@ def convert_summaries_to_dict_format():
         if old_key in st.session_state:
             for item in st.session_state[old_key]:
                 st.session_state.summaries.append({
-                    "type": old_key[:-9],  # Remove '_versions' from the type
+                    "type": "actiepunten" if old_key.startswith("actiepunten") else "hoofdpunten",
                     "content": item
                 })
             del st.session_state[old_key]
@@ -109,7 +109,7 @@ def render_prompt_selection():
         "Veldhuis Advies": {
             "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
             "Hypotheek": ["hypotheek", "hypotheek_rapport"],
-            "Financiele Planning": ["financieelplanningstraject"],
+            "Financiële Planning": ["financieelplanningstraject"],
             "Overig": ["adviesgesprek", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
         },
         "Veldhuis Advies Groep": {
@@ -159,7 +159,7 @@ def render_prompt_selection():
     """, unsafe_allow_html=True)
 
     # Radio buttons for category selection
-    main_category = st.radio("Kies een hoofd categorie:", list(prompt_categories.keys()))
+    main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
 
     # Dropdown for prompt selection
@@ -267,11 +267,11 @@ def process_input_and_generate_summary():
         total_steps = 3
         
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "transcript_gelezen", 1, total_steps, start_time)
         time.sleep(2)  # Simulate time taken for transcription
         
         # Update progress: Summarizing
-        summary_and_output_module.update_progress(progress_placeholder, "summary_generated", 2, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_gegenereerd", 2, total_steps, start_time)
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
@@ -279,7 +279,7 @@ def process_input_and_generate_summary():
         )
         
         # Update progress: Checking
-        summary_and_output_module.update_progress(progress_placeholder, "spelling_checked", 3, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "spelling_gecontroleerd", 3, total_steps, start_time)
         time.sleep(1)  # Simulate time taken for checking
         
         st.session_state.summary_versions.append(new_summary)
@@ -287,7 +287,7 @@ def process_input_and_generate_summary():
         st.session_state.summary = new_summary  # Initialize the summary
         st.session_state.step = 'results'
     else:
-        st.error("Geen input tekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
+        st.error("Geen invoertekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     
     # Remove the overlay
     overlay_placeholder.empty()
@@ -301,7 +301,7 @@ def render_results():
     col1, col2 = st.columns([3, 2])
     
     with col1:
-        st.markdown("<h2 class='section-title'>Summary</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Samenvatting</h2>", unsafe_allow_html=True)
         summary_and_output_module.render_summary_versions()
     
     with col2:
