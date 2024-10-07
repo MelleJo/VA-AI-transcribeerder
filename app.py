@@ -33,13 +33,26 @@ if 'current_version' not in st.session_state:
 # In app.py, update the load_css function
 
 def load_css():
-    css_path = os.path.join('static', 'styles.css')
-    with open(css_path) as f:
-        css_content = f.read()
+    css_file = os.path.join(os.path.dirname(__file__), "static", "styles.css")
+    with open(css_file, "r") as f:
+        css = f.read()
     
+    # Add Font Awesome for icons
     font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
     
-    full_screen_loading_css = """
+    # Combine custom CSS with Font Awesome
+    full_css = f"""
+    <style>
+    {css}
+    </style>
+    {font_awesome}
+    """
+    
+    # Inject the combined CSS using st.markdown
+    st.markdown(full_css, unsafe_allow_html=True)
+
+    # Add full-screen loading CSS
+    st.markdown("""
     <style>
     .fullscreen-loader {
         position: fixed;
@@ -47,45 +60,14 @@ def load_css():
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.8);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 9999;
     }
-    .loader-content {
-        text-align: center;
-    }
-    .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .progress-container {
-        width: 300px;
-        height: 20px;
-        background-color: #f0f0f0;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-    .progress-bar {
-        height: 100%;
-        background-color: #4CAF50;
-        transition: width 0.5s ease-in-out;
-    }
     </style>
-    """
-    
-    st.markdown(f'{font_awesome}{full_screen_loading_css}<style>{css_content}</style>', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 
 def main():
