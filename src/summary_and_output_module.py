@@ -546,7 +546,7 @@ def render_summary_versions():
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
     # Display the current summary
-    st.markdown("### Summary")
+    st.markdown("### Samenvatting")
     if current_summary["type"] == "email":
         st.markdown("**Email Version**")
     elif current_summary["type"] == "actiepunten":
