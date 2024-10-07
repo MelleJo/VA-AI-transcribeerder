@@ -21,7 +21,7 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
                     button()
 
 def full_screen_loader(progress, message, status_updates):
-    status_html = "".join([f"<p class='status-update {''omplete' if idx <= progress // 25 else ''}'>{update}</p>" for idx, update in enumerate(status_updates)])
+    status_html = "".join([f"<p class='status-update {'complete' if idx <= progress // 25 else ''}'>{update}</p>" for idx, update in enumerate(status_updates)])
     overlay_html = f"""
     <div class="fullscreen-loader">
         <div class="loader-content">
