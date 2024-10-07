@@ -926,12 +926,15 @@ def extract_user_name(transcript):
 
 def create_email(summary, transcript, email_type):
     st.subheader(f"E-mail {'naar collega' if email_type == 'colleague' else 'opstellen'}")
-    
-    # Extract user's name from transcript or prompt user
-    user_name = extract_user_name(transcript)
-    if not user_name:
-        user_name = st.text_input("Vul alstublieft uw naam in:", key="user_name_input")
-    
+
+    # Get staff emails
+    staff_emails = get_staff_emails()
+
+    # Select sender (yourself)
+    sender_name = st.selectbox("Selecteer jezelf:", list(staff_emails.keys()), key="sender_select")
+    sender_email = staff_emails[sender_name]
+    sender_first_name = sender_name.split()[0]
+
     # Convert Markdown to plain text
     plain_summary = convert_markdown_to_plain_text(summary)
     
@@ -946,24 +949,25 @@ def create_email(summary, transcript, email_type):
         email_prompt = st.text_input("Hoe moet de e-mail worden opgesteld? (bijv.: vraag klant naar dit, update klant over dat)", key="email_prompt_input")
     
     if email_type == 'colleague':
-        colleague_emails = get_colleague_emails()
-        selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
+        # Remove the sender from the list of potential recipients
+        colleague_emails = {k: v for k, v in staff_emails.items() if k != sender_name}
+        selected_colleague = st.selectbox("Selecteer een collega:", list(colleague_emails.keys()))
         recipient = colleague_emails[selected_colleague]
         recipient_name = selected_colleague.split()[0]  # Get first name
     else:
-        recipient = st.secrets["email"]["username"]  # Sending to self for other types
-        recipient_name = "klant" if email_type in ['client', 'client_request'] else user_name
+        recipient = sender_email  # Sending to self for other types
+        recipient_name = "klant" if email_type in ['client', 'client_request'] else sender_first_name
 
     # Generate subject using AI
     subject = generate_email_subject(plain_summary, email_type, relatienummer)
     
-    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, relatienummer, email_prompt)
+    email_body = generate_email_body(email_type, plain_summary, sender_first_name, extra_info, recipient_name, relatienummer, email_prompt)
     
     # Display the generated subject
     st.write(f"Gegenereerd onderwerp: {subject}")
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
-        if send_email(recipient, subject, email_body):
+        if send_email(sender_email, recipient, subject, email_body):
             st.success("E-mail succesvol verstuurd!")
             st.session_state.show_email_form = False
         else:

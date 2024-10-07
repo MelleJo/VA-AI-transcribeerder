@@ -6,10 +6,10 @@ from email.mime.multipart import MIMEMultipart
 from src.config import EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT, COLLEAGUE_EMAILS
 
 
-def send_email(recipient, subject, body):
+def send_email(sender_email, recipient, subject, body):
     try:
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_SENDER
+        msg['From'] = sender_email
         msg['To'] = recipient
         msg['Subject'] = subject
 
@@ -17,7 +17,7 @@ def send_email(recipient, subject, body):
 
         with smtplib.SMTP(EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT) as server:
             server.starttls()
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.login(sender_email, EMAIL_PASSWORD)  # Make sure to use the correct password for the sender
             server.send_message(msg)
         
         return True
