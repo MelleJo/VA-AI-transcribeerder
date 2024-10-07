@@ -7,10 +7,11 @@ import os
 from openai import OpenAI
 from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
+st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
-st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
 
 def convert_summaries_to_dict_format():
@@ -88,7 +89,6 @@ def load_css():
     """, unsafe_allow_html=True)
 
 def main():
-    #st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
     load_css()
     add_loader_css()
     ui_components.apply_custom_css()
