@@ -26,6 +26,7 @@ from email.mime.multipart import MIMEMultipart
 import uuid
 import time
 import pandas as pd
+from app import convert_summaries_to_dict_format
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
