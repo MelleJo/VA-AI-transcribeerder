@@ -605,7 +605,7 @@ def export_to_pdf(summary):
     return base64.b64encode(buffer.getvalue()).decode()
 
 def render_summary_buttons(summary, button_key_prefix):
-    ui_copy_button(summary, "Kopieer naar klembord (met opmaak)")
+    ui_copy_button(summary, "Kopieer")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -702,7 +702,7 @@ def render_summary_versions():
         )
 
     with col3:
-        st_copy_to_clipboard(current_summary["content"], "Kopieer naar klembord")
+        st_copy_to_clipboard(current_summary["content"], "Kopieer")
 
 def render_summary_and_output():
     prompts = load_prompts()
