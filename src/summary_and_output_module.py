@@ -924,7 +924,8 @@ def create_email(summary, transcript, email_type):
     if email_type in ['colleague', 'self']:
         relatienummer = st.text_input("Relatienummer (optioneel):", key="relatienummer_input")
     
-    if email_type in ['self', 'client', 'client_request']:
+    email_prompt = None
+    if email_type in ['client', 'client_request']:
         email_prompt = st.text_input("Hoe moet de e-mail worden opgesteld? (bijv.: vraag klant naar dit, update klant over dat)", key="email_prompt_input")
     
     if email_type == 'colleague':
@@ -936,7 +937,7 @@ def create_email(summary, transcript, email_type):
         recipient = st.secrets["email"]["username"]  # Sending to self for other types
         recipient_name = "klant" if email_type in ['client', 'client_request'] else user_name
 
-    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, relatienummer, email_prompt if email_type in ['self', 'client', 'client_request'] else None)
+    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, relatienummer, email_prompt)
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
         if send_email(recipient, subject, email_body):
@@ -971,39 +972,20 @@ Met vriendelijke groet,
 ---
 Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze tool ook gebruiken? Zie Scienta -> AI -> Gesprekssamenvattertool.
 """
-    elif email_type == 'client_request':
+    elif email_type in ['client', 'client_request']:
         prompt = f"""
         Stel een e-mail op aan de klant gebaseerd op de volgende samenvatting en verzoek:
         
         Samenvatting:
         {summary}
 
-        Verzoek aan klant: {email_prompt}
+        Verzoek aan klant: {email_prompt if email_prompt else 'Geen specifiek verzoek opgegeven.'}
 
         Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
         {"Relatienummer: " + relatienummer if relatienummer else ""}
 
         De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
         Zorg ervoor dat de context uit de samenvatting wordt gebruikt om het verzoek aan de klant te ondersteunen.
-        Als er een relatienummer is opgegeven, neem dit dan op in de e-mail op een passende plek.
-        """
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=1000,
-            temperature=0.7
-        )
-        body = response.choices[0].message.content.strip()
-    else:
-        prompt = f"""
-        Stel een e-mail op gebaseerd op de volgende samenvatting:
-        {summary}
-
-        Extra context: {email_prompt if email_prompt else 'Geen extra context opgegeven.'}
-        Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
-        {"Relatienummer: " + relatienummer if relatienummer else ""}
-
-        De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
         Als er een relatienummer is opgegeven, neem dit dan op in de e-mail op een passende plek.
         """
         response = client.chat.completions.create(
