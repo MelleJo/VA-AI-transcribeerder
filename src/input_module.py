@@ -20,9 +20,17 @@ def transcribe_with_progress(audio_file):
     add_loader_css()
     progress_placeholder = st.empty()
     
+    status_updates = [
+        "Audiobestand verwerken",
+        "Spraak naar tekst omzetten",
+        "Transcript optimaliseren",
+        "Samenvatting voorbereiden"
+    ]
+    
     def update_progress(current, total):
         progress = int((current / total) * 100)
-        full_screen_loader(progress, "Transcribing audio...")
+        message = "Audio wordt getranscribeerd..."
+        full_screen_loader(progress, message, status_updates)
     
     transcript = transcribe_audio(audio_file, progress_callback=update_progress)
     

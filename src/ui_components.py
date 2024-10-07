@@ -20,7 +20,8 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
                 with cols[i]:
                     button()
 
-def full_screen_loader(progress, message):
+def full_screen_loader(progress, message, status_updates):
+    status_html = "".join([f"<p class='status-update {''omplete' if idx <= progress // 25 else ''}'>{update}</p>" for idx, update in enumerate(status_updates)])
     overlay_html = f"""
     <div class="fullscreen-loader">
         <div class="loader-content">
@@ -29,7 +30,10 @@ def full_screen_loader(progress, message):
             <div class="progress-container">
                 <div class="progress-bar" style="width: {progress}%;"></div>
             </div>
-            <p>Progress: {progress}%</p>
+            <p>Voortgang: {progress}%</p>
+            <div class="status-updates">
+                {status_html}
+            </div>
         </div>
     </div>
     """
@@ -38,46 +42,23 @@ def full_screen_loader(progress, message):
 def add_loader_css():
     st.markdown("""
     <style>
-    .fullscreen-loader {
-        position: fixed;
-        top: 0;
+    /* ... (previous CSS remains the same) ... */
+    .status-updates {
+        text-align: left;
+        margin-top: 20px;
+    }
+    .status-update {
+        margin: 5px 0;
+        padding-left: 25px;
+        position: relative;
+    }
+    .status-update::before {
+        content: '⏳';
+        position: absolute;
         left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(255, 255, 255, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
     }
-    .loader-content {
-        text-align: center;
-    }
-    .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .progress-container {
-        width: 300px;
-        height: 20px;
-        background-color: #f0f0f0;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-    .progress-bar {
-        height: 100%;
-        background-color: #4CAF50;
-        transition: width 0.5s ease-in-out;
+    .status-update.complete::before {
+        content: '✅';
     }
     </style>
     """, unsafe_allow_html=True)

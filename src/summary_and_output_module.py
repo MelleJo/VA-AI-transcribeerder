@@ -18,7 +18,7 @@ from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.colors import darkblue, black
 import markdown2
 import re
-from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button
+from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, full_screen_loader, add_loader_css
 import smtplib
 from email.mime.text import MIMEText
 from st_copy_to_clipboard import st_copy_to_clipboard
@@ -317,6 +317,21 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
+        
+        status_updates = [
+            "Transcript analyseren",
+            "Samenvatting genereren",
+            "Samenvatting optimaliseren",
+            "Nacontrole uitvoeren"
+        ]
+        
+        progress_placeholder = st.empty()
+        
+        for i, status in enumerate(status_updates):
+            progress = (i + 1) * 25
+            full_screen_loader(progress, "Samenvatting wordt gemaakt...", status_updates)
+            time.sleep(1)  # Simulate processing time
+        
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
             messages=[
@@ -336,6 +351,8 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         # Post-processing
         summary = post_process_grammar_check(summary)
         summary = format_currency(summary)
+        
+        progress_placeholder.empty()
         
         if not summary:
             raise ValueError("Generated summary is empty")
