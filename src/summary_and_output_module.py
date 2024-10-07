@@ -92,7 +92,7 @@ def render_chat_interface():
 
     if st.session_state.summaries:
         suggestions = suggest_actions(st.session_state.summaries[-1])
-        st.markdown("### Suggestions:")
+        st.markdown("### Suggesties:")
         
         # Custom CSS for minimalistic buttons
         st.markdown("""
