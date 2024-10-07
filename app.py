@@ -19,14 +19,15 @@ def convert_summaries_to_dict_format():
                     "content": summary
                 }
     
-    # Convert old actiepunten to new format
-    if 'actiepunten_versions' in st.session_state:
-        for actiepunt in st.session_state.actiepunten_versions:
-            st.session_state.summaries.append({
-                "type": "actiepunten",
-                "content": actiepunt
-            })
-        del st.session_state.actiepunten_versions
+    # Convert old actiepunten and main points to new format
+    for old_key in ['actiepunten_versions', 'main_points_versions']:
+        if old_key in st.session_state:
+            for item in st.session_state[old_key]:
+                st.session_state.summaries.append({
+                    "type": old_key[:-9],  # Remove '_versions' from the type
+                    "content": item
+                })
+            del st.session_state[old_key]
 
 # Initialize session state variables at the script level
 if 'base_prompt' not in st.session_state:

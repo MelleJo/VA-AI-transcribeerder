@@ -45,13 +45,15 @@ def update_summary_display(response):
         "content": response["content"]
     }
     
-    if response["type"] in ["summary", "email", "actiepunten"]:
+    # Determine if the response should be a new summary version or a chat message
+    if response["type"] in ["summary", "email", "actiepunten", "main_points"] or len(response["content"].split()) > 50:
         st.session_state.summaries.append(new_summary)
         st.session_state.current_version = len(st.session_state.summaries) - 1
-    elif response["type"] == "main_points":
-        if 'main_points_versions' not in st.session_state:
-            st.session_state.main_points_versions = []
-        st.session_state.main_points_versions.append(response["content"])
+    else:
+        # Short responses will be handled as chat messages
+        return "chat"
+    
+    return "summary"
 
 def render_summary():
     if not st.session_state.get('summary'):
@@ -128,14 +130,14 @@ def render_chat_interface():
                 st.rerun()
 
 def handle_chat_response(response):
-    if response["type"] == "chat":
+    display_type = update_summary_display(response)
+    if display_type == "chat":
         st.markdown(response["content"])
         st.session_state.messages.append({"role": "assistant", "content": response["content"]})
     else:
         confirmation_message = get_confirmation_message(response["type"])
         st.markdown(confirmation_message)
         st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
-        update_summary_display(response)
 
 def suggest_actions(summary):
     prompt = f"""
@@ -549,26 +551,22 @@ def render_summary_versions():
         st.markdown("**Email Version**")
     elif current_summary["type"] == "actiepunten":
         st.markdown("**Actiepunten**")
+    elif current_summary["type"] == "main_points":
+        st.markdown("**Main Points**")
     st.markdown(current_summary["content"])
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        if st.button("◀ Previous", disabled=st.session_state.current_version == 0):
+        if st.button("◀ Vorige", disabled=st.session_state.current_version == 0):
             st.session_state.current_version -= 1
             st.rerun()
     with col2:
         st.markdown(f"<div style='text-align: center;'>Version {st.session_state.current_version + 1} of {len(st.session_state.summaries)}</div>", unsafe_allow_html=True)
     with col3:
-        if st.button("Next ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
+        if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
             st.session_state.current_version += 1
             st.rerun()
-
-    # Display main points if available (only for the latest version)
-    if st.session_state.current_version == len(st.session_state.summaries) - 1:
-        if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
-            with st.expander("Main Points"):
-                st.markdown(st.session_state.main_points_versions[-1])
 
 def render_summary_and_output():
     prompts = load_prompts()
