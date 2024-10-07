@@ -337,3 +337,4 @@ def render_audio_input(on_stop_recording):
         on_stop_recording()
 
 def render_text_input(on_input_complete):
+    st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
