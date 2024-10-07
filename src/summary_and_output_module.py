@@ -207,7 +207,15 @@ def render_chat_interface():
     # Suggestions
     if st.session_state.summaries:
         st.markdown("### Suggesties:")
-        suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
+        # Define static actions here or import from a common configuration
+        static_actions = [
+            "Informeer collega",
+            "Maak uitgebreider",
+            "Maak korter",
+            "Stel conceptmail op naar de klant",
+            "Stuur samenvatting naar jezelf"
+        ]
+        suggestions = suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
         
         # Create a 2x2 grid for suggestion buttons
         col1, col2 = st.columns(2)
