@@ -27,6 +27,8 @@ import uuid
 import time
 import pandas as pd
 from app import convert_summaries_to_dict_format
+from src.email_module import send_email, get_colleague_emails
+
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -228,11 +230,13 @@ def handle_chat_response(response):
         update_summary_display(response)
     st.rerun()
 
-def suggest_actions(summary):
+def suggest_actions(summary, static_actions):
     prompt = f"""
-    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker aan de AI-samenvattingsassistent zou kunnen vragen. 
+    Analyseer de volgende samenvatting en stel 4 specifieke, uitvoerbare taken voor die de gebruiker aan de AI-samenvattingsassistent zou kunnen vragen. 
     Maak je keuze afhankelijk van het type samenvatting. Neem de rol aan van een gebruiker van de samenvattingstool en bedenk wat je zou willen doen als je de medewerker was die dit gebruikt.
     Context voor jou: de gebruikers van de tool zijn medewerkers van een verzekerings- en financieel adviesbureau. Je kent dus de context een beetje.
+    Zorg ervoor dat ze niet hetzelfde zijn als {static_actions}
+
     Voorbeelden:
     - "Extraheer actiepunten"
     - "Maak de samenvatting korter"
@@ -834,3 +838,59 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
     except Exception as e:
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
+    
+def handle_action(action, summary):
+    if action == "Informeer collega":
+        return create_email_to_colleague(summary)
+    elif action == "Maak uitgebreider":
+        return process_chat_request("Maak deze samenvatting uitgebreider met meer details uit het transcript.")
+    elif action == "Maak korter":
+        return process_chat_request("Maak deze samenvatting korter en beknopter, focus alleen op de meest essentiële informatie.")
+    elif action == "Stel conceptmail op naar de klant":
+        return create_email_to_client(summary)
+    elif action == "Stuur samenvatting naar jezelf":
+        return send_summary_to_self(summary)
+    elif action == "Extraheer actiepunten":
+        return process_chat_request("Extraheer alle actiepunten uit deze samenvatting en presenteer ze in een overzichtelijke lijst.")
+    else:
+        # For AI-generated suggestions, we can pass them directly to process_chat_request
+        return process_chat_request(action)
+    
+def create_email_to_colleague(summary):
+    st.subheader("E-mail naar collega")
+    colleague_emails = get_colleague_emails()
+    selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
+    
+    email_body = process_chat_request("Schrijf een korte e-mail om een collega te informeren over de belangrijkste punten uit deze samenvatting.")["content"]
+    
+    if st.button("Verstuur e-mail naar collega"):
+        if send_email(colleague_emails[selected_colleague], "Samenvatting van recent gesprek", email_body):
+            st.success("E-mail succesvol verstuurd naar collega!")
+        else:
+            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
+    
+    return {"type": "chat", "content": "E-mail naar collega voorbereid."}
+
+def create_email_to_client(summary):
+    st.subheader("Conceptmail naar klant")
+    email_body = process_chat_request("Stel een conceptmail op naar de klant op basis van deze samenvatting.")["content"]
+    
+    if st.button("Verstuur conceptmail naar jezelf"):
+        if send_email(st.secrets["email"]["username"], "Conceptmail voor klant", email_body):
+            st.success("Conceptmail succesvol naar jezelf verstuurd!")
+        else:
+            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
+    
+    return {"type": "chat", "content": "Conceptmail voor klant voorbereid."}
+
+def send_summary_to_self(summary):
+    st.subheader("Stuur samenvatting naar jezelf")
+    email_body = f"Hier is de samenvatting van het recente gesprek:\n\n{summary}"
+    
+    if st.button("Verstuur samenvatting naar jezelf"):
+        if send_email(st.secrets["email"]["username"], "Samenvatting van recent gesprek", email_body):
+            st.success("Samenvatting succesvol naar jezelf verstuurd!")
+        else:
+            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
+    
+    return {"type": "chat", "content": "Samenvatting naar jezelf verstuurd."}

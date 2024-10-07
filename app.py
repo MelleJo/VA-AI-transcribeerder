@@ -306,8 +306,40 @@ def render_results():
         summary_and_output_module.render_summary_versions()
     
     with col2:
-        st.markdown("<h2 class='section-title'>Chat</h2>", unsafe_allow_html=True)
-        summary_and_output_module.render_chat_interface()
+        st.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
+        
+        # Static action suggestions
+        static_actions = [
+            "Informeer collega",
+            "Maak uitgebreider",
+            "Maak korter",
+            "Stel conceptmail op naar de klant",
+            "Stuur samenvatting naar jezelf",
+            "Extraheer actiepunten"
+        ]
+        
+        # AI-generated suggestions
+        if st.session_state.summaries:
+            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"])
+        else:
+            ai_suggestions = []
+        
+        # Combine static and AI-generated suggestions
+        all_actions = static_actions + ai_suggestions
+        
+        # Create a 3x3 grid for action buttons
+        for i in range(0, 9, 3):
+            cols = st.columns(3)
+            for j in range(3):
+                if i + j < len(all_actions):
+                    action = all_actions[i + j]
+                    if cols[j].button(action, key=f"action_{i+j}", use_container_width=True):
+                        response = summary_and_output_module.process_chat_request(action)
+                        summary_and_output_module.handle_chat_response(response)
+                        st.rerun()
+        
+        with st.expander("Chat", expanded=False):
+            summary_and_output_module.render_chat_interface()
 
     with st.expander("Bekijk/Bewerk Transcript"):
         edited_transcript = st.text_area("Transcript:", value=st.session_state.input_text, height=300)

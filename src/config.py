@@ -24,6 +24,15 @@ FREQUENCY_PENALTY = 0.2
 PRESENCE_PENALTY = 0.1
 AUDIO_SEGMENT_LENGTH = 60000  # 30 seconds in milliseconds
 
+# Email Configuration
+EMAIL_SENDER = st.secrets["email"]["username"]
+EMAIL_PASSWORD = st.secrets["email"]["password"]
+EMAIL_SMTP_SERVER = st.secrets["email"]["smtp_server"]
+EMAIL_SMTP_PORT = st.secrets["email"]["smtp_port"]
+
+# Colleague email addresses
+COLLEAGUE_EMAILS = st.secrets["colleague_emails"]
+
 # Prompt Reminders
 PROMPT_REMINDERS = {
     "hypotheek_rapport": [
