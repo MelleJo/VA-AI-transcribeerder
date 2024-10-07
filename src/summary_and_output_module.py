@@ -240,17 +240,15 @@ def handle_chat_response(response):
 
 def suggest_actions(summary, static_actions):
     prompt = f"""
-    Analyseer de volgende samenvatting en stel 4 specifieke, uitvoerbare taken voor die de gebruiker aan de AI-samenvattingsassistent zou kunnen vragen. 
-    Maak je keuze afhankelijk van het type samenvatting. Neem de rol aan van een gebruiker van de samenvattingstool en bedenk wat je zou willen doen als je de medewerker was die dit gebruikt.
-    Context voor jou: de gebruikers van de tool zijn medewerkers van een verzekerings- en financieel adviesbureau. Je kent dus de context een beetje.
-    Zorg ervoor dat ze niet hetzelfde zijn als {static_actions}
+    Analyseer de volgende samenvatting en stel 4 specifieke, uitvoerbare taken voor die de AI-samenvattingsassistent zou kunnen uitvoeren om de samenvatting te verbeteren of aan te passen. 
+    Focus op acties die de AI kan uitvoeren met de beschikbare informatie in de samenvatting en het transcript, zoals:
+    - "Maak de samenvatting bondiger"
+    - "Voeg meer details toe over [specifiek onderwerp]"
+    - "Herstructureer de samenvatting voor betere leesbaarheid"
+    - "Benadruk de belangrijkste punten meer"
 
-    Voorbeelden:
-    - "Extraheer actiepunten"
-    - "Maak de samenvatting korter"
-    - "Maak de samenvatting langer"
-    - "Stel een e-mail op voor de klant"
-    - "Zet om naar een e-mail voor een collega"
+    Vermijd acties die de adviseur zou moeten uitvoeren, zoals "evalueer verzekerde bedragen".
+    Zorg ervoor dat ze niet hetzelfde zijn als {static_actions}
 
     Samenvatting:
     {summary}
@@ -263,7 +261,7 @@ def suggest_actions(summary, static_actions):
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=100,
-        temperature=0.1
+        temperature=0.7
     )
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
@@ -924,14 +922,16 @@ def create_email(summary, transcript, email_type):
     if email_type in ['self', 'client']:
         email_prompt = st.text_input("Hoe moet de e-mail worden opgesteld? (bijv.: vraag klant naar dit, update klant over dat)", key="email_prompt_input")
     
-    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, email_prompt if email_type in ['self', 'client'] else None)
-    
     if email_type == 'colleague':
         colleague_emails = get_colleague_emails()
         selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
         recipient = colleague_emails[selected_colleague]
+        recipient_name = selected_colleague.split()[0]  # Get first name
     else:
         recipient = st.secrets["email"]["username"]  # Sending to self for both 'self' and 'client' types
+        recipient_name = "klant"
+
+    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, email_prompt if email_type in ['self', 'client'] else None)
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
         if send_email(recipient, subject, email_body):
@@ -946,25 +946,44 @@ def create_email(summary, transcript, email_type):
 
     return {"type": "chat", "content": "E-mail voorbereid."}
 
-def generate_email_body(email_type, summary, user_name, extra_info, email_prompt=None):
+def generate_email_body(email_type, summary, user_name, extra_info, recipient_name, email_prompt=None):
     if email_type == 'colleague':
-        body = f"""Beste collega,
+        body = f"""Beste {recipient_name},
+
+{extra_info}
 
 Hier is een samenvatting van een recent gesprek:
 
 {summary}
 
-"""
-        if extra_info:
-            body += f"\nOpmerking van {user_name}:\n{extra_info}\n"
-        
-        body += f"""
 Met vriendelijke groet,
 {user_name}
 
 ---
 Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze tool ook gebruiken? Zie Scienta -> AI -> Gesprekssamenvattertool.
 """
+    elif email_type == 'client_request':
+        prompt = f"""
+        Stel een e-mail op aan de klant gebaseerd op de volgende samenvatting en verzoek:
+        
+        Samenvatting:
+        {summary}
+
+        Verzoek aan klant: {email_prompt}
+
+        Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
+
+        De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
+        Zorg ervoor dat de context uit de samenvatting wordt gebruikt om het verzoek aan de klant te ondersteunen.
+        """
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        body = response.choices[0].message.content.strip()
+        
     else:
         prompt = f"""
         Stel een e-mail op gebaseerd op de volgende samenvatting:
@@ -976,7 +995,7 @@ Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze to
         De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
         """
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1000,
             temperature=0.7

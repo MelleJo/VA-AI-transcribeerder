@@ -319,9 +319,10 @@ def render_results():
             "Maak uitgebreider",
             "Maak korter",
             "Stel conceptmail op naar de klant",
-            "Stuur samenvatting naar jezelf"
+            "Stuur samenvatting naar jezelf",
+            "Vraag X aan klant"
         ]
-        
+            
         # AI-generated suggestions
         if st.session_state.summaries:
             ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
@@ -338,7 +339,11 @@ def render_results():
                 if i + j < len(all_actions):
                     action = all_actions[i + j]
                     if cols[j].button(action, key=f"action_{i+j}", use_container_width=True):
-                        if action == "Informeer collega":
+                        if action == "Vraag X aan klant":
+                            st.session_state.show_email_form = True
+                            st.session_state.email_type = 'client_request'
+                            st.session_state.client_request = st.text_input("Wat wilt u aan de klant vragen?")
+                        elif action == "Informeer collega":
                             st.session_state.show_email_form = True
                             st.session_state.email_type = 'colleague'
                         elif action == "Stuur samenvatting naar jezelf":
