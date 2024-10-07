@@ -36,13 +36,12 @@ def estimate_remaining_time(start_time, current_step, total_steps):
     return f"Geschatte resterende tijd: {int(remaining_time)} seconden"
 
 def update_summary_display(response):
-    if response["type"] == "summary":
-        st.session_state.summaries.append(response["content"])
+    if response["type"] in ["summary", "email"]:
+        st.session_state.summaries.append({
+            "type": response["type"],
+            "content": response["content"]
+        })
         st.session_state.current_version = len(st.session_state.summaries) - 1
-    elif response["type"] == "email":
-        if 'email_versions' not in st.session_state:
-            st.session_state.email_versions = []
-        st.session_state.email_versions.append(response["content"])
     elif response["type"] == "main_points":
         if 'main_points_versions' not in st.session_state:
             st.session_state.main_points_versions = []
@@ -541,7 +540,9 @@ def render_summary_versions():
 
     # Display the current summary
     st.markdown("### Summary")
-    st.markdown(current_summary)
+    if current_summary["type"] == "email":
+        st.markdown("**Email Version**")
+    st.markdown(current_summary["content"])
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -558,10 +559,6 @@ def render_summary_versions():
 
     # Display additional information if available
     if st.session_state.current_version == len(st.session_state.summaries) - 1:  # Only for the latest version
-        if 'email_versions' in st.session_state and st.session_state.email_versions:
-            with st.expander("Email Version"):
-                st.markdown(st.session_state.email_versions[-1])
-
         if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
             with st.expander("Main Points"):
                 st.markdown(st.session_state.main_points_versions[-1])
