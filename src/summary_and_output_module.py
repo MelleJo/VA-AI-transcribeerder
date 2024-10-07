@@ -863,7 +863,26 @@ def handle_action(action, summary):
     else:
         # For AI-generated suggestions, we can pass them directly to process_chat_request
         return process_chat_request(action)
+
+def convert_markdown_to_plain_text(markdown_text):
+    # Remove bold (**) formatting
+    plain_text = re.sub(r'\*\*(.*?)\*\*', r'\1', markdown_text)
     
+    # Remove italic (*) formatting
+    plain_text = re.sub(r'\*(.*?)\*', r'\1', plain_text)
+    
+    # Convert bullet points to plain text
+    plain_text = re.sub(r'^\s*[-*+]\s', '- ', plain_text, flags=re.MULTILINE)
+    
+    # Convert numbered lists to plain text
+    plain_text = re.sub(r'^\s*\d+\.\s', '', plain_text, flags=re.MULTILINE)
+    
+    # Remove any remaining special Markdown characters
+    plain_text = re.sub(r'[#>`_]', '', plain_text)
+    
+    return plain_text
+
+
 def create_email_to_colleague(summary):
     st.subheader("E-mail naar collega")
     colleague_emails = get_colleague_emails()
