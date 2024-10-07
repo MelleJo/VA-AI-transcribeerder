@@ -248,7 +248,7 @@ def suggest_actions(summary, static_actions):
     {summary}
 
     Geef alleen de 4 suggesties, één per regel, zonder extra tekst of nummering.
-    Zorg ervoor dat elke suggestie kort is, idealiter 2-4 woorden. Mocht het echt een super goede suggestie zijn, mag die ook langer zijn. 
+    Zorg ervoor dat elke suggestie kort is, idealiter 2-4 woorden. Mocht het echt een super goede suggestie zijn, mag die ook langer zijn.
     """
     
     response = client.chat.completions.create(

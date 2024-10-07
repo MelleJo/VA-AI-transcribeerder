@@ -10,6 +10,9 @@ from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
+st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+
+
 def convert_summaries_to_dict_format():
     if 'summaries' in st.session_state:
         for i, summary in enumerate(st.session_state.summaries):
@@ -83,7 +86,7 @@ def load_css():
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+    #st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
     load_css()
     add_loader_css()
     ui_components.apply_custom_css()
@@ -314,13 +317,12 @@ def render_results():
             "Maak uitgebreider",
             "Maak korter",
             "Stel conceptmail op naar de klant",
-            "Stuur samenvatting naar jezelf",
-            "Extraheer actiepunten"
+            "Stuur samenvatting naar jezelf"
         ]
         
         # AI-generated suggestions
         if st.session_state.summaries:
-            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"])
+            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
         else:
             ai_suggestions = []
         
@@ -334,7 +336,7 @@ def render_results():
                 if i + j < len(all_actions):
                     action = all_actions[i + j]
                     if cols[j].button(action, key=f"action_{i+j}", use_container_width=True):
-                        response = summary_and_output_module.process_chat_request(action)
+                        response = summary_and_output_module.handle_action(action, st.session_state.summaries[-1]["content"])
                         summary_and_output_module.handle_chat_response(response)
                         st.rerun()
         
