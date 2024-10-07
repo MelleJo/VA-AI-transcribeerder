@@ -869,7 +869,17 @@ def create_email_to_colleague(summary):
     colleague_emails = get_colleague_emails()
     selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
     
-    email_body = f"Beste collega,\n\nHier is een samenvatting van een recent gesprek:\n\n{summary}\n\nMet vriendelijke groet,\n[Uw Naam]"
+    # Convert Markdown to plain text
+    plain_summary = convert_markdown_to_plain_text(summary)
+    
+    email_body = f"""Beste collega,
+
+Hier is een samenvatting van een recent gesprek:
+
+{plain_summary}
+
+Met vriendelijke groet,
+[Uw Naam]"""
     
     if st.button("Verstuur e-mail naar collega"):
         if send_email(colleague_emails[selected_colleague], "Samenvatting van recent gesprek", email_body):
