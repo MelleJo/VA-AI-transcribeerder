@@ -30,6 +30,108 @@ from app import convert_summaries_to_dict_format
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def load_css():
+    return """
+    <style>
+    .stButton > button {
+        background-color: #f0f2f6;
+        color: #000000;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .stButton > button:hover {
+        background-color: #e5e7eb;
+        border-color: #9ca3af;
+    }
+    .stButton > button:active {
+        background-color: #d1d5db;
+    }
+    </style>
+    """
+
+st.markdown(load_css(), unsafe_allow_html=True)
+
+
+def export_to_docx(summary):
+    doc = Document()
+    styles = doc.styles
+
+    if 'Body Text' not in styles:
+        style = styles.add_style('Body Text', WD_STYLE_TYPE.PARAGRAPH)
+    else:
+        style = styles['Body Text']
+    style.font.size = Pt(11)
+    style.font.name = 'Calibri'
+
+    heading_style = styles.add_style('Custom Heading', WD_STYLE_TYPE.PARAGRAPH)
+    heading_style.font.size = Pt(14)
+    heading_style.font.bold = True
+    heading_style.font.color.rgb = RGBColor(0, 0, 139)  # Dark Blue
+
+    html = markdown2.markdown(summary)
+    paragraphs = re.split(r'</?p>', html)
+
+    for p in paragraphs:
+        if p.strip():
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = doc.add_paragraph(text, style='Custom Heading')
+                para.paragraph_format.space_after = Pt(12)
+            else:
+                text = re.sub(r'<.*?>', '', p).strip()
+                para = doc.add_paragraph(text, style='Body Text')
+                
+                for run in para.runs:
+                    if '<strong>' in p:
+                        run.bold = True
+
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    return base64.b64encode(buffer.getvalue()).decode()
+
+def export_to_pdf(summary):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+
+    styles = getSampleStyleSheet()
+    
+    styles['Heading1'].fontSize = 14
+    styles['Heading1'].leading = 16
+    styles['Heading1'].textColor = darkblue
+    styles['Heading1'].spaceBefore = 12
+    styles['Heading1'].spaceAfter = 6
+
+    styles['Normal'].alignment = TA_JUSTIFY
+
+    html = markdown2.markdown(summary)
+    paragraphs = re.split(r'</?p>', html)
+
+    story = []
+    for p in paragraphs:
+        if p.strip():
+            if p.startswith('<h'):
+                level = int(p[2])
+                text = re.sub(r'</?h\d>', '', p).strip()
+                para = Paragraph(text, styles['Heading1'])
+            else:
+                text = p.replace('<strong>', '<b>').replace('</strong>', '</b>')
+                text = re.sub(r'<(?!/?b).*?>', '', text).strip()
+                para = Paragraph(text, styles['Normal'])
+            story.append(para)
+            story.append(Spacer(1, 6))
+
+    doc.build(story)
+    buffer.seek(0)
+    
+    return base64.b64encode(buffer.getvalue()).decode()
+
+
 def estimate_remaining_time(start_time, current_step, total_steps):
     elapsed_time = time.time() - start_time
     estimated_total_time = (elapsed_time / current_step) * total_steps
@@ -551,12 +653,10 @@ def render_summary_versions():
         st.warning("No summary available yet.")
         return
 
-    # Convert old summaries to new format
     convert_summaries_to_dict_format()
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
-    # Display the current summary
     st.markdown("### Samenvatting")
     if current_summary["type"] == "email":
         st.markdown("**Email Version**")
@@ -578,6 +678,31 @@ def render_summary_versions():
         if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summaries) - 1):
             st.session_state.current_version += 1
             st.rerun()
+
+    # Add new buttons for download and copy
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        b64_docx = export_to_docx(current_summary["content"])
+        st.download_button(
+            label="Download als Word",
+            data=base64.b64decode(b64_docx),
+            file_name="samenvatting.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+    with col2:
+        b64_pdf = export_to_pdf(current_summary["content"])
+        st.download_button(
+            label="Download als PDF",
+            data=base64.b64decode(b64_pdf),
+            file_name="samenvatting.pdf",
+            mime="application/pdf"
+        )
+
+    with col3:
+        st_copy_to_clipboard(current_summary["content"], "Kopieer naar klembord")
 
 def render_summary_and_output():
     prompts = load_prompts()
