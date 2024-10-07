@@ -333,6 +333,33 @@ def render_results():
         st.session_state.summary = ""
         st.rerun()
     
+    # Add Feedback Mechanism
+    with st.expander("Geef feedback", expanded=False):
+        st.markdown("### Feedback")
+        with st.form(key="feedback_form"):
+            user_name = st.text_input("Uw naam (verplicht bij feedback):", key="feedback_name")
+            feedback = st.radio("Was deze samenvatting nuttig?", ["Positief", "Negatief"], key="feedback_rating")
+            additional_feedback = st.text_area("Laat aanvullende feedback achter:", key="additional_feedback")
+            submit_button = st.form_submit_button(label="Verzend feedback")
+
+            if submit_button:
+                if not user_name:
+                    st.warning("Naam is verplicht bij het geven van feedback.", icon="⚠️")
+                else:
+                    success = summary_and_output_module.send_feedback_email(
+                        transcript=st.session_state.input_text,
+                        summary=st.session_state.summaries[0]["content"] if st.session_state.summaries else "",
+                        revised_summary=st.session_state.summaries[-1]["content"] if len(st.session_state.summaries) > 1 else 'Geen aangepaste samenvatting',
+                        feedback=feedback,
+                        additional_feedback=additional_feedback,
+                        user_name=user_name,
+                        selected_prompt=st.session_state.selected_prompt
+                    )
+                    if success:
+                        st.success("Bedankt voor uw feedback!")
+                    else:
+                        st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
+
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Add Floating Action Button
