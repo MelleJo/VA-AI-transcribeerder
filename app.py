@@ -267,7 +267,7 @@ def process_input_and_generate_summary():
         total_steps = 3
         
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, "transcript_gelezen", 1, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time)
         time.sleep(2)  # Simulate time taken for transcription
         
         # Update progress: Summarizing

@@ -291,11 +291,13 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
     estimated_total_time = (elapsed_time / current_step) * total_steps
     remaining_time = max(0, estimated_total_time - elapsed_time)
     
+    step_text = steps.get(step, "Verwerken...")  # Use a default value if the key is missing
+    
     progress_html = f"""
     <div class="progress-container">
         <div class="progress-bar" style="width: {(current_step / total_steps) * 100}%;"></div>
     </div>
-    <p>{steps[step]}...</p>
+    <p>{step_text}...</p>
     <p>Geschatte resterende tijd: {int(remaining_time)} seconden</p>
     """
     
