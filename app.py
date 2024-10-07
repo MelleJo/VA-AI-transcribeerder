@@ -94,12 +94,47 @@ def main():
 
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
-    if st.session_state.step == 'prompt_selection':
-        render_prompt_selection()
-    elif st.session_state.step == 'input_selection':
-        render_input_selection()
+    if st.session_state.step == 'prompt_and_input_selection':
+        render_prompt_and_input_selection()
     elif st.session_state.step == 'results':
         render_results()
+
+def render_prompt_and_input_selection():
+    st.markdown("<div class='two-column-layout'>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
+        render_prompt_selection()
+    
+    with col2:
+        st.markdown("<h2 class='section-title'>Hoe wil je het invoeren?</h2>", unsafe_allow_html=True)
+        render_intuitive_input_selection()
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+
+def render_intuitive_input_selection():
+    st.markdown("<div class='input-selection-container'>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if ui_components.ui_card_button("Opnemen", "Klik om audio op te nemen"):
+            st.session_state.input_method = "audio_record"
+            st.rerun()
+    
+    with col2:
+        if ui_components.ui_card_button("Uploaden", "Klik om een bestand te uploaden"):
+            st.session_state.input_method = "file_upload"
+            st.rerun()
+    if 'input_method' in st.session_state:
+        if st.session_state.input_method == "audio_record":
+            input_module.render_audio_input(handle_input_complete)
+        elif st.session_state.input_method == "file_upload":
+            input_module.render_upload_input(handle_input_complete)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
