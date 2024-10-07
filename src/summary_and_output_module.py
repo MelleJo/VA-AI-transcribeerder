@@ -138,20 +138,20 @@ def handle_chat_response(response):
 
 def suggest_actions(summary):
     prompt = f"""
-    Analyze the following summary and suggest 3 specific, actionable tasks that the user could ask the AI summarization assistant to do. 
-    Depending on the type of summary, make your choice. Take on the role of a user of the summarization tool and imagine what you would like to do if you were the employee using this.
-    Context for you: the users of the tool are employees of an insurance and financial advice bureau. So, you know a bit about the context.
-    Examples:
-    - "Extract action points"
-    - "Make summary shorter"
-    - "Make summary longer"
-    - "Draft email for client"
-    - "Convert to email for colleague"
+    Analyseer de volgende samenvatting en stel 3 specifieke, uitvoerbare taken voor die de gebruiker aan de AI-samenvattingsassistent zou kunnen vragen. 
+    Maak je keuze afhankelijk van het type samenvatting. Neem de rol aan van een gebruiker van de samenvattingstool en bedenk wat je zou willen doen als je de medewerker was die dit gebruikt.
+    Context voor jou: de gebruikers van de tool zijn medewerkers van een verzekerings- en financieel adviesbureau. Je kent dus de context een beetje.
+    Voorbeelden:
+    - "Extraheer actiepunten"
+    - "Maak de samenvatting korter"
+    - "Maak de samenvatting langer"
+    - "Stel een e-mail op voor de klant"
+    - "Zet om naar een e-mail voor een collega"
 
-    Summary:
+    Samenvatting:
     {summary}
 
-    Give only the 3 suggestions, one per line, without extra text or numbering.
+    Geef alleen de 3 suggesties, één per regel, zonder extra tekst of nummering.
     """
     
     response = client.chat.completions.create(
@@ -163,9 +163,6 @@ def suggest_actions(summary):
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
     return suggestions[:3]  # Ensure we return at most 3 suggestions
-
-
-# In app.py, add this to the load_css function
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')
