@@ -36,23 +36,21 @@ def estimate_remaining_time(start_time, current_step, total_steps):
     return f"Geschatte resterende tijd: {int(remaining_time)} seconden"
 
 def update_summary_display(response):
-    if response["type"] in ["summary", "email"]:
-        new_summary = {
-            "type": response["type"],
-            "content": response["content"]
-        }
-        if 'summaries' not in st.session_state:
-            st.session_state.summaries = []
+    if 'summaries' not in st.session_state:
+        st.session_state.summaries = []
+    
+    new_summary = {
+        "type": response["type"],
+        "content": response["content"]
+    }
+    
+    if response["type"] in ["summary", "email", "actiepunten"]:
         st.session_state.summaries.append(new_summary)
         st.session_state.current_version = len(st.session_state.summaries) - 1
     elif response["type"] == "main_points":
         if 'main_points_versions' not in st.session_state:
             st.session_state.main_points_versions = []
         st.session_state.main_points_versions.append(response["content"])
-    elif response["type"] == "actiepunten":
-        if 'actiepunten_versions' not in st.session_state:
-            st.session_state.actiepunten_versions = []
-        st.session_state.actiepunten_versions.append(response["content"])
 
 def render_summary():
     if not st.session_state.get('summary'):
@@ -539,21 +537,18 @@ def render_summary_versions():
         st.warning("No summary available yet.")
         return
 
-    # Convert old string summaries to new dictionary format
-    for i, summary in enumerate(st.session_state.summaries):
-        if isinstance(summary, str):
-            st.session_state.summaries[i] = {
-                "type": "summary",
-                "content": summary
-            }
+    # Convert old summaries to new format
+    convert_summaries_to_dict_format()
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
     # Display the current summary
     st.markdown("### Summary")
-    if isinstance(current_summary, dict) and current_summary["type"] == "email":
+    if current_summary["type"] == "email":
         st.markdown("**Email Version**")
-    st.markdown(current_summary["content"] if isinstance(current_summary, dict) else current_summary)
+    elif current_summary["type"] == "actiepunten":
+        st.markdown("**Actiepunten**")
+    st.markdown(current_summary["content"])
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -568,15 +563,11 @@ def render_summary_versions():
             st.session_state.current_version += 1
             st.rerun()
 
-    # Display additional information if available
-    if st.session_state.current_version == len(st.session_state.summaries) - 1:  # Only for the latest version
+    # Display main points if available (only for the latest version)
+    if st.session_state.current_version == len(st.session_state.summaries) - 1:
         if 'main_points_versions' in st.session_state and st.session_state.main_points_versions:
             with st.expander("Main Points"):
                 st.markdown(st.session_state.main_points_versions[-1])
-
-        if 'actiepunten_versions' in st.session_state and st.session_state.actiepunten_versions:
-            with st.expander("Actiepunten"):
-                st.markdown(st.session_state.actiepunten_versions[-1])
 
 def render_summary_and_output():
     prompts = load_prompts()

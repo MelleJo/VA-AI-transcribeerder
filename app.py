@@ -18,9 +18,15 @@ def convert_summaries_to_dict_format():
                     "type": "summary",
                     "content": summary
                 }
-
-# Call this function at the beginning of your main function or where you initialize the session state
-convert_summaries_to_dict_format()
+    
+    # Convert old actiepunten to new format
+    if 'actiepunten_versions' in st.session_state:
+        for actiepunt in st.session_state.actiepunten_versions:
+            st.session_state.summaries.append({
+                "type": "actiepunten",
+                "content": actiepunt
+            })
+        del st.session_state.actiepunten_versions
 
 # Initialize session state variables at the script level
 if 'base_prompt' not in st.session_state:
@@ -80,6 +86,7 @@ def main():
     load_css()
     add_loader_css()
     ui_components.apply_custom_css()
+    convert_summaries_to_dict_format()
 
     # Initialize OpenAI client
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
