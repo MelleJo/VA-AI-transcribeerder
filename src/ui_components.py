@@ -20,90 +20,14 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
                 with cols[i]:
                     button()
 
-def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
+def ui_button(label: str, on_click: Callable, key: str, primary: bool = False, disabled: bool = False):
     button_class = "ui-button-primary" if primary else "ui-button-secondary"
-    return st.button(
-        label,
-        on_click=on_click,
-        key=key,
-        help=f"Klik om {label.lower()}",
-        use_container_width=True
-    )
-
-def prompt_card(title):
-    button_id = f"prompt_{title.lower().replace(' ', '_')}"
-    st.markdown(f"""
-        <div id="{button_id}" class="prompt-card">
-            <h3>{title}</h3>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    is_clicked = st.button("", key=button_id, help=f"Select {title}")
-    
-    st.markdown(f"""
-        <script>
-            const card = document.getElementById('{button_id}');
-            card.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
-    return is_clicked
-
-def input_method_card(title, icon):
-    button_id = f"input_{title.lower().replace(' ', '_')}"
-    st.markdown(f"""
-        <div id="{button_id}" class="input-method-card">
-            <i class="fas fa-{icon}"></i>
-            <p>{title}</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    is_clicked = st.button("", key=button_id, help=f"Select {title} input method")
-    
-    st.markdown(f"""
-        <script>
-            const card = document.getElementById('{button_id}');
-            card.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
-    return is_clicked
+    return st.button(label, on_click=on_click, key=key, help=f"Klik om {label.lower()}", use_container_width=True, disabled=disabled)
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
     st.markdown(href, unsafe_allow_html=True)
-
-def ui_card_button(title: str, description: str):
-    button_id = f"card_button_{title.lower().replace(' ', '_')}"
-    st.markdown(f"""
-        <div id="{button_id}" class="card-button">
-            <h3>{title}</h3>
-            <p>{description}</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Use an empty button to trigger the click event
-    is_clicked = st.button("", key=button_id, help=f"Click to {title}")
-    
-    # Use custom JavaScript to make the entire card clickable
-    st.markdown(f"""
-        <script>
-            const cardButton = document.getElementById('{button_id}');
-            cardButton.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
-    return is_clicked
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
     button_id = f"copy_button_{hash(text)}"
