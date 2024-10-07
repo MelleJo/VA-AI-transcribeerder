@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from src.config import EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT, COLLEAGUE_EMAILS
 
+
 def send_email(recipient, subject, body):
     try:
         msg = MIMEMultipart()

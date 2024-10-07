@@ -869,7 +869,7 @@ def create_email_to_colleague(summary):
     colleague_emails = get_colleague_emails()
     selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
     
-    email_body = process_chat_request("Schrijf een korte e-mail om een collega te informeren over de belangrijkste punten uit deze samenvatting.")["content"]
+    email_body = f"Beste collega,\n\nHier is een samenvatting van een recent gesprek:\n\n{summary}\n\nMet vriendelijke groet,\n[Uw Naam]"
     
     if st.button("Verstuur e-mail naar collega"):
         if send_email(colleague_emails[selected_colleague], "Samenvatting van recent gesprek", email_body):
