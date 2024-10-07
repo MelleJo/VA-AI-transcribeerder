@@ -874,9 +874,14 @@ def create_email_to_colleague(summary):
     if st.button("Verstuur e-mail naar collega"):
         if send_email(colleague_emails[selected_colleague], "Samenvatting van recent gesprek", email_body):
             st.success("E-mail succesvol verstuurd naar collega!")
+            st.session_state.show_informeer_collega = False  # Hide the section after sending
         else:
             st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
     
+    if st.button("Annuleer"):
+        st.session_state.show_informeer_collega = False
+        st.rerun()
+
     return {"type": "chat", "content": "E-mail naar collega voorbereid."}
 
 def create_email_to_client(summary):

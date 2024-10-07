@@ -53,6 +53,8 @@ if 'summaries' not in st.session_state:
     st.session_state.summaries = []
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
+if 'show_informeer_collega' not in st.session_state:
+    st.session_state.show_informeer_collega = False
 
 def load_css():
     css_file = os.path.join(os.path.dirname(__file__), "static", "styles.css")
