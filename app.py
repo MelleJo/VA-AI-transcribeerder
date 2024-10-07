@@ -83,7 +83,8 @@ def load_css():
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
+    st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide", initial_sidebar_state="collapsed")
+    
     load_css()
     add_loader_css()
     ui_components.apply_custom_css()
@@ -94,10 +95,14 @@ def main():
 
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
+    if 'step' not in st.session_state:
+        st.session_state.step = 'prompt_and_input_selection'
+
     if st.session_state.step == 'prompt_and_input_selection':
         render_prompt_and_input_selection()
     elif st.session_state.step == 'results':
         render_results()
+
 
 def render_prompt_and_input_selection():
     st.markdown("<div class='two-column-layout'>", unsafe_allow_html=True)
