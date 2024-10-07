@@ -321,47 +321,25 @@ def process_text_input(on_input_complete):
         ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
 
 def render_upload_input(on_input_complete):
-    st.markdown("<div class='upload-input-container'>", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader(
-        "Upload een audio- of tekstbestand",
-        type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES,
-        key="file_uploader"
-    )
+    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
     if uploaded_file:
-        if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
-            process_uploaded_audio(uploaded_file, on_input_complete)
-        else:
-            process_uploaded_text(uploaded_file, on_input_complete)
-    st.markdown("</div>", unsafe_allow_html=True)
+        try:
+            if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
+                with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
+                    st.session_state.input_text = transcribe_audio(uploaded_file)
+            else:
+                st.session_state.input_text = process_text_file(uploaded_file)
+            st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+            on_input_complete()
+        except Exception as e:
+            st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
 
-#def render_audio_input(on_stop_recording):
-#    audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
-#    if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
-#        st.session_state.input_text = transcribe_audio(audio_data)
-#        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
-#        on_stop_recording()
-
-def render_audio_input(on_input_complete):
-    st.markdown("<div class='audio-input-container'>", unsafe_allow_html=True)
-    st.write("Klik op de knop om de opname te starten.")
-    
-    audio_data = mic_recorder(
-        key="audio_recorder",
-        start_prompt="Start opname",
-        stop_prompt="Stop opname",
-        use_container_width=True
-    )
-    
-    if audio_data is not None:
-        if isinstance(audio_data, dict) and audio_data.get("state") == "recording":
-            st.session_state.is_recording = True
-            st.rerun()
-        elif isinstance(audio_data, dict) and 'bytes' in audio_data:
-            st.session_state.is_recording = False
-            st.session_state.audio_data = audio_data
-            process_recorded_audio(audio_data, on_input_complete)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+def render_audio_input(on_stop_recording):
+    audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
+    if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
+        st.session_state.input_text = transcribe_audio(audio_data)
+        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
+        on_stop_recording()
 
 def render_text_input(on_input_complete):
     st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
