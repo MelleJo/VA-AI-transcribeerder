@@ -18,7 +18,7 @@ from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.colors import darkblue, black
 import markdown2
 import re
-from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, full_screen_loader, add_loader_css
+from src.ui_components import ui_card, ui_button, ui_download_button, ui_copy_button, full_screen_loader, add_loader_css, estimate_time
 import smtplib
 from email.mime.text import MIMEText
 from st_copy_to_clipboard import st_copy_to_clipboard
