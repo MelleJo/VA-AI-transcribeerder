@@ -883,10 +883,18 @@ def convert_markdown_to_plain_text(markdown_text):
     return plain_text.strip()
 
 
-def create_email_to_colleague(summary):
+def create_email_to_colleague(summary, transcript):
     st.subheader("E-mail naar collega")
     colleague_emails = get_colleague_emails()
     selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
+    
+    # Generate subject using AI
+    subject = generate_email_subject(summary)
+    
+    # Extract user's name from transcript or prompt user
+    user_name = extract_user_name(transcript)
+    if not user_name:
+        user_name = st.text_input("Vul alstublieft uw naam in:", key="user_name_input")
     
     # Convert Markdown to plain text
     plain_summary = convert_markdown_to_plain_text(summary)
@@ -898,10 +906,14 @@ Hier is een samenvatting van een recent gesprek:
 {plain_summary}
 
 Met vriendelijke groet,
-[Uw Naam]"""
+{user_name}
+
+---
+Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze tool ook gebruiken? Zie Scienta -> AI -> Gesprekssamenvattertool.
+"""
     
     if st.button("Verstuur e-mail naar collega"):
-        if send_email(colleague_emails[selected_colleague], "Samenvatting van recent gesprek", email_body):
+        if send_email(colleague_emails[selected_colleague], subject, email_body):
             st.success("E-mail succesvol verstuurd naar collega!")
             st.session_state.show_informeer_collega = False  # Hide the section after sending
         else:
@@ -912,6 +924,24 @@ Met vriendelijke groet,
         st.rerun()
 
     return {"type": "chat", "content": "E-mail naar collega voorbereid."}
+
+def generate_email_subject(summary):
+    prompt = f"Genereer een korte, beschrijvende onderwerpregel voor een e-mail op basis van deze samenvatting: {summary[:500]}..."
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=50,
+        temperature=0.7
+    )
+    subject = response.choices[0].message.content.strip()
+    return f"Samenvatting door AI over: {subject}"
+
+def extract_user_name(transcript):
+    # Simple regex to find a name at the beginning of the transcript
+    match = re.search(r'^Mijn naam is (\w+)', transcript, re.IGNORECASE | re.MULTILINE)
+    if match:
+        return match.group(1)
+    return None
 
 def create_email_to_client(summary):
     st.subheader("Conceptmail naar klant")

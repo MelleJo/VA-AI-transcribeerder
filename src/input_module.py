@@ -119,6 +119,7 @@ def render_recording_reminders(prompt_type):
                     </ul>
                 </div>
                 """, unsafe_allow_html=True)
+    st.info("Tip: Spreek je voornaam ook in aan het begin van de opname, dan voegt de AI dit toe aan de samenvatting.")
 
 def render_input_step(on_input_complete):
     st.session_state.grammar_checked = False  # Reset grammar check flag

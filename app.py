@@ -347,7 +347,10 @@ def render_results():
 
         # Show "Informeer collega" section if the button was clicked
         if st.session_state.get('show_informeer_collega', False):
-            summary_and_output_module.create_email_to_colleague(st.session_state.summaries[-1]["content"])
+            summary_and_output_module.create_email_to_colleague(
+                st.session_state.summaries[-1]["content"],
+                st.session_state.input_text
+            )
 
         
         with st.expander("Chat", expanded=False):
