@@ -30,26 +30,18 @@ if 'summaries' not in st.session_state:
 if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 
-# In app.py, update the load_css function
-
 def load_css():
     css_file = os.path.join(os.path.dirname(__file__), "static", "styles.css")
     with open(css_file, "r") as f:
         css = f.read()
     
-    # Add Font Awesome for icons
-    font_awesome = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">'
-    
-    # Combine custom CSS with Font Awesome
-    full_css = f"""
-    <style>
-    {css}
-    </style>
-    {font_awesome}
-    """
-    
-    # Inject the combined CSS using st.markdown
-    st.markdown(full_css, unsafe_allow_html=True)
+    # Inject custom CSS
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+    # Inject Font Awesome link
+    st.markdown("""
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    """, unsafe_allow_html=True)
 
     # Add full-screen loading CSS
     st.markdown("""
@@ -68,7 +60,6 @@ def load_css():
     }
     </style>
     """, unsafe_allow_html=True)
-
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
