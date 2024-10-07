@@ -919,7 +919,12 @@ def create_email(summary, transcript, email_type):
     # Field for extra information
     extra_info = st.text_area("Extra informatie (optioneel):", key="extra_info_input")
     
-    if email_type in ['self', 'client']:
+    # Add relatienummer field for colleague or self emails
+    relatienummer = None
+    if email_type in ['colleague', 'self']:
+        relatienummer = st.text_input("Relatienummer (optioneel):", key="relatienummer_input")
+    
+    if email_type in ['self', 'client', 'client_request']:
         email_prompt = st.text_input("Hoe moet de e-mail worden opgesteld? (bijv.: vraag klant naar dit, update klant over dat)", key="email_prompt_input")
     
     if email_type == 'colleague':
@@ -928,10 +933,10 @@ def create_email(summary, transcript, email_type):
         recipient = colleague_emails[selected_colleague]
         recipient_name = selected_colleague.split()[0]  # Get first name
     else:
-        recipient = st.secrets["email"]["username"]  # Sending to self for both 'self' and 'client' types
-        recipient_name = "klant"
+        recipient = st.secrets["email"]["username"]  # Sending to self for other types
+        recipient_name = "klant" if email_type in ['client', 'client_request'] else user_name
 
-    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, email_prompt if email_type in ['self', 'client'] else None)
+    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, recipient_name, relatienummer, email_prompt if email_type in ['self', 'client', 'client_request'] else None)
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
         if send_email(recipient, subject, email_body):
@@ -946,12 +951,16 @@ def create_email(summary, transcript, email_type):
 
     return {"type": "chat", "content": "E-mail voorbereid."}
 
-def generate_email_body(email_type, summary, user_name, extra_info, recipient_name, email_prompt=None):
-    if email_type == 'colleague':
+def generate_email_body(email_type, summary, user_name, extra_info, recipient_name, relatienummer=None, email_prompt=None):
+    if email_type in ['colleague', 'self']:
         body = f"""Beste {recipient_name},
 
 {extra_info}
+"""
+        if relatienummer:
+            body += f"\nRelatienummer: {relatienummer}\n"
 
+        body += f"""
 Hier is een samenvatting van een recent gesprek:
 
 {summary}
@@ -972,9 +981,11 @@ Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze to
         Verzoek aan klant: {email_prompt}
 
         Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
+        {"Relatienummer: " + relatienummer if relatienummer else ""}
 
         De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
         Zorg ervoor dat de context uit de samenvatting wordt gebruikt om het verzoek aan de klant te ondersteunen.
+        Als er een relatienummer is opgegeven, neem dit dan op in de e-mail op een passende plek.
         """
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -983,7 +994,6 @@ Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze to
             temperature=0.7
         )
         body = response.choices[0].message.content.strip()
-        
     else:
         prompt = f"""
         Stel een e-mail op gebaseerd op de volgende samenvatting:
@@ -991,8 +1001,10 @@ Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze to
 
         Extra context: {email_prompt if email_prompt else 'Geen extra context opgegeven.'}
         Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
+        {"Relatienummer: " + relatienummer if relatienummer else ""}
 
         De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
+        Als er een relatienummer is opgegeven, neem dit dan op in de e-mail op een passende plek.
         """
         response = client.chat.completions.create(
             model="gpt-4o",
