@@ -37,10 +37,13 @@ def estimate_remaining_time(start_time, current_step, total_steps):
 
 def update_summary_display(response):
     if response["type"] in ["summary", "email"]:
-        st.session_state.summaries.append({
+        new_summary = {
             "type": response["type"],
             "content": response["content"]
-        })
+        }
+        if 'summaries' not in st.session_state:
+            st.session_state.summaries = []
+        st.session_state.summaries.append(new_summary)
         st.session_state.current_version = len(st.session_state.summaries) - 1
     elif response["type"] == "main_points":
         if 'main_points_versions' not in st.session_state:
@@ -536,13 +539,21 @@ def render_summary_versions():
         st.warning("No summary available yet.")
         return
 
+    # Convert old string summaries to new dictionary format
+    for i, summary in enumerate(st.session_state.summaries):
+        if isinstance(summary, str):
+            st.session_state.summaries[i] = {
+                "type": "summary",
+                "content": summary
+            }
+
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
     # Display the current summary
     st.markdown("### Summary")
-    if current_summary["type"] == "email":
+    if isinstance(current_summary, dict) and current_summary["type"] == "email":
         st.markdown("**Email Version**")
-    st.markdown(current_summary["content"])
+    st.markdown(current_summary["content"] if isinstance(current_summary, dict) else current_summary)
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])

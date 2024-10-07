@@ -10,6 +10,18 @@ from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
+def convert_summaries_to_dict_format():
+    if 'summaries' in st.session_state:
+        for i, summary in enumerate(st.session_state.summaries):
+            if isinstance(summary, str):
+                st.session_state.summaries[i] = {
+                    "type": "summary",
+                    "content": summary
+                }
+
+# Call this function at the beginning of your main function or where you initialize the session state
+convert_summaries_to_dict_format()
+
 # Initialize session state variables at the script level
 if 'base_prompt' not in st.session_state:
     prompts = load_prompts()
