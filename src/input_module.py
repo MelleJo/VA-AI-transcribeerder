@@ -6,7 +6,7 @@ import tempfile
 from pydub import AudioSegment
 import time
 import os
-from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css
+from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)

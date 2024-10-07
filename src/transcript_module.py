@@ -1,5 +1,5 @@
 import streamlit as st
-from src.ui_components import ui_styled_button, ui_info_box
+from src.ui_components import ui_styled_button, ui_info_box, estimate_time
 
 def render_transcript_edit():
     st.header("Stap 3: Transcript bewerken")
