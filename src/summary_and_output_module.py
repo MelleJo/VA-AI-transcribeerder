@@ -129,7 +129,7 @@ def render_chat_interface():
             st.session_state.messages.append({"role": "user", "content": suggestion})
             response = process_chat_request(suggestion)
             handle_chat_response(response)
-            st._rerun()
+            st.rerun()
 
         # Display action buttons in a more compact layout
         cols = st.columns(3)
@@ -146,7 +146,7 @@ def handle_chat_response(response):
         st.markdown(confirmation_message)
         st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
         update_summary_display(response)
-    st._rerun()
+    st.rerun()
 
 def suggest_actions(summary):
     prompt = f"""
