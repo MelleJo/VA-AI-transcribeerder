@@ -326,10 +326,14 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         ]
         
         progress_placeholder = st.empty()
+        start_time = time.time()
+        file_size = len(input_text.encode('utf-8'))  # Use text length as a proxy for 'file size'
         
         for i, status in enumerate(status_updates):
             progress = (i + 1) * 25
-            full_screen_loader(progress, "Samenvatting wordt gemaakt...", status_updates)
+            elapsed_time = time.time() - start_time
+            estimated_time = estimate_time(file_size, i + 1, len(status_updates), elapsed_time)
+            full_screen_loader(progress, "Samenvatting wordt gemaakt...", status_updates, estimated_time)
             time.sleep(1)  # Simulate processing time
         
         response = client.chat.completions.create(

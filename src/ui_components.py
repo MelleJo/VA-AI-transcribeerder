@@ -20,7 +20,7 @@ def ui_card(title: str, content: str, buttons: list[Callable] = None):
                 with cols[i]:
                     button()
 
-def full_screen_loader(progress, message, status_updates):
+def full_screen_loader(progress, message, status_updates, estimated_time):
     status_html = "".join([f"<p class='status-update {'complete' if idx <= progress // 25 else ''}'>{update}</p>" for idx, update in enumerate(status_updates)])
     overlay_html = f"""
     <div class="fullscreen-loader">
@@ -31,6 +31,7 @@ def full_screen_loader(progress, message, status_updates):
                 <div class="progress-bar" style="width: {progress}%;"></div>
             </div>
             <p>Voortgang: {progress}%</p>
+            <p>Geschatte resterende tijd: {estimated_time}</p>
             <div class="status-updates">
                 {status_html}
             </div>
@@ -38,6 +39,22 @@ def full_screen_loader(progress, message, status_updates):
     </div>
     """
     st.markdown(overlay_html, unsafe_allow_html=True)
+
+def estimate_time(file_size, current_step, total_steps, elapsed_time):
+    # Basic estimation logic
+    if current_step == 0:
+        return "Berekenen..."
+    
+    avg_time_per_step = elapsed_time / current_step
+    remaining_steps = total_steps - current_step
+    estimated_remaining_time = avg_time_per_step * remaining_steps
+    
+    # Adjust based on file size (assuming larger files take longer)
+    size_factor = file_size / 1_000_000  # Convert to MB
+    estimated_remaining_time *= (1 + (size_factor * 0.1))  # 10% increase per MB
+    
+    minutes, seconds = divmod(int(estimated_remaining_time), 60)
+    return f"{minutes}m {seconds}s"
 
 def add_loader_css():
     st.markdown("""
