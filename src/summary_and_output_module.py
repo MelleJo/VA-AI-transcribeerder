@@ -967,11 +967,12 @@ def create_email(summary, transcript, email_type):
     st.write(f"Gegenereerd onderwerp: {subject}")
     
     if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
-        if send_email(sender_email, recipient, subject, email_body):
-            st.success("E-mail succesvol verstuurd!")
+        success, message = send_email(sender_email, recipient, subject, email_body)
+        if success:
+            st.success(message)
             st.session_state.show_email_form = False
         else:
-            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
+            st.error(f"Er is een fout opgetreden bij het versturen van de e-mail: {message}")
     
     if st.button("Annuleer"):
         st.session_state.show_email_form = False

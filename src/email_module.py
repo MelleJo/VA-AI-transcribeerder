@@ -1,10 +1,9 @@
 # email_module.py
-
+import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from src.config import EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT, COLLEAGUE_EMAILS
-
 
 def send_email(sender_email, recipient, subject, body):
     try:
@@ -15,15 +14,24 @@ def send_email(sender_email, recipient, subject, body):
 
         msg.attach(MIMEText(body, 'plain'))
 
-        with smtplib.SMTP(EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT) as server:
+        # Get SMTP settings from st.secrets
+        smtp_server = st.secrets["email"]["smtp_server"]
+        smtp_port = st.secrets["email"]["smtp_port"]
+        smtp_username = st.secrets["email"]["username"]
+        smtp_password = st.secrets["email"]["password"]
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
-            server.login(sender_email, EMAIL_PASSWORD)  # Make sure to use the correct password for the sender
+            server.login(smtp_username, smtp_password)
             server.send_message(msg)
         
-        return True
+        return True, "E-mail succesvol verstuurd"
+    except smtplib.SMTPAuthenticationError:
+        return False, "Authenticatie mislukt. Controleer de SMTP-inloggegevens."
+    except smtplib.SMTPException as e:
+        return False, f"SMTP-fout: {str(e)}"
     except Exception as e:
-        print(f"An error occurred while sending the email: {str(e)}")
-        return False
+        return False, f"Onverwachte fout: {str(e)}"
 
 def get_colleague_emails():
     return COLLEAGUE_EMAILS
