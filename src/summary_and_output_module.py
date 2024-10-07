@@ -76,6 +76,16 @@ def render_summary():
 def render_chat_interface():
     if 'messages' not in st.session_state:
         st.session_state.messages = []
+    
+    if 'greeting_shown' not in st.session_state:
+        st.session_state.greeting_shown = False
+
+    if not st.session_state.greeting_shown:
+        greeting = ("Hallo collega! Hoe kan ik je helpen? Je kunt mij vragen stellen over de samenvatting of het "
+                    "transcript, of mij verzoeken om wijzigingen te maken in de samenvatting. Ook kan ik de "
+                    "samenvatting omzetten in een e-mail of rapport. Laat maar weten wat je nodig hebt!")
+        st.session_state.messages.append({"role": "assistant", "content": greeting})
+        st.session_state.greeting_shown = True
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -91,21 +101,16 @@ def render_chat_interface():
             handle_chat_response(response)
 
     if st.session_state.summaries:
-        suggestions = suggest_actions(st.session_state.summaries[-1])
+        suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
         st.markdown("### Suggesties:")
         
         # Custom CSS for minimalistic buttons
         st.markdown("""
         <style>
-        body {
-            background-color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: black;
-        }
         .stButton>button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
+            background-color: #f0f2f6;
+            color: #000000;
+            border: 1px solid #d1d5db;
             border-radius: 5px;
             padding: 0.5rem 1rem;
             font-size: 0.9rem;
@@ -114,30 +119,34 @@ def render_chat_interface():
             transition: background-color 0.2s ease, transform 0.2s ease;
         }
         .stButton>button:hover {
-            background-color: #0056b3;
+            background-color: #e5e7eb;
             transform: translateY(-2px);
         }
         </style>
         """, unsafe_allow_html=True)
         
+        def add_suggestion_to_chat(suggestion):
+            st.session_state.messages.append({"role": "user", "content": suggestion})
+            response = process_chat_request(suggestion)
+            handle_chat_response(response)
+            st._rerun()
+
         # Display action buttons in a more compact layout
         cols = st.columns(3)
         for i, action in enumerate(suggestions):
-            if cols[i].button(action, key=f"suggest_action_{i}"):
-                st.session_state.messages.append({"role": "user", "content": action})
-                response = process_chat_request(action)
-                handle_chat_response(response)
-                st.rerun()
+            if cols[i].button(action, key=f"suggest_action_{i}", on_click=add_suggestion_to_chat, args=(action,)):
+                pass  # The on_click function will handle the action
 
 def handle_chat_response(response):
-    display_type = update_summary_display(response)
-    if display_type == "chat":
+    if response["type"] == "chat":
         st.markdown(response["content"])
         st.session_state.messages.append({"role": "assistant", "content": response["content"]})
     else:
         confirmation_message = get_confirmation_message(response["type"])
         st.markdown(confirmation_message)
         st.session_state.messages.append({"role": "assistant", "content": confirmation_message})
+        update_summary_display(response)
+    st._rerun()
 
 def suggest_actions(summary):
     prompt = f"""
