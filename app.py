@@ -336,9 +336,17 @@ def render_results():
                 if i + j < len(all_actions):
                     action = all_actions[i + j]
                     if cols[j].button(action, key=f"action_{i+j}", use_container_width=True):
-                        response = summary_and_output_module.handle_action(action, st.session_state.summaries[-1]["content"])
-                        summary_and_output_module.handle_chat_response(response)
+                        if action == "Informeer collega":
+                            st.session_state.show_informeer_collega = True
+                        else:
+                            response = summary_and_output_module.handle_action(action, st.session_state.summaries[-1]["content"])
+                            summary_and_output_module.handle_chat_response(response)
                         st.rerun()
+
+        # Show "Informeer collega" section if the button was clicked
+        if st.session_state.get('show_informeer_collega', False):
+            summary_and_output_module.create_email_to_colleague(st.session_state.summaries[-1]["content"])
+
         
         with st.expander("Chat", expanded=False):
             summary_and_output_module.render_chat_interface()
