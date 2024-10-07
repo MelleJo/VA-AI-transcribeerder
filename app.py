@@ -5,7 +5,7 @@ import logging
 import time
 import os
 from openai import OpenAI
-from src.ui_components import full_screen_loader, add_loader_css
+from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
