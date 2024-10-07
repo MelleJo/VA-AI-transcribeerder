@@ -5,6 +5,8 @@ import logging
 import time
 import os
 from openai import OpenAI
+from src.ui_components import full_screen_loader, add_loader_css
+
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
@@ -63,7 +65,8 @@ def load_css():
 
 def main():
     st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
-    load_css()  # Load CSS at the start of the app
+    load_css()
+    add_loader_css()
     ui_components.apply_custom_css()
 
     # Initialize OpenAI client
