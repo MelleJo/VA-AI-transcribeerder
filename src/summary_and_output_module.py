@@ -882,49 +882,6 @@ def convert_markdown_to_plain_text(markdown_text):
     
     return plain_text.strip()
 
-
-def create_email_to_colleague(summary, transcript):
-    st.subheader("E-mail naar collega")
-    colleague_emails = get_colleague_emails()
-    selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
-    
-    # Generate subject using AI
-    subject = generate_email_subject(summary)
-    
-    # Extract user's name from transcript or prompt user
-    user_name = extract_user_name(transcript)
-    if not user_name:
-        user_name = st.text_input("Vul alstublieft uw naam in:", key="user_name_input")
-    
-    # Convert Markdown to plain text
-    plain_summary = convert_markdown_to_plain_text(summary)
-    
-    email_body = f"""Beste collega,
-
-Hier is een samenvatting van een recent gesprek:
-
-{plain_summary}
-
-Met vriendelijke groet,
-{user_name}
-
----
-Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze tool ook gebruiken? Zie Scienta -> AI -> Gesprekssamenvattertool.
-"""
-    
-    if st.button("Verstuur e-mail naar collega"):
-        if send_email(colleague_emails[selected_colleague], subject, email_body):
-            st.success("E-mail succesvol verstuurd naar collega!")
-            st.session_state.show_informeer_collega = False  # Hide the section after sending
-        else:
-            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
-    
-    if st.button("Annuleer"):
-        st.session_state.show_informeer_collega = False
-        st.rerun()
-
-    return {"type": "chat", "content": "E-mail naar collega voorbereid."}
-
 def generate_email_subject(summary):
     prompt = f"Genereer een korte, beschrijvende onderwerpregel voor een e-mail op basis van deze samenvatting: {summary[:500]}..."
     response = client.chat.completions.create(
@@ -937,32 +894,93 @@ def generate_email_subject(summary):
     return f"Samenvatting door AI over: {subject}"
 
 def extract_user_name(transcript):
-    # Simple regex to find a name at the beginning of the transcript
-    match = re.search(r'^Mijn naam is (\w+)', transcript, re.IGNORECASE | re.MULTILINE)
-    if match:
-        return match.group(1)
-    return None
+    prompt = f"Extract the name of the speaker from this transcript. If no name is explicitly mentioned, respond with 'Not Found'. Transcript: {transcript[:500]}..."
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=50,
+        temperature=0.3
+    )
+    name = response.choices[0].message.content.strip()
+    return name if name != "Not Found" else None
 
-def create_email_to_client(summary):
-    st.subheader("Conceptmail naar klant")
-    email_body = process_chat_request("Stel een conceptmail op naar de klant op basis van deze samenvatting.")["content"]
+def create_email(summary, transcript, email_type):
+    st.subheader(f"E-mail {'naar collega' if email_type == 'colleague' else 'opstellen'}")
     
-    if st.button("Verstuur conceptmail naar jezelf"):
-        if send_email(st.secrets["email"]["username"], "Conceptmail voor klant", email_body):
-            st.success("Conceptmail succesvol naar jezelf verstuurd!")
+    # Generate subject using AI
+    subject = generate_email_subject(summary)
+    
+    # Extract user's name from transcript or prompt user
+    user_name = extract_user_name(transcript)
+    if not user_name:
+        user_name = st.text_input("Vul alstublieft uw naam in:", key="user_name_input")
+    
+    # Convert Markdown to plain text
+    plain_summary = convert_markdown_to_plain_text(summary)
+    
+    # Field for extra information
+    extra_info = st.text_area("Extra informatie (optioneel):", key="extra_info_input")
+    
+    if email_type in ['self', 'client']:
+        email_prompt = st.text_input("Hoe moet de e-mail worden opgesteld? (bijv.: vraag klant naar dit, update klant over dat)", key="email_prompt_input")
+    
+    email_body = generate_email_body(email_type, plain_summary, user_name, extra_info, email_prompt if email_type in ['self', 'client'] else None)
+    
+    if email_type == 'colleague':
+        colleague_emails = get_colleague_emails()
+        selected_colleague = st.selectbox("Selecteer een collega:", colleague_emails.keys())
+        recipient = colleague_emails[selected_colleague]
+    else:
+        recipient = st.secrets["email"]["username"]  # Sending to self for both 'self' and 'client' types
+    
+    if st.button(f"Verstuur e-mail {'naar collega' if email_type == 'colleague' else ''}"):
+        if send_email(recipient, subject, email_body):
+            st.success("E-mail succesvol verstuurd!")
+            st.session_state.show_email_form = False
         else:
             st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
     
-    return {"type": "chat", "content": "Conceptmail voor klant voorbereid."}
+    if st.button("Annuleer"):
+        st.session_state.show_email_form = False
+        st.rerun()
 
-def send_summary_to_self(summary):
-    st.subheader("Stuur samenvatting naar jezelf")
-    email_body = f"Hier is de samenvatting van het recente gesprek:\n\n{summary}"
+    return {"type": "chat", "content": "E-mail voorbereid."}
+
+def generate_email_body(email_type, summary, user_name, extra_info, email_prompt=None):
+    if email_type == 'colleague':
+        body = f"""Beste collega,
+
+Hier is een samenvatting van een recent gesprek:
+
+{summary}
+
+"""
+        if extra_info:
+            body += f"\nOpmerking van {user_name}:\n{extra_info}\n"
+        
+        body += f"""
+Met vriendelijke groet,
+{user_name}
+
+---
+Ik heb deze samenvatting gemaakt met de Gesprekssamenvattertool. Wil jij deze tool ook gebruiken? Zie Scienta -> AI -> Gesprekssamenvattertool.
+"""
+    else:
+        prompt = f"""
+        Stel een e-mail op gebaseerd op de volgende samenvatting:
+        {summary}
+
+        Extra context: {email_prompt if email_prompt else 'Geen extra context opgegeven.'}
+        Extra informatie: {extra_info if extra_info else 'Geen extra informatie opgegeven.'}
+
+        De e-mail moet professioneel, beknopt en duidelijk zijn. Gebruik een passende aanhef en afsluiting.
+        """
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        body = response.choices[0].message.content.strip()
     
-    if st.button("Verstuur samenvatting naar jezelf"):
-        if send_email(st.secrets["email"]["username"], "Samenvatting van recent gesprek", email_body):
-            st.success("Samenvatting succesvol naar jezelf verstuurd!")
-        else:
-            st.error("Er is een fout opgetreden bij het versturen van de e-mail.")
-    
-    return {"type": "chat", "content": "Samenvatting naar jezelf verstuurd."}
+    return body

@@ -339,20 +339,28 @@ def render_results():
                     action = all_actions[i + j]
                     if cols[j].button(action, key=f"action_{i+j}", use_container_width=True):
                         if action == "Informeer collega":
-                            st.session_state.show_informeer_collega = True
+                            st.session_state.show_email_form = True
+                            st.session_state.email_type = 'colleague'
+                        elif action == "Stuur samenvatting naar jezelf":
+                            st.session_state.show_email_form = True
+                            st.session_state.email_type = 'self'
+                        elif action == "Stel conceptmail op naar de klant":
+                            st.session_state.show_email_form = True
+                            st.session_state.email_type = 'client'
                         else:
                             response = summary_and_output_module.handle_action(action, st.session_state.summaries[-1]["content"])
                             summary_and_output_module.handle_chat_response(response)
                         st.rerun()
 
-        # Show "Informeer collega" section if the button was clicked
-        if st.session_state.get('show_informeer_collega', False):
-            summary_and_output_module.create_email_to_colleague(
+        # Show email form if button was clicked
+        if st.session_state.get('show_email_form', False):
+            email_type = st.session_state.get('email_type', 'colleague')
+            summary_and_output_module.create_email(
                 st.session_state.summaries[-1]["content"],
-                st.session_state.input_text
+                st.session_state.input_text,
+                email_type
             )
 
-        
         with st.expander("Chat", expanded=False):
             summary_and_output_module.render_chat_interface()
 
