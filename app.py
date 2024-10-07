@@ -298,6 +298,7 @@ def process_input_and_generate_summary():
          
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
+    
     col1, col2 = st.columns([3, 2])
     
     with col1:
@@ -320,7 +321,7 @@ def render_results():
                 )
                 st.session_state.summary_versions.append(new_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = new_summary  # Update the summary
+                st.session_state.summary = new_summary
                 st.rerun()
 
     if st.button("Terug naar begin", key="back_to_start_button"):
@@ -329,10 +330,30 @@ def render_results():
         st.session_state.input_text = ""
         st.session_state.summary_versions = []
         st.session_state.current_version = 0
-        st.session_state.summary = ""  # Reset the summary
+        st.session_state.summary = ""
         st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # Add Floating Action Button
+    st.markdown(
+        """
+        <div id="fab-root"></div>
+        <script>
+            const fabRoot = document.getElementById('fab-root');
+            const fabProps = {
+                actions: [
+                    { label: 'Kopieer', icon: 'content_copy', onClick: () => navigator.clipboard.writeText(document.querySelector('.stMarkdown').textContent) },
+                    { label: 'Download Word', icon: 'description', onClick: () => document.querySelector('button[data-testid="stDownloadButton"]').click() },
+                    { label: 'Download PDF', icon: 'picture_as_pdf', onClick: () => document.querySelectorAll('button[data-testid="stDownloadButton"]')[1].click() },
+                    { label: 'Nieuwe samenvatting', icon: 'add', onClick: () => document.querySelector('button[data-testid="back_to_start_button"]').click() }
+                ]
+            };
+            ReactDOM.render(React.createElement(FloatingActionButton, fabProps), fabRoot);
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
 def render_summary_with_version_control():
     if st.session_state.summary_versions:

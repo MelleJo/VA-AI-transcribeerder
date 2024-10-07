@@ -520,3 +520,68 @@ a:hover {
         margin-top: 0.5rem;
     }
 }
+
+/* Add these styles to the existing styles.css file */
+
+.main-content {
+    display: flex;
+    gap: 2rem;
+}
+
+.summary-section,
+.chat-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.version-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.version-control button {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.version-control button:hover:not(:disabled) {
+    background-color: #2d3748;
+}
+
+.version-control button:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+.floating-action-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.user-message {
+    background-color: #e2e8f0;
+    margin-left: 2rem;
+}
+
+.assistant-message {
+    background-color: #edf2f7;
+    margin-right: 2rem;
+}
