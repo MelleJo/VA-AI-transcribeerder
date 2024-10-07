@@ -204,10 +204,14 @@ def render_chat_interface():
 
     # Suggestions
     if st.session_state.summaries:
-        with st.expander("Suggesties"):
-            suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
-            for action in suggestions:
-                if st.button(action, key=f"suggest_action_{action}"):
+        st.markdown("### Suggesties:")
+        suggestions = suggest_actions(st.session_state.summaries[-1]["content"])
+        
+        # Create a 2x2 grid for suggestion buttons
+        col1, col2 = st.columns(2)
+        for i, action in enumerate(suggestions):
+            with col1 if i % 2 == 0 else col2:
+                if st.button(action, key=f"suggest_action_{i}", use_container_width=True):
                     st.session_state.messages.append({"role": "user", "content": action})
                     response = process_chat_request(action)
                     handle_chat_response(response)
@@ -239,7 +243,8 @@ def suggest_actions(summary):
     Samenvatting:
     {summary}
 
-    Geef alleen de 3 suggesties, één per regel, zonder extra tekst of nummering.
+    Geef alleen de 4 suggesties, één per regel, zonder extra tekst of nummering.
+    Zorg ervoor dat elke suggestie kort is, idealiter 2-4 woorden. Mocht het echt een super goede suggestie zijn, mag die ook langer zijn. 
     """
     
     response = client.chat.completions.create(
@@ -250,7 +255,7 @@ def suggest_actions(summary):
     )
     
     suggestions = [suggestion.strip() for suggestion in response.choices[0].message.content.strip().split('\n')]
-    return suggestions[:3]  # Ensure we return at most 3 suggestions
+    return suggestions[:4]  # Ensure we return exactly 4 suggestions
 
 def load_css():
     css_path = os.path.join('static', 'styles.css')

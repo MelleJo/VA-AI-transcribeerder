@@ -620,3 +620,36 @@ a:hover {
 .assistant-message {
     background-color: #e8eaf6;
 }
+
+.stButton > button {
+    background-color: #f0f2f6;
+    color: #31333F;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.stButton > button:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stButton > button:active {
+    background-color: #d1d5db;
+    transform: translateY(0);
+}
+
+/* Adjust the layout for smaller screens */
+@media (max-width: 768px) {
+    .stButton > button {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+    }
+}
