@@ -180,7 +180,7 @@ def handle_input_complete():
     process_input_and_generate_summary()
 
 def render_input_selection():
-    st.markdown(f"<h2 class='section-title'>Invoermethode voor: {st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
     is_recording = input_module.render_input_step(handle_input_complete)
     
@@ -307,7 +307,7 @@ def render_results():
     col1, col2 = st.columns([3, 2])
     
     with col1:
-        st.markdown("<h2 class='section-title'>Samenvatting</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
         summary_and_output_module.render_summary_versions()
     
     with col2:
