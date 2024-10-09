@@ -28,6 +28,7 @@ def transcribe_with_groq(audio_file_path):
             transcription = groq_client.audio.transcriptions.create(
                 file=audio_file,
                 model="whisper-large-v3",
+                language= "nl",
                 response_format="json"
             )
         return transcription.text
