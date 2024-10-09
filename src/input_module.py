@@ -27,7 +27,7 @@ def transcribe_with_progress(audio_file):
         "Samenvatting voorbereiden"
     ]
     
-    file_size = os.path.getsize(audio_file)
+    file_size = os.path.getsize(audio_file) if isinstance(audio_file, str) else len(audio_file.getvalue())
     start_time = time.time()
     
     def update_progress(current, total, api_used):
