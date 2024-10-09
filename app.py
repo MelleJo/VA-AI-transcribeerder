@@ -282,11 +282,12 @@ def process_input_and_generate_summary():
         )
         
         if new_summary:
-            st.session_state.summary_versions = [new_summary]
-            st.session_state.current_version = 0
+            if 'summaries' not in st.session_state:
+                st.session_state.summaries = []
+            st.session_state.summaries.append({"type": "summary", "content": new_summary})
+            st.session_state.current_version = len(st.session_state.summaries) - 1
             st.session_state.summary = new_summary
             st.session_state.step = 'results'
-            print(f"Summary generated: {new_summary[:100]}...")  # Debug print
         else:
             st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
     else:

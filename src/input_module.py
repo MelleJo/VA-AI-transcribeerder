@@ -277,7 +277,6 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
             st.write("Transcript lengte:", len(st.session_state.input_text))
             st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
             st.session_state.transcription_complete = True
-            print("Calling on_input_complete")  # Debug print
             on_input_complete()
         else:
             st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
