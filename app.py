@@ -111,19 +111,19 @@ def render_prompt_selection():
         "Veldhuis Advies": {
             "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
             "Hypotheek": ["hypotheek", "hypotheek_rapport"],
-            "Financiële Planning": ["financieelplanningstraject"],
-            "Overig": ["adviesgesprek", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Financiële Planning": ["aov", "financieelplanningstraject"],
+            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
         },
         "Veldhuis Advies Groep": {
-            "Bedrijven": ["aov", "risico_analyse"],
-            "Particulieren": ["expertise_gesprek", "klantrapport", "klantvraag"],
-            "Schade": ["schade_beoordeling", "schademelding"],
-            "Overig": ["mutatie"]
+            "Bedrijven": ["VIP", "risico_analyse", "adviesgesprek"],
+            "Particulieren": ["klantrapport", "klantvraag"],
+            "Schade": ["schade_beoordeling", "schademelding", "expertise_gesprek"],
+            "Overig": ["mutatie", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
         },
         "NLG Arbo": {
             "Casemanager": ["casemanager"],
             "Bedrijfsarts": ["gesprek_bedrijfsarts"],
-            "Overig": []
+            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
         }
     }
 
