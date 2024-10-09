@@ -74,64 +74,31 @@ def split_audio(audio):
 
 def transcribe_audio(audio_file, progress_callback=None):
     try:
-        # Create a temporary directory to store the file
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Determine if audio_file is a file path or a file-like object
-            if isinstance(audio_file, str):
-                # It's a file path
-                temp_file_path = audio_file
-                file_extension = os.path.splitext(audio_file)[1].lower()
-            else:
-                # It's a file-like object (e.g., from st.file_uploader)
-                file_extension = os.path.splitext(audio_file.name)[1].lower()
-                temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
-                with open(temp_file_path, "wb") as f:
-                    f.write(audio_file.getvalue())
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+            audio = AudioSegment.from_file(audio_file)
+            audio.export(temp_audio.name, format="wav")
             
-            # Handle mp4 files (convert to audio)
-            if file_extension == '.mp4':
-                video = mp.VideoFileClip(temp_file_path)
-                audio = video.audio
-                temp_audio_path = os.path.join(temp_dir, "temp_audio.wav")
-                audio.write_audiofile(temp_audio_path)
-                temp_file_path = temp_audio_path
-                video.close()
-            
-            # Load the audio file
-            audio = AudioSegment.from_file(temp_file_path)
-            
-            # Split the audio into chunks
-            chunks = split_audio(audio)
-            total_chunks = len(chunks)
-            full_transcript = ""
-
-            for i, chunk in enumerate(chunks):
-                chunk_path = os.path.join(temp_dir, f"chunk_{i}.wav")
-                chunk.export(chunk_path, format="wav")
-                
-                # Try Groq first
+            with open(temp_audio.name, "rb") as audio_file:
                 if progress_callback:
-                    progress_callback(i + 1, total_chunks, "Groq")
+                    progress_callback(0, 1, "Groq")
                 
-                transcript = transcribe_with_groq(chunk_path)
+                transcript = transcribe_with_groq(audio_file)
                 
-                if transcript is None:
-                    # Fallback to OpenAI
-                    if progress_callback:
-                        progress_callback(i + 1, total_chunks, "OpenAI")
+                if transcript is None and progress_callback:
+                    progress_callback(0, 1, "OpenAI")
                     
-                    with open(chunk_path, "rb") as audio_chunk:
-                        response = client.audio.transcriptions.create(
-                            model="whisper-1",
-                            file=audio_chunk,
-                            response_format="text"
-                        )
-                        transcript = response
-                
-                full_transcript += transcript + " "
-
+                    response = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file,
+                        response_format="text"
+                    )
+                    transcript = response
+            
+            if progress_callback:
+                progress_callback(1, 1, "Groq" if transcript is not None else "OpenAI")
+            
             logger.info(f"API used = {'Groq' if transcript is not None else 'OpenAI'}")
-            return full_transcript.strip()
+            return transcript.strip()
     except Exception as e:
         logger.error(f"An error occurred during audio transcription: {str(e)}")
         raise Exception(f"An error occurred during audio transcription: {str(e)}")

@@ -250,10 +250,7 @@ def display_progress_animation():
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder
 
-# In app.py
-
 def process_input_and_generate_summary():
-    # Create a full-screen overlay
     overlay_placeholder = st.empty()
     overlay_placeholder.markdown(
         """
@@ -271,32 +268,26 @@ def process_input_and_generate_summary():
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         start_time = time.time()
-        total_steps = 3
+        total_steps = 2  # Reduced from 3 to 2
         
-        # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time, "")
-        time.sleep(0)  # Simulate time taken for transcription
+        # Update progress: Preparing
+        summary_and_output_module.update_progress(progress_placeholder, "voorbereiden", 1, total_steps, start_time)
         
-        # Update progress: Summarizing
-        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_gegenereerd", 2, total_steps, start_time, "")
+        # Generate Summary
+        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_genereren", 2, total_steps, start_time)
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
             get_prompt_content(st.session_state.selected_prompt)
         )
         
-        # Update progress: Checking
-        summary_and_output_module.update_progress(progress_placeholder, "spelling_gecontroleerd", 3, total_steps, start_time, "")
-        time.sleep(0)  # Simulate time taken for checking
-        
         st.session_state.summary_versions.append(new_summary)
         st.session_state.current_version = len(st.session_state.summary_versions) - 1
-        st.session_state.summary = new_summary  # Initialize the summary
+        st.session_state.summary = new_summary
         st.session_state.step = 'results'
     else:
         st.error("Geen invoertekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     
-    # Remove the overlay
     overlay_placeholder.empty()
     progress_placeholder.empty()
     

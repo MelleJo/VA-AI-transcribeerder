@@ -382,66 +382,22 @@ def display_progress_checkmarks():
 
 # In summary_and_output_module.py
 
-def update_progress(progress_placeholder, step, current_step, total_steps, start_time, api_used=""):
-    steps = {
-        "transcript_read": "Transcript lezen",
-        "summary_generated": "Samenvatting maken",
-        "spelling_checked": "Spellingscontrole uitvoeren"
-    }
-    
-    elapsed_time = time.time() - start_time
-    estimated_total_time = (elapsed_time / current_step) * total_steps
-    remaining_time = max(0, estimated_total_time - elapsed_time)
-    
-    step_text = steps.get(step, "Verwerken...")  # Use a default value if the key is missing
-    
-    api_info = f" (API: {api_used})" if api_used else ""
+def update_progress(progress_placeholder, step, current_step, total_steps, start_time):
+    progress = (current_step / total_steps) * 100
     
     progress_html = f"""
     <div class="progress-container">
-        <div class="progress-bar" style="width: {(current_step / total_steps) * 100}%;"></div>
+        <div class="progress-bar" style="width: {progress}%;"></div>
     </div>
-    <p>{step_text}...{api_info}</p>
-    <p>Geschatte resterende tijd: {int(remaining_time)} seconden</p>
+    <p>{step.capitalize()}... {progress:.0f}%</p>
     """
     
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
-    
-    # Update the progress in the full-screen overlay
-    st.markdown(
-        f"""
-        <script>
-            var progressContainer = document.getElementById('progress-container');
-            if (progressContainer) {{
-                progressContainer.innerHTML = `{progress_html}`;
-            }}
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
 
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
         full_prompt = f"{base_prompt}\n\n{selected_prompt}"
-        
-        status_updates = [
-            "Transcript analyseren",
-            "Samenvatting genereren",
-            "Samenvatting optimaliseren",
-            "Nacontrole uitvoeren"
-        ]
-        
-        progress_placeholder = st.empty()
-        start_time = time.time()
-        file_size = len(input_text.encode('utf-8'))  # Use text length as a proxy for 'file size'
-        
-        for i, status in enumerate(status_updates):
-            progress = (i + 1) * 25
-            elapsed_time = time.time() - start_time
-            estimated_time = estimate_time(file_size, i + 1, len(status_updates), elapsed_time)
-            full_screen_loader(progress, "Samenvatting wordt gemaakt...", status_updates, estimated_time)
-            time.sleep(1)  # Simulate processing time
         
         response = client.chat.completions.create(
             model=SUMMARY_MODEL,
@@ -459,21 +415,8 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         )
         summary = response.choices[0].message.content.strip()
         
-        # Post-processing
-        summary = post_process_grammar_check(summary)
-        summary = format_currency(summary)
-        
-        progress_placeholder.empty()
-        
         if not summary:
             raise ValueError("Generated summary is empty")
-        
-        # Initialize summaries list if it doesn't exist
-        if 'summaries' not in st.session_state:
-            st.session_state.summaries = []
-        
-        st.session_state.summaries.append(summary)
-        st.session_state.current_version = len(st.session_state.summaries) - 1
         
         return summary
     except Exception as e:
