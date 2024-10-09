@@ -9,10 +9,7 @@ from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
 st.set_page_config(page_title="Gesprekssamenvatter AI", layout="wide")
 
-
 logging.getLogger('watchdog').setLevel(logging.ERROR)
-
-
 
 def convert_summaries_to_dict_format():
     if 'summaries' in st.session_state:
