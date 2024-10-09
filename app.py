@@ -250,6 +250,8 @@ def display_progress_animation():
     progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder
 
+# In app.py
+
 def process_input_and_generate_summary():
     # Create a full-screen overlay
     overlay_placeholder = st.empty()
@@ -272,11 +274,11 @@ def process_input_and_generate_summary():
         total_steps = 3
         
         # Update progress: Transcribing
-        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "transcript_read", 1, total_steps, start_time, "")
         time.sleep(0)  # Simulate time taken for transcription
         
         # Update progress: Summarizing
-        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_gegenereerd", 2, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_gegenereerd", 2, total_steps, start_time, "")
         new_summary = summary_and_output_module.generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
@@ -284,7 +286,7 @@ def process_input_and_generate_summary():
         )
         
         # Update progress: Checking
-        summary_and_output_module.update_progress(progress_placeholder, "spelling_gecontroleerd", 3, total_steps, start_time)
+        summary_and_output_module.update_progress(progress_placeholder, "spelling_gecontroleerd", 3, total_steps, start_time, "")
         time.sleep(0)  # Simulate time taken for checking
         
         st.session_state.summary_versions.append(new_summary)

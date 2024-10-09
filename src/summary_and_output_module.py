@@ -382,7 +382,7 @@ def display_progress_checkmarks():
 
 # In summary_and_output_module.py
 
-def update_progress(progress_placeholder, step, current_step, total_steps, start_time, api_used):
+def update_progress(progress_placeholder, step, current_step, total_steps, start_time, api_used=""):
     steps = {
         "transcript_read": "Transcript lezen",
         "summary_generated": "Samenvatting maken",
@@ -395,11 +395,13 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
     
     step_text = steps.get(step, "Verwerken...")  # Use a default value if the key is missing
     
+    api_info = f" (API: {api_used})" if api_used else ""
+    
     progress_html = f"""
     <div class="progress-container">
         <div class="progress-bar" style="width: {(current_step / total_steps) * 100}%;"></div>
     </div>
-    <p>{step_text}... (API: {api_used})</p>
+    <p>{step_text}...{api_info}</p>
     <p>Geschatte resterende tijd: {int(remaining_time)} seconden</p>
     """
     
@@ -417,6 +419,7 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
         """,
         unsafe_allow_html=True
     )
+
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
