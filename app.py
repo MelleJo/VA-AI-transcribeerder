@@ -268,7 +268,7 @@ def process_input_and_generate_summary():
     
     if 'input_text' in st.session_state and st.session_state.input_text:
         start_time = time.time()
-        total_steps = 2  # Reduced from 3 to 2
+        total_steps = 2
         
         # Update progress: Preparing
         summary_and_output_module.update_progress(progress_placeholder, "voorbereiden", 1, total_steps, start_time)
@@ -281,10 +281,14 @@ def process_input_and_generate_summary():
             get_prompt_content(st.session_state.selected_prompt)
         )
         
-        st.session_state.summary_versions.append(new_summary)
-        st.session_state.current_version = len(st.session_state.summary_versions) - 1
-        st.session_state.summary = new_summary
-        st.session_state.step = 'results'
+        if new_summary:
+            st.session_state.summary_versions = [new_summary]
+            st.session_state.current_version = 0
+            st.session_state.summary = new_summary
+            st.session_state.step = 'results'
+            print(f"Summary generated: {new_summary[:100]}...")  # Debug print
+        else:
+            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
     else:
         st.error("Geen invoertekst gevonden. Controleer of je een bestand hebt geüpload, audio hebt opgenomen, of tekst hebt ingevoerd.")
     

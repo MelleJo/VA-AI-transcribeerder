@@ -418,9 +418,10 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         if not summary:
             raise ValueError("Generated summary is empty")
         
+        print(f"Summary generated successfully: {summary[:100]}...")  # Debug print
         return summary
     except Exception as e:
-        st.error(f"An error occurred while generating the summary: {str(e)}")
+        print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
         return None
 
 def customize_summary(current_summary, customization_request, transcript):
