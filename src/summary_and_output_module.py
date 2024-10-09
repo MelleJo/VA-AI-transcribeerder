@@ -380,7 +380,9 @@ def display_progress_checkmarks():
     st.markdown(progress_html, unsafe_allow_html=True)
     return progress_placeholder, checkmarks
 
-def update_progress(progress_placeholder, step, current_step, total_steps, start_time):
+# In summary_and_output_module.py
+
+def update_progress(progress_placeholder, step, current_step, total_steps, start_time, api_used):
     steps = {
         "transcript_read": "Transcript lezen",
         "summary_generated": "Samenvatting maken",
@@ -397,7 +399,7 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
     <div class="progress-container">
         <div class="progress-bar" style="width: {(current_step / total_steps) * 100}%;"></div>
     </div>
-    <p>{step_text}...</p>
+    <p>{step_text}... (API: {api_used})</p>
     <p>Geschatte resterende tijd: {int(remaining_time)} seconden</p>
     """
     

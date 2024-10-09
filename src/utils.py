@@ -11,8 +11,29 @@ import io
 import json
 import moviepy.editor as mp
 import re
+import logging
+from groq import Groq
+
+# Add these lines at the beginning of the file
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+# Add this new function
+def transcribe_with_groq(audio_file_path):
+    try:
+        with open(audio_file_path, "rb") as audio_file:
+            transcription = groq_client.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-large-v3",
+                response_format="json"
+            )
+        return transcription.text
+    except Exception as e:
+        logger.error(f"Error with Groq transcription: {str(e)}")
+        return None
 
 def load_prompts():
     prompts = {}
@@ -87,19 +108,31 @@ def transcribe_audio(audio_file, progress_callback=None):
                 chunk_path = os.path.join(temp_dir, f"chunk_{i}.wav")
                 chunk.export(chunk_path, format="wav")
                 
-                with open(chunk_path, "rb") as audio_chunk:
-                    response = client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_chunk,
-                        response_format="text"
-                    )
-                    full_transcript += response + " "
-
+                # Try Groq first
                 if progress_callback:
-                    progress_callback(i + 1, total_chunks)
+                    progress_callback(i + 1, total_chunks, "Groq")
+                
+                transcript = transcribe_with_groq(chunk_path)
+                
+                if transcript is None:
+                    # Fallback to OpenAI
+                    if progress_callback:
+                        progress_callback(i + 1, total_chunks, "OpenAI")
+                    
+                    with open(chunk_path, "rb") as audio_chunk:
+                        response = client.audio.transcriptions.create(
+                            model="whisper-1",
+                            file=audio_chunk,
+                            response_format="text"
+                        )
+                        transcript = response
+                
+                full_transcript += transcript + " "
 
+            logger.info(f"API used = {'Groq' if transcript is not None else 'OpenAI'}")
             return full_transcript.strip()
     except Exception as e:
+        logger.error(f"An error occurred during audio transcription: {str(e)}")
         raise Exception(f"An error occurred during audio transcription: {str(e)}")
 
 def process_text_file(file):
