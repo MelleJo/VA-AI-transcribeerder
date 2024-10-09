@@ -30,11 +30,11 @@ def transcribe_with_progress(audio_file):
     file_size = os.path.getsize(audio_file)
     start_time = time.time()
     
-    def update_progress(current, total):
+    def update_progress(current, total, api_used):
         progress = int((current / total) * 100)
         elapsed_time = time.time() - start_time
         estimated_time = estimate_time(file_size, current, total, elapsed_time)
-        message = "Audio wordt getranscribeerd..."
+        message = f"Audio wordt getranscribeerd... (API: {api_used})"
         full_screen_loader(progress, message, status_updates, estimated_time)
     
     transcript = transcribe_audio(audio_file, progress_callback=update_progress)
