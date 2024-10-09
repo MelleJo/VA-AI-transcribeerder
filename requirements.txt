@@ -11,3 +11,4 @@ pandas
 reportlab
 streamlit_mic_recorder
 moviepy
+groq-sdk
