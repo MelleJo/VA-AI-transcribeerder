@@ -92,8 +92,8 @@ def main():
     ui_components.apply_custom_css()
     convert_summaries_to_dict_format()
 
-    # Initialize OpenAI client
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    # Initialize OpenAI client using the function to get the API key
+    client = OpenAI(api_key=config.get_openai_api_key())
 
     st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
