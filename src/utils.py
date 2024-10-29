@@ -1,5 +1,5 @@
 import os
-from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH, OPENAI_API_KEY
+from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH, get_openai_api_key
 from src.ui_components import estimate_time
 import streamlit as st
 from PyPDF2 import PdfReader
@@ -18,7 +18,7 @@ from groq import Groq
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=get_openai_api_key())
 groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # Add this new function
