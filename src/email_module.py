@@ -3,7 +3,7 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from config import COLLEAGUE_EMAILS
+
 
 def send_email(sender_email, recipient, subject, body):
     try:
@@ -32,6 +32,3 @@ def send_email(sender_email, recipient, subject, body):
         return False, f"SMTP-fout: {str(e)}"
     except Exception as e:
         return False, f"Onverwachte fout: {str(e)}"
-
-def get_colleague_emails():
-    return COLLEAGUE_EMAILS
