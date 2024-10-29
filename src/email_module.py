@@ -3,7 +3,7 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from src.config import COLLEAGUE_EMAILS
+from config import COLLEAGUE_EMAILS
 
 def send_email(sender_email, recipient, subject, body):
     try:
