@@ -7,6 +7,7 @@ import os
 from openai import OpenAI
 from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
+# Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)

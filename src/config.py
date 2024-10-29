@@ -1,8 +1,9 @@
-import streamlit as st
 import os
 
 # API Configuration
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+def get_openai_api_key():
+    import streamlit as st
+    return st.secrets["OPENAI_API_KEY"]
 
 # Input Configuration
 ALLOWED_AUDIO_TYPES = ["mp3", "wav", "ogg", "m4a", "mp4"]
@@ -25,13 +26,19 @@ PRESENCE_PENALTY = 0.1
 AUDIO_SEGMENT_LENGTH = 60000  # 30 seconds in milliseconds
 
 # Email Configuration
-EMAIL_SENDER = st.secrets["email"]["username"]
-EMAIL_PASSWORD = st.secrets["email"]["password"]
-EMAIL_SMTP_SERVER = st.secrets["email"]["smtp_server"]
-EMAIL_SMTP_PORT = st.secrets["email"]["smtp_port"]
+def get_email_config():
+    import streamlit as st
+    return {
+        "sender": st.secrets["email"]["username"],
+        "password": st.secrets["email"]["password"],
+        "smtp_server": st.secrets["email"]["smtp_server"],
+        "smtp_port": st.secrets["email"]["smtp_port"]
+    }
 
 # Colleague email addresses
-COLLEAGUE_EMAILS = st.secrets["colleague_emails"]
+def get_colleague_emails():
+    import streamlit as st
+    return st.secrets["colleague_emails"]
 
 # Prompt Reminders
 PROMPT_REMINDERS = {
