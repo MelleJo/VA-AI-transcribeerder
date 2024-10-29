@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from openai import OpenAI
-from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
+from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY, get_colleague_emails
 from src.history_module import add_to_history
 from src.utils import load_prompts, get_prompt_content
 from src.utils import post_process_grammar_check, format_currency
@@ -27,7 +27,7 @@ import uuid
 import time
 import pandas as pd
 from app import convert_summaries_to_dict_format
-from src.email_module import send_email, get_colleague_emails
+from src.email_module import send_email
 
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
