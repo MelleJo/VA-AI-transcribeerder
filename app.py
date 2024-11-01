@@ -336,7 +336,7 @@ def render_results():
             
         # AI-generated suggestions
         if st.session_state.summaries:
-            ai_suggestions = suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
+            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
         else:
             ai_suggestions = []
         
