@@ -587,11 +587,12 @@ def convert_markdown_tables_to_html(text):
     return '\n'.join(lines)
 
 def render_summary_versions():
+    """Render summary versions with version control"""
     if 'summaries' not in st.session_state or not st.session_state.summaries:
         st.warning("No summary available yet.")
         return
 
-    convert_summaries_to_dict_format()  # Remove st argument
+    convert_summaries_to_dict_format()
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
@@ -617,27 +618,33 @@ def render_summary_versions():
         st.markdown("**Main Points**")
     st.markdown(current_summary["content"])
 
-    # Export options
-    with st.expander("Export opties"):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            b64_docx = export_to_docx(current_summary["content"])
-            st.download_button(
-                label="Download als Word",
-                data=base64.b64decode(b64_docx),
-                file_name="samenvatting.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
-        with col2:
-            b64_pdf = export_to_pdf(current_summary["content"])
-            st.download_button(
-                label="Download als PDF",
-                data=base64.b64decode(b64_pdf),
-                file_name="samenvatting.pdf",
-                mime="application/pdf"
-            )
-        with col3:
-            st_copy_to_clipboard(current_summary["content"], "Kopieer")
+def render_chat_interface():
+    """Render the chat interface"""
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+    
+    if 'greeting_shown' not in st.session_state:
+        st.session_state.greeting_shown = False
+
+    if not st.session_state.greeting_shown:
+        greeting = ("Hallo collega! Hoe kan ik je helpen? Je kunt mij vragen stellen over de samenvatting of het "
+                   "transcript, of mij verzoeken om wijzigingen te maken in de samenvatting. Ook kan ik de "
+                   "samenvatting omzetten in een e-mail of rapport. Laat maar weten wat je nodig hebt!")
+        st.session_state.messages.append({"role": "assistant", "content": greeting})
+        st.session_state.greeting_shown = True
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("Stel een vraag of vraag om wijzigingen in de samenvatting"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            response = process_chat_request(prompt)
+            handle_chat_response(response)
 
 def render_summary_and_output():
     prompts = load_prompts()
@@ -794,7 +801,16 @@ def send_feedback_email(transcript, summary, revised_summary, feedback, addition
         st.error(f"Er is een fout opgetreden bij het verzenden van de e-mail: {str(e)}")
         return False
     
+def create_email_to_colleague(summary):
+    """Create email to send to colleague"""
+    return create_email(summary, "colleague")
+
+def create_email_to_client(summary):
+    """Create email to send to client"""
+    return create_email(summary, "client")
+
 def handle_action(action, summary):
+    """Handle different action types"""
     if action == "Informeer collega":
         return create_email_to_colleague(summary)
     elif action == "Maak uitgebreider":

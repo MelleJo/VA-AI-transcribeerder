@@ -2,11 +2,20 @@ import streamlit as st
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
 
-from src import config, prompt_module, input_module, summary_and_output_module, ui_components, history_module
+from src import config, prompt_module, input_module, ui_components, history_module, summary_and_output_module
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
 from src.state_utils import convert_summaries_to_dict_format
 from src.ui_components import add_loader_css, apply_custom_css, full_screen_loader
-from src.summary_and_output_module import update_progress, generate_summary
+from src.summary_and_output_module import (
+    render_summary_versions,
+    handle_action,
+    handle_chat_response,
+    create_email,
+    render_chat_interface,
+    send_feedback_email,
+    update_progress,
+    generate_summary
+)
 import logging
 import time
 import os
