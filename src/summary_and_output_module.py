@@ -591,7 +591,7 @@ def render_summary_versions():
         st.warning("No summary available yet.")
         return
 
-    convert_summaries_to_dict_format(st)
+    convert_summaries_to_dict_format()  # Remove st argument
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 

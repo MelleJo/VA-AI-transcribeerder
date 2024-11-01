@@ -92,9 +92,9 @@ def load_css():
 
 def main():
     load_css()
-    add_loader_css()  # Now this will be properly defined
+    add_loader_css()
     ui_components.apply_custom_css()
-    convert_summaries_to_dict_format(st)  # Pass st as argument
+    convert_summaries_to_dict_format()  # Remove st argument
 
     # Initialize OpenAI client using the function to get the API key
     client = OpenAI(api_key=config.get_openai_api_key())

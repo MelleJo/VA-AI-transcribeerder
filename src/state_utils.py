@@ -1,4 +1,7 @@
-def convert_summaries_to_dict_format(st):
+import streamlit as st
+
+def convert_summaries_to_dict_format():
+    """Convert summaries to the dictionary format in session state."""
     if 'summaries' in st.session_state:
         for i, summary in enumerate(st.session_state.summaries):
             if isinstance(summary, str):
