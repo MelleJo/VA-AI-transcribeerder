@@ -1,27 +1,14 @@
-# First, set the page config before any other imports or Streamlit commands
 import streamlit as st
+# Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
 
-# Then continue with other imports
-from src import config, prompt_module, input_module, ui_components, history_module
-# Import summary_and_output_module separately to avoid circular import
-from src.summary_and_output_module import (
-    generate_summary, 
-    update_progress, 
-    render_summary_versions,
-    suggest_actions,
-    handle_action,
-    handle_chat_response,
-    create_email,
-    render_chat_interface,
-    send_feedback_email
-)
-from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file, get_prompt_names, get_prompt_content
+from src import config, prompt_module, input_module, summary_and_output_module, ui_components, history_module
+from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
+from src.state_utils import convert_summaries_to_dict_format
 import logging
 import time
 import os
 from openai import OpenAI
-from src.ui_components import full_screen_loader, add_loader_css, estimate_time
 
 
 

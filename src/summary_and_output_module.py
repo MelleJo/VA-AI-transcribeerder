@@ -26,7 +26,7 @@ from email.mime.multipart import MIMEMultipart
 import uuid
 import time
 import pandas as pd
-from app import convert_summaries_to_dict_format
+from src.state_utils import convert_summaries_to_dict_format
 from src.email_module import send_email
 
 
@@ -591,7 +591,7 @@ def render_summary_versions():
         st.warning("No summary available yet.")
         return
 
-    convert_summaries_to_dict_format()
+    convert_summaries_to_dict_format(st)
 
     current_summary = st.session_state.summaries[st.session_state.current_version]
 
