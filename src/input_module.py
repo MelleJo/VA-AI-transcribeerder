@@ -284,21 +284,24 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        audio_file.write(audio_data['bytes'])
-        audio_file_path = audio_file.name
-        audio_file.close()
-        
-        st.session_state.input_text = transcribe_with_progress(audio_file_path)
-        if st.session_state.input_text:
-            ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
-            st.write("Transcript lengte:", len(st.session_state.input_text))
-            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
-            st.session_state.transcription_complete = True
-            on_input_complete()
-        else:
-            ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
-        os.unlink(tmp_file_path)  # Clean up the temporary file
+        # Create temporary file properly in scope
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_file:
+            audio_file.write(audio_data['bytes'])
+            tmp_file_path = audio_file.name  # Store path here
+            
+        try:
+            st.session_state.input_text = transcribe_with_progress(tmp_file_path)
+            if st.session_state.input_text:
+                ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
+                st.write("Transcript lengte:", len(st.session_state.input_text))
+                st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+                st.session_state.transcription_complete = True
+                on_input_complete()
+            else:
+                ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
+        finally:
+            if os.path.exists(tmp_file_path):  # Safely clean up
+                os.unlink(tmp_file_path)  # Clean up the temporary file
 
 def process_uploaded_text(uploaded_file, on_input_complete):
     ui_info_box("Bestand geüpload. Verwerking wordt gestart...", "info")
