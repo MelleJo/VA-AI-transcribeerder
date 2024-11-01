@@ -1,9 +1,21 @@
+# First, set the page config before any other imports or Streamlit commands
 import streamlit as st
-# Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
 
-
-from src import config, prompt_module, input_module, summary_and_output_module, ui_components, history_module
+# Then continue with other imports
+from src import config, prompt_module, input_module, ui_components, history_module
+# Import summary_and_output_module separately to avoid circular import
+from src.summary_and_output_module import (
+    generate_summary, 
+    update_progress, 
+    render_summary_versions,
+    suggest_actions,
+    handle_action,
+    handle_chat_response,
+    create_email,
+    render_chat_interface,
+    send_feedback_email
+)
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_content, transcribe_audio, process_text_file, get_prompt_names, get_prompt_content
 import logging
 import time
@@ -272,11 +284,11 @@ def process_input_and_generate_summary():
         total_steps = 2
         
         # Update progress: Preparing
-        summary_and_output_module.update_progress(progress_placeholder, "voorbereiden", 1, total_steps, start_time)
+        update_progress(progress_placeholder, "voorbereiden", 1, total_steps, start_time)
         
         # Generate Summary
-        summary_and_output_module.update_progress(progress_placeholder, "samenvatting_genereren", 2, total_steps, start_time)
-        new_summary = summary_and_output_module.generate_summary(
+        update_progress(progress_placeholder, "samenvatting_genereren", 2, total_steps, start_time)
+        new_summary = generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
             get_prompt_content(st.session_state.selected_prompt)
@@ -307,7 +319,7 @@ def render_results():
     
     with col1:
         st.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
-        summary_and_output_module.render_summary_versions()
+        render_summary_versions()
     
     with col2:
         st.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
@@ -324,7 +336,7 @@ def render_results():
             
         # AI-generated suggestions
         if st.session_state.summaries:
-            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
+            ai_suggestions = suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
         else:
             ai_suggestions = []
         
@@ -352,28 +364,28 @@ def render_results():
                             st.session_state.show_email_form = True
                             st.session_state.email_type = 'client'
                         else:
-                            response = summary_and_output_module.handle_action(action, st.session_state.summaries[-1]["content"])
-                            summary_and_output_module.handle_chat_response(response)
+                            response = handle_action(action, st.session_state.summaries[-1]["content"])
+                            handle_chat_response(response)
                         st.rerun()
 
         # Show email form if button was clicked
         if st.session_state.get('show_email_form', False):
             email_type = st.session_state.get('email_type', 'colleague')
-            summary_and_output_module.create_email(
+            create_email(
                 st.session_state.summaries[-1]["content"],
                 st.session_state.input_text,
                 email_type
             )
 
         with st.expander("Chat", expanded=False):
-            summary_and_output_module.render_chat_interface()
+            render_chat_interface()
 
     with st.expander("Bekijk/Bewerk Transcript"):
         edited_transcript = st.text_area("Transcript:", value=st.session_state.input_text, height=300)
         if edited_transcript != st.session_state.input_text:
             st.session_state.input_text = edited_transcript
             if st.button("Genereer opnieuw", key="regenerate_button"):
-                new_summary = summary_and_output_module.generate_summary(
+                new_summary = generate_summary(
                     st.session_state.input_text,
                     st.session_state.base_prompt,
                     get_prompt_content(st.session_state.selected_prompt)
@@ -405,7 +417,7 @@ def render_results():
                 if not user_name:
                     st.warning("Naam is verplicht bij het geven van feedback.", icon="⚠️")
                 else:
-                    success = summary_and_output_module.send_feedback_email(
+                    success = send_feedback_email(
                         transcript=st.session_state.input_text,
                         summary=st.session_state.summaries[0]["content"] if st.session_state.summaries else "",
                         revised_summary=st.session_state.summaries[-1]["content"] if len(st.session_state.summaries) > 1 else 'Geen aangepaste samenvatting',
