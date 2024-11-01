@@ -193,7 +193,7 @@ def render_input_selection():
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
-            key="final_transcript"
+            key=f"transcript_edit_{hash(st.session_state.input_text)}"  # Dynamic unique key
         )
         st.markdown("</div>", unsafe_allow_html=True)
 

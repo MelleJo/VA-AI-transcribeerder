@@ -15,7 +15,12 @@ def render_transcript_edit():
         return
 
     st.markdown("### Bewerk het transcript")
-    st.session_state.input_text = st.text_area("Transcript:", value=st.session_state.input_text, height=400)
+    st.session_state.input_text = st.text_area(
+        "Transcript:", 
+        value=st.session_state.input_text, 
+        height=400,
+        key=f"transcript_edit_main_{hash(st.session_state.input_text)}"  # Unique key
+    )
 
     if ui_styled_button("Bevestig transcript", on_click=None, key="confirm_transcript_button", is_active=True):
         if st.session_state.input_text:
