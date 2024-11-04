@@ -1,4 +1,5 @@
 import streamlit as st
+
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
 
