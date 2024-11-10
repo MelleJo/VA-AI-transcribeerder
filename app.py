@@ -138,14 +138,14 @@ def render_prompt_selection():
             "Bedrijfsarts": ["gesprek_bedrijfsarts"],
             "Overig": ["ingesproken_notitie", "telefoongesprek"]
         },
-        "Langere Opnames": {  # New category for longer recordings
-            "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
+        "Langere Gesprekken": {  # Changed name to be more specific and Dutch
             "Adviesgesprekken": ["lang_adviesgesprek", "lang_hypotheekgesprek"],
+            "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
             "Rapportages": ["uitgebreid_rapport"]
         }
     }
 
-    # Add disclaimer for "Langere Opnames" category
+    # Add disclaimer for "Langere Gesprekken" category
     disclaimer_html = """
     <div class="info-banner" style="
         background-color: #f8f9fa;
@@ -153,32 +153,54 @@ def render_prompt_selection():
         padding: 1rem;
         margin: 1rem 0;
         border-radius: 4px;
+        font-size: 0.9rem;
     ">
         <p style="margin: 0;">
-            <strong>Let op:</strong> De verwerking van langere opnames gebruikt geavanceerde AI-technieken 
-            voor een diepgaandere analyse. Hierdoor duurt de verwerking wat langer, maar krijg je wel een 
-            uitgebreidere en meer gedetailleerde samenvatting.
+            <strong>Let op:</strong> Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse 
+            van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en 
+            meer gedetailleerde samenvatting op.
         </p>
     </div>
     """
 
-    # Radio buttons for category selection
+    # Radio buttons for category selection with custom styling
+    st.markdown("""
+    <style>
+    div.row-widget.stRadio > div {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    div.row-widget.stRadio > div label {
+        padding: 10px 15px;
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    div.row-widget.stRadio > div label:hover {
+        background-color: #f8f9fa;
+        border-color: #4CAF50;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
     
-    # Show disclaimer if "Langere Opnames" is selected
-    if main_category == "Langere Opnames":
+    # Show disclaimer if "Langere Gesprekken" is selected
+    if main_category == "Langere Gesprekken":
         st.markdown(disclaimer_html, unsafe_allow_html=True)
     
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
-
+    
     # Dropdown for prompt selection
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
     # Button to proceed
-    if st.button("Verder ➔", key="proceed_button"):
+    if st.button("Verder ➔", key="proceed_button", use_container_width=True):
         st.session_state.selected_prompt = selected_prompt
         # Store whether this is a long recording prompt
-        st.session_state.is_long_recording = main_category == "Langere Opnames"
+        st.session_state.is_long_recording = main_category == "Langere Gesprekken"
         st.session_state.step = 'input_selection'
         st.rerun()
 
