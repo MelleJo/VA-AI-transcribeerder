@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Ensure set_page_config is the first Streamlit command
-st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
+st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
 
 from src import config, prompt_module, input_module, ui_components, history_module, summary_and_output_module
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
@@ -21,8 +21,6 @@ import logging
 import time
 import os
 from openai import OpenAI
-
-
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
@@ -127,56 +125,50 @@ def render_prompt_selection():
             "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
             "Hypotheek": ["hypotheek", "hypotheek_rapport"],
             "Financiële Planning": ["aov", "financieelplanningstraject"],
-            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["ingesproken_notitie", "telefoongesprek"]
         },
         "Veldhuis Advies Groep": {
             "Bedrijven": ["VIP", "risico_analyse", "adviesgesprek"],
             "Particulieren": ["klantrapport", "klantvraag"],
             "Schade": ["schade_beoordeling", "schademelding", "expertise_gesprek"],
-            "Overig": ["mutatie", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["mutatie", "ingesproken_notitie", "telefoongesprek"]
         },
         "NLG Arbo": {
             "Casemanager": ["casemanager"],
             "Bedrijfsarts": ["gesprek_bedrijfsarts"],
-            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["ingesproken_notitie", "telefoongesprek"]
+        },
+        "Langere Opnames": {  # New category for longer recordings
+            "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
+            "Adviesgesprekken": ["lang_adviesgesprek", "lang_hypotheekgesprek"],
+            "Rapportages": ["uitgebreid_rapport"]
         }
     }
 
-    # Custom CSS for minimalistic design
-    st.markdown("""
-    <style>
-    body {
-        background-color: white;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        color: black;
-    }
-    .stRadio > div {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
-    }
-    .stSelectbox > div {
-        margin-bottom: 15px;
-    }
-    .stButton > button {
-        background-color: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 8px 20px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .stButton > button:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # Add disclaimer for "Langere Opnames" category
+    disclaimer_html = """
+    <div class="info-banner" style="
+        background-color: #f8f9fa;
+        border-left: 4px solid #4CAF50;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+    ">
+        <p style="margin: 0;">
+            <strong>Let op:</strong> De verwerking van langere opnames gebruikt geavanceerde AI-technieken 
+            voor een diepgaandere analyse. Hierdoor duurt de verwerking wat langer, maar krijg je wel een 
+            uitgebreidere en meer gedetailleerde samenvatting.
+        </p>
+    </div>
+    """
 
     # Radio buttons for category selection
     main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
+    
+    # Show disclaimer if "Langere Opnames" is selected
+    if main_category == "Langere Opnames":
+        st.markdown(disclaimer_html, unsafe_allow_html=True)
+    
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
 
     # Dropdown for prompt selection
@@ -185,6 +177,8 @@ def render_prompt_selection():
     # Button to proceed
     if st.button("Verder ➔", key="proceed_button"):
         st.session_state.selected_prompt = selected_prompt
+        # Store whether this is a long recording prompt
+        st.session_state.is_long_recording = main_category == "Langere Opnames"
         st.session_state.step = 'input_selection'
         st.rerun()
 
