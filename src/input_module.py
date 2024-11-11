@@ -280,21 +280,19 @@ def render_input_step(on_input_complete):
 def process_uploaded_audio(uploaded_file, on_input_complete):
     st.session_state.transcription_complete = False
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            tmp_file_path = tmp_file.name
-        
-        st.session_state.input_text = transcribe_with_progress(tmp_file_path)
-        
-        if st.session_state.input_text:
-            st.success("Audio succesvol verwerkt en getranscribeerd!")
-            st.write("Transcript lengte:", len(st.session_state.input_text))
-            st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
-            st.session_state.transcription_complete = True
-            on_input_complete()
-        else:
-            st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
-        os.unlink(tmp_file_path)
+        try:
+            st.session_state.input_text = transcribe_with_progress(uploaded_file)
+            
+            if st.session_state.input_text:
+                st.success("Audio succesvol verwerkt en getranscribeerd!")
+                st.write("Transcript lengte:", len(st.session_state.input_text))
+                st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
+                st.session_state.transcription_complete = True
+                on_input_complete()
+            else:
+                st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
+        except Exception as e:
+            st.error(f"Er is een fout opgetreden: {str(e)}")
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
