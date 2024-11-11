@@ -62,11 +62,29 @@ def transcribe_with_whisper(audio_file_path: str) -> Optional[str]:
         logger.warning(f"Whisper transcription failed: {str(e)}")
         return None
 
-def split_audio(audio: AudioSegment, chunk_length_ms: int = 60000) -> list:
-    """Split audio into manageable chunks"""
+def get_optimal_chunk_length(audio_length_ms: int) -> int:
+    """Calculate optimal chunk length to stay under 25MB limit while maximizing size"""
+    # Assuming roughly 1MB per minute of audio (varies by quality)
+    # 25MB = ~25 minutes = ~1,500,000 ms
+    SAFE_CHUNK_SIZE_MS = 1_200_000  # 20 minutes - leaving safety margin
+    
+    if audio_length_ms <= SAFE_CHUNK_SIZE_MS:
+        return audio_length_ms
+    
+    # Calculate number of chunks needed
+    num_chunks = max(2, audio_length_ms // SAFE_CHUNK_SIZE_MS + 1)
+    return audio_length_ms // num_chunks
+
+def split_audio(audio: AudioSegment) -> list:
+    """Split audio into optimally sized chunks"""
+    total_length = len(audio)
+    chunk_length = get_optimal_chunk_length(total_length)
+    
+    logger.info(f"Splitting {total_length/1000:.2f}s audio into chunks of {chunk_length/1000:.2f}s")
+    
     chunks = []
-    for i in range(0, len(audio), chunk_length_ms):
-        chunks.append(audio[i:i + chunk_length_ms])
+    for i in range(0, total_length, chunk_length):
+        chunks.append(audio[i:i + chunk_length])
     return chunks
 
 def transcribe_chunk(chunk_path: str, chunk_num: int, total_chunks: int, progress_callback=None) -> Optional[str]:
