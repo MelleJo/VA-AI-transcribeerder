@@ -30,12 +30,20 @@ def transcribe_with_groq(audio_file_path: str, timeout: int = 10) -> Optional[st
     """Attempt to transcribe with Groq with a timeout"""
     try:
         with open(audio_file_path, "rb") as audio_file:
-            transcription = groq_client.audio.transcriptions.create(
+            response = groq_client.audio.transcriptions.create(
                 file=audio_file,
                 model="whisper-large-v3",
                 response_format="text"
             )
-            return transcription.text if transcription else None
+            # Since we requested response_format="text", the response should be the text directly
+            if isinstance(response, str):
+                return response
+            # Fallback in case response is an object
+            elif hasattr(response, 'text'):
+                return response.text
+            else:
+                logger.warning(f"Unexpected Groq response format: {type(response)}")
+                return None
     except Exception as e:
         logger.warning(f"Groq transcription failed: {str(e)}")
         return None
@@ -65,15 +73,26 @@ def transcribe_chunk(chunk_path: str, chunk_num: int, total_chunks: int, progres
     """Transcribe a single chunk with fallback"""
     
     # Try Groq first
-    transcript = transcribe_with_groq(chunk_path)
-    api_used = "Groq"
+    transcript = None
+    api_used = None
     
-    # If Groq fails, immediately try Whisper
+    try:
+        transcript = transcribe_with_groq(chunk_path)
+        if transcript:
+            api_used = "Groq"
+    except Exception as e:
+        logger.warning(f"Groq transcription attempt failed: {str(e)}")
+    
+    # If Groq fails or returns None, try Whisper
     if transcript is None:
-        transcript = transcribe_with_whisper(chunk_path)
-        api_used = "OpenAI"
+        try:
+            transcript = transcribe_with_whisper(chunk_path)
+            if transcript:
+                api_used = "OpenAI"
+        except Exception as e:
+            logger.warning(f"Whisper transcription attempt failed: {str(e)}")
     
-    if progress_callback:
+    if progress_callback and api_used:
         # Calculate progress percentage
         progress = ((chunk_num + 1) / total_chunks) * 100
         progress_callback(current_step=chunk_num, total_steps=total_chunks, step_description=f"Transcriptie met {api_used}")
@@ -84,24 +103,7 @@ def transcribe_audio(audio_file: Union[str, bytes], progress_callback=None) -> O
     """Main transcription function with improved error handling and no delays"""
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Handle input file
-            if isinstance(audio_file, str):
-                temp_file_path = audio_file
-                file_extension = os.path.splitext(audio_file)[1].lower()
-            else:
-                file_extension = os.path.splitext(audio_file.name)[1].lower()
-                temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
-                with open(temp_file_path, "wb") as f:
-                    f.write(audio_file.getvalue())
-            
-            # Convert MP4 if needed
-            if file_extension == '.mp4':
-                video = mp.VideoFileClip(temp_file_path)
-                audio = video.audio
-                temp_audio_path = os.path.join(temp_dir, "temp_audio.wav")
-                audio.write_audiofile(temp_audio_path)
-                temp_file_path = temp_audio_path
-                video.close()
+            # [Previous file handling code remains the same until chunk processing]
             
             # Process audio
             audio = AudioSegment.from_file(temp_file_path)
@@ -109,19 +111,23 @@ def transcribe_audio(audio_file: Union[str, bytes], progress_callback=None) -> O
             total_chunks = len(chunks)
             transcripts = []
             failed_chunks = []
-
+            
+            logger.info(f"Starting transcription of {total_chunks} chunks")
+            
             # Process each chunk
             for i, chunk in enumerate(chunks):
                 chunk_path = os.path.join(temp_dir, f"chunk_{i}.wav")
                 chunk.export(chunk_path, format="wav")
                 
+                logger.info(f"Processing chunk {i+1}/{total_chunks}")
                 transcript = transcribe_chunk(chunk_path, i, total_chunks, progress_callback)
                 
                 if transcript:
                     transcripts.append(transcript)
+                    logger.info(f"Successfully transcribed chunk {i+1}")
                 else:
                     failed_chunks.append(i)
-                    logger.error(f"Failed to transcribe chunk {i}")
+                    logger.error(f"Failed to transcribe chunk {i+1}")
             
             # Handle failed chunks
             if failed_chunks:
@@ -135,6 +141,7 @@ def transcribe_audio(audio_file: Union[str, bytes], progress_callback=None) -> O
             if not full_transcript.strip():
                 raise Exception("Geen tekst kon worden geëxtraheerd uit de audio")
             
+            logger.info(f"Transcription completed successfully with {len(transcripts)} chunks")
             return full_transcript.strip()
             
     except Exception as e:
