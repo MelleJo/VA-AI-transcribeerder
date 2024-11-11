@@ -24,11 +24,17 @@ def format_time(seconds):
 
 def transcribe_with_progress(audio_file_path):
     try:
-        text = transcribe_audio(audio_file_path, progress_callback=update_progress)
+        total_steps = 100  # Example total steps, adjust as needed
+        start_time = time.time()
+        progress_placeholder = st.empty()
+        
+        def progress_callback(current_step):
+            update_progress(progress_placeholder, "Transcriberen", current_step, total_steps, start_time)
+        
+        text = transcribe_audio(audio_file_path, progress_callback=progress_callback)
         
         if text:
             # Signal completion explicitly
-            progress_placeholder = st.empty()
             progress_placeholder.markdown("""
                 <div class="progress-container">
                     <div class="progress-bar" style="width: 100%;"></div>
