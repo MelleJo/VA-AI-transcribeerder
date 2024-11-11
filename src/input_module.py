@@ -7,7 +7,7 @@ from pydub import AudioSegment
 import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
-from src.summary_and_output_module import update_progress
+from src.summary_and_output_module import update_progress, generate_summary, get_prompt_content
 import logging
 
 # Set up logger
@@ -281,6 +281,11 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
     st.session_state.transcription_complete = False
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         try:
+            if not uploaded_file:
+                raise Exception("Geen audiobestand geüpload")
+
+            logger.info(f"Processing uploaded file: {uploaded_file.name}")
+            
             # First try to transcribe
             st.session_state.input_text = transcribe_with_progress(uploaded_file)
             
@@ -292,7 +297,8 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
                 
                 # Now try to generate summary
                 try:
-                    if hasattr(st.session_state, 'base_prompt') and hasattr(st.session_state, 'selected_prompt'):
+                    if 'base_prompt' in st.session_state and 'selected_prompt' in st.session_state:
+                        logger.info("Generating summary...")
                         summary = generate_summary(
                             st.session_state.input_text,
                             st.session_state.base_prompt,
@@ -302,6 +308,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
                             st.session_state.summary = summary
                             st.session_state.summaries = [{"type": "summary", "content": summary}]
                             st.session_state.current_version = 0
+                            logger.info("Summary generated successfully")
                         else:
                             logger.error("Summary generation returned None")
                             st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
@@ -316,6 +323,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
             else:
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
         except Exception as e:
+            logger.error(f"Error processing audio: {str(e)}")
             st.error(f"Er is een fout opgetreden: {str(e)}")
 
 def process_recorded_audio(audio_data, on_input_complete):
