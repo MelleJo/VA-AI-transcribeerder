@@ -281,6 +281,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
     st.session_state.transcription_complete = False
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
         try:
+            # First try to transcribe
             st.session_state.input_text = transcribe_with_progress(uploaded_file)
             
             if st.session_state.input_text:
@@ -288,6 +289,29 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
                 st.write("Transcript lengte:", len(st.session_state.input_text))
                 st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                 st.session_state.transcription_complete = True
+                
+                # Now try to generate summary
+                try:
+                    if hasattr(st.session_state, 'base_prompt') and hasattr(st.session_state, 'selected_prompt'):
+                        summary = generate_summary(
+                            st.session_state.input_text,
+                            st.session_state.base_prompt,
+                            get_prompt_content(st.session_state.selected_prompt)
+                        )
+                        if summary:
+                            st.session_state.summary = summary
+                            st.session_state.summaries = [{"type": "summary", "content": summary}]
+                            st.session_state.current_version = 0
+                        else:
+                            logger.error("Summary generation returned None")
+                            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+                    else:
+                        logger.error("Missing required prompts for summary generation")
+                        st.error("Ontbrekende prompts voor het genereren van de samenvatting.")
+                except Exception as e:
+                    logger.error(f"Error generating summary: {str(e)}")
+                    st.error(f"Fout bij het genereren van de samenvatting: {str(e)}")
+                
                 on_input_complete()
             else:
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
