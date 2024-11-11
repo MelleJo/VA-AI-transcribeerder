@@ -74,8 +74,9 @@ def transcribe_chunk(chunk_path: str, chunk_num: int, total_chunks: int, progres
         api_used = "OpenAI"
     
     if progress_callback:
-        progress = (chunk_num + 1) / total_chunks * 100
-        progress_callback(chunk_num, total_chunks, f"Transcriptie met {api_used}")
+        # Calculate progress percentage
+        progress = ((chunk_num + 1) / total_chunks) * 100
+        progress_callback(current_step=chunk_num, total_steps=total_chunks, step_description=f"Transcriptie met {api_used}")
     
     return transcript
 

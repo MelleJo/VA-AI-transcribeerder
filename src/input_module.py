@@ -28,8 +28,8 @@ def transcribe_with_progress(audio_file_path):
         start_time = time.time()
         progress_placeholder = st.empty()
         
-        def progress_callback(current_step):
-            update_progress(progress_placeholder, "Transcriberen", current_step, total_steps, start_time)
+        def progress_callback(current_step, total_steps, step_description):
+            update_progress(progress_placeholder, step_description, current_step, total_steps, start_time)
         
         text = transcribe_audio(audio_file_path, progress_callback=progress_callback)
         
