@@ -125,6 +125,15 @@ class EnhancedSummaryPipeline:
             for topic in missed_topics:
                 final_summary += f"- {topic}\n"
         
+        # Add disclaimer if there are failed chunks
+        if "Een deel van de transcriptie is gefaald" in transcript:
+            disclaimer = (
+                "\n\n**Let op:** Een deel van de transcriptie is gefaald. "
+                "De nauwkeurigheid van de samenvatting kan hierdoor minder zijn "
+                "of er kunnen onderdelen ontbreken."
+            )
+            final_summary += disclaimer
+
         return final_summary
 
 def generate_enhanced_summary(transcript: str, client: OpenAI) -> str:
