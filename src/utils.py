@@ -213,8 +213,11 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                         transcripts.append(transcript)
                         logger.info(f"Successfully transcribed chunk {i+1}")
                     else:
-                        failed_chunks.append(i)
-                        logger.error(f"Failed to transcribe chunk {i+1}")
+                        if "audio_too_short" in str(e):
+                            logger.warning(f"Chunk {i+1} is too short to transcribe.")
+                        else:
+                            failed_chunks.append(i)
+                            logger.error(f"Failed to transcribe chunk {i+1}")
                     
                     if progress_callback:
                         progress = ((i + 1) / total_chunks) * 100
