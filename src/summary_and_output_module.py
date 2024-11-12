@@ -93,4 +93,15 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
         return None
 
-# Rest of the code remains unchanged
+def update_progress(progress_placeholder, step_description, current_step, total_steps):
+    """
+    Update the progress bar and status message in the Streamlit app.
+
+    :param progress_placeholder: Streamlit placeholder for the progress bar.
+    :param step_description: Description of the current step.
+    :param current_step: Current step number.
+    :param total_steps: Total number of steps.
+    """
+    progress = current_step / total_steps
+    progress_placeholder.progress(progress)
+    progress_placeholder.text(f"{step_description} ({current_step}/{total_steps})")
