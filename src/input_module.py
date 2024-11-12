@@ -7,7 +7,7 @@ from pydub import AudioSegment
 import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
-from src.summary_and_output_module import update_progress, generate_summary, get_prompt_content
+from src.progress_utils import update_progress
 import logging
 
 # Set up logger
