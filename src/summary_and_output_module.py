@@ -30,7 +30,7 @@ import pandas as pd
 from src.state_utils import convert_summaries_to_dict_format
 from src.email_module import send_email
 from src.enhanced_summary_module import generate_enhanced_summary  # Ensure this import is present
-from src.input_module import transcribe_with_progress  # Assuming this function exists for transcription
+from src.progress_utils import update_progress
 
 logger = logging.getLogger(__name__)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
