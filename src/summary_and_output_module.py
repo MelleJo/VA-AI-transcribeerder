@@ -63,11 +63,15 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         # Check if this is a long recording prompt
         is_long_recording = st.session_state.get('is_long_recording', False)
         
+        progress_placeholder = st.empty()
+        total_steps = 3  # Example total steps for summarization
+
         if is_long_recording and audio_file_path:
-            # Use the enhanced summary pipeline with the audio file
+            update_progress(progress_placeholder, "Starting enhanced summary generation", 1, total_steps)
             summary = generate_enhanced_summary(audio_file_path, client)
+            update_progress(progress_placeholder, "Enhanced summary generation complete", 2, total_steps)
         else:
-            # Use the standard approach for regular prompts
+            update_progress(progress_placeholder, "Preparing prompt for summarization", 1, total_steps)
             full_prompt = f"{base_prompt}\n\n{selected_prompt}"
             response = client.chat.completions.create(
                 model=SUMMARY_MODEL,
@@ -83,7 +87,9 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
                 n=1,
                 stop=None
             )
+            update_progress(progress_placeholder, "Summarization in progress", 2, total_steps)
             summary = response.choices[0].message.content.strip()
+            update_progress(progress_placeholder, "Summarization complete", 3, total_steps)
         
         if not summary:
             raise ValueError("Generated summary is empty")
