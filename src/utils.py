@@ -67,7 +67,7 @@ def get_optimal_chunk_length(audio_length_ms: int) -> int:
     """Calculate optimal chunk length to stay under 25MB limit while maximizing size"""
     # Assuming roughly 1MB per minute of audio (varies by quality)
     # 25MB = ~25 minutes = ~1,500,000 ms
-    SAFE_CHUNK_SIZE_MS = 600_000  # 10 minutes - leaving safety margin
+    SAFE_CHUNK_SIZE_MS = 300_000  # 5 minutes - further reduced for safety
     
     if audio_length_ms <= SAFE_CHUNK_SIZE_MS:
         return audio_length_ms
