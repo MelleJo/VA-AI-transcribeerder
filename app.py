@@ -60,6 +60,8 @@ if 'current_version' not in st.session_state:
     st.session_state.current_version = 0
 if 'summary' not in st.session_state:
     st.session_state.summary = ""
+if 'transcription_complete' not in st.session_state:
+    st.session_state.transcription_complete = False
 if 'summaries' not in st.session_state:
     st.session_state.summaries = []
 if 'current_version' not in st.session_state:
