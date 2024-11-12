@@ -30,6 +30,7 @@ import pandas as pd
 from src.state_utils import convert_summaries_to_dict_format
 from src.email_module import send_email
 from src.enhanced_summary_module import generate_enhanced_summary  # Ensure this import is present
+from src.input_module import transcribe_with_progress  # Assuming this function exists for transcription
 
 logger = logging.getLogger(__name__)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -58,7 +59,21 @@ def load_css():
 
 st.markdown(load_css(), unsafe_allow_html=True)
 
-def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=None):
+def transcribe_audio_with_progress(audio_file_path):
+    """
+    Transcribe audio with progress updates.
+
+    :param audio_file_path: Path to the audio file.
+    :return: Transcribed text.
+    """
+    progress_placeholder = st.empty()
+    total_steps = 2  # Example total steps for transcription
+
+    update_progress(progress_placeholder, "Starting transcription", 1, total_steps)
+    transcribed_text = transcribe_with_progress(audio_file_path)
+    update_progress(progress_placeholder, "Transcription complete", 2, total_steps)
+
+    return transcribed_text
     try:
         # Check if this is a long recording prompt
         is_long_recording = st.session_state.get('is_long_recording', False)
@@ -94,6 +109,11 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         if not summary:
             raise ValueError("Generated summary is empty")
         
+        # Example QA loop integration
+        update_progress(progress_placeholder, "Starting QA loop", 1, total_steps)
+        # Perform QA loop operations here
+        update_progress(progress_placeholder, "QA loop complete", 2, total_steps)
+
         return summary
     except Exception as e:
         print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
