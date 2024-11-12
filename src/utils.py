@@ -179,7 +179,12 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
             try:
                 logger.info("Loading audio file...")
                 audio = AudioSegment.from_file(temp_file_path)
-                logger.info(f"Audio duration: {len(audio)/1000:.2f} seconds")
+                audio_length = len(audio) / 1000  # Convert to seconds
+                logger.info(f"Audio duration: {audio_length:.2f} seconds")
+                
+                # Check if audio is too short
+                if audio_length < 0.1:
+                    raise Exception("Audio file is too short for transcription. Minimum length is 0.1 seconds.")
                 
                 chunks = split_audio(audio)
                 total_chunks = len(chunks)
