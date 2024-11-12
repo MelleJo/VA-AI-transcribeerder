@@ -101,7 +101,7 @@ class EnhancedSummaryPipeline:
             st.error(f"Error validating coverage: {str(e)}")
             return []
 
-    def process_transcript(self, transcript: str) -> str:
+    def process_transcript(self, transcript: str, failed_chunks: bool) -> str:
         """Main pipeline for processing longer transcripts"""
         # Step 1: Extract topics
         topics = self.extract_topics(transcript)
@@ -126,7 +126,7 @@ class EnhancedSummaryPipeline:
                 final_summary += f"- {topic}\n"
         
         # Add disclaimer if there are failed chunks
-        if "Een deel van de transcriptie is gefaald" in transcript:
+        if failed_chunks:
             disclaimer = (
                 "\n\n**Let op:** Een deel van de transcriptie is gefaald. "
                 "De nauwkeurigheid van de samenvatting kan hierdoor minder zijn "
@@ -139,4 +139,5 @@ class EnhancedSummaryPipeline:
 def generate_enhanced_summary(transcript: str, client: OpenAI) -> str:
     """Helper function to generate enhanced summary"""
     pipeline = EnhancedSummaryPipeline(client)
-    return pipeline.process_transcript(transcript)
+    full_transcript, failed_chunks = transcribe_audio(audio_file)
+    return pipeline.process_transcript(full_transcript, failed_chunks)

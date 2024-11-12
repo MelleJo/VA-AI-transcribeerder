@@ -249,7 +249,7 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                     )
                     full_transcript += disclaimer
                 
-                return full_transcript.strip()
+                return full_transcript.strip(), bool(failed_chunks)
                 
             except Exception as e:
                 raise Exception(f"Error processing audio: {str(e)}")
