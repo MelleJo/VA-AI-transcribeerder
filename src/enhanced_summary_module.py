@@ -2,7 +2,8 @@
 
 from openai import OpenAI
 import streamlit as st
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 import json
 from src.utils import transcribe_audio
 
