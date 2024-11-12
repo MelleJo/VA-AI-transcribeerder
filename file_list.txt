@@ -1,0 +1,80 @@
+Root Directory
+- .gitignore
+- app.py
+- packages.txt
+- requirements.txt
+
+legacy_prompts Directory
+- algemeen_arbo.txt
+- algemeen_notulen.txt
+- algemeen_telefoon.txt
+- aov.txt
+- deelnemersgesprekken_collectief_pensioen_prompt.txt
+- financieelplanningstraject.txt
+- hypotheek.txt
+- klant_verzoek_telefonisch.txt
+- onderhoudsadviesgesprek_tabel_prompt.txt
+- onderhoudsgesprekkenwerkgever.txt
+- particulieren.txt
+- samenvatting_gesprek_bedrijfsarts.txt
+- schade_afdeling.txt
+
+legacy_prompts/telefoon Directory
+- algemeen_telefoon.txt
+
+legacy_prompts/util Directory
+- basic_prompt.txt
+- test_prompt.txt
+
+prompts Directory
+- adviesgesprek tabelvorm.txt
+- adviesgesprek.txt
+- aov.txt
+- base_prompt.txt
+- casemanager.txt
+- collectief pensioen.txt
+- deelnemersgesprekken collectief pensioen.txt
+- deelnemersgesprekken_collectief_pensioen_prompt.txt
+- expertise gesprek.txt
+- financieelplanningstraject.txt
+- gesprek bedrijfsarts.txt
+- hypotheek rapport.txt
+- hypotheek.txt
+- ingesproken handleiding.txt
+- ingesproken notitie.txt
+- klantrapport.txt
+- klantvraag.txt
+- lang_adviesgesprek.txt
+- mutatie.txt
+- narratief_verslag.txt
+- notulen brainstorm.txt
+- notulen vergadering.txt
+- onderhoudsadviesgesprek_tabel_prompt.txt
+- onderhoudsgesprekkenwerkgever.txt
+- pensioen.txt
+- risico analyse.txt
+- samenvatting_gesprek_bedrijfsarts.txt
+- schade beoordeling.txt
+- schademelding.txt
+- telefoongesprek.txt
+- VIP.txt
+
+src Directory
+- __init__.py
+- config.py
+- email_module.py
+- enhanced_summary_module.py
+- history_module.py
+- input_module.py
+- prompt_module.py
+- state_management.py
+- state_utils.py
+- summary_and_output_module.py
+- transcript_module.py
+- ui_components.py
+- utils.py
+
+static Directory
+- custom_spinner.html
+- floating_action_button.js
+- styles.css
