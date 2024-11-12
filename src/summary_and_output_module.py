@@ -103,5 +103,4 @@ def update_progress(progress_placeholder, step_description, current_step, total_
     :param total_steps: Total number of steps.
     """
     progress = current_step / total_steps
-    progress_placeholder.progress(progress)
-    progress_placeholder.text(f"{step_description} ({current_step}/{total_steps})")
+    progress_placeholder.progress(progress, text=f"{step_description} ({current_step}/{total_steps})")
