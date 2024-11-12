@@ -67,7 +67,7 @@ def process_multiple_audio_files(uploaded_files):
             with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt en getranscribeerd..."):
                 transcript = transcribe_with_progress(uploaded_file)
                 if transcript:
-                    full_transcript += transcript + "\n\n"
+                    full_transcript += str(transcript) + "\n\n"
                     progress = (i + 1) / len(uploaded_files)
                     ui_progress_bar(progress, f"{progress*100:.1f}%")
                     status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
