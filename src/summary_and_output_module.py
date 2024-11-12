@@ -807,6 +807,10 @@ def create_email_to_colleague(summary):
     """Create email to send to colleague"""
     return create_email(summary, "colleague")
 
+def create_email_to_self(summary):
+    """Create email to send to self"""
+    return create_email(summary, "self")
+
 def create_email_to_client(summary):
     """Create email to send to client"""
     return create_email(summary, "client")
