@@ -421,8 +421,8 @@ def generate_summary(input_text, base_prompt, selected_prompt):
         print(f"Summary generated successfully: {summary[:100]}...")  # Debug print
         return summary
     except Exception as e:
-        print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
-        return None
+        logger.error(f"An error occurred while generating the summary: {str(e)}")
+        return "Er is een fout opgetreden bij het genereren van de samenvatting. Probeer het opnieuw."
 
 def customize_summary(current_summary, customization_request, transcript):
     try:
