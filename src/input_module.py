@@ -1,6 +1,7 @@
 import streamlit as st
 from src import config
-from src.utils import transcribe_audio, process_text_file
+from src.utils import transcribe_audio, process_text_file, get_prompt_content
+from src.summary_and_output_module import generate_summary
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
