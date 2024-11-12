@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Ensure set_page_config is the first Streamlit command
-st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.2", layout="wide")
+st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
 
 from src import config, prompt_module, input_module, ui_components, history_module, summary_and_output_module
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
@@ -21,8 +21,6 @@ import logging
 import time
 import os
 from openai import OpenAI
-
-
 
 logging.getLogger('watchdog').setLevel(logging.ERROR)
 
@@ -127,64 +125,82 @@ def render_prompt_selection():
             "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
             "Hypotheek": ["hypotheek", "hypotheek_rapport"],
             "Financiële Planning": ["aov", "financieelplanningstraject"],
-            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["ingesproken_notitie", "telefoongesprek"]
         },
         "Veldhuis Advies Groep": {
             "Bedrijven": ["VIP", "risico_analyse", "adviesgesprek"],
             "Particulieren": ["klantrapport", "klantvraag"],
             "Schade": ["schade_beoordeling", "schademelding", "expertise_gesprek"],
-            "Overig": ["mutatie", "ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["mutatie", "ingesproken_notitie", "telefoongesprek"]
         },
         "NLG Arbo": {
             "Casemanager": ["casemanager"],
             "Bedrijfsarts": ["gesprek_bedrijfsarts"],
-            "Overig": ["ingesproken_notitie", "notulen_brainstorm", "notulen_vergadering", "onderhoudsadviesgesprek", "telefoongesprek"]
+            "Overig": ["ingesproken_notitie", "telefoongesprek"]
+        },
+        "Langere Gesprekken": {  # Changed name to be more specific and Dutch
+            "Adviesgesprekken": ["lang_adviesgesprek", "lang_hypotheekgesprek"],
+            "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
+            "Rapportages": ["uitgebreid_rapport"]
         }
     }
 
-    # Custom CSS for minimalistic design
+    # Add disclaimer for "Langere Gesprekken" category
+    disclaimer_html = """
+    <div class="info-banner" style="
+        background-color: #f8f9fa;
+        border-left: 4px solid #4CAF50;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    ">
+        <p style="margin: 0;">
+            <strong>Let op:</strong> Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse 
+            van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en 
+            meer gedetailleerde samenvatting op.
+        </p>
+    </div>
+    """
+
+    # Radio buttons for category selection with custom styling
     st.markdown("""
     <style>
-    body {
-        background-color: white;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        color: black;
-    }
-    .stRadio > div {
+    div.row-widget.stRadio > div {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
+        flex-direction: column;
+        gap: 10px;
     }
-    .stSelectbox > div {
-        margin-bottom: 15px;
-    }
-    .stButton > button {
-        background-color: #007BFF;
-        color: white;
-        border: none;
+    div.row-widget.stRadio > div label {
+        padding: 10px 15px;
+        background-color: white;
+        border: 1px solid #e0e0e0;
         border-radius: 5px;
-        padding: 8px 20px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease;
+        transition: all 0.2s;
     }
-    .stButton > button:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
+    div.row-widget.stRadio > div label:hover {
+        background-color: #f8f9fa;
+        border-color: #4CAF50;
     }
     </style>
     """, unsafe_allow_html=True)
-
-    # Radio buttons for category selection
+    
     main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
+    
+    # Show disclaimer if "Langere Gesprekken" is selected
+    if main_category == "Langere Gesprekken":
+        st.markdown(disclaimer_html, unsafe_allow_html=True)
+    
     sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
-
+    
     # Dropdown for prompt selection
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
     # Button to proceed
-    if st.button("Verder ➔", key="proceed_button"):
+    if st.button("Verder ➔", key="proceed_button", use_container_width=True):
         st.session_state.selected_prompt = selected_prompt
+        # Store whether this is a long recording prompt
+        st.session_state.is_long_recording = main_category == "Langere Gesprekken"
         st.session_state.step = 'input_selection'
         st.rerun()
 

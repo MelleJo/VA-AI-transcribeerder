@@ -399,32 +399,38 @@ def update_progress(progress_placeholder, step, current_step, total_steps, start
 
 def generate_summary(input_text, base_prompt, selected_prompt):
     try:
-        full_prompt = f"{base_prompt}\n\n{selected_prompt}"
+        # Check if this is a long recording prompt
+        is_long_recording = st.session_state.get('is_long_recording', False)
         
-        response = client.chat.completions.create(
-            model=SUMMARY_MODEL,
-            messages=[
-                {"role": "system", "content": full_prompt},
-                {"role": "user", "content": input_text}
-            ],
-            max_tokens=MAX_TOKENS,
-            temperature=TEMPERATURE,
-            top_p=TOP_P,
-            frequency_penalty=FREQUENCY_PENALTY,
-            presence_penalty=PRESENCE_PENALTY,
-            n=1,
-            stop=None
-        )
-        summary = response.choices[0].message.content.strip()
+        if is_long_recording:
+            # Use the enhanced summary pipeline
+            summary = generate_enhanced_summary(input_text, client)
+        else:
+            # Use the standard approach for regular prompts
+            full_prompt = f"{base_prompt}\n\n{selected_prompt}"
+            response = client.chat.completions.create(
+                model=SUMMARY_MODEL,
+                messages=[
+                    {"role": "system", "content": full_prompt},
+                    {"role": "user", "content": input_text}
+                ],
+                max_tokens=MAX_TOKENS,
+                temperature=TEMPERATURE,
+                top_p=TOP_P,
+                frequency_penalty=FREQUENCY_PENALTY,
+                presence_penalty=PRESENCE_PENALTY,
+                n=1,
+                stop=None
+            )
+            summary = response.choices[0].message.content.strip()
         
         if not summary:
             raise ValueError("Generated summary is empty")
         
-        print(f"Summary generated successfully: {summary[:100]}...")  # Debug print
         return summary
     except Exception as e:
-        logger.error(f"An error occurred while generating the summary: {str(e)}")
-        return "Er is een fout opgetreden bij het genereren van de samenvatting. Probeer het opnieuw."
+        print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
+        return None
 
 def customize_summary(current_summary, customization_request, transcript):
     try:
