@@ -84,7 +84,7 @@ def process_multiple_audio_files(uploaded_files):
             ui_info_box("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.", "error")
             return False
     except Exception as e:
-        logger.error(f"Error processing multiple audio files: {str(e)}")
+        logger.error("Error processing multiple audio files: %s", str(e))
         ui_info_box(f"Er is een fout opgetreden: {str(e)}", "error")
         return False
 
