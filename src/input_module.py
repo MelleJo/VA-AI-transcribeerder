@@ -143,7 +143,11 @@ def render_input_step(on_input_complete):
         st.session_state.is_processing = False
     
     if not st.session_state.is_processing:
-        # [Rest of the input method selection code...]
+        # Define input_method selection
+        input_method = st.radio(
+            "Selecteer een invoermethode:",
+            ("Meerdere audiobestanden uploaden", "Enkele audio- of videobestand uploaden", "Tekstbestand uploaden", "Tekst invoeren")
+        )
         
         if input_method == "Meerdere audiobestanden uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
