@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import logging
 from openai import OpenAI
 from src.config import SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY, get_colleague_emails
 from src.history_module import add_to_history
@@ -30,6 +31,7 @@ from src.state_utils import convert_summaries_to_dict_format
 from src.email_module import send_email
 
 
+logger = logging.getLogger(__name__)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def load_css():
@@ -820,7 +822,7 @@ def handle_action(action, summary):
     elif action == "Stel conceptmail op naar de klant":
         return create_email_to_client(summary)
     elif action == "Stuur samenvatting naar jezelf":
-        return send_summary_to_self(summary)
+        return create_email_to_self(summary)
     elif action == "Extraheer actiepunten":
         return process_chat_request("Extraheer alle actiepunten uit deze samenvatting en presenteer ze in een overzichtelijke lijst.")
     else:
