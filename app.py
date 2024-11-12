@@ -335,7 +335,6 @@ def render_results():
     
     with col1:
         st.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
-        render_summary_versions()
     
     with col2:
         st.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
