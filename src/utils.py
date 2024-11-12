@@ -17,6 +17,7 @@ import logging
 from groq import Groq
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from typing import Optional, Union
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
