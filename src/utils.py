@@ -38,7 +38,11 @@ def transcribe_with_groq(audio_file_path: str, timeout: int = 10) -> Optional[st
             )
             # Since we requested response_format="text", the response should be the text directly
             if isinstance(response, str):
-                return response
+                if isinstance(response, str):
+                    return response
+                else:
+                    logger.warning(f"Unexpected response format from Whisper: {type(response)}")
+                    return None
             # Fallback in case response is an object
             elif hasattr(response, 'text'):
                 return response.text

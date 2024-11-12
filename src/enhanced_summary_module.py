@@ -34,7 +34,12 @@ class EnhancedSummaryPipeline:
                 response_format={ "type": "json_object" }
             )
             
-            return json.loads(response.choices[0].message.content)["topics"]
+            response_content = response.choices[0].message.content
+            try:
+                return json.loads(response_content)["topics"]
+            except json.JSONDecodeError as e:
+                st.error(f"Error parsing JSON response: {str(e)}")
+                return []
         except Exception as e:
             st.error(f"Error extracting topics: {str(e)}")
             return []
