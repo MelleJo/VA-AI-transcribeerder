@@ -61,62 +61,15 @@ st.markdown(load_css(), unsafe_allow_html=True)
 
 def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=None):
     """
-    Transcribe audio with progress updates.
+    Generate a summary with progress updates.
 
-    :param audio_file_path: Path to the audio file.
-    :return: Transcribed text.
+    :param input_text: The input text to summarize.
+    :param base_prompt: The base prompt for summarization.
+    :param selected_prompt: The selected prompt for summarization.
+    :param audio_file_path: Path to the audio file, if applicable.
+    :return: Generated summary.
     """
-    progress_placeholder = st.empty()
-    total_steps = 2  # Example total steps for transcription
 
-    update_progress(progress_placeholder, "Starting transcription", 1, total_steps)
-    transcribed_text = transcribe_with_progress(audio_file_path)
-    update_progress(progress_placeholder, "Transcription complete", 2, total_steps)
-
-    try:
-        # Check if this is a long recording prompt
-        is_long_recording = st.session_state.get('is_long_recording', False)
-        
-        progress_placeholder = st.empty()
-        total_steps = 3  # Example total steps for summarization
-
-        if is_long_recording and audio_file_path:
-            update_progress(progress_placeholder, "Starting enhanced summary generation", 1, total_steps)
-            summary = generate_enhanced_summary(audio_file_path, client)
-            update_progress(progress_placeholder, "Enhanced summary generation complete", 2, total_steps)
-        else:
-            update_progress(progress_placeholder, "Preparing prompt for summarization", 1, total_steps)
-            full_prompt = f"{base_prompt}\n\n{selected_prompt}"
-            response = client.chat.completions.create(
-                model=SUMMARY_MODEL,
-                messages=[
-                    {"role": "system", "content": full_prompt},
-                    {"role": "user", "content": input_text}
-                ],
-                max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
-                top_p=TOP_P,
-                frequency_penalty=FREQUENCY_PENALTY,
-                presence_penalty=PRESENCE_PENALTY,
-                n=1,
-                stop=None
-            )
-            update_progress(progress_placeholder, "Summarization in progress", 2, total_steps)
-            summary = response.choices[0].message.content.strip()
-            update_progress(progress_placeholder, "Summarization complete", 3, total_steps)
-        
-        if not summary:
-            raise ValueError("Generated summary is empty")
-        
-        # Example QA loop integration
-        update_progress(progress_placeholder, "Starting QA loop", 1, total_steps)
-        # Perform QA loop operations here
-        update_progress(progress_placeholder, "QA loop complete", 2, total_steps)
-
-        return summary
-    except Exception as e:
-        print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
-        return None
     try:
         # Check if this is a long recording prompt
         is_long_recording = st.session_state.get('is_long_recording', False)
