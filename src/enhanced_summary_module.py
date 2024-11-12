@@ -4,6 +4,7 @@ from openai import OpenAI
 import streamlit as st
 from typing import List, Dict, Tuple
 import json
+from src.utils import transcribe_audio
 
 class EnhancedSummaryPipeline:
     def __init__(self, client: OpenAI):
@@ -136,7 +137,7 @@ class EnhancedSummaryPipeline:
 
         return final_summary
 
-def generate_enhanced_summary(transcript: str, client: OpenAI) -> str:
+def generate_enhanced_summary(audio_file: Union[str, bytes, 'UploadedFile'], client: OpenAI) -> str:
     """Helper function to generate enhanced summary"""
     pipeline = EnhancedSummaryPipeline(client)
     full_transcript, failed_chunks = transcribe_audio(audio_file)
