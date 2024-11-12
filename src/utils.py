@@ -200,24 +200,28 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                     
                     logger.info(f"Processing chunk {i+1}/{total_chunks}")
                     
-                    if use_groq:
-                        transcript = transcribe_with_groq(chunk_path)
-                        if transcript is None:
-                            # Fallback to Whisper if Groq fails
+                    try:
+                        if use_groq:
+                            transcript = transcribe_with_groq(chunk_path)
+                            if transcript is None:
+                                # Fallback to Whisper if Groq fails
+                                transcript = transcribe_with_whisper(chunk_path)
+                        else:
+                            # Use Whisper directly for larger files
                             transcript = transcribe_with_whisper(chunk_path)
-                    else:
-                        # Use Whisper directly for larger files
-                        transcript = transcribe_with_whisper(chunk_path)
-                    
-                    if transcript:
-                        transcripts.append(transcript)
-                        logger.info(f"Successfully transcribed chunk {i+1}")
-                    else:
+                        
+                        if transcript:
+                            transcripts.append(transcript)
+                            logger.info(f"Successfully transcribed chunk {i+1}")
+                        else:
+                            failed_chunks.append(i)
+                            logger.error(f"Failed to transcribe chunk {i+1}")
+                    except Exception as e:
                         if "audio_too_short" in str(e):
                             logger.warning(f"Chunk {i+1} is too short to transcribe.")
                         else:
                             failed_chunks.append(i)
-                            logger.error(f"Failed to transcribe chunk {i+1}")
+                            logger.error(f"Failed to transcribe chunk {i+1} due to error: {str(e)}")
                     
                     if progress_callback:
                         progress = ((i + 1) / total_chunks) * 100
