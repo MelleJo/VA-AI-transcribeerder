@@ -73,6 +73,7 @@ def process_multiple_audio_files(uploaded_files):
                     status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
                 else:
                     ui_info_box(f"Transcriptie van bestand {uploaded_file.name} is mislukt.", "error")
+                    logger.error(f"Transcriptie van bestand {uploaded_file.name} is mislukt.")
 
         if full_transcript:
             st.session_state.input_text = full_transcript
