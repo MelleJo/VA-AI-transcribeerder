@@ -240,6 +240,15 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                     raise Exception("Geen tekst kon worden geëxtraheerd uit de audio")
                 
                 logger.info(f"Transcription completed successfully with {len(transcripts)} chunks")
+                # Add disclaimer if there are failed chunks
+                if failed_chunks:
+                    disclaimer = (
+                        "\n\n**Let op:** Een deel van de transcriptie is gefaald. "
+                        "De nauwkeurigheid van de samenvatting kan hierdoor minder zijn "
+                        "of er kunnen onderdelen ontbreken."
+                    )
+                    full_transcript += disclaimer
+                
                 return full_transcript.strip()
                 
             except Exception as e:
