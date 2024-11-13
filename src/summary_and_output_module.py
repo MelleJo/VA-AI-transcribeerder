@@ -123,6 +123,7 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         return summary
     except Exception as e:
         logger.error(f"An error occurred while generating the summary: {str(e)}")
+        st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
         return None
 
 def update_progress(progress_placeholder, step_description, current_step, total_steps):
