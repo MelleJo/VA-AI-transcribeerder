@@ -185,12 +185,14 @@ def send_feedback_email(**kwargs):
     # Implement the logic for sending feedback email.
     return True
 
-def suggest_actions(summaries):
+def suggest_actions(summary, static_actions):
     """
-    Suggest actions based on the provided summaries.
+    Suggest actions based on the provided summary and static actions.
 
-    :param summaries: List of summaries to analyze.
+    :param summary: The summary content to analyze.
+    :param static_actions: List of static actions to consider.
     :return: List of suggested actions.
     """
     # Example implementation: return a list of dummy actions
-    return [f"Action suggestion based on summary: {summary}" for summary in summaries]
+    ai_suggestions = [f"AI suggestion based on summary: {summary}"]
+    return static_actions + ai_suggestions
