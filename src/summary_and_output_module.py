@@ -88,6 +88,7 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         else:
             update_progress(progress_placeholder, "Preparing prompt for summarization", 1, total_steps)
             full_prompt = f"{base_prompt}\n\n{selected_prompt}"
+            input_text = str(input_text)  # Ensure input_text is a string
             try:
                 response = client.chat.completions.create(
                     model=SUMMARY_MODEL,
