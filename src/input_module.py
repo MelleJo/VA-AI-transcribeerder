@@ -148,10 +148,20 @@ def render_input_step(on_input_complete):
         # Define input_method selection
         input_method = st.radio(
             "Selecteer een invoermethode:",
-            ("Meerdere audiobestanden uploaden", "Enkele audio- of videobestand uploaden", "Tekstbestand uploaden", "Tekst invoeren")
+            ("Audio opnemen", "Meerdere audiobestanden uploaden", "Enkele audio- of videobestand uploaden", "Tekstbestand uploaden", "Tekst invoeren")
         )
         
-        if input_method == "Meerdere audiobestanden uploaden":
+        if input_method == "Audio opnemen":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.info("Klik op 'Start opname' om audio op te nemen.")
+            audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
+            if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
+                st.session_state.is_processing = True
+                process_recorded_audio(audio_data, on_input_complete)
+                st.session_state.is_processing = False
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+        elif input_method == "Meerdere audiobestanden uploaden":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere audio- of videobestanden",
@@ -165,9 +175,45 @@ def render_input_step(on_input_complete):
                     on_input_complete()
                 st.session_state.is_processing = False
             st.markdown("</div>", unsafe_allow_html=True)
-            
-        # [Rest of the input methods...]
-
+        
+        elif input_method == "Enkele audio- of videobestand uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_file = st.file_uploader(
+                "Upload een audio- of videobestand",
+                type=config.ALLOWED_AUDIO_TYPES + ['mp4'],
+                key="single_audio_uploader",
+                accept_multiple_files=False
+            )
+            if uploaded_file:
+                st.session_state.is_processing = True
+                process_uploaded_audio(uploaded_file, on_input_complete)
+                st.session_state.is_processing = False
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        elif input_method == "Tekstbestand uploaden":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "Upload een of meerdere tekstbestanden",
+                type=config.ALLOWED_TEXT_TYPES,
+                key="text_file_uploader",
+                accept_multiple_files=True
+            )
+            if uploaded_files:
+                st.session_state.is_processing = True
+                process_multiple_text_files(uploaded_files)
+                on_input_complete()
+                st.session_state.is_processing = False
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        elif input_method == "Tekst invoeren":
+            st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+            st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
+            if st.button("Verwerk tekst"):
+                st.session_state.is_processing = True
+                process_text_input(on_input_complete)
+                st.session_state.is_processing = False
+            st.markdown("</div>", unsafe_allow_html=True)
+    
     # Show transcript editor if transcription is complete
     if st.session_state.transcription_complete:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
@@ -179,7 +225,7 @@ def render_input_step(on_input_complete):
             key=f"final_transcript_{hash(st.session_state.input_text)}"
         )
         st.markdown("</div>", unsafe_allow_html=True)
-
+    
     # Return recording state
     return st.session_state.get('is_recording', False)
 
