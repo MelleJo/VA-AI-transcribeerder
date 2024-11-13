@@ -266,7 +266,7 @@ def process_recorded_audio(audio_data, on_input_complete):
                     ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
                     st.session_state.transcription_complete = True
                     on_input_complete()
-                    st.experimental_rerun()  # Forceer refresh
+                    st.rerun()  # Forceer refresh
                 else:
                     ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
             finally:
@@ -300,7 +300,7 @@ def process_text_input(on_input_complete):
 
 def on_input_complete():
     st.session_state.current_step = 'summary_generation'
-    st.experimental_rerun()
+    st.rerun()
 
 def render_summary_step():
     if 'summary' not in st.session_state:
