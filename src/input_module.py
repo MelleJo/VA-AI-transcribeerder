@@ -2,6 +2,7 @@ import streamlit as st
 from src import config
 from src.utils import transcribe_audio, process_text_file, get_prompt_content
 from src.summary_and_output_module import generate_summary
+from src.enhanced_summary_module import generate_enhanced_summary  # Import the enhanced summary module
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
@@ -109,8 +110,6 @@ def process_multiple_text_files(uploaded_files):
     if full_text:
         st.session_state.input_text = full_text
         ui_info_box("Alle tekstbestanden zijn succesvol verwerkt!", "success")
-        st.write("Volledige tekst lengte:", len(full_text))
-        st.write("Eerste 100 karakters van volledige tekst:", full_text[:100])
         st.session_state.transcription_complete = True
     else:
         ui_info_box("Verwerking van alle bestanden is mislukt. Probeer het opnieuw.", "error")
@@ -215,7 +214,7 @@ def render_input_step(on_input_complete):
             st.markdown("</div>", unsafe_allow_html=True)
     
     # Show transcript editor if transcription is complete
-    if st.session_state.transcription_complete:
+    if st.session_state.get('transcription_complete', False):
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
         st.session_state.input_text = st.text_area(
@@ -224,6 +223,8 @@ def render_input_step(on_input_complete):
             height=300,
             key=f"final_transcript_{hash(st.session_state.input_text)}"
         )
+        if st.button("Ga verder met samenvatting"):
+            on_input_complete()
         st.markdown("</div>", unsafe_allow_html=True)
     
     # Return recording state
@@ -238,39 +239,12 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
 
             logger.info(f"Processing uploaded file: {uploaded_file.name}")
             
-            # First try to transcribe
+            # First transcribe the audio
             st.session_state.input_text = transcribe_with_progress(uploaded_file)
             
             if st.session_state.input_text:
                 st.success("Audio succesvol verwerkt en getranscribeerd!")
-                st.write("Transcript lengte:", len(st.session_state.input_text))
-                st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                 st.session_state.transcription_complete = True
-                
-                # Now try to generate summary
-                try:
-                    if 'base_prompt' in st.session_state and 'selected_prompt' in st.session_state:
-                        logger.info("Generating summary...")
-                        summary = generate_summary(
-                            st.session_state.input_text,
-                            st.session_state.base_prompt,
-                            get_prompt_content(st.session_state.selected_prompt)
-                        )
-                        if summary:
-                            st.session_state.summary = summary
-                            st.session_state.summaries = [{"type": "summary", "content": summary}]
-                            st.session_state.current_version = 0
-                            logger.info("Summary generated successfully")
-                        else:
-                            logger.error("Summary generation returned None")
-                            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
-                    else:
-                        logger.error("Missing required prompts for summary generation")
-                        st.error("Ontbrekende prompts voor het genereren van de samenvatting.")
-                except Exception as e:
-                    logger.error(f"Error generating summary: {str(e)}")
-                    st.error(f"Fout bij het genereren van de samenvatting: {str(e)}")
-                
                 on_input_complete()
             else:
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
@@ -290,12 +264,9 @@ def process_recorded_audio(audio_data, on_input_complete):
                 
                 if st.session_state.input_text:
                     ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
-                    st.write("Transcript lengte:", len(st.session_state.input_text))
-                    st.write("Eerste 100 karakters van transcript:", st.session_state.input_text[:100])
                     st.session_state.transcription_complete = True
-                    # Force state update and move to next step
                     on_input_complete()
-                    st.rerun()  # Force refresh
+                    st.experimental_rerun()  # Force refresh
                 else:
                     ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
             finally:
@@ -315,8 +286,6 @@ def process_uploaded_text(uploaded_file, on_input_complete):
         if st.session_state.input_text:
             st.session_state.transcription_complete = True
             ui_info_box("Bestand succesvol geüpload en verwerkt!", "success")
-            st.write("Tekst lengte:", len(st.session_state.input_text))
-            st.write("Eerste 100 karakters van tekst:", st.session_state.input_text[:100])
             on_input_complete()
         else:
             ui_info_box("Verwerking is mislukt. Probeer een ander bestand.", "error")
@@ -352,3 +321,47 @@ def render_audio_input(on_stop_recording):
 
 def render_text_input(on_input_complete):
     st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
+    if st.button("Verwerk tekst"):
+        process_text_input(on_input_complete)
+
+# Implement the on_input_complete function
+def on_input_complete():
+    st.session_state.current_step = 'summary_generation'
+    st.experimental_rerun()
+
+# Modify the pipeline in render_input_step
+def render_input_step(on_input_complete):
+    # Existing code...
+    # At the end, after transcription is complete
+    if st.session_state.get('transcription_complete', False):
+        # Call the function to generate summary based on the selected prompt
+        if st.session_state.get('selected_prompt') == 'Langere samenvatting':
+            # Use the enhanced summary module
+            summary = generate_enhanced_summary(
+                st.session_state.input_text,
+                st.session_state.base_prompt,
+                get_prompt_content(st.session_state.selected_prompt)
+            )
+            if summary:
+                st.session_state.summary = summary
+                st.session_state.summaries = [{"type": "summary", "content": summary}]
+                st.session_state.current_version = 0
+                ui_info_box("Samenvatting succesvol gegenereerd!", "success")
+                on_input_complete()
+            else:
+                st.error("Er is een fout opgetreden bij het genereren van de langere samenvatting.")
+        else:
+            # Use the standard summary generation
+            summary = generate_summary(
+                st.session_state.input_text,
+                st.session_state.base_prompt,
+                get_prompt_content(st.session_state.selected_prompt)
+            )
+            if summary:
+                st.session_state.summary = summary
+                st.session_state.summaries = [{"type": "summary", "content": summary}]
+                st.session_state.current_version = 0
+                ui_info_box("Samenvatting succesvol gegenereerd!", "success")
+                on_input_complete()
+            else:
+                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
