@@ -88,22 +88,28 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         else:
             update_progress(progress_placeholder, "Preparing prompt for summarization", 1, total_steps)
             full_prompt = f"{base_prompt}\n\n{selected_prompt}"
-            response = client.chat.completions.create(
-                model=SUMMARY_MODEL,
-                messages=[
-                    {"role": "system", "content": full_prompt},
-                    {"role": "user", "content": input_text}
-                ],
-                max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
-                top_p=TOP_P,
-                frequency_penalty=FREQUENCY_PENALTY,
-                presence_penalty=PRESENCE_PENALTY,
-                n=1,
-                stop=None
-            )
-            update_progress(progress_placeholder, "Summarization in progress", 2, total_steps)
-            summary = response.choices[0].message.content.strip()
+            try:
+                response = client.chat.completions.create(
+                    model=SUMMARY_MODEL,
+                    messages=[
+                        {"role": "system", "content": full_prompt},
+                        {"role": "user", "content": input_text}
+                    ],
+                    max_tokens=MAX_TOKENS,
+                    temperature=TEMPERATURE,
+                    top_p=TOP_P,
+                    frequency_penalty=FREQUENCY_PENALTY,
+                    presence_penalty=PRESENCE_PENALTY,
+                    n=1,
+                    stop=None
+                )
+                update_progress(progress_placeholder, "Summarization in progress", 2, total_steps)
+                summary = response.choices[0].message.content.strip()
+                logger.info(f"Generated summary: {summary}")
+            except Exception as e:
+                logger.error(f"Error during API call: {str(e)}")
+                summary = None
+
             update_progress(progress_placeholder, "Summarization complete", 3, total_steps)
         
         if not summary:
