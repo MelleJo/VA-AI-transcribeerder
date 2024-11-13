@@ -300,10 +300,10 @@ def process_input_and_generate_summary():
         total_steps = 2
         
         # Update progress: Preparing
-        update_progress(progress_placeholder, "voorbereiden", 1, total_steps, start_time)
+        update_progress(progress_placeholder, "voorbereiden", 1, total_steps)
         
         # Generate Summary
-        update_progress(progress_placeholder, "samenvatting_genereren", 2, total_steps, start_time)
+        update_progress(progress_placeholder, "samenvatting_genereren", 2, total_steps)
         new_summary = generate_summary(
             st.session_state.input_text,
             st.session_state.base_prompt,
