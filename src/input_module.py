@@ -2,7 +2,8 @@ import streamlit as st
 from src import config
 from src.utils import transcribe_audio, process_text_file, get_prompt_content
 from src.summary_and_output_module import generate_summary
-from src.enhanced_summary_module import generate_enhanced_summary  # Import the enhanced summary module
+from src.enhanced_summary_module import generate_enhanced_summary  # Importeer de enhanced summary module
+from src.email_module import send_email  # Importeer de send_email functie
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
@@ -11,14 +12,16 @@ import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
 from src.progress_utils import update_progress
 import logging
+from io import BytesIO
+import pdfkit
 
-# Set up logger
+# Stel de logger in
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
-    return len(audio) / 1000  # Length in seconds
+    return len(audio) / 1000  # Lengte in seconden
 
 def format_time(seconds):
     minutes, seconds = divmod(int(seconds), 60)
@@ -26,7 +29,7 @@ def format_time(seconds):
 
 def transcribe_with_progress(audio_file_path):
     try:
-        total_steps = 100  # Example total steps, adjust as needed
+        total_steps = 100  # Voorbeeld totale stappen, pas aan indien nodig
         start_time = time.time()
         progress_placeholder = st.empty()
         
@@ -36,7 +39,7 @@ def transcribe_with_progress(audio_file_path):
         text = transcribe_audio(audio_file_path, progress_callback=progress_callback)
         
         if text:
-            # Signal completion explicitly
+            # Signaleer expliciete voltooiing
             progress_placeholder.markdown("""
                 <div class="progress-container">
                     <div class="progress-bar" style="width: 100%;"></div>
@@ -52,7 +55,7 @@ def transcribe_with_progress(audio_file_path):
         st.error("Er is een fout opgetreden tijdens de transcriptie. Probeer het opnieuw.")
         return None
     finally:
-        # Force UI update
+        # Forceer UI-update
         st.session_state.update({
             'processing_complete': True,
             'current_step': 'input_selection'
@@ -119,8 +122,8 @@ def render_recording_reminders(prompt_type):
     if reminders:
         st.markdown("### Vergeet niet de volgende onderwerpen te behandelen:")
         
-        # Calculate the number of columns based on the number of reminders
-        num_columns = min(3, len(reminders))  # Maximum of 3 columns
+        # Bepaal het aantal kolommen op basis van het aantal reminders
+        num_columns = min(3, len(reminders))  # Maximaal 3 kolommen
         cols = st.columns(num_columns)
         
         for i, reminder in enumerate(reminders):
@@ -139,12 +142,12 @@ def render_input_step(on_input_complete):
     st.session_state.grammar_checked = False
     st.markdown("<h2 class='section-title'></h2>", unsafe_allow_html=True)
     
-    # Initialize session state variables if not present
+    # Initialiseer sessievariabelen indien niet aanwezig
     if 'is_processing' not in st.session_state:
         st.session_state.is_processing = False
     
     if not st.session_state.is_processing:
-        # Define input_method selection
+        # Definieer input_method selectie
         input_method = st.radio(
             "Selecteer een invoermethode:",
             ("Audio opnemen", "Meerdere audiobestanden uploaden", "Enkele audio- of videobestand uploaden", "Tekstbestand uploaden", "Tekst invoeren")
@@ -213,7 +216,7 @@ def render_input_step(on_input_complete):
                 st.session_state.is_processing = False
             st.markdown("</div>", unsafe_allow_html=True)
     
-    # Show transcript editor if transcription is complete
+    # Toon transcripteditor als transcriptie voltooid is
     if st.session_state.get('transcription_complete', False):
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
@@ -226,9 +229,6 @@ def render_input_step(on_input_complete):
         if st.button("Ga verder met samenvatting"):
             on_input_complete()
         st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Return recording state
-    return st.session_state.get('is_recording', False)
 
 def process_uploaded_audio(uploaded_file, on_input_complete):
     st.session_state.transcription_complete = False
@@ -239,7 +239,7 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
 
             logger.info(f"Processing uploaded file: {uploaded_file.name}")
             
-            # First transcribe the audio
+            # Eerst audio transcriberen
             st.session_state.input_text = transcribe_with_progress(uploaded_file)
             
             if st.session_state.input_text:
@@ -266,11 +266,11 @@ def process_recorded_audio(audio_data, on_input_complete):
                     ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
                     st.session_state.transcription_complete = True
                     on_input_complete()
-                    st.experimental_rerun()  # Force refresh
+                    st.experimental_rerun()  # Forceer refresh
                 else:
                     ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
             finally:
-                # Always clean up temp file
+                # Verwijder tijdelijk bestand altijd
                 if os.path.exists(tmp_file_path):
                     os.unlink(tmp_file_path)
                 
@@ -298,70 +298,71 @@ def process_text_input(on_input_complete):
     else:
         ui_info_box("Voer eerst tekst in voordat u op 'Verwerk tekst' klikt.", "warning")
 
-def render_upload_input(on_input_complete):
-    uploaded_file = st.file_uploader("Upload een audio- of tekstbestand", type=config.ALLOWED_AUDIO_TYPES + config.ALLOWED_TEXT_TYPES)
-    if uploaded_file:
-        try:
-            if uploaded_file.type.startswith('audio/') or uploaded_file.name.endswith('.mp4'):
-                with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-                    st.session_state.input_text = transcribe_audio(uploaded_file)
-            else:
-                st.session_state.input_text = process_text_file(uploaded_file)
-            st.text_area("Transcript:", value=st.session_state.input_text, height=300)
-            on_input_complete()
-        except Exception as e:
-            st.error(f"Er is een fout opgetreden bij het verwerken van het bestand: {str(e)}")
-
-def render_audio_input(on_stop_recording):
-    audio_data = mic_recorder(start_prompt="Start opname", stop_prompt="Stop opname")
-    if audio_data and isinstance(audio_data, dict) and 'bytes' in audio_data:
-        st.session_state.input_text = transcribe_audio(audio_data)
-        st.text_area("Transcript:", value=st.session_state.input_text, height=300)
-        on_stop_recording()
-
-def render_text_input(on_input_complete):
-    st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
-    if st.button("Verwerk tekst"):
-        process_text_input(on_input_complete)
-
-# Implement the on_input_complete function
 def on_input_complete():
     st.session_state.current_step = 'summary_generation'
     st.experimental_rerun()
 
-# Modify the pipeline in render_input_step
-def render_input_step(on_input_complete):
-    # Existing code...
-    # At the end, after transcription is complete
-    if st.session_state.get('transcription_complete', False):
-        # Call the function to generate summary based on the selected prompt
+def render_summary_step():
+    if 'summary' not in st.session_state:
         if st.session_state.get('selected_prompt') == 'Langere samenvatting':
-            # Use the enhanced summary module
+            # Gebruik de enhanced summary module
             summary = generate_enhanced_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
                 get_prompt_content(st.session_state.selected_prompt)
             )
-            if summary:
-                st.session_state.summary = summary
-                st.session_state.summaries = [{"type": "summary", "content": summary}]
-                st.session_state.current_version = 0
-                ui_info_box("Samenvatting succesvol gegenereerd!", "success")
-                on_input_complete()
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de langere samenvatting.")
         else:
-            # Use the standard summary generation
+            # Gebruik de standaard samenvatting
             summary = generate_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
                 get_prompt_content(st.session_state.selected_prompt)
             )
-            if summary:
-                st.session_state.summary = summary
-                st.session_state.summaries = [{"type": "summary", "content": summary}]
-                st.session_state.current_version = 0
-                ui_info_box("Samenvatting succesvol gegenereerd!", "success")
-                on_input_complete()
-            else:
-                st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+        if summary:
+            st.session_state.summary = summary
+            st.session_state.summaries = [{"type": "summary", "content": summary}]
+            st.session_state.current_version = 0
+            ui_info_box("Samenvatting succesvol gegenereerd!", "success")
+        else:
+            st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
+
+    st.markdown("<h3 class='section-title'>Samenvatting</h3>", unsafe_allow_html=True)
+    st.markdown(st.session_state.summary)
+
+    # Acties met echte functionaliteit
+    if st.button("Verzend samenvatting via e-mail"):
+        send_summary_via_email(st.session_state.summary)
+    if st.button("Download samenvatting als PDF"):
+        download_summary_as_pdf(st.session_state.summary)
+
+def send_summary_via_email(summary):
+    sender_email = st.secrets["email"]["sender_email"]
+    recipient_email = st.secrets["email"]["recipient_email"]
+    subject = "Samenvatting van transcriptie"
+    body = summary
+
+    success, message = send_email(sender_email, recipient_email, subject, body)
+    if success:
+        st.success("E-mail succesvol verzonden.")
+    else:
+        st.error(f"Fout bij het verzenden van e-mail: {message}")
+
+def download_summary_as_pdf(summary):
+    # Implementeer PDF-downloadfunctionaliteit
+    pdf = pdfkit.from_string(summary, False)
+    st.download_button(
+        label="Download PDF",
+        data=pdf,
+        file_name="samenvatting.pdf",
+        mime="application/pdf"
+    )
+
+def render_app():
+    if 'current_step' not in st.session_state:
+        st.session_state.current_step = 'input_step'
+    if st.session_state.current_step == 'input_step':
+        render_input_step(on_input_complete)
+    elif st.session_state.current_step == 'summary_generation':
+        render_summary_step()
+
+render_app()
