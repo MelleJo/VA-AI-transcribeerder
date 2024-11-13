@@ -77,6 +77,10 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         progress_placeholder = st.empty()
         total_steps = 3  # Example total steps for summarization
 
+        logger.info(f"Input text: {input_text}")
+        logger.info(f"Base prompt: {base_prompt}")
+        logger.info(f"Selected prompt: {selected_prompt}")
+
         if is_long_recording and audio_file_path:
             update_progress(progress_placeholder, "Starting enhanced summary generation", 1, total_steps)
             summary = generate_enhanced_summary(audio_file_path, client)
@@ -112,7 +116,7 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
 
         return summary
     except Exception as e:
-        print(f"An error occurred while generating the summary: {str(e)}")  # Debug print
+        logger.error(f"An error occurred while generating the summary: {str(e)}")
         return None
 
 def update_progress(progress_placeholder, step_description, current_step, total_steps):
