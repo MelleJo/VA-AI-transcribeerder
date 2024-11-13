@@ -12,3 +12,4 @@ reportlab
 streamlit_mic_recorder
 moviepy
 groq
+pdfkit
