@@ -14,7 +14,8 @@ from src.summary_and_output_module import (
     render_chat_interface,
     send_feedback_email,
     update_progress,
-    generate_summary
+    generate_summary,
+    suggest_actions  # Zorg ervoor dat deze import aanwezig is
 )
 import logging
 import time
@@ -103,7 +104,7 @@ def main():
     load_css()
     add_loader_css()
     ui_components.apply_custom_css()
-    convert_summaries_to_dict_format()  # Remove st argument
+    convert_summaries_to_dict_format()
 
     # Initialize OpenAI client using the function to get the API key
     client = OpenAI(api_key=config.get_openai_api_key())
@@ -139,7 +140,7 @@ def render_prompt_selection():
             "Bedrijfsarts": ["gesprek_bedrijfsarts"],
             "Overig": ["ingesproken_notitie", "telefoongesprek"]
         },
-        "Langere Gesprekken": {  # Changed name to be more specific and Dutch
+        "Langere Gesprekken": {
             "Adviesgesprekken": ["lang_adviesgesprek", "lang_hypotheekgesprek"],
             "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
             "Rapportages": ["uitgebreid_rapport"]
@@ -220,7 +221,7 @@ def render_input_selection():
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
-            key=f"transcript_edit_{hash(st.session_state.input_text)}"  # Dynamic unique key
+            key=f"transcript_edit_{hash(st.session_state.input_text)}"
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -335,7 +336,13 @@ def render_results():
     
     with col1:
         st.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
-    
+        
+        if st.session_state.summaries:
+            current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
+            st.markdown(current_summary, unsafe_allow_html=True)
+        else:
+            st.warning("Geen samenvatting beschikbaar.")
+
     with col2:
         st.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
         
@@ -351,7 +358,7 @@ def render_results():
             
         # AI-generated suggestions
         if st.session_state.summaries:
-            ai_suggestions = summary_and_output_module.suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
+            ai_suggestions = suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
         else:
             ai_suggestions = []
         
@@ -476,7 +483,7 @@ def render_summary_with_version_control():
         with col1:
             if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
                 st.session_state.current_version -= 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         with col2:
@@ -485,7 +492,7 @@ def render_summary_with_version_control():
         with col3:
             if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
                 st.session_state.current_version += 1
-                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]  # Update the summary
+                st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         st.markdown("</div>", unsafe_allow_html=True)
@@ -499,7 +506,7 @@ def render_summary_with_version_control():
             if st.button("Wijzigingen opslaan", key="save_changes_button"):
                 st.session_state.summary_versions.append(edited_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = edited_summary  # Update the summary
+                st.session_state.summary = edited_summary
                 st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:

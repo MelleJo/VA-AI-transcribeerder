@@ -11,21 +11,23 @@ class EnhancedSummaryPipeline:
     def __init__(self, client: OpenAI):
         self.client = client
         self.mini_model = "gpt-4o-mini"  # Lightweight model
-        self.main_model = "gpt-4o"       # Full model
+        self.main_model = "gpt-4o"          # Full model
 
     def extract_topics(self, transcript: str) -> List[Dict[str, str]]:
         """First pass: Extract main topics from transcript"""
         prompt = f"""
-        Analyze this transcript and identify all distinct topics that were discussed in detail.
-        For each topic:
-        - Provide a clear title
-        - Identify the relevant parts of the transcript
-        - Include any mentioned numbers, dates, or specific details
-        
-        Format your response as a JSON array of objects with 'title' and 'context' keys.
-        
-        Transcript:
-        {transcript}
+Analyseer dit transcript en identificeer alle afzonderlijke onderwerpen die in detail zijn besproken.
+Voor elk onderwerp:
+- Geef een duidelijke titel
+- Benoem de relevante delen van het transcript
+- Neem eventuele genoemde nummers, data of specifieke details op
+
+Formatteer je reactie als een JSON-array van objecten met de sleutels 'title' en 'context'.
+
+Transcript:
+\"\"\"
+{transcript}
+\"\"\"
         """
         
         try:
@@ -33,30 +35,37 @@ class EnhancedSummaryPipeline:
                 model=self.mini_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
-                response_format={ "type": "json_object" }
+                max_tokens=1500
             )
             
             response_content = response.choices[0].message.content
-            try:
-                return json.loads(response_content)["topics"]
-            except json.JSONDecodeError as e:
-                st.error(f"Error parsing JSON response: {str(e)}")
+            # Probeer JSON uit de response te extraheren
+            json_start = response_content.find('[')
+            json_end = response_content.rfind(']')
+            if json_start != -1 and json_end != -1:
+                json_str = response_content[json_start:json_end+1]
+                return json.loads(json_str)
+            else:
+                st.error("Kon geen JSON extraheren uit de response in 'extract_topics'.")
                 return []
         except Exception as e:
-            st.error(f"Error extracting topics: {str(e)}")
+            st.error(f"Fout bij het extraheren van onderwerpen: {str(e)}")
             return []
 
     def generate_detailed_summary(self, topic: Dict[str, str]) -> str:
         """Second pass: Generate detailed summary for each topic"""
         prompt = f"""
-        Create a detailed summary of this specific topic from the transcript.
-        Focus on:
-        - Specific details, numbers, and dates mentioned
-        - Key decisions or conclusions
-        - Actions or next steps related to this topic
-        
-        Topic: {topic['title']}
-        Relevant Context: {topic['context']}
+Maak een gedetailleerde samenvatting van dit specifieke onderwerp uit het transcript.
+Focus op:
+- Specifieke details, nummers en data die zijn genoemd
+- Belangrijke beslissingen of conclusies
+- Acties of volgende stappen gerelateerd aan dit onderwerp
+
+Onderwerp: {topic['title']}
+Relevante context:
+\"\"\"
+{topic['context']}
+\"\"\"
         """
         
         try:
@@ -64,30 +73,34 @@ class EnhancedSummaryPipeline:
                 model=self.main_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.5,
-                max_tokens=1000
+                max_tokens=1500
             )
             
-            return response.choices[0].message.content
+            return response.choices[0].message.content.strip()
         except Exception as e:
-            st.error(f"Error generating detailed summary: {str(e)}")
+            st.error(f"Fout bij het genereren van een gedetailleerde samenvatting: {str(e)}")
             return ""
 
     def validate_coverage(self, transcript: str, summaries: Dict[str, str]) -> List[str]:
         """Third pass: Validate coverage and identify any missed topics"""
         prompt = f"""
-        Review these summaries and the original transcript. Identify any significant topics
-        or details that might have been missed. Focus on:
-        - Important topics not covered in the summaries
-        - Significant details that were overlooked
-        - Any inconsistencies between the transcript and summaries
+Beoordeel deze samenvattingen en het originele transcript. Identificeer eventuele belangrijke onderwerpen
+of details die mogelijk zijn gemist. Focus op:
+- Belangrijke onderwerpen die niet zijn behandeld in de samenvattingen
+- Significante details die over het hoofd zijn gezien
+- Eventuele inconsistenties tussen het transcript en de samenvattingen
 
-        Summaries:
-        {json.dumps(summaries, indent=2)}
+Samenvattingen:
+{json.dumps(summaries, indent=2)}
 
-        Original Transcript:
-        {transcript}
+Origineel Transcript:
+\"\"\"
+{transcript}
+\"\"\"
 
-        Return your findings as a JSON array of strings.
+Geef je bevindingen als een lijst van gemiste onderwerpen.
+
+Formatteer je reactie als een JSON-array van strings.
         """
         
         try:
@@ -95,39 +108,48 @@ class EnhancedSummaryPipeline:
                 model=self.mini_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
-                response_format={ "type": "json_object" }
+                max_tokens=1000
             )
             
-            return json.loads(response.choices[0].message.content)["missed_topics"]
+            response_content = response.choices[0].message.content
+            # Probeer JSON uit de response te extraheren
+            json_start = response_content.find('[')
+            json_end = response_content.rfind(']')
+            if json_start != -1 and json_end != -1:
+                json_str = response_content[json_start:json_end+1]
+                return json.loads(json_str)
+            else:
+                st.error("Kon geen JSON extraheren uit de response in 'validate_coverage'.")
+                return []
         except Exception as e:
-            st.error(f"Error validating coverage: {str(e)}")
+            st.error(f"Fout bij het valideren van de dekking: {str(e)}")
             return []
 
     def process_transcript(self, transcript: str, failed_chunks: bool) -> str:
         """Main pipeline for processing longer transcripts"""
-        # Step 1: Extract topics
+        # Stap 1: Onderwerpen extraheren
         topics = self.extract_topics(transcript)
         
-        # Step 2: Generate detailed summaries for each topic
+        # Stap 2: Gedetailleerde samenvattingen genereren voor elk onderwerp
         detailed_summaries = {}
         for topic in topics:
             detailed_summaries[topic['title']] = self.generate_detailed_summary(topic)
         
-        # Step 3: Validate coverage
+        # Stap 3: Dekking valideren
         missed_topics = self.validate_coverage(transcript, detailed_summaries)
         
-        # Step 4: Combine everything into a final summary
-        final_summary = "# Detailed Summary\n\n"
+        # Stap 4: Alles samenvoegen tot een definitieve samenvatting
+        final_summary = ""
         
         for topic_title, summary in detailed_summaries.items():
             final_summary += f"## {topic_title}\n{summary}\n\n"
         
         if missed_topics:
-            final_summary += "\n## Additional Notes\n"
+            final_summary += "## Aanvullende Onderwerpen\n"
             for topic in missed_topics:
                 final_summary += f"- {topic}\n"
         
-        # Add disclaimer if there are failed chunks
+        # Disclaimer toevoegen als er gefaalde chunks zijn
         if failed_chunks:
             disclaimer = (
                 "\n\n**Let op:** Een deel van de transcriptie is gefaald. "
