@@ -7,6 +7,7 @@ from src import config, prompt_module, input_module, ui_components, history_modu
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
 from src.state_utils import convert_summaries_to_dict_format
 from src.ui_components import add_loader_css, apply_custom_css, full_screen_loader
+from src.memory_management import MemoryManager
 from src.summary_and_output_module import (
     handle_action,
     handle_chat_response,
@@ -15,14 +16,21 @@ from src.summary_and_output_module import (
     send_feedback_email,
     update_progress,
     generate_summary,
-    suggest_actions  # Zorg ervoor dat deze import aanwezig is
+    suggest_actions
 )
 import logging
 import time
 import os
 from openai import OpenAI
+import gc
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 logging.getLogger('watchdog').setLevel(logging.ERROR)
+
+# Initialize memory manager
+memory_manager = MemoryManager()
 
 def convert_summaries_to_dict_format():
     if 'summaries' in st.session_state:
@@ -33,7 +41,6 @@ def convert_summaries_to_dict_format():
                     "content": summary
                 }
     
-    # Convert old actiepunten and main points to new format
     for old_key in ['actiepunten_versions', 'main_points_versions']:
         if old_key in st.session_state:
             for item in st.session_state[old_key]:
@@ -43,80 +50,92 @@ def convert_summaries_to_dict_format():
                 })
             del st.session_state[old_key]
 
-# Initialize session state variables at the script level
+# Initialize session state variables
 if 'base_prompt' not in st.session_state:
     prompts = load_prompts()
     st.session_state.base_prompt = prompts.get('base_prompt.txt', '')
 
-if 'step' not in st.session_state:
-    st.session_state.step = 'prompt_selection'
-if 'selected_prompt' not in st.session_state:
-    st.session_state.selected_prompt = None
-if 'input_text' not in st.session_state:
-    st.session_state.input_text = ""
-if 'summary_versions' not in st.session_state:
-    st.session_state.summary_versions = []
-if 'current_version' not in st.session_state:
-    st.session_state.current_version = 0
-if 'summary' not in st.session_state:
-    st.session_state.summary = ""
-if 'transcription_complete' not in st.session_state:
-    st.session_state.transcription_complete = False
-if 'summaries' not in st.session_state:
-    st.session_state.summaries = []
-if 'current_version' not in st.session_state:
-    st.session_state.current_version = 0
-if 'show_informeer_collega' not in st.session_state:
-    st.session_state.show_informeer_collega = False
+def initialize_session_state():
+    """Initialize all session state variables"""
+    defaults = {
+        'step': 'prompt_selection',
+        'selected_prompt': None,
+        'input_text': "",
+        'summary_versions': [],
+        'current_version': 0,
+        'summary': "",
+        'transcription_complete': False,
+        'summaries': [],
+        'show_informeer_collega': False,
+    }
+    
+    for key, default_value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = default_value
+
+initialize_session_state()
+
 
 def load_css():
-    css_file = os.path.join(os.path.dirname(__file__), "static", "styles.css")
-    with open(css_file, "r") as f:
-        css = f.read()
-    
-    # Inject custom CSS
-    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    try:
+        css_file = os.path.join(os.path.dirname(__file__), "static", "styles.css")
+        with open(css_file, "r") as f:
+            css = f.read()
+        
+        # Inject custom CSS
+        st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-    # Inject Font Awesome link
-    st.markdown("""
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    """, unsafe_allow_html=True)
+        # Inject Font Awesome link
+        st.markdown("""
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        """, unsafe_allow_html=True)
 
-    # Add full-screen loading CSS
-    st.markdown("""
-    <style>
-    .fullscreen-loader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(255, 255, 255, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+        # Add full-screen loading CSS
+        st.markdown("""
+        <style>
+        .fullscreen-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    except Exception as e:
+        logger.error(f"Error loading CSS: {e}")
 
 def main():
-    load_css()
-    add_loader_css()
-    ui_components.apply_custom_css()
-    convert_summaries_to_dict_format()
+    try:
+        load_css()
+        add_loader_css()
+        ui_components.apply_custom_css()
+        convert_summaries_to_dict_format()
 
-    # Initialize OpenAI client using the function to get the API key
-    client = OpenAI(api_key=config.get_openai_api_key())
+        # Initialize OpenAI client
+        client = OpenAI(api_key=config.get_openai_api_key())
 
-    st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
-    if st.session_state.step == 'prompt_selection':
-        render_prompt_selection()
-    elif st.session_state.step == 'input_selection':
-        render_input_selection()
-    elif st.session_state.step == 'results':
-        render_results()
+        # Main application flow
+        if st.session_state.step == 'prompt_selection':
+            render_prompt_selection()
+        elif st.session_state.step == 'input_selection':
+            render_input_selection()
+        elif st.session_state.step == 'results':
+            render_results()
+
+    except Exception as e:
+        logger.error(f"Application error: {e}")
+        st.error("Er is een onverwachte fout opgetreden. Probeer de pagina te verversen.")
+    finally:
+        # Cleanup after each main loop
+        memory_manager.cleanup()
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
@@ -513,4 +532,8 @@ def render_summary_with_version_control():
         st.warning("Geen samenvatting beschikbaar.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        st.error("Er is een kritieke fout opgetreden. Ververs de pagina om opnieuw te beginnen.")

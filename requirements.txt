@@ -1,5 +1,4 @@
 streamlit
-st-copy-to-clipboard
 openai
 python-dotenv
 markdown2
@@ -13,3 +12,4 @@ streamlit_mic_recorder
 moviepy
 groq
 pdfkit
+st-copy-to-clipboard
