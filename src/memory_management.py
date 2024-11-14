@@ -1,7 +1,8 @@
 import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 import gc
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +10,7 @@ class MemoryManager:
     def __init__(self):
         self.max_file_size_mb = 500
         
-    def check_file_size(self, file) -> tuple[bool, Optional[str]]:
+    def check_file_size(self, file: UploadedFile) -> Tuple[bool, Optional[str]]:
         """Check if file size is within acceptable limits"""
         try:
             file_size = file.size  # Streamlit's UploadedFile has size attribute
@@ -23,7 +24,7 @@ class MemoryManager:
             logger.error(f"Error checking file size: {e}")
             return False, "Error checking file size"
     
-    def cleanup(self):
+    def cleanup(self) -> bool:
         """Force garbage collection and cleanup"""
         try:
             # Clear any large objects from memory
@@ -41,7 +42,7 @@ class MemoryManager:
             return False
 
     @staticmethod
-    def get_chunked_reader(file, chunk_size=8192):
+    def get_chunked_reader(file: UploadedFile, chunk_size: int = 8192):
         """Get a chunked reader for large files"""
         while True:
             data = file.read(chunk_size)

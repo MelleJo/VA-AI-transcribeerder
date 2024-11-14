@@ -1,9 +1,10 @@
 import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile  # Add this import
 from src import config
 from src.utils import transcribe_audio, process_text_file, get_prompt_content
 from src.summary_and_output_module import generate_summary
-from src.enhanced_summary_module import generate_enhanced_summary  # Importeer de enhanced summary module
-from src.email_module import send_email  # Importeer de send_email functie
+from src.enhanced_summary_module import generate_enhanced_summary
+from src.email_module import send_email
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
@@ -13,7 +14,8 @@ from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, fu
 from src.progress_utils import update_progress
 import logging
 from io import BytesIO
-import pdfkit
+import gc
+
 
 # Stel de logger in
 logging.basicConfig(level=logging.ERROR)
