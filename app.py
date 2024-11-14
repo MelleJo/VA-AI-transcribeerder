@@ -129,37 +129,32 @@ def load_css():
         logger.error(f"Error loading CSS: {e}")
 
 def main():
+    memory_tracker = get_memory_tracker()
+    
     try:
         load_css()
         add_loader_css()
         ui_components.apply_custom_css()
         convert_summaries_to_dict_format()
 
-        # Initialize OpenAI client
-        client = OpenAI(api_key=config.get_openai_api_key())
+        # Check memory status
+        memory_ok, message = memory_tracker.check_memory()
+        if not memory_ok:
+            st.warning(message)
 
-        st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
-
-        # Add memory monitoring
-        if not monitor_memory():
-            st.warning("High memory usage detected. Some operations may be slower.")
-
-        # Main application flow
         if st.session_state.step == 'prompt_selection':
+            # Clear session when returning to prompt selection
+            memory_tracker.clear_session()
             render_prompt_selection()
         elif st.session_state.step == 'input_selection':
             render_input_selection()
         elif st.session_state.step == 'results':
             render_results()
-
+            
     except Exception as e:
         logger.error(f"Application error: {e}")
         st.error("Er is een onverwachte fout opgetreden. Probeer de pagina te verversen.")
-    finally:
-        # Cleanup after each main loop
-        memory_manager.cleanup()
-        # Force cleanup at end of main loop
-        gc.collect()
+        memory_tracker.cleanup()
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
