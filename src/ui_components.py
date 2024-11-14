@@ -1,11 +1,9 @@
 import streamlit as st
 import base64
-from typing import Callable
+from typing import Callable, List, Dict
 import re
-from st_copy_to_clipboard import st_copy_to_clipboard
-import markdown2
 
-def ui_card(title: str, content: str, buttons: list[Callable] = None):
+def ui_card(title: str, content: str, buttons: List[Callable] = None):
     with st.container():
         st.markdown(f"""
         <div class="ui-card">
@@ -41,7 +39,7 @@ def full_screen_loader(progress, message, status_updates, estimated_time):
     st.markdown(overlay_html, unsafe_allow_html=True)
 
 def estimate_time(file_size, current_step, total_steps, elapsed_time):
-    # Basic estimation logic
+    # Eenvoudige schattingslogica
     if current_step == 0:
         return "Berekenen..."
     
@@ -49,9 +47,9 @@ def estimate_time(file_size, current_step, total_steps, elapsed_time):
     remaining_steps = total_steps - current_step
     estimated_remaining_time = avg_time_per_step * remaining_steps
     
-    # Adjust based on file size (assuming larger files take longer)
-    size_factor = file_size / 1_000_000  # Convert to MB
-    estimated_remaining_time *= (1 + (size_factor * 0.1))  # 10% increase per MB
+    # Aanpassen op basis van bestandsgrootte (grotere bestanden duren langer)
+    size_factor = file_size / 1_000_000  # Converteer naar MB
+    estimated_remaining_time *= (1 + (size_factor * 0.1))  # 10% verhoging per MB
     
     minutes, seconds = divmod(int(estimated_remaining_time), 60)
     return f"{minutes}m {seconds}s"
@@ -59,7 +57,46 @@ def estimate_time(file_size, current_step, total_steps, elapsed_time):
 def add_loader_css():
     st.markdown("""
     <style>
-    /* ... (previous CSS remains the same) ... */
+    .fullscreen-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .loader-content {
+        text-align: center;
+    }
+    .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .progress-container {
+        width: 80%;
+        background-color: #e0e0e0;
+        border-radius: 25px;
+        margin: 20px auto;
+    }
+    .progress-bar {
+        height: 20px;
+        background-color: #3498db;
+        border-radius: 25px;
+        width: 0%;
+    }
     .status-updates {
         text-align: left;
         margin-top: 20px;
@@ -80,7 +117,7 @@ def add_loader_css():
     </style>
     """, unsafe_allow_html=True)
 
-def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
+def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
     button_class = "ui-button-primary" if primary else "ui-button-secondary"
     return st.button(
         label,
@@ -92,47 +129,46 @@ def ui_button(label: str, on_click: callable, key: str, primary: bool = False):
 
 def prompt_card(title):
     button_id = f"prompt_{title.lower().replace(' ', '_')}"
+    is_clicked = st.button(
+        f"Selecteer {title}",
+        key=button_id
+    )
     st.markdown(f"""
-        <div id="{button_id}" class="prompt-card">
-            <h3>{title}</h3>
-        </div>
+    <style>
+    #{button_id} {{
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }}
+    #{button_id}:hover {{
+        background-color: #e0e0e0;
+    }}
+    </style>
     """, unsafe_allow_html=True)
-    
-    is_clicked = st.button("", key=button_id, help=f"Select {title}")
-    
-    st.markdown(f"""
-        <script>
-            const card = document.getElementById('{button_id}');
-            card.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
     return is_clicked
 
 def input_method_card(title, icon):
     button_id = f"input_{title.lower().replace(' ', '_')}"
+    is_clicked = st.button(
+        f"{title}",
+        key=button_id
+    )
     st.markdown(f"""
-        <div id="{button_id}" class="input-method-card">
-            <i class="fas fa-{icon}"></i>
-            <p>{title}</p>
-        </div>
+    <style>
+    #{button_id} {{
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }}
+    #{button_id}:hover {{
+        background-color: #e0e0e0;
+    }}
+    </style>
     """, unsafe_allow_html=True)
-    
-    is_clicked = st.button("", key=button_id, help=f"Select {title} input method")
-    
-    st.markdown(f"""
-        <script>
-            const card = document.getElementById('{button_id}');
-            card.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
     return is_clicked
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
@@ -142,51 +178,32 @@ def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
 
 def ui_card_button(title: str, description: str):
     button_id = f"card_button_{title.lower().replace(' ', '_')}"
+    is_clicked = st.button(
+        f"{title}\n{description}",
+        key=button_id
+    )
     st.markdown(f"""
-        <div id="{button_id}" class="card-button">
-            <h3>{title}</h3>
-            <p>{description}</p>
-        </div>
+    <style>
+    #{button_id} {{
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: left;
+    }}
+    #{button_id}:hover {{
+        background-color: #e9e9e9;
+    }}
+    </style>
     """, unsafe_allow_html=True)
-    
-    # Use an empty button to trigger the click event
-    is_clicked = st.button("", key=button_id, help=f"Click to {title}")
-    
-    # Use custom JavaScript to make the entire card clickable
-    st.markdown(f"""
-        <script>
-            const cardButton = document.getElementById('{button_id}');
-            cardButton.addEventListener('click', function() {{
-                const button = document.querySelector('button[kind=secondary][data-testid="{button_id}"]');
-                button.click();
-            }});
-        </script>
-    """, unsafe_allow_html=True)
-    
     return is_clicked
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
-    button_id = f"copy_button_{hash(text)}"
-    st.markdown(f"""
-    <button id="{button_id}" class="css-16u8z0w edgvbvh10">
-        {label}
-    </button>
-    <script>
-        const btn = document.getElementById('{button_id}');
-        btn.addEventListener('click', function() {{
-            navigator.clipboard.writeText(`{text}`).then(function() {{
-                btn.textContent = 'Gekopieerd!';
-                setTimeout(() => btn.textContent = '{label}', 2000);
-            }}).catch(function(err) {{
-                console.error('Kon niet kopiëren: ', err);
-            }});
-        }});
-    </script>
-    """, unsafe_allow_html=True)
+    st.code(text)
+    st.button(label, on_click=lambda: st.write(f"Tekst gekopieerd: {text}"))
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
     placeholder = st.empty()
-    
     num_lines = text.count('\n') + 1
     
     if num_lines > max_lines:
@@ -219,22 +236,22 @@ def apply_custom_css():
 def style_button(label: str, is_active: bool, key: str = None):
     color = "#4CAF50" if is_active else "#cccccc"
     button_key = f" key='{key}'" if key else ""
-    return f"""
+    st.markdown(f"""
     <style>
-    div.stButton > button{button_key} {{
+    div.stButton > button[{button_key}] {{
         background-color: {color} !important;
         color: {"white" if is_active else "black"} !important;
         border-color: {color} !important;
     }}
-    div.stButton > button{button_key}:hover {{
+    div.stButton > button[{button_key}]:hover {{
         background-color: {"#45a049" if is_active else "#b3b3b3"} !important;
         border-color: {"#45a049" if is_active else "#b3b3b3"} !important;
     }}
     </style>
-    """
+    """, unsafe_allow_html=True)
 
 def ui_styled_button(label: str, on_click: Callable, key: str, is_active: bool = True, primary: bool = False):
-    st.markdown(style_button(label, is_active, key), unsafe_allow_html=True)
+    style_button(label, is_active, key)
     return st.button(label, on_click=on_click, key=key, disabled=not is_active, use_container_width=True)
 
 def ui_info_box(content: str, type: str = "info"):
@@ -257,10 +274,6 @@ def ui_info_box(content: str, type: str = "info"):
     """, unsafe_allow_html=True)
 
 def ui_progress_bar(progress: float, label: str = ""):
-    st.markdown(f"""
-    <div style="background-color: #f0f0f0; border-radius: 5px; padding: 1px;">
-        <div style="background-color: #4CAF50; width: {progress*100}%; height: 20px; border-radius: 5px; text-align: center; line-height: 20px; color: white;">
-            {label}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.progress(progress)
+    if label:
+        st.write(label)
