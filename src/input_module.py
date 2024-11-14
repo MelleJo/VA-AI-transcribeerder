@@ -126,6 +126,8 @@ def process_audio_in_chunks(file_path: str, progress_callback=None):
         gc.collect()
 
 def process_multiple_audio_files(uploaded_files):
+    """Process multiple audio files with memory management"""
+    memory_tracker = get_memory_tracker()
     ui_info_box(f"{len(uploaded_files)} audiobestanden geüpload. Transcriptie wordt gestart...", "info")
     full_transcript = ""
     progress_bar = st.progress(0)
@@ -134,15 +136,34 @@ def process_multiple_audio_files(uploaded_files):
     try:
         for i, uploaded_file in enumerate(uploaded_files):
             with st.spinner(f"Bestand {i+1}/{len(uploaded_files)} wordt verwerkt en getranscribeerd..."):
-                transcript = transcribe_with_progress(uploaded_file)
-                if transcript:
-                    full_transcript += str(transcript) + "\n\n"
-                    progress = (i + 1) / len(uploaded_files)
-                    ui_progress_bar(progress, f"{progress*100:.1f}%")
-                    status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
-                else:
-                    ui_info_box(f"Transcriptie van bestand {uploaded_file.name} is mislukt.", "error")
-                    logger.error(f"Transcriptie van bestand {uploaded_file.name} is mislukt.")
+                # Process each file
+                with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+                    # Write file in chunks
+                    CHUNK_SIZE = 5 * 1024 * 1024  # 5MB chunks
+                    uploaded_file.seek(0)
+                    
+                    while True:
+                        chunk = uploaded_file.read(CHUNK_SIZE)
+                        if not chunk:
+                            break
+                        temp_file.write(chunk)
+                        memory_tracker.cleanup()
+                    
+                    temp_file.flush()
+                    
+                    # Process audio
+                    result = transcribe_audio(temp_file.name)
+                    if result and isinstance(result, tuple):
+                        transcript, failed = result
+                        if transcript:
+                            full_transcript += str(transcript) + "\n\n"
+                            
+                progress = (i + 1) / len(uploaded_files)
+                progress_bar.progress(progress)
+                status_text.text(f"Bestand {i+1}/{len(uploaded_files)} verwerkt")
+                
+                # Clean up after each file
+                memory_tracker.cleanup()
 
         if full_transcript:
             st.session_state.input_text = full_transcript
@@ -152,10 +173,16 @@ def process_multiple_audio_files(uploaded_files):
         else:
             ui_info_box("Transcriptie van alle bestanden is mislukt. Probeer het opnieuw.", "error")
             return False
+            
     except Exception as e:
         logger.error("Error processing multiple audio files: %s", e)
         ui_info_box(f"Er is een fout opgetreden: {str(e)}", "error")
         return False
+    finally:
+        # Clean up
+        memory_tracker.cleanup()
+        progress_bar.empty()
+        status_text.empty()
 
 def process_multiple_text_files(uploaded_files):
     ui_info_box(f"{len(uploaded_files)} tekstbestanden geüpload. Verwerking wordt gestart...", "info")
@@ -306,7 +333,8 @@ def validate_file_size(file: UploadedFile, max_size_mb: int = MAX_AUDIO_SIZE_MB)
         return False
 
 def process_uploaded_audio(uploaded_file, on_input_complete):
-    """Process uploaded audio file with improved memory management"""
+    """Process uploaded audio file with memory management"""
+    memory_tracker = get_memory_tracker()
     st.session_state.transcription_complete = False
     
     try:
@@ -315,40 +343,66 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
 
         # Check file size
         file_size_mb = uploaded_file.size / (1024 * 1024)
-        if file_size_mb > MAX_AUDIO_SIZE_MB:
-            raise Exception(f"Bestand is te groot. Maximum grootte is {MAX_AUDIO_SIZE_MB}MB")
+        if file_size_mb > 200:  # 200MB limit
+            raise Exception(f"Bestand is te groot. Maximum grootte is 200MB")
 
         progress_placeholder = st.empty()
         
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
-            # Save uploaded file in chunks
-            for chunk in uploaded_file.chunks(chunk_size=1024*1024):  # 1MB chunks
+        with tempfile.NamedTemporaryFile(delete=True, suffix='.wav') as temp_file:
+            # Write in chunks to avoid memory issues
+            CHUNK_SIZE = 5 * 1024 * 1024  # 5MB chunks
+            uploaded_file.seek(0)
+            
+            # Show upload progress
+            total_chunks = (uploaded_file.size + CHUNK_SIZE - 1) // CHUNK_SIZE
+            chunk_count = 0
+            
+            while True:
+                chunk = uploaded_file.read(CHUNK_SIZE)
+                if not chunk:
+                    break
+                    
                 temp_file.write(chunk)
+                chunk_count += 1
+                
+                # Update progress
+                progress = (chunk_count / total_chunks) * 100
+                update_progress(
+                    progress_placeholder,
+                    "Bestand wordt verwerkt...",
+                    chunk_count,
+                    total_chunks
+                )
+                
+                # Clean up after each chunk
+                memory_tracker.cleanup()
+            
             temp_file.flush()
             
             # Process the audio
             with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-                st.session_state.input_text = process_audio_in_chunks(
-                    temp_file.name,
-                    lambda current, total, message: update_progress(
-                        progress_placeholder, message, current, total
-                    )
-                )
+                result = transcribe_audio(temp_file.name)
                 
-                if st.session_state.input_text:
-                    st.success("Audio succesvol verwerkt en getranscribeerd!")
-                    st.session_state.transcription_complete = True
-                    on_input_complete()
+                if result and isinstance(result, tuple):
+                    transcript, failed = result
+                    if transcript:
+                        st.session_state.input_text = transcript
+                        st.success("Audio succesvol verwerkt en getranscribeerd!")
+                        st.session_state.transcription_complete = True
+                        on_input_complete()
+                    else:
+                        st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
                 else:
-                    st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
+                    st.error("Transcriptie is mislukt. Onverwacht resultaat formaat.")
                     
     except Exception as e:
-        logger.error(f"Error processing audio: {str(e)}")
+        logger.error(f"Error processing audio: {e}")
         st.error(f"Er is een fout opgetreden: {str(e)}")
     finally:
         # Clean up
-        gc.collect()
-        progress_placeholder.empty()
+        memory_tracker.cleanup()
+        if progress_placeholder:
+            progress_placeholder.empty()
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
