@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit.runtime.uploaded_file_manager import UploadedFile  # Add this import
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 from src import config
 from src.utils import transcribe_audio, process_text_file, get_prompt_content
 from src.summary_and_output_module import generate_summary
@@ -16,14 +16,16 @@ import logging
 from io import BytesIO
 import gc
 
-
-# Stel de logger in
+# Set up the logger
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
+MAX_AUDIO_SIZE_MB = 200  # Reduced maximum file size
+CHUNK_SIZE_MB = 10  # Size of chunks to process
+
 def get_audio_length(file):
     audio = AudioSegment.from_file(file)
-    return len(audio) / 1000  # Lengte in seconden
+    return len(audio) / 1000  # Length in seconds
 
 def format_time(seconds):
     minutes, seconds = divmod(int(seconds), 60)
@@ -31,7 +33,7 @@ def format_time(seconds):
 
 def transcribe_with_progress(audio_file_path):
     try:
-        total_steps = 100  # Voorbeeld totale stappen, pas aan indien nodig
+        total_steps = 100  # Example total steps, adjust if needed
         start_time = time.time()
         progress_placeholder = st.empty()
         
@@ -41,7 +43,7 @@ def transcribe_with_progress(audio_file_path):
         text = transcribe_audio(audio_file_path, progress_callback=progress_callback)
         
         if text:
-            # Signaleer expliciete voltooiing
+            # Signal explicit completion
             progress_placeholder.markdown("""
                 <div class="progress-container">
                     <div class="progress-bar" style="width: 100%;"></div>
@@ -57,11 +59,71 @@ def transcribe_with_progress(audio_file_path):
         st.error("Er is een fout opgetreden tijdens de transcriptie. Probeer het opnieuw.")
         return None
     finally:
-        # Forceer UI-update
+        # Force UI update
         st.session_state.update({
             'processing_complete': True,
             'current_step': 'input_selection'
         })
+
+def process_audio_in_chunks(file_path: str, progress_callback=None):
+    """Process audio file in chunks to prevent memory issues"""
+    try:
+        # Load audio in chunks
+        audio = AudioSegment.from_file(file_path)
+        total_length = len(audio)
+        
+        # Calculate chunk size (10MB equivalent in milliseconds)
+        chunk_length_ms = 60000  # 1 minute chunks
+        
+        # Split into chunks
+        chunks = []
+        for i in range(0, total_length, chunk_length_ms):
+            end = min(i + chunk_length_ms, total_length)
+            chunks.append([i, end])
+        
+        transcripts = []
+        
+        for i, (start, end) in enumerate(chunks):
+            try:
+                # Clear memory before processing each chunk
+                gc.collect()
+                
+                # Extract chunk
+                with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_chunk:
+                    chunk_audio = audio[start:end]
+                    chunk_audio.export(temp_chunk.name, format='wav')
+                    
+                    # Process chunk
+                    transcript = transcribe_audio(temp_chunk.name)
+                    if transcript:
+                        transcripts.append(transcript[0])
+                    
+                    # Update progress
+                    if progress_callback:
+                        progress = ((i + 1) / len(chunks)) * 100
+                        progress_callback(i + 1, len(chunks), f"Processing chunk {i + 1}/{len(chunks)}")
+                    
+                    # Clean up
+                    del chunk_audio
+                    gc.collect()
+                    
+            except Exception as e:
+                logger.error(f"Error processing chunk {i}: {str(e)}")
+                continue
+            finally:
+                # Ensure temp files are cleaned up
+                try:
+                    os.unlink(temp_chunk.name)
+                except:
+                    pass
+        
+        return " ".join(transcripts) if transcripts else None
+        
+    except Exception as e:
+        logger.error(f"Error in chunk processing: {str(e)}")
+        return None
+    finally:
+        gc.collect()
 
 def process_multiple_audio_files(uploaded_files):
     ui_info_box(f"{len(uploaded_files)} audiobestanden geüpload. Transcriptie wordt gestart...", "info")
@@ -124,8 +186,8 @@ def render_recording_reminders(prompt_type):
     if reminders:
         st.markdown("### Vergeet niet de volgende onderwerpen te behandelen:")
         
-        # Bepaal het aantal kolommen op basis van het aantal reminders
-        num_columns = min(3, len(reminders))  # Maximaal 3 kolommen
+        # Determine the number of columns based on the number of reminders
+        num_columns = min(3, len(reminders))  # Max 3 columns
         cols = st.columns(num_columns)
         
         for i, reminder in enumerate(reminders):
@@ -144,12 +206,12 @@ def render_input_step(on_input_complete):
     st.session_state.grammar_checked = False
     st.markdown("<h2 class='section-title'></h2>", unsafe_allow_html=True)
     
-    # Initialiseer sessievariabelen indien niet aanwezig
+    # Initialize session variables if not present
     if 'is_processing' not in st.session_state:
         st.session_state.is_processing = False
     
     if not st.session_state.is_processing:
-        # Definieer input_method selectie
+        # Define input_method selection
         input_method = st.radio(
             "Selecteer een invoermethode:",
             ("Audio opnemen", "Meerdere audiobestanden uploaden", "Enkele audio- of videobestand uploaden", "Tekstbestand uploaden", "Tekst invoeren")
@@ -218,7 +280,7 @@ def render_input_step(on_input_complete):
                 st.session_state.is_processing = False
             st.markdown("</div>", unsafe_allow_html=True)
     
-    # Toon transcripteditor als transcriptie voltooid is
+    # Show transcript editor if transcription is complete
     if st.session_state.get('transcription_complete', False):
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
@@ -232,7 +294,7 @@ def render_input_step(on_input_complete):
             on_input_complete()
         st.markdown("</div>", unsafe_allow_html=True)
 
-def validate_file_size(file: UploadedFile, max_size_mb: int = 500) -> bool:
+def validate_file_size(file: UploadedFile, max_size_mb: int = MAX_AUDIO_SIZE_MB) -> bool:
     """Validate file size is within acceptable limits"""
     try:
         file.seek(0, os.SEEK_END)
@@ -244,31 +306,49 @@ def validate_file_size(file: UploadedFile, max_size_mb: int = 500) -> bool:
         return False
 
 def process_uploaded_audio(uploaded_file, on_input_complete):
-    """Process uploaded audio file with size validation"""
+    """Process uploaded audio file with improved memory management"""
     st.session_state.transcription_complete = False
     
     try:
         if not uploaded_file:
             raise Exception("Geen audiobestand geüpload")
 
-        if not validate_file_size(uploaded_file):
-            raise Exception("Bestand is te groot. Maximum grootte is 500MB")
+        # Check file size
+        file_size_mb = uploaded_file.size / (1024 * 1024)
+        if file_size_mb > MAX_AUDIO_SIZE_MB:
+            raise Exception(f"Bestand is te groot. Maximum grootte is {MAX_AUDIO_SIZE_MB}MB")
 
-        logger.info(f"Processing uploaded file: {uploaded_file.name}")
+        progress_placeholder = st.empty()
         
-        with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-            st.session_state.input_text = transcribe_with_progress(uploaded_file)
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            # Save uploaded file in chunks
+            for chunk in uploaded_file.chunks(chunk_size=1024*1024):  # 1MB chunks
+                temp_file.write(chunk)
+            temp_file.flush()
             
-            if st.session_state.input_text:
-                st.success("Audio succesvol verwerkt en getranscribeerd!")
-                st.session_state.transcription_complete = True
-                on_input_complete()
-            else:
-                st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
+            # Process the audio
+            with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
+                st.session_state.input_text = process_audio_in_chunks(
+                    temp_file.name,
+                    lambda current, total, message: update_progress(
+                        progress_placeholder, message, current, total
+                    )
+                )
                 
+                if st.session_state.input_text:
+                    st.success("Audio succesvol verwerkt en getranscribeerd!")
+                    st.session_state.transcription_complete = True
+                    on_input_complete()
+                else:
+                    st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
+                    
     except Exception as e:
         logger.error(f"Error processing audio: {str(e)}")
         st.error(f"Er is een fout opgetreden: {str(e)}")
+    finally:
+        # Clean up
+        gc.collect()
+        progress_placeholder.empty()
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
@@ -284,11 +364,11 @@ def process_recorded_audio(audio_data, on_input_complete):
                     ui_info_box("Audio succesvol opgenomen en getranscribeerd!", "success")
                     st.session_state.transcription_complete = True
                     on_input_complete()
-                    st.rerun()  # Forceer refresh
+                    st.rerun()  # Force refresh
                 else:
                     ui_info_box("Transcriptie is mislukt. Probeer opnieuw op te nemen.", "error")
             finally:
-                # Verwijder tijdelijk bestand altijd
+                # Always remove temporary file
                 if os.path.exists(tmp_file_path):
                     os.unlink(tmp_file_path)
                 
@@ -323,14 +403,14 @@ def on_input_complete():
 def render_summary_step():
     if 'summary' not in st.session_state:
         if st.session_state.get('selected_prompt') == 'Langere samenvatting':
-            # Gebruik de enhanced summary module
+            # Use the enhanced summary module
             summary = generate_enhanced_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
                 get_prompt_content(st.session_state.selected_prompt)
             )
         else:
-            # Gebruik de standaard samenvatting
+            # Use the standard summary
             summary = generate_summary(
                 st.session_state.input_text,
                 st.session_state.base_prompt,
@@ -347,7 +427,7 @@ def render_summary_step():
     st.markdown("<h3 class='section-title'>Samenvatting</h3>", unsafe_allow_html=True)
     st.markdown(st.session_state.summary)
 
-    # Acties met echte functionaliteit
+    # Actions with real functionality
     if st.button("Verzend samenvatting via e-mail"):
         send_summary_via_email(st.session_state.summary)
     if st.button("Download samenvatting als PDF"):
@@ -366,7 +446,7 @@ def send_summary_via_email(summary):
         st.error(f"Fout bij het verzenden van e-mail: {message}")
 
 def download_summary_as_pdf(summary):
-    # Implementeer PDF-downloadfunctionaliteit
+    # Implement PDF download functionality
     pdf = pdfkit.from_string(summary, False)
     st.download_button(
         label="Download PDF",

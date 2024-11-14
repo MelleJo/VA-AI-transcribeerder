@@ -25,6 +25,7 @@ import time
 import os
 from openai import OpenAI
 import gc
+import psutil
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -77,6 +78,19 @@ def initialize_session_state():
 
 initialize_session_state()
 
+def monitor_memory():
+    """Monitor memory usage and clean up if necessary"""
+    try:
+        process = psutil.Process()
+        memory_info = process.memory_info()
+        
+        # If using more than 75% of available memory, force cleanup
+        if memory_info.rss > (psutil.virtual_memory().total * 0.75):
+            gc.collect()
+            return False
+        return True
+    except:
+        return True
 
 def load_css():
     try:
@@ -124,6 +138,10 @@ def main():
 
         st.markdown("<h1 class='main-title'>Gesprekssamenvatter AI</h1>", unsafe_allow_html=True)
 
+        # Add memory monitoring
+        if not monitor_memory():
+            st.warning("High memory usage detected. Some operations may be slower.")
+
         # Main application flow
         if st.session_state.step == 'prompt_selection':
             render_prompt_selection()
@@ -138,6 +156,8 @@ def main():
     finally:
         # Cleanup after each main loop
         memory_manager.cleanup()
+        # Force cleanup at end of main loop
+        gc.collect()
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)

@@ -110,6 +110,7 @@ def transcribe_chunk(chunk_path: str, chunk_num: int, total_chunks: int, progres
 
 def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_callback=None) -> Optional[str]:
     """Main transcription function with improved memory management"""
+    import gc
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_file_path = None
@@ -122,9 +123,9 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                 file_extension = os.path.splitext(audio_file.name)[1].lower()
                 temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
                 try:
-                    # Read file in chunks to avoid memory issues
+                    # Read file in smaller chunks to avoid memory issues
                     with open(temp_file_path, "wb") as f:
-                        CHUNK_SIZE = 8192  # 8KB chunks
+                        CHUNK_SIZE = 4096  # 4KB chunks
                         for chunk in iter(lambda: audio_file.read(CHUNK_SIZE), b''):
                             f.write(chunk)
                 except Exception as e:
@@ -204,6 +205,8 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                         # Clean up chunk file immediately after processing
                         if os.path.exists(chunk_path):
                             os.unlink(chunk_path)
+                        # Force garbage collection after each chunk
+                        gc.collect()
                     
                     if progress_callback:
                         progress = ((i + 1) / total_chunks) * 100
@@ -230,7 +233,6 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
         raise Exception(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
     finally:
         # Force garbage collection
-        import gc
         gc.collect()
 
 def load_prompts():
