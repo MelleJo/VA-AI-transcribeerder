@@ -9,6 +9,8 @@ from src.state_utils import convert_summaries_to_dict_format
 from src.ui_components import add_loader_css, apply_custom_css, full_screen_loader
 from src.memory_management import MemoryManager
 from streamlit.runtime.uploaded_file_manager import UploadedFile  # Add this import
+from src.memory_tracker import get_memory_tracker  # Add this import
+
 
 from src.summary_and_output_module import (
     handle_action,
