@@ -1,2 +1,4 @@
 [server]
 maxUploadSize = 1000
+maxMessageSize = 1000
+memory = 8192  # Set memory limit to 8GB

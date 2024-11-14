@@ -230,16 +230,31 @@ def render_input_step(on_input_complete):
             on_input_complete()
         st.markdown("</div>", unsafe_allow_html=True)
 
-def process_uploaded_audio(uploaded_file, on_input_complete):
-    st.session_state.transcription_complete = False
-    with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
-        try:
-            if not uploaded_file:
-                raise Exception("Geen audiobestand geüpload")
+def validate_file_size(file: UploadedFile, max_size_mb: int = 500) -> bool:
+    """Validate file size is within acceptable limits"""
+    try:
+        file.seek(0, os.SEEK_END)
+        size = file.tell()
+        file.seek(0)  # Reset file pointer
+        return size <= max_size_mb * 1024 * 1024
+    except Exception as e:
+        logger.error(f"Error validating file size: {str(e)}")
+        return False
 
-            logger.info(f"Processing uploaded file: {uploaded_file.name}")
-            
-            # Eerst audio transcriberen
+def process_uploaded_audio(uploaded_file, on_input_complete):
+    """Process uploaded audio file with size validation"""
+    st.session_state.transcription_complete = False
+    
+    try:
+        if not uploaded_file:
+            raise Exception("Geen audiobestand geüpload")
+
+        if not validate_file_size(uploaded_file):
+            raise Exception("Bestand is te groot. Maximum grootte is 500MB")
+
+        logger.info(f"Processing uploaded file: {uploaded_file.name}")
+        
+        with st.spinner("Audio wordt verwerkt en getranscribeerd..."):
             st.session_state.input_text = transcribe_with_progress(uploaded_file)
             
             if st.session_state.input_text:
@@ -248,9 +263,10 @@ def process_uploaded_audio(uploaded_file, on_input_complete):
                 on_input_complete()
             else:
                 st.error("Transcriptie is mislukt. Probeer een ander audiobestand.")
-        except Exception as e:
-            logger.error(f"Error processing audio: {str(e)}")
-            st.error(f"Er is een fout opgetreden: {str(e)}")
+                
+    except Exception as e:
+        logger.error(f"Error processing audio: {str(e)}")
+        st.error(f"Er is een fout opgetreden: {str(e)}")
 
 def process_recorded_audio(audio_data, on_input_complete):
     with st.spinner("Audio wordt verwerkt en getranscribeerd..."):

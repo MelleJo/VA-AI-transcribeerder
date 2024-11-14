@@ -61,7 +61,7 @@ def transcribe_with_whisper(audio_file_path: str) -> Optional[str]:
 
 def get_optimal_chunk_length(audio_length_ms: int) -> int:
     """Calculate optimal chunk length to stay under 25MB limit while maximizing size"""
-    SAFE_CHUNK_SIZE_MS = 150_000  # 2.5 minutes - further reduced for safety
+    SAFE_CHUNK_SIZE_MS = 150_000  # 2.5 minutes - reduced for safety
     
     if audio_length_ms <= SAFE_CHUNK_SIZE_MS:
         return audio_length_ms
@@ -109,7 +109,7 @@ def transcribe_chunk(chunk_path: str, chunk_num: int, total_chunks: int, progres
     return transcript
 
 def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_callback=None) -> Optional[str]:
-    """Main transcription function with improved error handling and no delays"""
+    """Main transcription function with improved memory management"""
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_file_path = None
@@ -122,8 +122,11 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                 file_extension = os.path.splitext(audio_file.name)[1].lower()
                 temp_file_path = os.path.join(temp_dir, f"temp_audio{file_extension}")
                 try:
+                    # Read file in chunks to avoid memory issues
                     with open(temp_file_path, "wb") as f:
-                        f.write(audio_file.getvalue())
+                        CHUNK_SIZE = 8192  # 8KB chunks
+                        for chunk in iter(lambda: audio_file.read(CHUNK_SIZE), b''):
+                            f.write(chunk)
                 except Exception as e:
                     raise Exception(f"Error saving uploaded file: {str(e)}")
             elif isinstance(audio_file, (bytes, bytearray)):
@@ -195,11 +198,12 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                             failed_chunks.append(i)
                             logger.error(f"Failed to transcribe chunk {i+1}")
                     except Exception as e:
-                        if "audio_too_short" in str(e):
-                            logger.warning(f"Chunk {i+1} is too short to transcribe.")
-                        else:
-                            failed_chunks.append(i)
-                            logger.error(f"Failed to transcribe chunk {i+1} due to error: {str(e)}")
+                        failed_chunks.append(i)
+                        logger.error(f"Failed to transcribe chunk {i+1} due to error: {str(e)}")
+                    finally:
+                        # Clean up chunk file immediately after processing
+                        if os.path.exists(chunk_path):
+                            os.unlink(chunk_path)
                     
                     if progress_callback:
                         progress = ((i + 1) / total_chunks) * 100
@@ -216,14 +220,6 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
                     raise Exception("Geen tekst kon worden geëxtraheerd uit de audio")
                 
                 logger.info(f"Transcription completed successfully with {len(transcripts)} chunks")
-                if failed_chunks:
-                    disclaimer = (
-                        "\n\n**Let op:** Een deel van de transcriptie is gefaald. "
-                        "De nauwkeurigheid van de samenvatting kan hierdoor minder zijn "
-                        "of er kunnen onderdelen ontbreken."
-                    )
-                    full_transcript += disclaimer
-                
                 return full_transcript.strip(), bool(failed_chunks)
                 
             except Exception as e:
@@ -232,6 +228,10 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
     except Exception as e:
         logger.error(f"Transcriptie fout: {str(e)}")
         raise Exception(f"Er is een fout opgetreden tijdens de transcriptie: {str(e)}")
+    finally:
+        # Force garbage collection
+        import gc
+        gc.collect()
 
 def load_prompts():
     """Load prompt files"""
