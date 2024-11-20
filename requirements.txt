@@ -14,3 +14,4 @@ groq
 pdfkit
 st-copy-to-clipboard
 psutil
+moviepy
