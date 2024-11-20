@@ -10,7 +10,6 @@ from pydub import AudioSegment
 import tempfile
 import io
 import json
-import moviepy.editor as mp
 import re
 import logging
 from groq import Groq
@@ -149,7 +148,7 @@ def transcribe_audio(audio_file: Union[str, bytes, 'UploadedFile'], progress_cal
             
             if file_extension == '.mp4':
                 try:
-                    video = mp.VideoFileClip(temp_file_path)
+                    video = moviepy.VideoFileClip(temp_file_path)
                     audio = video.audio
                     mp4_audio_path = os.path.join(temp_dir, "temp_audio.wav")
                     audio.write_audiofile(mp4_audio_path)

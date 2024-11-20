@@ -14,4 +14,4 @@ groq
 pdfkit
 st-copy-to-clipboard
 psutil
-moviepy
+moviepy == 2.0.0
