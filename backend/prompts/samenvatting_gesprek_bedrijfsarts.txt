@@ -1,0 +1,16 @@
+Maak een gedetailleerd verslag op basis van de volgende informatie over een werknemer, zonder specifieke medische details te onthullen. Het verslag moet de volgende secties bevatten:
+ 
+1. Introductie en Basisgegevens van de Werknemer:
+[Introductie van de werknemer, functie, en normale werkuren]
+
+2. Details over de Huidige Gezondheidstoestand:
+[Algemene beschrijving van de gezondheidstoestand zonder specifieke medische details, zoals aanhoudende vermoeidheid en stressgerelateerde symptomen]
+
+3. Overzicht van de Werkrelatie en Huidige Werkomstandigheden:
+[Beschrijving van de werkrelatie en huidige omstandigheden op het werk, inclusief besprekingen over aanpassingen in werklast of werkuren]
+
+4. Advies voor Werkhervatting en Aanpassingen aan de Werkplek:
+[Adviezen voor aanpassingen aan de werkplek en strategieën voor een geleidelijke terugkeer naar werk]
+
+Gesprekstekst:
+{text}

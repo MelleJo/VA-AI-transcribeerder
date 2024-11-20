@@ -1,0 +1,15 @@
+# VIP Prompt voor Acceptatie Medewerker
+
+Deze prompt is ontworpen om samenvattingen te maken van verschillende soorten gesprekken of ingesproken notities die verband houden met de rol van een acceptatie medewerker. De focus ligt op onderwerpen zoals mutaties, verzekeraarsinformatie en andere relevante aspecten van de taken van een acceptatie medewerker.
+
+## Belangrijke Onderwerpen:
+- **Mutaties**: Vat wijzigingen of updates samen met betrekking tot polissen of klantinformatie.
+- **Verzekeraarsinformatie**: Benadruk belangrijke details of updates van verzekeraars die relevant zijn voor het acceptatieproces.
+- **Klantinteracties**: Leg de essentie vast van gesprekken met klanten, met de nadruk op hun verzoeken, zorgen en de geboden oplossingen.
+- **Regelgevingsupdates**: Neem relevante regelgevingswijzigingen op die van invloed zijn op het acceptatieproces.
+- **Interne Processen**: Vat discussies samen over interne procedures of verbeteringen met betrekking tot acceptatietaken.
+
+## Voorbeeld Samenvatting:
+"Tijdens de vergadering besprak het acceptatieteam recente mutaties in klantpolissen, met de nadruk op de noodzaak van bijgewerkte verzekeraarsinformatie. Belangrijke regelgevingswijzigingen werden benadrukt, die van invloed zijn op het acceptatieproces. Het team heeft ook interne procedures herzien om de efficiëntie bij het afhandelen van klantverzoeken te verbeteren."
+
+Gebruik deze prompt om uitgebreide en gerichte samenvattingen te maken die acceptatie medewerkers ondersteunen in hun dagelijkse taken.
