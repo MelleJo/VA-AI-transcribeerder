@@ -2,6 +2,7 @@ import os
 from src.config import PROMPTS_DIR, AUDIO_MODEL, SUMMARY_MODEL, MAX_TOKENS, TEMPERATURE, AUDIO_SEGMENT_LENGTH, get_openai_api_key
 from src.ui_components import estimate_time
 import streamlit as st
+from moviepy import *
 from PyPDF2 import PdfReader
 from docx import Document
 from openai import OpenAI
