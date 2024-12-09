@@ -17,8 +17,31 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from typing import Optional, Union
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging with custom formatter
+class CustomFormatter(logging.Formatter):
+    def format(self, record):
+        # Only include logger name if it's not root logger
+        logger_name = f"[{record.name}] " if record.name != "root" else ""
+        return f"{logger_name}{record.getMessage()}"
+
+# Configure root logger
+logging.basicConfig(
+    level=logging.WARNING,  # Set default level to WARNING
+    format='%(message)s'
+)
+
+# Get root logger and set custom formatter
+root_logger = logging.getLogger()
+for handler in root_logger.handlers:
+    handler.setFormatter(CustomFormatter())
+
+# Configure specific loggers
+logging.getLogger('watchdog').setLevel(logging.ERROR)
+logging.getLogger('PIL').setLevel(logging.WARNING)
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('moviepy').setLevel(logging.WARNING)
+
+# Get logger for this module
 logger = logging.getLogger(__name__)
 
 # Initialize clients

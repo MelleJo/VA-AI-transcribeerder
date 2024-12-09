@@ -11,14 +11,13 @@ from pydub import AudioSegment
 import time
 import os
 from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
-from src.memory_tracker import get_memory_tracker  # Add this import
+from src.memory_tracker import get_memory_tracker
 from src.progress_utils import update_progress
 import logging
 from io import BytesIO
 import gc
 
-# Set up the logger
-logging.basicConfig(level=logging.ERROR)
+# Get logger for this module
 logger = logging.getLogger(__name__)
 
 MAX_AUDIO_SIZE_MB = 200  # Reduced maximum file size
