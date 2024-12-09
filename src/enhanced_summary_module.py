@@ -90,6 +90,9 @@ Relevant context:
         """
         Third pass: Validate coverage and identify any missed topics.
         """
+        def default_serializer(obj):
+            return str(obj)  # Convert non-serializable objects to strings
+
         prompt = f"""
 Review these summaries and the original transcript. Identify any important topics
 or details that may have been missed. Focus on:
@@ -98,7 +101,7 @@ or details that may have been missed. Focus on:
 - Any inconsistencies between the transcript and the summaries
 
 Summaries:
-{json.dumps(summaries, indent=2)}
+{json.dumps(summaries, indent=2, default=default_serializer)}
 
 Original Transcript:
 \"\"\"
