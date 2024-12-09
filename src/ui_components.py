@@ -1,22 +1,16 @@
-import streamlit as st
+import streamlit_shadcn_ui as ui
 import base64
 from typing import Callable, List, Dict
 import re
 
 def ui_card(title: str, content: str, buttons: List[Callable] = None):
-    with st.container():
-        st.markdown(f"""
-        <div class="ui-card">
-            <h3>{title}</h3>
-            <div class="ui-card-content">{content}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    with ui.card(key=f"card_{title.lower().replace(' ', '_')}"):
+        ui.element("h3", text=title)
+        ui.element("div", text=content, className="ui-card-content")
         
         if buttons:
-            cols = st.columns(len(buttons))
-            for i, button in enumerate(buttons):
-                with cols[i]:
-                    button()
+            for button in buttons:
+                button()
 
 def full_screen_loader(progress, message, status_updates, estimated_time):
     status_html = "".join([f"<p class='status-update {'complete' if idx <= progress // 25 else ''}'>{update}</p>" for idx, update in enumerate(status_updates)])
@@ -36,10 +30,9 @@ def full_screen_loader(progress, message, status_updates, estimated_time):
         </div>
     </div>
     """
-    st.markdown(overlay_html, unsafe_allow_html=True)
+    ui.element("div", text=overlay_html, unsafe_allow_html=True)
 
 def estimate_time(file_size, current_step, total_steps, elapsed_time):
-    # Eenvoudige schattingslogica
     if current_step == 0:
         return "Berekenen..."
     
@@ -47,16 +40,14 @@ def estimate_time(file_size, current_step, total_steps, elapsed_time):
     remaining_steps = total_steps - current_step
     estimated_remaining_time = avg_time_per_step * remaining_steps
     
-    # Aanpassen op basis van bestandsgrootte (grotere bestanden duren langer)
-    size_factor = file_size / 1_000_000  # Converteer naar MB
-    estimated_remaining_time *= (1 + (size_factor * 0.1))  # 10% verhoging per MB
+    size_factor = file_size / 1_000_000
+    estimated_remaining_time *= (1 + (size_factor * 0.1))
     
     minutes, seconds = divmod(int(estimated_remaining_time), 60)
     return f"{minutes}m {seconds}s"
 
 def add_loader_css():
-    st.markdown("""
-    <style>
+    ui.element("style", text="""
     .fullscreen-loader {
         position: fixed;
         top: 0;
@@ -114,27 +105,24 @@ def add_loader_css():
     .status-update.complete::before {
         content: '✅';
     }
-    </style>
     """, unsafe_allow_html=True)
 
 def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
     button_class = "ui-button-primary" if primary else "ui-button-secondary"
-    return st.button(
-        label,
+    return ui.button(
+        text=label,
         on_click=on_click,
         key=key,
-        help=f"Klik om {label.lower()}",
-        use_container_width=True
+        className=button_class
     )
 
 def prompt_card(title):
     button_id = f"prompt_{title.lower().replace(' ', '_')}"
-    is_clicked = st.button(
-        f"Selecteer {title}",
+    is_clicked = ui.button(
+        text=f"Selecteer {title}",
         key=button_id
     )
-    st.markdown(f"""
-    <style>
+    ui.element("style", text=f"""
     #{button_id} {{
         background-color: #f0f0f0;
         padding: 20px;
@@ -145,18 +133,16 @@ def prompt_card(title):
     #{button_id}:hover {{
         background-color: #e0e0e0;
     }}
-    </style>
     """, unsafe_allow_html=True)
     return is_clicked
 
 def input_method_card(title, icon):
     button_id = f"input_{title.lower().replace(' ', '_')}"
-    is_clicked = st.button(
-        f"{title}",
+    is_clicked = ui.button(
+        text=title,
         key=button_id
     )
-    st.markdown(f"""
-    <style>
+    ui.element("style", text=f"""
     #{button_id} {{
         background-color: #f0f0f0;
         padding: 20px;
@@ -167,23 +153,21 @@ def input_method_card(title, icon):
     #{button_id}:hover {{
         background-color: #e0e0e0;
     }}
-    </style>
     """, unsafe_allow_html=True)
     return is_clicked
 
 def ui_download_button(label: str, data: str, file_name: str, mime_type: str):
     b64 = base64.b64encode(data.encode()).decode()
     href = f'<a href="data:{mime_type};base64,{b64}" download="{file_name}" class="ui-button-secondary">{label}</a>'
-    st.markdown(href, unsafe_allow_html=True)
+    ui.element("div", text=href, unsafe_allow_html=True)
 
 def ui_card_button(title: str, description: str):
     button_id = f"card_button_{title.lower().replace(' ', '_')}"
-    is_clicked = st.button(
-        f"{title}\n{description}",
+    is_clicked = ui.button(
+        text=f"{title}\n{description}",
         key=button_id
     )
-    st.markdown(f"""
-    <style>
+    ui.element("style", text=f"""
     #{button_id} {{
         background-color: #f9f9f9;
         padding: 20px;
@@ -194,16 +178,15 @@ def ui_card_button(title: str, description: str):
     #{button_id}:hover {{
         background-color: #e9e9e9;
     }}
-    </style>
     """, unsafe_allow_html=True)
     return is_clicked
 
 def ui_copy_button(text: str, label: str = "Kopiëren"):
-    st.code(text)
-    st.button(label, on_click=lambda: st.write(f"Tekst gekopieerd: {text}"))
+    ui.element("code", text=text)
+    ui.button(text=label, on_click=lambda: ui.element("div", text=f"Tekst gekopieerd: {text}"))
 
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
-    placeholder = st.empty()
+    placeholder = ui.element("div")
     num_lines = text.count('\n') + 1
     
     if num_lines > max_lines:
@@ -211,19 +194,19 @@ def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
         
         expand_key = f"expand_{hash(text)}"
         
-        if expand_key not in st.session_state:
-            st.session_state[expand_key] = False
+        if expand_key not in ui.session_state:
+            ui.session_state[expand_key] = False
         
-        if not st.session_state[expand_key]:
-            placeholder.text_area(label, truncated_text, height=150, disabled=True)
-            if st.button("Toon meer", key=f"show_more_{hash(text)}"):
-                st.session_state[expand_key] = True
+        if not ui.session_state[expand_key]:
+            placeholder.element("textarea", text=truncated_text, height=150, disabled=True)
+            if ui.button("Toon meer", key=f"show_more_{hash(text)}"):
+                ui.session_state[expand_key] = True
         else:
-            placeholder.text_area(label, text, height=300, disabled=True)
-            if st.button("Toon minder", key=f"show_less_{hash(text)}"):
-                st.session_state[expand_key] = False
+            placeholder.element("textarea", text=text, height=300, disabled=True)
+            if ui.button("Toon minder", key=f"show_less_{hash(text)}"):
+                ui.session_state[expand_key] = False
     else:
-        placeholder.text_area(label, text, height=150, disabled=True)
+        placeholder.element("textarea", text=text, height=150, disabled=True)
 
 def sanitize_html(text: str) -> str:
     return re.sub('<[^<]+?>', '', text)
@@ -231,13 +214,12 @@ def sanitize_html(text: str) -> str:
 def apply_custom_css():
     with open('static/styles.css', 'r') as f:
         custom_css = f.read()
-    st.markdown(f'<style>{custom_css}</style>', unsafe_allow_html=True)
+    ui.element("style", text=custom_css, unsafe_allow_html=True)
 
 def style_button(label: str, is_active: bool, key: str = None):
     color = "#4CAF50" if is_active else "#cccccc"
     button_key = f" key='{key}'" if key else ""
-    st.markdown(f"""
-    <style>
+    ui.element("style", text=f"""
     div.stButton > button[{button_key}] {{
         background-color: {color} !important;
         color: {"white" if is_active else "black"} !important;
@@ -247,12 +229,11 @@ def style_button(label: str, is_active: bool, key: str = None):
         background-color: {"#45a049" if is_active else "#b3b3b3"} !important;
         border-color: {"#45a049" if is_active else "#b3b3b3"} !important;
     }}
-    </style>
     """, unsafe_allow_html=True)
 
 def ui_styled_button(label: str, on_click: Callable, key: str, is_active: bool = True, primary: bool = False):
     style_button(label, is_active, key)
-    return st.button(label, on_click=on_click, key=key, disabled=not is_active, use_container_width=True)
+    return ui.button(text=label, on_click=on_click, key=key, disabled=not is_active)
 
 def ui_info_box(content: str, type: str = "info"):
     colors = {
@@ -267,13 +248,13 @@ def ui_info_box(content: str, type: str = "info"):
         "warning": "⚠️",
         "error": "❌"
     }
-    st.markdown(f"""
+    ui.element("div", text=f"""
     <div style="background-color: {colors[type]}; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
         <p style="margin: 0;"><strong>{icons[type]} {type.capitalize()}:</strong> {content}</p>
     </div>
     """, unsafe_allow_html=True)
 
 def ui_progress_bar(progress: float, label: str = ""):
-    st.progress(progress)
+    ui.progress(progress)
     if label:
-        st.write(label)
+        ui.element("div", text=label)
