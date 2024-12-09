@@ -1,18 +1,22 @@
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
-from src import config
-from src.utils import transcribe_audio, process_text_file, get_prompt_content
-from src.summary_and_output_module import generate_summary
-from src.enhanced_summary_module import generate_enhanced_summary
-from src.email_module import send_email
+from .config import (
+    ALLOWED_AUDIO_TYPES,
+    ALLOWED_TEXT_TYPES,
+    PROMPT_REMINDERS
+)
+from .utils import transcribe_audio, process_text_file, get_prompt_content
+from .summary_and_output_module import generate_summary
+from .enhanced_summary_module import generate_enhanced_summary
+from .email_module import send_email
 from streamlit_mic_recorder import mic_recorder
 import tempfile
 from pydub import AudioSegment
 import time
 import os
-from src.ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
-from src.memory_tracker import get_memory_tracker
-from src.progress_utils import update_progress
+from .ui_components import ui_styled_button, ui_info_box, ui_progress_bar, full_screen_loader, add_loader_css, estimate_time
+from .memory_tracker import get_memory_tracker
+from .progress_utils import update_progress
 import logging
 from io import BytesIO
 import gc
@@ -209,7 +213,7 @@ def process_multiple_text_files(uploaded_files):
         ui_info_box("Verwerking van alle bestanden is mislukt. Probeer het opnieuw.", "error")
 
 def render_recording_reminders(prompt_type):
-    reminders = config.PROMPT_REMINDERS.get(prompt_type, [])
+    reminders = PROMPT_REMINDERS.get(prompt_type, [])
     if reminders:
         st.markdown("### Vergeet niet de volgende onderwerpen te behandelen:")
         
@@ -258,7 +262,7 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload meerdere audio- of videobestanden",
-                type=config.ALLOWED_AUDIO_TYPES,
+                type=ALLOWED_AUDIO_TYPES,
                 key="multi_audio_uploader",
                 accept_multiple_files=True
             )
@@ -273,7 +277,7 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_file = st.file_uploader(
                 "Upload een audio- of videobestand",
-                type=config.ALLOWED_AUDIO_TYPES + ['mp4'],
+                type=ALLOWED_AUDIO_TYPES + ['mp4'],
                 key="single_audio_uploader",
                 accept_multiple_files=False
             )
@@ -287,7 +291,7 @@ def render_input_step(on_input_complete):
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "Upload een of meerdere tekstbestanden",
-                type=config.ALLOWED_TEXT_TYPES,
+                type=ALLOWED_TEXT_TYPES,
                 key="text_file_uploader",
                 accept_multiple_files=True
             )
@@ -497,11 +501,34 @@ def send_summary_via_email(summary):
         st.error(f"Fout bij het verzenden van e-mail: {message}")
 
 def download_summary_as_pdf(summary):
-    # Implement PDF download functionality
-    pdf = pdfkit.from_string(summary, False)
+    # Create a BytesIO object to store the PDF
+    pdf_buffer = BytesIO()
+    
+    # Create a simple text-based PDF
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+    c.drawString(72, 800, "Samenvatting")
+    
+    # Split summary into lines that fit on the page
+    y = 780
+    for line in summary.split('\n'):
+        if y > 50:  # Ensure we don't write below the bottom margin
+            c.drawString(72, y, line)
+            y -= 15
+        else:
+            # Start a new page if we run out of space
+            c.showPage()
+            y = 780
+    
+    c.save()
+    
+    # Make the PDF available for download
+    pdf_buffer.seek(0)
     st.download_button(
         label="Download PDF",
-        data=pdf,
+        data=pdf_buffer,
         file_name="samenvatting.pdf",
         mime="application/pdf"
     )

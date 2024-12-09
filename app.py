@@ -1,21 +1,41 @@
 import streamlit as st
+import os
+import gc
+import logging
+import time
+import psutil
 
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
 
-from src import config, prompt_module, input_module, ui_components, history_module, summary_and_output_module
+# Import local modules using specific imports
+from src.memory_tracker import get_memory_tracker
+from src.memory_management import MemoryManager
+from src.config import (
+    SUMMARY_MODEL,
+    MAX_TOKENS,
+    TEMPERATURE,
+    PROMPTS_DIR,
+    get_openai_api_key,
+    get_email_config,
+    get_colleague_emails
+)
+from src.prompt_module import render_prompt_selection
+from src.input_module import render_input_step
+from src.ui_components import add_loader_css, apply_custom_css, full_screen_loader
+from src.history_module import add_to_history, render_history
+from src.summary_and_output_module import (
+    generate_summary, 
+    update_progress, 
+    handle_action, 
+    handle_chat_response, 
+    create_email, 
+    render_chat_interface,
+    send_feedback_email,
+    suggest_actions
+)
 from src.utils import post_process_grammar_check, format_currency, load_prompts, get_prompt_names, get_prompt_content
 from src.state_utils import convert_summaries_to_dict_format
-from src.ui_components import add_loader_css, apply_custom_css, full_screen_loader
-from src.memory_management import MemoryManager
-from streamlit.runtime.uploaded_file_manager import UploadedFile
-from src.memory_tracker import get_memory_tracker
-import logging
-import time
-import os
-from openai import OpenAI
-import gc
-import psutil
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -120,7 +140,7 @@ def main():
     try:
         load_css()
         add_loader_css()
-        ui_components.apply_custom_css()
+        apply_custom_css()
         convert_summaries_to_dict_format()
 
         # Check memory status
@@ -142,101 +162,10 @@ def main():
         st.error("Er is een onverwachte fout opgetreden. Probeer de pagina te verversen.")
         memory_tracker.cleanup()
 
-def render_prompt_selection():
-    st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
-
-    # Define categories and their corresponding prompts
-    prompt_categories = {
-        "Veldhuis Advies": {
-            "Pensioen": ["collectief_pensioen", "deelnemersgesprekken_collectief_pensioen", "onderhoudsgesprekkenwerkgever", "pensioen"],
-            "Hypotheek": ["hypotheek", "hypotheek_rapport"],
-            "Financiële Planning": ["aov", "financieelplanningstraject"],
-            "Overig": ["ingesproken_notitie", "telefoongesprek"]
-        },
-        "Veldhuis Advies Groep": {
-            "Bedrijven": ["VIP", "risico_analyse", "adviesgesprek"],
-            "Particulieren": ["klantrapport", "klantvraag"],
-            "Schade": ["schade_beoordeling", "schademelding", "expertise_gesprek"],
-            "Overig": ["mutatie", "ingesproken_notitie", "telefoongesprek"]
-        },
-        "NLG Arbo": {
-            "Casemanager": ["casemanager"],
-            "Bedrijfsarts": ["gesprek_bedrijfsarts"],
-            "Overig": ["ingesproken_notitie", "telefoongesprek"]
-        },
-        "Langere Gesprekken": {
-            "Adviesgesprekken": ["lang_adviesgesprek", "lang_hypotheekgesprek"],
-            "Vergaderingen": ["notulen_vergadering", "notulen_brainstorm"],
-            "Rapportages": ["uitgebreid_rapport"]
-        }
-    }
-
-    # Add disclaimer for "Langere Gesprekken" category
-    disclaimer_html = """
-    <div class="info-banner" style="
-        background-color: #f8f9fa;
-        border-left: 4px solid #4CAF50;
-        padding: 1rem;
-        margin: 1rem 0;
-        border-radius: 4px;
-        font-size: 0.9rem;
-    ">
-        <p style="margin: 0;">
-            <strong>Let op:</strong> Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse 
-            van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en 
-            meer gedetailleerde samenvatting op.
-        </p>
-    </div>
-    """
-
-    # Radio buttons for category selection with custom styling
-    st.markdown("""
-    <style>
-    div.row-widget.stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    div.row-widget.stRadio > div label {
-        padding: 10px 15px;
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        transition: all 0.2s;
-    }
-    div.row-widget.stRadio > div label:hover {
-        background-color: #f8f9fa;
-        border-color: #4CAF50;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
-    
-    # Show disclaimer if "Langere Gesprekken" is selected
-    if main_category == "Langere Gesprekken":
-        st.markdown(disclaimer_html, unsafe_allow_html=True)
-    
-    sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
-    
-    # Dropdown for prompt selection
-    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
-
-    # Button to proceed
-    if st.button("Verder ➔", key="proceed_button", use_container_width=True):
-        st.session_state.selected_prompt = selected_prompt
-        # Store whether this is a long recording prompt
-        st.session_state.is_long_recording = main_category == "Langere Gesprekken"
-        st.session_state.step = 'input_selection'
-        st.rerun()
-
-def handle_input_complete():
-    process_input_and_generate_summary()
-
 def render_input_selection():
     st.markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
-    is_recording = input_module.render_input_step(handle_input_complete)
+    is_recording = render_input_step(handle_input_complete)
     
     if not is_recording and st.session_state.input_text:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
@@ -248,6 +177,9 @@ def render_input_selection():
             key=f"transcript_edit_{hash(st.session_state.input_text)}"
         )
         st.markdown("</div>", unsafe_allow_html=True)
+
+def handle_input_complete():
+    process_input_and_generate_summary()
 
 def display_progress_animation():
     progress_placeholder = st.empty()
@@ -352,7 +284,7 @@ def process_input_and_generate_summary():
     
     if st.session_state.step == 'results':
         st.rerun()
-         
+
 def render_results():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
     

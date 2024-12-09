@@ -168,28 +168,6 @@ def generate_summary(input_text, base_prompt, selected_prompt, audio_file_path=N
         st.error("Er is een fout opgetreden bij het genereren van de samenvatting.")
         return None
 
-def update_progress(progress_placeholder, step_description, current_step, total_steps):
-    """
-    Update the progress bar and status message in the Streamlit app.
-
-    :param progress_placeholder: Streamlit placeholder for the progress bar.
-    :param step_description: Description of the current step.
-    :param current_step: Current step number.
-    :param total_steps: Total number of steps.
-    """
-    progress = current_step / total_steps
-    progress_placeholder.progress(progress)
-    progress_placeholder.markdown(
-        f"""
-        <div style="text-align: center;">
-            <strong>{step_description}</strong><br>
-            Stap {current_step} van {total_steps}<br>
-            <progress value="{current_step}" max="{total_steps}" style="width: 100%;"></progress>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
 def handle_action(action_text, summary_content):
     """
     Process the action requested by the user and generate a response.

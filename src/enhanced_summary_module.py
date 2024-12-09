@@ -5,7 +5,7 @@ import streamlit as st
 from typing import List, Dict, Union
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 import json
-from src.utils import transcribe_audio
+from .utils import transcribe_audio
 import logging
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ Transcript:
 \"\"\"
         """
         try:
-            response = self.client.chat_completions.create(
+            response = self.client.chat.completions.create(
                 model=self.mini_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
@@ -74,7 +74,7 @@ Relevant context:
 \"\"\"
         """
         try:
-            response = self.client.chat_completions.create(
+            response = self.client.chat.completions.create(
                 model=self.main_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.5,
@@ -110,7 +110,7 @@ Provide your findings as a list of missed topics.
 Format your response as a JSON array of strings.
         """
         try:
-            response = self.client.chat_completions.create(
+            response = self.client.chat.completions.create(
                 model=self.mini_model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
