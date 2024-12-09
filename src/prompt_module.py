@@ -30,22 +30,18 @@ def render_prompt_selection():
         }
     }
 
-    # Longere Gesprekken disclaimer
     if 'main_category' in st.session_state and st.session_state.main_category == "Langere Gesprekken":
-        with ui.card(className="mb-4"):
-            ui.text("Let op: Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en meer gedetailleerde samenvatting op.", size="sm")
+        with ui.card():
+            ui.text("Let op: Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en meer gedetailleerde samenvatting op.")
 
-    # Category selection
     main_category = ui.tabs(
         options=list(prompt_categories.keys()),
         default_value=list(prompt_categories.keys())[0],
         key="main_category_tabs"
     )
-    
+
     if main_category:
         st.session_state.main_category = main_category
-        
-        # Subcategory selection
         subcategories = list(prompt_categories[main_category].keys())
         sub_category = ui.select(
             options=subcategories,
@@ -53,9 +49,8 @@ def render_prompt_selection():
             placeholder="Selecteer een subcategorie...",
             key="subcategory_select"
         )
-        
+
         if sub_category:
-            # Prompt selection
             prompts = prompt_categories[main_category][sub_category]
             selected_prompt = ui.select(
                 options=prompts,
@@ -63,18 +58,11 @@ def render_prompt_selection():
                 placeholder="Selecteer een instructie...",
                 key="prompt_select"
             )
-            
-            if selected_prompt:
-                proceed_btn = ui.button(
-                    text="Verder ➔",
-                    key="proceed_button"
-                )
-                
-                if proceed_btn:
-                    proceed(selected_prompt, main_category)
 
-def proceed(selected_prompt, main_category):
-    st.session_state.selected_prompt = selected_prompt
-    st.session_state.is_long_recording = main_category == "Langere Gesprekken"
-    st.session_state.step = 'input_selection'
-    st.rerun()
+            if selected_prompt:
+                proceed_btn = ui.button(text="Verder ➔", key="proceed_button")
+                if proceed_btn:
+                    st.session_state.selected_prompt = selected_prompt
+                    st.session_state.is_long_recording = main_category == "Langere Gesprekken"
+                    st.session_state.step = 'input_selection'
+                    st.rerun()
