@@ -5,7 +5,7 @@ markdown2
 python-docx
 xhtml2pdf
 PyPDF2
-pydub
+pydub==0.25.1
 pandas
 reportlab
 streamlit_mic_recorder
