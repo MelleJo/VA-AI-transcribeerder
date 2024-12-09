@@ -1,10 +1,10 @@
 import streamlit as st
+import streamlit_shadcn_ui as ui
 import os
 import gc
 import logging
 import time
 import psutil
-import streamlit_shadcn_ui as ui
 
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
@@ -287,150 +287,110 @@ def process_input_and_generate_summary():
         st.rerun()
 
 def render_results():
-    ui.markdown("<div class='main-content'>", unsafe_allow_html=True)
-    
-    col1, col2 = ui.columns([3, 2])
-    
-    with col1:
-        ui.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
+    """Modern UI for results page using shadcn components"""
+    with ui.card(className="w-full max-w-4xl mx-auto p-6"):
+        col1, col2 = ui.columns([3, 2])
         
-        if st.session_state.summaries:
-            current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
-            ui.markdown(current_summary, unsafe_allow_html=True)
-        else:
-            st.warning("Geen samenvatting beschikbaar.")
-
-    with col2:
-        ui.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
-        
-        # Static action suggestions
-        static_actions = [
-            "Informeer collega",
-            "Maak uitgebreider",
-            "Maak korter",
-            "Stel conceptmail op naar de klant",
-            "Stuur samenvatting naar jezelf",
-            "Vraag X aan klant"
-        ]
+        with col1:
+            ui.heading("Concept samenvatting", level=2)
             
-        # AI-generated suggestions
-        if st.session_state.summaries:
-            ai_suggestions = suggest_actions(st.session_state.summaries[-1]["content"], static_actions)
-        else:
-            ai_suggestions = []
-        
-        # Combine static and AI-generated suggestions
-        all_actions = static_actions + ai_suggestions
-        
-        # Create a 3x3 grid for action buttons
-        for i in range(0, 9, 3):
-            cols = ui.columns(3)
-            for j in range(3):
-                if i + j < len(all_actions):
-                    action = all_actions[i + j]
-                    if ui.button(action, key=f"action_{i+j}", use_container_width=True):
-                        if action == "Vraag X aan klant":
-                            st.session_state.show_email_form = True
-                            st.session_state.email_type = 'client_request'
-                            st.session_state.client_request = ui.text_input("Wat wilt u aan de klant vragen?")
-                        elif action == "Informeer collega":
-                            st.session_state.show_email_form = True
-                            st.session_state.email_type = 'colleague'
-                        elif action == "Stuur samenvatting naar jezelf":
-                            st.session_state.show_email_form = True
-                            st.session_state.email_type = 'self'
-                        elif action == "Stel conceptmail op naar de klant":
-                            st.session_state.show_email_form = True
-                            st.session_state.email_type = 'client'
-                        else:
-                            response = handle_action(action, st.session_state.summaries[-1]["content"])
-                            handle_chat_response(response)
-                        st.rerun()
-
-        # Show email form if button was clicked
-        if st.session_state.get('show_email_form', False):
-            email_type = st.session_state.get('email_type', 'colleague')
-            create_email(
-                st.session_state.summaries[-1]["content"],
-                st.session_state.input_text,
-                email_type
-            )
-
-        with ui.expander("Chat", expanded=False):
-            render_chat_interface()
-
-    with ui.expander("Bekijk/Bewerk Transcript"):
-        edited_transcript = ui.textarea("Transcript:", value=st.session_state.input_text, height=300)
-        if edited_transcript != st.session_state.input_text:
-            st.session_state.input_text = edited_transcript
-            if ui.button("Genereer opnieuw", key="regenerate_button"):
-                new_summary = generate_summary(
-                    st.session_state.input_text,
-                    st.session_state.base_prompt,
-                    get_prompt_content(st.session_state.selected_prompt)
-                )
-                st.session_state.summary_versions.append(new_summary)
-                st.session_state.current_version = len(st.session_state.summary_versions) - 1
-                st.session_state.summary = new_summary
-                st.rerun()
-
-    if ui.button("Terug naar begin", key="back_to_start_button"):
-        st.session_state.step = 'prompt_selection'
-        st.session_state.selected_prompt = None
-        st.session_state.input_text = ""
-        st.session_state.summary_versions = []
-        st.session_state.current_version = 0
-        st.session_state.summary = ""
-        st.rerun()
-    
-    # Add Feedback Mechanism
-    with ui.expander("Geef feedback", expanded=False):
-        ui.markdown("### Feedback")
-        with st.form(key="feedback_form"):
-            user_name = ui.text_input("Uw naam (verplicht bij feedback):", key="feedback_name")
-            feedback = st.radio("Was deze samenvatting nuttig?", ["Positief", "Negatief"], key="feedback_rating")
-            additional_feedback = ui.textarea("Laat aanvullende feedback achter:", key="additional_feedback")
-            submit_button = ui.button(label="Verzend feedback")
-
-            if submit_button:
-                if not user_name:
-                    st.warning("Naam is verplicht bij het geven van feedback.", icon="⚠️")
-                else:
-                    success = send_feedback_email(
-                        transcript=st.session_state.input_text,
-                        summary=st.session_state.summaries[0]["content"] if st.session_state.summaries else "",
-                        revised_summary=st.session_state.summaries[-1]["content"] if len(st.session_state.summaries) > 1 else 'Geen aangepaste samenvatting',
-                        feedback=feedback,
-                        additional_feedback=additional_feedback,
-                        user_name=user_name,
-                        selected_prompt=st.session_state.selected_prompt
+            if st.session_state.summaries:
+                current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
+                
+                # Summary display with version control
+                with ui.card(className="mt-4"):
+                    summary_text = ui.textarea(
+                        value=current_summary,
+                        label="Samenvatting",
+                        key=f"summary_{st.session_state.current_version}"
                     )
-                    if success:
-                        st.success("Bedankt voor uw feedback!")
-                    else:
-                        st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
+                    
+                    # Version control buttons
+                    cols = ui.columns(3)
+                    with cols[0]:
+                        prev_disabled = st.session_state.current_version == 0
+                        if ui.button("◀ Vorige", disabled=prev_disabled, key="prev_version"):
+                            st.session_state.current_version -= 1
+                            st.rerun()
+                    
+                    with cols[1]:
+                        ui.text(f"Versie {st.session_state.current_version + 1} van {len(st.session_state.summaries)}")
+                    
+                    with cols[2]:
+                        next_disabled = st.session_state.current_version == len(st.session_state.summaries) - 1
+                        if ui.button("Volgende ▶", disabled=next_disabled, key="next_version"):
+                            st.session_state.current_version += 1
+                            st.rerun()
+            else:
+                ui.alert(message="Geen samenvatting beschikbaar.", status="warning")
 
-    ui.markdown("</div>", unsafe_allow_html=True)
+        with col2:
+            ui.heading("Acties", level=2)
+            
+            # Static action suggestions
+            actions = [
+                "Informeer collega",
+                "Maak uitgebreider",
+                "Maak korter",
+                "Stel conceptmail op naar de klant",
+                "Stuur samenvatting naar jezelf",
+                "Vraag X aan klant"
+            ]
+            
+            # AI-generated suggestions
+            if st.session_state.summaries:
+                ai_suggestions = suggest_actions(st.session_state.summaries[-1]["content"], actions)
+                all_actions = actions + ai_suggestions
+                
+                # Create action buttons in a grid
+                for i in range(0, len(all_actions), 2):
+                    cols = ui.columns(2)
+                    for j, col in enumerate(cols):
+                        if i + j < len(all_actions):
+                            with col:
+                                if ui.button(
+                                    all_actions[i + j],
+                                    key=f"action_{i+j}",
+                                    className="w-full mb-2"
+                                ):
+                                    handle_action_click(all_actions[i + j])
 
-    # Add Floating Action Button
-    ui.markdown(
-        """
-        <div id="fab-root"></div>
-        <script>
-            const fabRoot = document.getElementById('fab-root');
-            const fabProps = {
-                actions: [
-                    { label: 'Kopieer', icon: 'content_copy', onClick: () => navigator.clipboard.writeText(document.querySelector('.stMarkdown').textContent) },
-                    { label: 'Download Word', icon: 'description', onClick: () => document.querySelector('button[data-testid="stDownloadButton"]').click() },
-                    { label: 'Download PDF', icon: 'picture_as_pdf', onClick: () => document.querySelectorAll('button[data-testid="stDownloadButton"]')[1].click() },
-                    { label: 'Nieuwe samenvatting', icon: 'add', onClick: () => document.querySelector('button[data-testid="back_to_start_button"]').click() }
-                ]
-            };
-            ReactDOM.render(React.createElement(FloatingActionButton, fabProps), fabRoot);
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
+            # Chat interface
+            with ui.accordion("Chat", value=False):
+                render_chat_interface()
+
+            # Transcript editor
+            with ui.accordion("Bekijk/Bewerk Transcript", value=False):
+                edited_transcript = ui.textarea(
+                    label="Transcript:",
+                    value=st.session_state.input_text,
+                    key="transcript_editor"
+                )
+                
+                if edited_transcript != st.session_state.input_text:
+                    st.session_state.input_text = edited_transcript
+                    if ui.button("Genereer opnieuw", key="regenerate"):
+                        regenerate_summary()
+
+def handle_action_click(action):
+    """Handle clicks on action buttons"""
+    if action == "Vraag X aan klant":
+        st.session_state.show_email_form = True
+        st.session_state.email_type = 'client_request'
+        st.session_state.client_request = ui.input(label="Wat wilt u aan de klant vragen?")
+    elif action == "Informeer collega":
+        st.session_state.show_email_form = True
+        st.session_state.email_type = 'colleague'
+    elif action == "Stuur samenvatting naar jezelf":
+        st.session_state.show_email_form = True
+        st.session_state.email_type = 'self'
+    elif action == "Stel conceptmail op naar de klant":
+        st.session_state.show_email_form = True
+        st.session_state.email_type = 'client'
+    else:
+        response = handle_action(action, st.session_state.summaries[-1]["content"])
+        handle_chat_response(response)
+    st.rerun()
 
 def render_summary_with_version_control():
     if st.session_state.summary_versions:
