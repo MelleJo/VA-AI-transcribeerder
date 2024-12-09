@@ -1,9 +1,11 @@
+# src/prompt_module.py
+
 import streamlit as st
 import streamlit_shadcn_ui as ui
 from .utils import get_prompt_names, get_prompt_content
 
 def render_prompt_selection():
-    ui.heading("Wat wil je doen?", level=2)
+    st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
 
     prompt_categories = {
         "Veldhuis Advies": {
@@ -30,39 +32,33 @@ def render_prompt_selection():
         }
     }
 
-    if 'main_category' in st.session_state and st.session_state.main_category == "Langere Gesprekken":
-        with ui.card():
-            ui.text("Let op: Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en meer gedetailleerde samenvatting op.")
+    if st.session_state.get('main_category') == "Langere Gesprekken":
+        st.markdown("""
+        <div class="info-banner" style="
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        ">
+            <p style="margin: 0;">
+                <strong>Let op:</strong> Deze optie gebruikt geavanceerde AI-technieken voor een diepgaandere analyse 
+                van langere gesprekken. De verwerking duurt hierdoor wat langer, maar levert een uitgebreidere en 
+                meer gedetailleerde samenvatting op.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
+    st.session_state.main_category = main_category
+    
+    sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
+    selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
-    main_category = ui.tabs(
-        options=list(prompt_categories.keys()),
-        default_value=list(prompt_categories.keys())[0],
-        key="main_category_tabs"
-    )
-
-    if main_category:
-        st.session_state.main_category = main_category
-        subcategories = list(prompt_categories[main_category].keys())
-        sub_category = ui.select(
-            options=subcategories,
-            label="Kies een subcategorie",
-            placeholder="Selecteer een subcategorie...",
-            key="subcategory_select"
-        )
-
-        if sub_category:
-            prompts = prompt_categories[main_category][sub_category]
-            selected_prompt = ui.select(
-                options=prompts,
-                label="Kies een specifieke instructie",
-                placeholder="Selecteer een instructie...",
-                key="prompt_select"
-            )
-
-            if selected_prompt:
-                proceed_btn = ui.button(text="Verder ➔", key="proceed_button")
-                if proceed_btn:
-                    st.session_state.selected_prompt = selected_prompt
-                    st.session_state.is_long_recording = main_category == "Langere Gesprekken"
-                    st.session_state.step = 'input_selection'
-                    st.rerun()
+    proceed_btn = st.button("Verder ➔")
+    if proceed_btn:
+        st.session_state.selected_prompt = selected_prompt
+        st.session_state.is_long_recording = main_category == "Langere Gesprekken"
+        st.session_state.step = 'input_selection'
+        st.rerun()
