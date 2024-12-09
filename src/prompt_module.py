@@ -2,6 +2,7 @@
 
 import streamlit as st
 from .utils import get_prompt_names, get_prompt_content
+from src.ui_components import ui_button
 
 def render_prompt_selection():
     st.markdown("<h2 class='section-title'>Wat wil je doen?</h2>", unsafe_allow_html=True)
@@ -84,9 +85,12 @@ def render_prompt_selection():
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
     # Button to proceed
-    if st.button("Verder ➔", key="proceed_button", use_container_width=True):
-        st.session_state.selected_prompt = selected_prompt
-        # Store whether this is a long recording prompt
-        st.session_state.is_long_recording = main_category == "Langere Gesprekken"
-        st.session_state.step = 'input_selection'
-        st.rerun()
+    if ui_button("Verder ➔", on_click=lambda: proceed(selected_prompt, main_category), key="proceed_button"):
+        pass
+
+def proceed(selected_prompt, main_category):
+    st.session_state.selected_prompt = selected_prompt
+    # Store whether this is a long recording prompt
+    st.session_state.is_long_recording = main_category == "Langere Gesprekken"
+    st.session_state.step = 'input_selection'
+    st.rerun()

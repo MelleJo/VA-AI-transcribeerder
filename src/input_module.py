@@ -305,9 +305,8 @@ def render_input_step(on_input_complete):
         elif input_method == "Tekst invoeren":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
-            if st.button("Verwerk tekst"):
+            if ui_styled_button("Verwerk tekst", on_click=lambda: process_text_input(on_input_complete), key="process_text_button"):
                 st.session_state.is_processing = True
-                process_text_input(on_input_complete)
                 st.session_state.is_processing = False
             st.markdown("</div>", unsafe_allow_html=True)
     
@@ -321,8 +320,8 @@ def render_input_step(on_input_complete):
             height=300,
             key=f"final_transcript_{hash(st.session_state.input_text)}"
         )
-        if st.button("Ga verder met samenvatting"):
-            on_input_complete()
+        if ui_styled_button("Ga verder met samenvatting", on_click=on_input_complete, key="continue_summary_button"):
+            pass
         st.markdown("</div>", unsafe_allow_html=True)
 
 def validate_file_size(file: UploadedFile, max_size_mb: int = MAX_AUDIO_SIZE_MB) -> bool:
@@ -483,10 +482,10 @@ def render_summary_step():
     st.markdown(st.session_state.summary)
 
     # Actions with real functionality
-    if st.button("Verzend samenvatting via e-mail"):
-        send_summary_via_email(st.session_state.summary)
-    if st.button("Download samenvatting als PDF"):
-        download_summary_as_pdf(st.session_state.summary)
+    if ui_styled_button("Verzend samenvatting via e-mail", on_click=lambda: send_summary_via_email(st.session_state.summary), key="send_email_button"):
+        pass
+    if ui_styled_button("Download samenvatting als PDF", on_click=lambda: download_summary_as_pdf(st.session_state.summary), key="download_pdf_button"):
+        pass
 
 def send_summary_via_email(summary):
     sender_email = st.secrets["email"]["sender_email"]
