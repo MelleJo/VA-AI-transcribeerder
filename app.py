@@ -4,7 +4,7 @@ import gc
 import logging
 import time
 import psutil
-from shadcn_ui import Button, TextInput, Column, Expander, Markdown
+import streamlit_shadcn_ui as ui
 
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
@@ -164,20 +164,20 @@ def main():
         memory_tracker.cleanup()
 
 def render_input_selection():
-    Markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
+    ui.markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
     is_recording = render_input_step(handle_input_complete)
     
     if not is_recording and st.session_state.input_text:
-        Markdown("<div class='info-container'>", unsafe_allow_html=True)
-        Markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-        st.session_state.input_text = TextInput(
+        ui.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        ui.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
+        st.session_state.input_text = ui.textarea(
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
             key=f"transcript_edit_{hash(st.session_state.input_text)}"
         )
-        Markdown("</div>", unsafe_allow_html=True)
+        ui.markdown("</div>", unsafe_allow_html=True)
 
 def handle_input_complete():
     process_input_and_generate_summary()
@@ -287,21 +287,21 @@ def process_input_and_generate_summary():
         st.rerun()
 
 def render_results():
-    Markdown("<div class='main-content'>", unsafe_allow_html=True)
+    ui.markdown("<div class='main-content'>", unsafe_allow_html=True)
     
-    col1, col2 = Column([3, 2])
+    col1, col2 = ui.columns([3, 2])
     
     with col1:
-        Markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
+        ui.markdown("<h2 class='section-title'>Concept samenvatting</h2>", unsafe_allow_html=True)
         
         if st.session_state.summaries:
             current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
-            Markdown(current_summary, unsafe_allow_html=True)
+            ui.markdown(current_summary, unsafe_allow_html=True)
         else:
             st.warning("Geen samenvatting beschikbaar.")
 
     with col2:
-        Markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
+        ui.markdown("<h2 class='section-title'>Acties</h2>", unsafe_allow_html=True)
         
         # Static action suggestions
         static_actions = [
@@ -324,15 +324,15 @@ def render_results():
         
         # Create a 3x3 grid for action buttons
         for i in range(0, 9, 3):
-            cols = Column(3)
+            cols = ui.columns(3)
             for j in range(3):
                 if i + j < len(all_actions):
                     action = all_actions[i + j]
-                    if Button(action, key=f"action_{i+j}", use_container_width=True):
+                    if ui.button(action, key=f"action_{i+j}", use_container_width=True):
                         if action == "Vraag X aan klant":
                             st.session_state.show_email_form = True
                             st.session_state.email_type = 'client_request'
-                            st.session_state.client_request = TextInput("Wat wilt u aan de klant vragen?")
+                            st.session_state.client_request = ui.text_input("Wat wilt u aan de klant vragen?")
                         elif action == "Informeer collega":
                             st.session_state.show_email_form = True
                             st.session_state.email_type = 'colleague'
@@ -356,14 +356,14 @@ def render_results():
                 email_type
             )
 
-        with Expander("Chat", expanded=False):
+        with ui.expander("Chat", expanded=False):
             render_chat_interface()
 
-    with Expander("Bekijk/Bewerk Transcript"):
-        edited_transcript = TextInput("Transcript:", value=st.session_state.input_text, height=300)
+    with ui.expander("Bekijk/Bewerk Transcript"):
+        edited_transcript = ui.textarea("Transcript:", value=st.session_state.input_text, height=300)
         if edited_transcript != st.session_state.input_text:
             st.session_state.input_text = edited_transcript
-            if Button("Genereer opnieuw", key="regenerate_button"):
+            if ui.button("Genereer opnieuw", key="regenerate_button"):
                 new_summary = generate_summary(
                     st.session_state.input_text,
                     st.session_state.base_prompt,
@@ -374,7 +374,7 @@ def render_results():
                 st.session_state.summary = new_summary
                 st.rerun()
 
-    if Button("Terug naar begin", key="back_to_start_button"):
+    if ui.button("Terug naar begin", key="back_to_start_button"):
         st.session_state.step = 'prompt_selection'
         st.session_state.selected_prompt = None
         st.session_state.input_text = ""
@@ -384,13 +384,13 @@ def render_results():
         st.rerun()
     
     # Add Feedback Mechanism
-    with Expander("Geef feedback", expanded=False):
-        Markdown("### Feedback")
+    with ui.expander("Geef feedback", expanded=False):
+        ui.markdown("### Feedback")
         with st.form(key="feedback_form"):
-            user_name = TextInput("Uw naam (verplicht bij feedback):", key="feedback_name")
+            user_name = ui.text_input("Uw naam (verplicht bij feedback):", key="feedback_name")
             feedback = st.radio("Was deze samenvatting nuttig?", ["Positief", "Negatief"], key="feedback_rating")
-            additional_feedback = TextInput("Laat aanvullende feedback achter:", key="additional_feedback")
-            submit_button = Button(label="Verzend feedback")
+            additional_feedback = ui.textarea("Laat aanvullende feedback achter:", key="additional_feedback")
+            submit_button = ui.button(label="Verzend feedback")
 
             if submit_button:
                 if not user_name:
@@ -410,10 +410,10 @@ def render_results():
                     else:
                         st.error("Er is een fout opgetreden bij het verzenden van de feedback. Probeer het later opnieuw.")
 
-    Markdown("</div>", unsafe_allow_html=True)
+    ui.markdown("</div>", unsafe_allow_html=True)
 
     # Add Floating Action Button
-    Markdown(
+    ui.markdown(
         """
         <div id="fab-root"></div>
         <script>
@@ -434,37 +434,37 @@ def render_results():
 
 def render_summary_with_version_control():
     if st.session_state.summary_versions:
-        Markdown("<div class='version-control'>", unsafe_allow_html=True)
-        col1, col2, col3 = Column([1, 3, 1])
+        ui.markdown("<div class='version-control'>", unsafe_allow_html=True)
+        col1, col2, col3 = ui.columns([1, 3, 1])
         
         with col1:
-            if Button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
+            if ui.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
                 st.session_state.current_version -= 1
                 st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         with col2:
-            Markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
+            ui.markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
         
         with col3:
-            if Button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
+            if ui.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
                 st.session_state.current_version += 1
                 st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
-        Markdown("</div>", unsafe_allow_html=True)
+        ui.markdown("</div>", unsafe_allow_html=True)
         
         current_summary = st.session_state.summary_versions[st.session_state.current_version]
-        Markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
-        edited_summary = TextInput("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
-        Markdown("</div>", unsafe_allow_html=True)
+        ui.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
+        edited_summary = ui.textarea("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
+        ui.markdown("</div>", unsafe_allow_html=True)
         
         if edited_summary != current_summary:
-            if Button("Wijzigingen opslaan", key="save_changes_button"):
+            if ui.button("Wijzigingen opslaan", key="save_changes_button"):
                 st.session_state.summary_versions.append(edited_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
                 st.session_state.summary = edited_summary
-                Markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
+                ui.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:
         st.warning("Geen samenvatting beschikbaar.")
