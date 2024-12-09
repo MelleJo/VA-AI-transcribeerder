@@ -305,7 +305,11 @@ def render_input_step(on_input_complete):
         elif input_method == "Tekst invoeren":
             st.markdown("<div class='info-container'>", unsafe_allow_html=True)
             st.session_state.input_text = st.text_area("Voer tekst in:", height=300)
-            if ui_styled_button("Verwerk tekst", on_click=lambda: process_text_input(on_input_complete), key="process_text_button"):
+
+            def on_process_text_click():
+                process_text_input(on_input_complete)
+
+            if ui_styled_button("Verwerk tekst", on_click=on_process_text_click, key="process_text_button"):
                 st.session_state.is_processing = True
                 st.session_state.is_processing = False
             st.markdown("</div>", unsafe_allow_html=True)
@@ -482,9 +486,15 @@ def render_summary_step():
     st.markdown(st.session_state.summary)
 
     # Actions with real functionality
-    if ui_styled_button("Verzend samenvatting via e-mail", on_click=lambda: send_summary_via_email(st.session_state.summary), key="send_email_button"):
+    def on_send_email_click():
+        send_summary_via_email(st.session_state.summary)
+
+    def on_download_pdf_click():
+        download_summary_as_pdf(st.session_state.summary)
+
+    if ui_styled_button("Verzend samenvatting via e-mail", on_click=on_send_email_click, key="send_email_button"):
         pass
-    if ui_styled_button("Download samenvatting als PDF", on_click=lambda: download_summary_as_pdf(st.session_state.summary), key="download_pdf_button"):
+    if ui_styled_button("Download samenvatting als PDF", on_click=on_download_pdf_click, key="download_pdf_button"):
         pass
 
 def send_summary_via_email(summary):

@@ -85,7 +85,10 @@ def render_prompt_selection():
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
     # Button to proceed
-    if ui_button("Verder ➔", on_click=lambda: proceed(selected_prompt, main_category), key="proceed_button"):
+    def on_proceed_click():
+        proceed(selected_prompt, main_category)
+
+    if ui_button("Verder ➔", on_click=on_proceed_click, key="proceed_button"):
         pass
 
 def proceed(selected_prompt, main_category):

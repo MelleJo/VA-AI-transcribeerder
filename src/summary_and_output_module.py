@@ -246,10 +246,14 @@ def render_chat_interface():
             st.write(f"**Assistent:** {message['content']}")
 
     user_input = st.text_input("Typ je bericht hier...", key='chat_input')
-    if ui_button("Verstuur", on_click=lambda: st.session_state['chat_history'].append({'role': 'user', 'content': user_input}), key="send_button"):
-        # Process the user's message and generate a response
+
+    def on_send_click():
+        st.session_state['chat_history'].append({'role': 'user', 'content': user_input})
         assistant_response = process_user_message(user_input)
         st.session_state['chat_history'].append({'role': 'assistant', 'content': assistant_response})
+
+    if ui_button("Verstuur", on_click=on_send_click, key="send_button"):
+        pass
 
 def process_user_message(user_input):
     """
