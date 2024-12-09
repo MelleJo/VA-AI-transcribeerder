@@ -1,14 +1,19 @@
+import sys
+import os
+
+# Add the backend directory to the Python path
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from typing import Optional, Dict
 import json
-from backend.app.database import Database
-from backend.app.utils import process_audio_file, cleanup_temp_file
-from backend.app.prompts import load_prompts, get_prompt_content
+from app.database import Database
+from app.utils import process_audio_file, cleanup_temp_file
+from app.prompts import load_prompts, get_prompt_content
 
 load_dotenv()
 
