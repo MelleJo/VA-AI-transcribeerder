@@ -16,3 +16,4 @@ st-copy-to-clipboard
 psutil
 moviepy == 2.0.0
 streamlit-shadcn-ui
+markdown
