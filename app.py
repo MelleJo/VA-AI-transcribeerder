@@ -1,3 +1,4 @@
+
 import streamlit as st
 import streamlit_shadcn_ui as ui
 import os
@@ -288,7 +289,7 @@ def process_input_and_generate_summary():
 
 def render_results():
     """Modern UI for results page using shadcn components"""
-    with ui.card(class_name="w-full max-w-4xl mx-auto p-6"):
+    with ui.card(className="w-full max-w-4xl mx-auto p-6"):
         col1, col2 = ui.columns([3, 2])
         
         with col1:
@@ -298,7 +299,7 @@ def render_results():
                 current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
                 
                 # Summary display with version control
-                with ui.card(class_name="mt-4"):
+                with ui.card(className="mt-4"):
                     summary_text = st.text_area(
                         value=current_summary,
                         label="Samenvatting",
@@ -351,7 +352,7 @@ def render_results():
                                 if st.button(
                                     all_actions[i + j],
                                     key=f"action_{i+j}",
-                                    class_name="w-full mb-2"
+                                    className="w-full mb-2"
                                 ):
                                     handle_action_click(all_actions[i + j])
 
