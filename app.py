@@ -164,20 +164,20 @@ def main():
         memory_tracker.cleanup()
 
 def render_input_selection():
-    ui.markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 class='section-title'>{st.session_state.selected_prompt}</h2>", unsafe_allow_html=True)
     
     is_recording = render_input_step(handle_input_complete)
     
     if not is_recording and st.session_state.input_text:
-        ui.markdown("<div class='info-container'>", unsafe_allow_html=True)
-        ui.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-        st.session_state.input_text = ui.textarea(
+        st.markdown("<div class='info-container'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
+        st.session_state.input_text = st.textarea(
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
             key=f"transcript_edit_{hash(st.session_state.input_text)}"
         )
-        ui.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 def handle_input_complete():
     process_input_and_generate_summary()
@@ -299,7 +299,7 @@ def render_results():
                 
                 # Summary display with version control
                 with ui.card(className="mt-4"):
-                    summary_text = ui.textarea(
+                    summary_text = st.textarea(
                         value=current_summary,
                         label="Samenvatting",
                         key=f"summary_{st.session_state.current_version}"
@@ -309,20 +309,20 @@ def render_results():
                     cols = ui.columns(3)
                     with cols[0]:
                         prev_disabled = st.session_state.current_version == 0
-                        if ui.button("◀ Vorige", disabled=prev_disabled, key="prev_version"):
+                        if st.button("◀ Vorige", disabled=prev_disabled, key="prev_version"):
                             st.session_state.current_version -= 1
                             st.rerun()
                     
                     with cols[1]:
-                        ui.text(f"Versie {st.session_state.current_version + 1} van {len(st.session_state.summaries)}")
+                        st.text(f"Versie {st.session_state.current_version + 1} van {len(st.session_state.summaries)}")
                     
                     with cols[2]:
                         next_disabled = st.session_state.current_version == len(st.session_state.summaries) - 1
-                        if ui.button("Volgende ▶", disabled=next_disabled, key="next_version"):
+                        if st.button("Volgende ▶", disabled=next_disabled, key="next_version"):
                             st.session_state.current_version += 1
                             st.rerun()
             else:
-                ui.alert(message="Geen samenvatting beschikbaar.", status="warning")
+                st.warning("Geen samenvatting beschikbaar.")
 
         with col2:
             ui.heading("Acties", level=2)
@@ -348,7 +348,7 @@ def render_results():
                     for j, col in enumerate(cols):
                         if i + j < len(all_actions):
                             with col:
-                                if ui.button(
+                                if st.button(
                                     all_actions[i + j],
                                     key=f"action_{i+j}",
                                     className="w-full mb-2"
@@ -361,7 +361,7 @@ def render_results():
 
             # Transcript editor
             with ui.accordion("Bekijk/Bewerk Transcript", value=False):
-                edited_transcript = ui.textarea(
+                edited_transcript = st.textarea(
                     label="Transcript:",
                     value=st.session_state.input_text,
                     key="transcript_editor"
@@ -369,7 +369,7 @@ def render_results():
                 
                 if edited_transcript != st.session_state.input_text:
                     st.session_state.input_text = edited_transcript
-                    if ui.button("Genereer opnieuw", key="regenerate"):
+                    if st.button("Genereer opnieuw", key="regenerate"):
                         regenerate_summary()
 
 def handle_action_click(action):
@@ -377,7 +377,7 @@ def handle_action_click(action):
     if action == "Vraag X aan klant":
         st.session_state.show_email_form = True
         st.session_state.email_type = 'client_request'
-        st.session_state.client_request = ui.input(label="Wat wilt u aan de klant vragen?")
+        st.session_state.client_request = st.input(label="Wat wilt u aan de klant vragen?")
     elif action == "Informeer collega":
         st.session_state.show_email_form = True
         st.session_state.email_type = 'colleague'
@@ -394,37 +394,37 @@ def handle_action_click(action):
 
 def render_summary_with_version_control():
     if st.session_state.summary_versions:
-        ui.markdown("<div class='version-control'>", unsafe_allow_html=True)
-        col1, col2, col3 = ui.columns([1, 3, 1])
+        st.markdown("<div class='version-control'>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 3, 1])
         
         with col1:
-            if ui.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
+            if st.button("◀ Vorige", disabled=st.session_state.current_version == 0, key="prev_version_button"):
                 st.session_state.current_version -= 1
                 st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
         with col2:
-            ui.markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p class='version-info'>Versie {st.session_state.current_version + 1} van {len(st.session_state.summary_versions)}</p>", unsafe_allow_html=True)
         
         with col3:
-            if ui.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
+            if st.button("Volgende ▶", disabled=st.session_state.current_version == len(st.session_state.summary_versions) - 1, key="next_version_button"):
                 st.session_state.current_version += 1
                 st.session_state.summary = st.session_state.summary_versions[st.session_state.current_version]
                 st.rerun()
         
-        ui.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
         
         current_summary = st.session_state.summary_versions[st.session_state.current_version]
-        ui.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
-        edited_summary = ui.textarea("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
-        ui.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
+        edited_summary = st.textarea("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
+        st.markdown("</div>", unsafe_allow_html=True)
         
         if edited_summary != current_summary:
-            if ui.button("Wijzigingen opslaan", key="save_changes_button"):
+            if st.button("Wijzigingen opslaan", key="save_changes_button"):
                 st.session_state.summary_versions.append(edited_summary)
                 st.session_state.current_version = len(st.session_state.summary_versions) - 1
                 st.session_state.summary = edited_summary
-                ui.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='save-success-message'>Wijzigingen opgeslagen als nieuwe versie.</div>", unsafe_allow_html=True)
                 st.rerun()
     else:
         st.warning("Geen samenvatting beschikbaar.")
