@@ -1,4 +1,3 @@
-
 import streamlit as st
 import streamlit_shadcn_ui as ui
 import os
@@ -53,15 +52,15 @@ def convert_summaries_to_dict_format():
                     "type": "samenvatting",
                     "content": summary
                 }
-        
-    for old_key in ['actiepunten_versions', 'main_points_versions']:
-        if old_key in st.session_state:
-            for item in st.session_state[old_key]:
-                st.session_state.summaries.append({
-                    "type": "actiepunten" if old_key.startswith("actiepunten") else "hoofdpunten",
-                    "content": item
-                })
-            del st.session_state[old_key]
+            
+        for old_key in ['actiepunten_versions', 'main_points_versions']:
+            if old_key in st.session_state:
+                for item in st.session_state[old_key]:
+                    st.session_state.summaries.append({
+                        "type": "actiepunten" if old_key.startswith("actiepunten") else "hoofdpunten",
+                        "content": item
+                    })
+                del st.session_state[old_key]
 
 # Initialize session state variables
 if 'base_prompt' not in st.session_state:
@@ -289,7 +288,7 @@ def process_input_and_generate_summary():
 
 def render_results():
     """Modern UI for results page using shadcn components"""
-    with ui.card(className="w-full max-w-4xl mx-auto p-6"):
+    with ui.card(class_="w-full max-w-4xl mx-auto p-6"):
         col1, col2 = ui.columns([3, 2])
         
         with col1:
@@ -299,7 +298,7 @@ def render_results():
                 current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
                 
                 # Summary display with version control
-                with ui.card(className="mt-4"):
+                with ui.card(class_="mt-4"):
                     summary_text = st.text_area(
                         value=current_summary,
                         label="Samenvatting",
@@ -352,7 +351,7 @@ def render_results():
                                 if st.button(
                                     all_actions[i + j],
                                     key=f"action_{i+j}",
-                                    className="w-full mb-2"
+                                    class_="w-full mb-2"
                                 ):
                                     handle_action_click(all_actions[i + j])
 
