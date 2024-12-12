@@ -6,7 +6,7 @@ import re
 def ui_card(title: str, content: str, buttons: List[Callable] = None):
     with ui.card(key=f"card_{title.lower().replace(' ', '_')}"):
         ui.element("h3", text=title)
-        ui.element("div", text=content, className="ui-card-content")
+        ui.element("div", text=content)  # Removed className argument
         
         if buttons:
             for button in buttons:
