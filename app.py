@@ -1,4 +1,8 @@
 import streamlit as st
+import warnings  # Import warnings module
+
+# Suppress specific SyntaxWarnings from pydub
+warnings.filterwarnings("ignore", category=SyntaxWarning, module="pydub")
 
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Gesprekssamenvatter AI - testversie 0.0.4", layout="wide")
