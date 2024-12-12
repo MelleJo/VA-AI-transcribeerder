@@ -233,7 +233,8 @@ def style_button(label: str, is_active: bool, key: str = None):
 
 def ui_styled_button(label: str, on_click: Callable, key: str, is_active: bool = True, primary: bool = False):
     style_button(label, is_active, key)
-    return ui.button(text=label, on_click=on_click, key=key, disabled=not is_active)
+    # Use a lambda to ensure the function is not serialized
+    return ui.button(text=label, on_click=lambda: on_click(), key=key, disabled=not is_active)
 
 def ui_info_box(content: str, type: str = "info"):
     colors = {
