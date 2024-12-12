@@ -52,7 +52,7 @@ def convert_summaries_to_dict_format():
                     "type": "samenvatting",
                     "content": summary
                 }
-    
+        
     for old_key in ['actiepunten_versions', 'main_points_versions']:
         if old_key in st.session_state:
             for item in st.session_state[old_key]:
@@ -171,7 +171,7 @@ def render_input_selection():
     if not is_recording and st.session_state.input_text:
         st.markdown("<div class='info-container'>", unsafe_allow_html=True)
         st.markdown("<h3 class='section-title'>Transcript</h3>", unsafe_allow_html=True)
-        st.session_state.input_text = st.textarea(
+        st.session_state.input_text = st.text_area(
             "Bewerk indien nodig:",
             value=st.session_state.input_text,
             height=300,
@@ -288,7 +288,7 @@ def process_input_and_generate_summary():
 
 def render_results():
     """Modern UI for results page using shadcn components"""
-    with ui.card(className="w-full max-w-4xl mx-auto p-6"):
+    with ui.card(class_name="w-full max-w-4xl mx-auto p-6"):
         col1, col2 = ui.columns([3, 2])
         
         with col1:
@@ -298,8 +298,8 @@ def render_results():
                 current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
                 
                 # Summary display with version control
-                with ui.card(className="mt-4"):
-                    summary_text = st.textarea(
+                with ui.card(class_name="mt-4"):
+                    summary_text = st.text_area(
                         value=current_summary,
                         label="Samenvatting",
                         key=f"summary_{st.session_state.current_version}"
@@ -351,17 +351,17 @@ def render_results():
                                 if st.button(
                                     all_actions[i + j],
                                     key=f"action_{i+j}",
-                                    className="w-full mb-2"
+                                    class_name="w-full mb-2"
                                 ):
                                     handle_action_click(all_actions[i + j])
 
             # Chat interface
-            with ui.accordion("Chat", value=False):
+            with ui.accordion("Chat", open=False):
                 render_chat_interface()
 
             # Transcript editor
-            with ui.accordion("Bekijk/Bewerk Transcript", value=False):
-                edited_transcript = st.textarea(
+            with ui.accordion("Bekijk/Bewerk Transcript", open=False):
+                edited_transcript = st.text_area(
                     label="Transcript:",
                     value=st.session_state.input_text,
                     key="transcript_editor"
@@ -416,7 +416,7 @@ def render_summary_with_version_control():
         
         current_summary = st.session_state.summary_versions[st.session_state.current_version]
         st.markdown("<div class='summary-edit-area'>", unsafe_allow_html=True)
-        edited_summary = st.textarea("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
+        edited_summary = st.text_area("Samenvatting:", value=current_summary, height=400, key="summary_text_area")
         st.markdown("</div>", unsafe_allow_html=True)
         
         if edited_summary != current_summary:
