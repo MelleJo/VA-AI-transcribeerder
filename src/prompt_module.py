@@ -50,10 +50,10 @@ def render_prompt_selection():
         </div>
         """, unsafe_allow_html=True)
     
-    main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()))
+    main_category = st.radio("Kies een hoofdcategorie:", list(prompt_categories.keys()), key="main_category_radio")
     st.session_state.main_category = main_category
     
-    sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()))
+    sub_category = st.radio("Kies een subcategorie:", list(prompt_categories[main_category].keys()), key="sub_category_radio")
     selected_prompt = st.selectbox("Kies een specifieke instructie:", prompt_categories[main_category][sub_category])
 
     proceed_btn = st.button("Verder ➔")
