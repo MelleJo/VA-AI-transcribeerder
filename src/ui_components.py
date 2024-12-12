@@ -198,15 +198,15 @@ def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
             ui.session_state[expand_key] = False
         
         if not ui.session_state[expand_key]:
-            placeholder.element("textarea", text=truncated_text, height=150, disabled=True)
+            placeholder = ui.text_area(label=label, value=truncated_text, height=150, disabled=True)
             if ui.button("Toon meer", key=f"show_more_{hash(text)}"):
                 ui.session_state[expand_key] = True
         else:
-            placeholder.element("textarea", text=text, height=300, disabled=True)
+            placeholder = ui.text_area(label=label, value=text, height=300, disabled=True)
             if ui.button("Toon minder", key=f"show_less_{hash(text)}"):
                 ui.session_state[expand_key] = False
     else:
-        placeholder.element("textarea", text=text, height=150, disabled=True)
+        placeholder = ui.text_area(label=label, value=text, height=150, disabled=True)
 
 def sanitize_html(text: str) -> str:
     return re.sub('<[^<]+?>', '', text)
