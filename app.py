@@ -288,7 +288,7 @@ def process_input_and_generate_summary():
 
 def render_results():
     """Modern UI for results page using shadcn components"""
-    with ui.card(class_="w-full max-w-4xl mx-auto p-6"):
+    with ui.card(css_class_="w-full max-w-4xl mx-auto p-6"):
         col1, col2 = ui.columns([3, 2])
         
         with col1:
@@ -298,7 +298,7 @@ def render_results():
                 current_summary = st.session_state.summaries[st.session_state.current_version]["content"]
                 
                 # Summary display with version control
-                with ui.card(class_="mt-4"):
+                with ui.card(css_class_="mt-4"):
                     summary_text = st.text_area(
                         value=current_summary,
                         label="Samenvatting",
