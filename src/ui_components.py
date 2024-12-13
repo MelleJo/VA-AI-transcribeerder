@@ -6,7 +6,7 @@ import re
 def ui_card(title: str, content: str, buttons: List[Callable] = None):
     with ui.card(key=f"card_{title.lower().replace(' ', '_')}"):
         ui.element("h3", text=title)
-        ui.element("div", text=content)  # Removed className argument
+        ui.element("div", text=content)
         
         if buttons:
             for button in buttons:
@@ -35,14 +35,14 @@ def full_screen_loader(progress, message, status_updates, estimated_time):
 def estimate_time(file_size, current_step, total_steps, elapsed_time):
     if current_step == 0:
         return "Berekenen..."
-    
+
     avg_time_per_step = elapsed_time / current_step
     remaining_steps = total_steps - current_step
     estimated_remaining_time = avg_time_per_step * remaining_steps
-    
+
     size_factor = file_size / 1_000_000
     estimated_remaining_time *= (1 + (size_factor * 0.1))
-    
+
     minutes, seconds = divmod(int(estimated_remaining_time), 60)
     return f"{minutes}m {seconds}s"
 
@@ -113,7 +113,7 @@ def ui_button(label: str, on_click: Callable, key: str, primary: bool = False):
         text=label,
         on_click=on_click,
         key=key,
-        className=button_class
+        class_=button_class
     )
 
 def prompt_card(title):
@@ -188,15 +188,15 @@ def ui_copy_button(text: str, label: str = "Kopiëren"):
 def ui_expandable_text_area(label: str, text: str, max_lines: int = 5):
     placeholder = ui.element("div")
     num_lines = text.count('\n') + 1
-    
+
     if num_lines > max_lines:
         truncated_text = '\n'.join(text.split('\n')[:max_lines]) + '...'
-        
+
         expand_key = f"expand_{hash(text)}"
-        
+
         if expand_key not in ui.session_state:
             ui.session_state[expand_key] = False
-        
+
         if not ui.session_state[expand_key]:
             placeholder = ui.text_area(label=label, value=truncated_text, height=150, disabled=True)
             if ui.button("Toon meer", key=f"show_more_{hash(text)}"):
